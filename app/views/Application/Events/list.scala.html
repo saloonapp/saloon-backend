@@ -1,0 +1,41 @@
+@(eventPage: models.common.Page[Event])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Evénements"){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					Evénements
+					<div class="pull-right">
+						<form class="form-inline inline">
+							<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search" class="form-control">
+							@if(eventPage.currentPage > 1){ <input type="hidden" name="page" value="@eventPage.currentPage"> }
+							@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
+						</form>
+						<form class="form-inline inline">
+							<a class="btn btn-sm btn-success" href="@routes.Events.create()"><i class="fa fa-plus"></i> Créer un événement</a>
+						</form>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<div class="widget-body no-padding">
+					<div class="table-responsive">
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr><th>Nom</th><th>Début</th><th>Adresse</th><th>Hashtag</th><th></th></tr>
+							</thead>
+							<tbody>
+								@eventPage.items.map { event =>
+									@partials.tableItem(event)
+								}
+							</tbody>
+						</table>
+					</div>
+					<div style="padding-left: 10px;">
+						@helpers.pagination(eventPage, (p: Int) => routes.Events.list(req.getQueryString("query"), Some(p), req.getQueryString("sort")))
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

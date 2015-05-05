@@ -1,0 +1,3 @@
+@(text: String)
+
+@Html(HtmlFormat.escape(text).toString.replace("\n", "<br>"))

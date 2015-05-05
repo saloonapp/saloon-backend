@@ -1,0 +1,54 @@
+@*
+ *  Sample use: @helpers.pagination(taskPage, (p: Int) => routes.Tasks.list(p))
+ *@
+@(page: models.common.Page[_], link: Int => play.api.mvc.Call, range: Int = 2)
+
+<div>
+  @if(page.totalItems > page.pageSize) {
+    <nav class="pull-left">
+      <ul class="pagination">
+        @if(page.prev.isDefined) {
+          <li><a href="@link(page.prev.get)")">&laquo;</a></li>
+        } else {
+          <li class="disabled"><span>&laquo;</span</li>
+        }
+
+        @if(page.currentPage-range > 1){
+          <li><a href="@link(1)">1</a></li>
+        }
+        @if(page.currentPage-range > 2){
+          <li class="disabled"><span>...</span</li>
+        }
+
+        @for(i <-page.currentPage-range until page.currentPage+range+1){
+          @if(0 < i && i <= page.totalPages){
+            @if(i == page.currentPage){
+              <li class="active"><span>@i <span class="sr-only">(current)</span></span></li>
+            } else {
+              <li><a href="@link(i)">@i</a></li>
+            }
+          }
+        }
+
+        @if(page.currentPage+range+1 < page.totalPages){
+          <li class="disabled"><span>...</span</li>
+        }
+        @if(page.currentPage+range < page.totalPages){
+          <li><a href="@link(page.totalPages)">@{page.totalPages}</a></li>
+        }
+          
+        @if(page.next.isDefined) {
+          <li><a href="@link(page.next.get)">&raquo;</a></li>
+        } else {
+          <li class="disabled"><span>&raquo;</span></li>
+        }
+      </ul>
+    </nav>
+  }
+  
+  @if(page.totalItems == 0){ <p class="pagination pull-left">Aucun élément trouvé.</p> }
+  @if(page.totalItems == 1){ <p class="pagination pull-left">Un seul élément trouvé.</p> }
+  @if(page.totalItems >  1){ <p class="pagination pull-left">@page.totalItems éléments trouvés</p> }
+  
+  <div class="clearfix"></div>
+</div>

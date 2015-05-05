@@ -1,0 +1,22 @@
+@(eventForm: Form[EventData], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Evénements"){
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Créer un événements</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@routes.Events.doUpdate(event.uuid)">
+						@partials.form(eventForm)
+						<div class="form-group">
+						<div class="col-md-offset-2 col-md-10">
+							<a href="@routes.Events.details(event.uuid)" class="btn btn-default">Annuler</a>
+							<button type="submit" class="btn btn-success">Modifier</button>
+						</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

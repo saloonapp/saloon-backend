@@ -1,0 +1,17 @@
+@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
+
+@import views.helpers._
+
+@for((value, label) <- options) {
+  <label class="radio-inline">
+    <input
+      type="radio"
+      name="@field.name"
+      id="@value"
+      value="@value"
+      @Helpers.toHtmlArgs(args)
+      @if(Helpers.isRequired(field)){required}
+      @if(field.value == Some(value)) {checked}>
+    @label
+  </label>
+}

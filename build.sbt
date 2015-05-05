@@ -10,5 +10,6 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws
+  ws,
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23"
 )

@@ -1,4 +1,4 @@
-@(title: String = "")(content: Html)
+@(title: String = "")(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @main(if(title.length > 0) title+" | SalooN" else "SalooN"){
 	<div id="page-wrapper" class="open">
@@ -6,19 +6,22 @@
 		<!-- Sidebar -->
 		<div id="sidebar-wrapper">
 			<ul class="sidebar">
-				<li id="toggle-sidebar" class="sidebar-main"><a href="#">Dashboard<span class="menu-icon glyphicon glyphicon-transfer"></span></a></li>
-				<li class="sidebar-title separator"><span>NAVIGATION</span></li>
-				<li class="sidebar-list"><a href="#">Dashboard <span class="menu-icon fa fa-tachometer"></span></a></li>
-				<li class="sidebar-list"><a href="#">Servers <span class="menu-icon fa fa-tasks"></span></a></li>
-				<li class="sidebar-list"><a href="#">Settings <span class="menu-icon fa fa-cogs"></span></a></li>
+				<li id="toggle-sidebar" class="sidebar-main"><a href="#">Dashboard<i class="menu-icon glyphicon glyphicon-transfer"></i></a></li>
+				<li class="sidebar-list"><a href="@routes.Application.home()">Home <i class="menu-icon fa fa-home"></i></a></li>
+				<li class="sidebar-title separator"><span>DATA</span></li>
+				<li class="sidebar-list"><a href="@routes.Events.list()">Evénements <i class="menu-icon fa fa-connectdevelop"></i></a></li>
+				<!-- <li class="sidebar-title separator"><span>NAVIGATION</span></li>
+				<li class="sidebar-list"><a href="#">Dashboard <i class="menu-icon fa fa-tachometer"></i></a></li>
+				<li class="sidebar-list"><a href="#">Servers <i class="menu-icon fa fa-tasks"></i></a></li>
+				<li class="sidebar-list"><a href="#">Settings <i class="menu-icon fa fa-cogs"></i></a></li>
 				<li class="sidebar-title separator"><span>QUICK LINKS</span></li>
-				<li class="sidebar-list"><a href="#" target="_blank">Forums <span class="menu-icon fa fa-external-link"></span></a></li>
+				<li class="sidebar-list"><a href="#" target="_blank">Forums <i class="menu-icon fa fa-external-link"></i></a></li> -->
 			</ul>
-			<div class="sidebar-footer">
+			<!-- <div class="sidebar-footer">
 				<div class="col-xs-4"><a href="#" target="_blank">Github</a></div>
 				<div class="col-xs-4"><a href="#" target="_blank">About</a></div>
 				<div class="col-xs-4"><a href="#">Support</a></div>
-			</div>
+			</div> -->
 		</div><!-- End Sidebar -->
 
 		<div id="content-wrapper">
@@ -28,10 +31,10 @@
 				<div class="row header">
 					<div class="col-xs-12">
 						<div class="meta pull-left">
-							<div class="page">Dashboard</div>
-							<div class="breadcrumb-links">Home / Dashboard</div>
+							<div class="page">@{if(title.length > 0) title else "Home"}</div>
+							<!-- <div class="breadcrumb-links">Home / Dashboard</div> -->
 						</div>
-						<div class="user pull-right">
+						<!-- <div class="user pull-right">
 							<div class="item dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="@routes.Assets.at("images/avatar.jpg")"></a>
 								<ul class="dropdown-menu dropdown-menu-right">
@@ -52,7 +55,7 @@
 									<li><a href="#">Server Down!</a></li>
 								</ul>
 							</div>
-						</div>
+						</div> -->
 					</div>
 				</div><!-- End Header Bar -->
 				

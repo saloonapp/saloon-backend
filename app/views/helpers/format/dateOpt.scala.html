@@ -1,0 +1,3 @@
+@(dateOpt: Option[org.joda.time.DateTime], default: String = "N/A")
+
+@dateOpt.map(d => date(d)).getOrElse(default)

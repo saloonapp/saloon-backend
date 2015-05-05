@@ -1,0 +1,16 @@
+@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
+
+@import views.helpers._
+
+<select class="form-control @Helpers.getArg(args, "class")" id="@field.id" name="@{field.name+"[]"}"
+  multiple="multiple"
+  @Helpers.toHtmlArgs(args, Seq("class", "emptyOption"))
+  @if(Helpers.isRequired(field)){required}>
+  
+  @if(Helpers.getArg(args, "emptyOption").length > 0){ <option class="blank" value="">@Helpers.getArg(args, "emptyOption")</option> }
+  @defining(if(field.indexes.isEmpty) field.value.toSet else field.indexes.map( i => field("[%s]".format(i)).value ).flatten.toSet){ values =>
+    @for((value, label) <- options) {
+      <option value="@value" @if(values.contains(value)) {selected}>@label</option>
+    }
+  }
+</select>

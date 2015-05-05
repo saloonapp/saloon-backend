@@ -1,0 +1,20 @@
+@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
+
+@import views.helpers._
+
+@* probably not work... :( *@
+@for(((value, label), index) <- options.zipWithIndex) {
+  @defining(if(field.indexes.isEmpty) field.value.toSet else field.indexes.map( i => field("[%s]".format(i)).value ).flatten.toSet){ values =>
+    <label class="checkbox-inline">
+      <input
+        type="checkbox"
+        name="@{field.name+"["+index+"]"}"
+        id="@value"
+        value="@value"
+        @Helpers.toHtmlArgs(args)
+        @if(Helpers.isRequired(field)){required}
+        @if(values.contains(value)) {checked}>
+        @label
+    </label>
+  }
+}

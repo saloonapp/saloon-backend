@@ -3,7 +3,24 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET    /                                controllers.Application.home
+GET    /sample                          controllers.Application.sample
+
+GET    /events                          controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /events/create                   controllers.Events.create
+POST   /events                          controllers.Events.doCreate
+GET    /events/:uuid                    controllers.Events.details(uuid: String)
+GET    /events/:uuid/edit               controllers.Events.update(uuid: String)
+POST   /events/:uuid                    controllers.Events.doUpdate(uuid: String)
+POST   /events/:uuid/delete             controllers.Events.delete(uuid: String)
+
+GET    /api/v1/events                   controllers.Application.getEvents
+GET    /api/v1/events/:uuid             controllers.Application.getEvent(uuid: String)
+GET    /api/v1/events/:uuid/sessions    controllers.Application.getEventSessions(uuid: String)
+GET    /api/v1/events/:uuid/exponents   controllers.Application.getEventExponents(uuid: String)
+
+GET    /api/v1/users                    controllers.Application.findUser(deviceId: String)
+GET    /api/v1/users/:uuid              controllers.Application.getUser(uuid: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET    /assets/*file                    controllers.Assets.at(path="/public", file)

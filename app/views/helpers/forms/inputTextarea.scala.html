@@ -1,0 +1,10 @@
+@(field: Field, args: (Symbol, String)*)
+
+@import views.helpers._
+
+<textarea
+  class="form-control @Helpers.getArg(args, "class")"
+  name="@field.name"
+  id="@field.id"
+  @Helpers.toHtmlArgs(args, Seq("class"))
+  @if(Helpers.isRequired(field)){required}>@field.value</textarea>

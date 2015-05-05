@@ -1,4 +1,5 @@
-This is your new Play application
-=================================
+# SalooN
 
-This file will be packaged with your application, when using `activator dist`.
+## Technical
+
+- [Timepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
