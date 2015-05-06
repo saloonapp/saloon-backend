@@ -2,7 +2,9 @@ package controllers
 
 import infrastructure.repository.common.Repository
 import infrastructure.repository.EventRepository
+import infrastructure.repository.ExponentRepository
 import models.Event
+import models.EventUI
 import models.EventData
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -20,7 +22,7 @@ object Events extends Controller {
   val viewUpdate = views.html.Application.Events.update
   def createElt(data: EventData): Event = EventData.toModel(data)
   def toData(elt: Event): EventData = EventData.fromModel(elt)
-  def updateElt(elt: Event, data: EventData): Event = elt.withData(data)
+  def updateElt(elt: Event, data: EventData): Event = EventData.merge(elt, data)
   def successCreateFlash(elt: Event) = s"Event '${elt.name}' has been created"
   def errorCreateFlash(elt: EventData) = s"Event '${elt.name}' can't be created"
   def successUpdateFlash(elt: Event) = s"Event '${elt.name}' has been modified"
@@ -29,11 +31,21 @@ object Events extends Controller {
 
   def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
-    repository.findPage(query.getOrElse(""), curPage, sort.getOrElse("-start")).map { eventPage =>
-      if (curPage > 1 && eventPage.totalPages < curPage)
-        Redirect(mainRoute.list(query, Some(eventPage.totalPages), sort))
-      else
-        Ok(viewList(eventPage))
+    repository.findPage(query.getOrElse(""), curPage, sort.getOrElse("-start")).flatMap { eltPage =>
+      if (curPage > 1 && eltPage.totalPages < curPage)
+        Future(Redirect(mainRoute.list(query, Some(eltPage.totalPages), sort)))
+      else {
+        val eltUuids = eltPage.items.map(i => i.uuid)
+        for {
+          sessionCounts <- Future(Map[String, Int]()) // TODO
+          exponentCounts <- ExponentRepository.countForEvents(eltUuids)
+        } yield {
+          val eltUIPage = eltPage.map { event =>
+            EventUI.fromModel(event, sessionCounts.get(event.uuid).getOrElse(0), exponentCounts.get(event.uuid).getOrElse(0))
+          }
+          Ok(viewList(eltUIPage))
+        }
+      }
     }
   }
 
@@ -52,10 +64,13 @@ object Events extends Controller {
   }
 
   def details(uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).map {
+    repository.getByUuid(uuid).flatMap {
       _.map { elt =>
-        Ok(viewDetails(elt))
-      }.getOrElse(NotFound(views.html.error404()))
+        for {
+          sessionCount <- Future(0) // TODO
+          exponentCount <- ExponentRepository.countForEvent(uuid)
+        } yield Ok(viewDetails(EventUI.fromModel(elt, sessionCount, exponentCount)))
+      }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
 
@@ -89,5 +104,4 @@ object Events extends Controller {
       }.getOrElse(NotFound(views.html.error404()))
     }
   }
-
 }

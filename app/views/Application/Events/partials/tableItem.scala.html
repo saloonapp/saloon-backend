@@ -1,13 +1,16 @@
-@(event: Event)
+@(event: EventUI)
 
 @import helpers.format._
+@import views.html.Application.format._
 
 <tr>
-	<td class="vcenter"><img src="@event.logo" style="max-height: 32px;"> @event.name</td>
-	<td class="vcenter">@datetimeOpt(event.start)</td>
-	<td class="vcenter">@event.address.map(_.name)</td>
-	<td class="vcenter">@event.twitterHashtag</td>
-	<td class="vcenter">
+	<td><img src="@event.logo" style="max-height: 32px;"> @event.name</td>
+	<td>@datetimeOpt(event.start)</td>
+	<td>@addressOpt(event.address)</td>
+	<td>@hashtagOpt(event.twitterHashtag)</td>
+	<td>@event.sessionCount sessions</td>
+	<td><a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a></td>
+	<td>
 		<a href="@routes.Events.details(event.uuid)" class="btn btn-default">Détails</a>
 		<a href="@routes.Events.update(event.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
 		<form method="POST" action="@routes.Events.delete(event.uuid)" class="form-button"><button type="submit" class="btn btn-danger"><i class="fa fa-trash-o"></i></button></form>

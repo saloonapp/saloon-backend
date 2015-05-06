@@ -1,0 +1,16 @@
+@(exponent: Exponent, event: Event)
+
+@import helpers.format._
+@import views.html.Application.format._
+
+<tr>
+	<td>@exponent.name</td>
+	<td>@company(exponent.company)</td>
+	<td>@place(exponent.place)</td>
+	<td>@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
+	<td>
+		<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Détails</a>
+		<a href="@routes.Exponents.update(event.uuid, exponent.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
+		<form method="POST" action="@routes.Exponents.delete(event.uuid, exponent.uuid)" class="form-button"><button type="submit" class="btn btn-danger"><i class="fa fa-trash-o"></i></button></form>
+	</td>
+</tr>

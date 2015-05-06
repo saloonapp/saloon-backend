@@ -1,0 +1,8 @@
+@(address: Address)
+
+@address.name.isEmpty match {
+	case true => { @addressOpt(None) }
+	case false => {
+		<span class="address">@address.name</span>
+	}
+}

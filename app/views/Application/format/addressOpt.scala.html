@@ -1,0 +1,5 @@
+@(addressOpt: Option[Address])
+
+@addressOpt.map(address(_)).getOrElse {
+	<span class="address">Non défini</span>
+}

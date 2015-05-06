@@ -1,0 +1,5 @@
+@(companyOpt: Option[String], prefix: Html = Html(""), suffix: Html = Html(""))
+
+@companyOpt.map(company(_, prefix, suffix)).getOrElse {
+	<span class="company"></span>
+}

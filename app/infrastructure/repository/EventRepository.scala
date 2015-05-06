@@ -16,7 +16,7 @@ trait MongoDbEventRepository extends Repository[Event] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.EVENTS)
 
-  private val crud = MongoDbCrudUtils(collection, Event.format, List("uuid", "name", "description", "address", "twitterHashtag"), "uuid")
+  private val crud = MongoDbCrudUtils(collection, Event.format, List("name", "description", "address", "twitterHashtag"), "uuid")
 
   override def findAll(query: String = "", sort: String = ""): Future[List[Event]] = crud.findAll(query, sort)
   override def findPage(query: String = "", page: Int = 1, sort: String = ""): Future[Page[Event]] = crud.findPage(query, page, sort)

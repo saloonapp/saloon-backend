@@ -1,0 +1,8 @@
+@(company: String, prefix: Html = Html(""), suffix: Html = Html(""))
+
+@company.isEmpty match {
+	case true => { @companyOpt(None, prefix, suffix) }
+	case false => {
+		@prefix<span class="company">@company</span>@suffix
+	}
+}

@@ -7,6 +7,8 @@ case class Page[A](items: Seq[A], currentPage: Int, pageSize: Int, totalItems: L
   lazy val prev: Option[Int] = Option(currentPage - 1).filter(_ >= 1)
   lazy val next: Option[Int] = Option(currentPage + 1).filter(_ => ((currentPage - 1) * pageSize + items.size) < totalItems)
   lazy val totalPages: Int = Math.ceil(totalItems.toDouble / pageSize.toDouble).toInt
+  def map[B](f: (A) => B): Page[B] = this.copy(items = items.map(f))
+  def flatMap[B](f: (A) => Page[B]): Page[B] = this.copy(items = items.flatMap(i => f(i).items)) // I don't know if it makes sense but it's here...
 }
 object Page {
   val defaultSize: Int = 10

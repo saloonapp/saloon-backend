@@ -1,6 +1,7 @@
-@(event: Event)
+@(event: EventUI)
 
 @import helpers.format._
+@import views.html.Application.format._
 
 <div class="media">
 	<div class="media-left">
@@ -9,6 +10,10 @@
 	<div class="media-body">
 		<h4 class="media-heading">@event.name</h4>
 		<p class="well">@textMultiline(event.description)</p>
-		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) @event.address.map("| "+_.name) @event.twitterHashtag.map("| "+ _)</p>
+		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @addressOpt(event.address) | @hashtagOpt(event.twitterHashtag)</p>
+		<p>
+			@event.sessionCount sessions,
+			<a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a>
+		</p>
 	</div>
 </div>

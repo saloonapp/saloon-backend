@@ -1,0 +1,12 @@
+@(exponent: Exponent)
+
+@import helpers.format._
+@import views.html.Application.format._
+
+<div class="media">
+	<div class="media-body">
+		<h4 class="media-heading">@exponent.name @company(exponent.company, Html("("), Html(")"))</h4>
+		<p class="well">@textMultiline(exponent.description)</p>
+		<p class="text-muted">@place(exponent.place) @exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</p>
+	</div>
+</div>

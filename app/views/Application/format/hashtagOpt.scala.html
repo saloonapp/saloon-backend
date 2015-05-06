@@ -1,0 +1,5 @@
+@(hashtagOpt: Option[String])
+
+@hashtagOpt.map(hashtag(_)).getOrElse {
+	<span class="hashtag"></span>
+}
