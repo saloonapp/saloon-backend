@@ -1,0 +1,22 @@
+@(sessionForm: Form[SessionData], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Créer une session"){
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Créer une session</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@routes.Sessions.doCreate(event.uuid)">
+						@partials.form(sessionForm, event)
+						<div class="form-group">
+						<div class="col-md-offset-2 col-md-10">
+							<a href="@routes.Sessions.list(event.uuid)" class="btn btn-default">Annuler</a>
+							<button type="submit" class="btn btn-success">Créer</button>
+						</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

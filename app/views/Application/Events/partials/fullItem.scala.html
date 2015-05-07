@@ -12,7 +12,7 @@
 		<p class="well">@textMultiline(event.description)</p>
 		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @addressOpt(event.address) | @hashtagOpt(event.twitterHashtag)</p>
 		<p>
-			@event.sessionCount sessions,
+			<a href="@routes.Sessions.list(event.uuid)">@event.sessionCount sessions</a>,
 			<a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a>
 		</p>
 	</div>

@@ -21,8 +21,8 @@ import reactivemongo.bson.BSONArray
 case class MongoDbCrudUtils[T](
   collection: JSONCollection,
   format: Format[T],
-  filterFields: List[String] = Nil,
-  fieldUuid: String = "uuid") {
+  filterFields: List[String],
+  fieldUuid: String) {
   implicit val r: Reads[T] = format
   implicit val w: Writes[T] = format
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)

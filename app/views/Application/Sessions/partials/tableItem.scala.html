@@ -1,0 +1,18 @@
+@(session: models.Session, event: Event)
+
+@import helpers.format._
+@import views.html.Application.format._
+
+<tr>
+	<td>@session.title</td>
+	<td>@session.format</td>
+	<td>@session.category</td>
+	<td>@datetimeOpt(session.start)</td>
+	<td>@place(session.place)</td>
+	<td>@session.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
+	<td>
+		<a href="@routes.Sessions.details(event.uuid, session.uuid)" class="btn btn-default">Détails</a>
+		<a href="@routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
+		<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger"><i class="fa fa-trash-o"></i></button></form>
+	</td>
+</tr>

@@ -22,6 +22,14 @@ GET    /events/:eventId/exponents/:uuid/edit     controllers.Exponents.update(ev
 POST   /events/:eventId/exponents/:uuid          controllers.Exponents.doUpdate(eventId: String, uuid: String)
 POST   /events/:eventId/exponents/:uuid/delete   controllers.Exponents.delete(eventId: String, uuid: String)
 
+GET    /events/:eventId/sessions                 controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /events/:eventId/sessions/create          controllers.Sessions.create(eventId: String)
+POST   /events/:eventId/sessions                 controllers.Sessions.doCreate(eventId: String)
+GET    /events/:eventId/sessions/:uuid           controllers.Sessions.details(eventId: String, uuid: String)
+GET    /events/:eventId/sessions/:uuid/edit      controllers.Sessions.update(eventId: String, uuid: String)
+POST   /events/:eventId/sessions/:uuid           controllers.Sessions.doUpdate(eventId: String, uuid: String)
+POST   /events/:eventId/sessions/:uuid/delete    controllers.Sessions.delete(eventId: String, uuid: String)
+
 GET    /api/v1/events                            controllers.Application.getEvents
 GET    /api/v1/events/:uuid                      controllers.Application.getEvent(uuid: String)
 GET    /api/v1/events/:uuid/sessions             controllers.Application.getEventSessions(uuid: String)

@@ -2,6 +2,7 @@ package controllers
 
 import infrastructure.repository.common.Repository
 import infrastructure.repository.EventRepository
+import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import models.Event
 import models.EventUI
@@ -37,7 +38,7 @@ object Events extends Controller {
       else {
         val eltUuids = eltPage.items.map(i => i.uuid)
         for {
-          sessionCounts <- Future(Map[String, Int]()) // TODO
+          sessionCounts <- SessionRepository.countForEvents(eltUuids)
           exponentCounts <- ExponentRepository.countForEvents(eltUuids)
         } yield {
           val eltUIPage = eltPage.map { event =>
@@ -67,7 +68,7 @@ object Events extends Controller {
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
-          sessionCount <- Future(0) // TODO
+          sessionCount <- SessionRepository.countForEvent(uuid)
           exponentCount <- ExponentRepository.countForEvent(uuid)
         } yield Ok(viewDetails(EventUI.fromModel(elt, sessionCount, exponentCount)))
       }.getOrElse(Future(NotFound(views.html.error404())))

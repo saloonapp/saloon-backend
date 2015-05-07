@@ -1,0 +1,21 @@
+@(session: models.Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout(session.title) {
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@routes.Sessions.list(event.uuid)" class="back-btn"><i class="fa fa-arrow-left"></i>Sessions</a>
+					@session.title
+					<div class="pull-right">
+						<a href="@routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger">Supprimer</button></form>
+					</div>
+				</div>
+				<div class="widget-body">
+					@partials.fullItem(session)
+				</div>
+			</div>
+		</div>
+	</div>
+}

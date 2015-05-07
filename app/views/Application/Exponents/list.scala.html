@@ -10,7 +10,7 @@
 					<div class="pull-right">
 						<form class="form-inline inline">
 							<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search" class="form-control">
-							@if(exponentPage.currentPage > 1){ <input type="hidden" name="page" value="@exponentPage.currentPage"> }
+							@if(req.getQueryString("page").isDefined){ <input type="hidden" name="page" value="@req.getQueryString("page")"> }
 							@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
 						</form>
 						<form class="form-inline inline">

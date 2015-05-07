@@ -1,0 +1,13 @@
+@(session: models.Session)
+
+@import helpers.format._
+@import views.html.Application.format._
+
+<div class="media">
+	<div class="media-body">
+		<h4 class="media-heading">[@session.format] @session.title (@session.category)</h4>
+		<p>@datetimeOpt(session.start) - @datetimeOpt(session.end)</p>
+		<p class="well">@textMultiline(session.summary)</p>
+		<p class="text-muted">@place(session.place) @session.tags.map { tag => <span class="label label-primary">@tag</span> }</p>
+	</div>
+</div>

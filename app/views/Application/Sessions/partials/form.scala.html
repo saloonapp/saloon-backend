@@ -1,0 +1,20 @@
+@(sessionForm: Form[SessionData], event: Event)
+
+@import helpers.forms._
+
+<div class="form-group">
+	<label class="col-sm-2 control-label">Evénement</label>
+	<div class="col-sm-10">
+		 @inputHidden(sessionForm("eventId"), 'value -> event.uuid)
+		<p class="form-control-static">@event.name</p>
+	</div>
+</div>
+
+@fieldHorizontal(sessionForm("title"), 'label -> "Titre"){field => @inputText(field)}
+@fieldHorizontal(sessionForm("summary"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
+@fieldHorizontal(sessionForm("format"), 'label -> "Format"){field => @inputText(field)}
+@fieldHorizontal(sessionForm("category"), 'label -> "Catégorie"){field => @inputText(field)}
+@fieldHorizontal(sessionForm("place.ref"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "référence") @inputText(sessionForm("place.name"), 'placeholder -> "nom")}
+@fieldHorizontal(sessionForm("start"), 'label -> "Début"){field => @inputDatetime(field)}
+@fieldHorizontal(sessionForm("end"), 'label -> "Fin"){field => @inputDatetime(field)}
+@fieldHorizontal(sessionForm("tags"), 'label -> "Tags"){field => @inputText(field)}
