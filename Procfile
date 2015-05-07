@@ -1,0 +1,1 @@
+web: target/start -Dhttp.port=${PORT} ${JAVA_OPTS} -Dapplication.env=$APP_ENV -Dmongodb.uri=$MONGOHQ_URL
