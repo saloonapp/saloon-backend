@@ -4,6 +4,8 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
+includeFilter in (Assets, LessKeys.less) := "main.local.less" | "main.dev.less" | "main.prod.less"
+
 scalaVersion := "2.11.1"
 
 libraryDependencies ++= Seq(

@@ -1,17 +1,20 @@
 @(title: String)(content: Html)
+
+@import views.helpers._
+
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>@title</title>
-		<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+		<title>@if(!App.isProd()){(@App.getEnv()) }@title</title>
+		<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon."+App.getEnv()+".png")">
 
 		<link rel="stylesheet" href="@routes.Assets.at("libs/font-awesome/css/font-awesome.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.at("libs/bootstrap/css/bootstrap.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css")">
-		<link rel="stylesheet" href="@routes.Assets.at("styles/main.css")">
+		<link rel="stylesheet" href="@routes.Assets.at("styles/main."+App.getEnv()+".css")">
 	</head>
 	<body>
 		@content

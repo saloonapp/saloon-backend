@@ -1,5 +1,6 @@
 package views.helpers
 
+import common.Utils
 import play.api.data.Field
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
@@ -24,6 +25,12 @@ object Helpers {
       .filter(e => !exclude.contains(e._1.name))
       .map { case (symbol, value) => symbol.name + "=\"" + value + "\"" }
       .mkString(" "))
+
+}
+
+object App {
+  def getEnv() = Utils.getEnv()
+  def isProd() = Utils.isProd()
 }
 
 object repeatWithIndex {

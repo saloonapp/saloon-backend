@@ -1,12 +1,20 @@
 @(title: String = "")(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
+@import views.helpers._
+
 @main(if(title.length > 0) title+" | SalooN" else "SalooN"){
 	<div id="page-wrapper" class="open">
 
 		<!-- Sidebar -->
 		<div id="sidebar-wrapper">
 			<ul class="sidebar">
-				<li id="toggle-sidebar" class="sidebar-main"><a href="#">Dashboard<i class="menu-icon glyphicon glyphicon-transfer"></i></a></li>
+				<li id="toggle-sidebar" class="sidebar-main">
+					<a href="#">
+						Dashboard
+						@if(!App.isProd()){ (@App.getEnv()) }
+						<i class="menu-icon glyphicon glyphicon-transfer"></i>
+					</a>
+				</li>
 				<li class="sidebar-list"><a href="@routes.Application.home()">Home <i class="menu-icon fa fa-home"></i></a></li>
 				<li class="sidebar-title separator"><span>DATA</span></li>
 				<li class="sidebar-list"><a href="@routes.Events.list()">Evénements <i class="menu-icon fa fa-connectdevelop"></i></a></li>
