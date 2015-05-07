@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/backend -Dhttp.port=${PORT} ${JAVA_OPTS} -Dapplication.env=$APP_ENV -Dmongodb.uri=$MONGOHQ_URL
+web: target/universal/stage/bin/backend -Dhttp.port=${PORT} ${JAVA_OPTS} -Dapplication.env=$APP_ENV -Dmongodb.uri=$MONGOLAB_URI
