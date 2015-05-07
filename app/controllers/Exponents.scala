@@ -31,7 +31,7 @@ object Exponents extends Controller {
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
     for {
-      eltPage <- ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, sort.getOrElse("-start"))
+      eltPage <- ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, sort.getOrElse("name"))
       eventOpt <- EventRepository.getByUuid(eventId)
     } yield {
       if (curPage > 1 && eltPage.totalPages < curPage)

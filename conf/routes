@@ -2,41 +2,52 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET    /                                         controllers.Application.home
-GET    /sample                                   controllers.Application.sample
+# Web site
+GET    /                                               controllers.Application.home
+GET    /sample                                         controllers.Application.sample
 
-GET    /events                                   controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET    /events/create                            controllers.Events.create
-POST   /events                                   controllers.Events.doCreate
-GET    /events/:uuid                             controllers.Events.details(uuid: String)
-GET    /events/:uuid/edit                        controllers.Events.update(uuid: String)
-POST   /events/:uuid                             controllers.Events.doUpdate(uuid: String)
-POST   /events/:uuid/delete                      controllers.Events.delete(uuid: String)
+GET    /events                                         controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /events/create                                  controllers.Events.create
+POST   /events                                         controllers.Events.doCreate
+GET    /events/:eventId                                controllers.Events.details(eventId: String)
+GET    /events/:eventId/edit                           controllers.Events.update(eventId: String)
+POST   /events/:eventId                                controllers.Events.doUpdate(eventId: String)
+POST   /events/:eventId/delete                         controllers.Events.delete(eventId: String)
 
-GET    /events/:eventId/exponents                controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET    /events/:eventId/exponents/create         controllers.Exponents.create(eventId: String)
-POST   /events/:eventId/exponents                controllers.Exponents.doCreate(eventId: String)
-GET    /events/:eventId/exponents/:uuid          controllers.Exponents.details(eventId: String, uuid: String)
-GET    /events/:eventId/exponents/:uuid/edit     controllers.Exponents.update(eventId: String, uuid: String)
-POST   /events/:eventId/exponents/:uuid          controllers.Exponents.doUpdate(eventId: String, uuid: String)
-POST   /events/:eventId/exponents/:uuid/delete   controllers.Exponents.delete(eventId: String, uuid: String)
+GET    /events/:eventId/exponents                      controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /events/:eventId/exponents/create               controllers.Exponents.create(eventId: String)
+POST   /events/:eventId/exponents                      controllers.Exponents.doCreate(eventId: String)
+GET    /events/:eventId/exponents/:sessionId           controllers.Exponents.details(eventId: String, sessionId: String)
+GET    /events/:eventId/exponents/:sessionId/edit      controllers.Exponents.update(eventId: String, sessionId: String)
+POST   /events/:eventId/exponents/:sessionId           controllers.Exponents.doUpdate(eventId: String, sessionId: String)
+POST   /events/:eventId/exponents/:sessionId/delete    controllers.Exponents.delete(eventId: String, sessionId: String)
 
-GET    /events/:eventId/sessions                 controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET    /events/:eventId/sessions/create          controllers.Sessions.create(eventId: String)
-POST   /events/:eventId/sessions                 controllers.Sessions.doCreate(eventId: String)
-GET    /events/:eventId/sessions/:uuid           controllers.Sessions.details(eventId: String, uuid: String)
-GET    /events/:eventId/sessions/:uuid/edit      controllers.Sessions.update(eventId: String, uuid: String)
-POST   /events/:eventId/sessions/:uuid           controllers.Sessions.doUpdate(eventId: String, uuid: String)
-POST   /events/:eventId/sessions/:uuid/delete    controllers.Sessions.delete(eventId: String, uuid: String)
+GET    /events/:eventId/sessions                       controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /events/:eventId/sessions/create                controllers.Sessions.create(eventId: String)
+POST   /events/:eventId/sessions                       controllers.Sessions.doCreate(eventId: String)
+GET    /events/:eventId/sessions/:exponentId           controllers.Sessions.details(eventId: String, exponentId: String)
+GET    /events/:eventId/sessions/:exponentId/edit      controllers.Sessions.update(eventId: String, exponentId: String)
+POST   /events/:eventId/sessions/:exponentId           controllers.Sessions.doUpdate(eventId: String, exponentId: String)
+POST   /events/:eventId/sessions/:exponentId/delete    controllers.Sessions.delete(eventId: String, exponentId: String)
 
-GET    /api/v1/events                            controllers.Application.getEvents
-GET    /api/v1/events/:uuid                      controllers.Application.getEvent(uuid: String)
-GET    /api/v1/events/:uuid/sessions             controllers.Application.getEventSessions(uuid: String)
-GET    /api/v1/events/:uuid/exponents            controllers.Application.getEventExponents(uuid: String)
+# Api
+GET    /api/v1/events                                  controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /api/v1/events/all                              controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
+GET    /api/v1/events/:eventId                         controllers.api.Events.details(eventId: String)
+GET    /api/v1/events/:eventId/full                    controllers.api.Events.detailsFull(eventId: String)
+GET    /api/v1/events/:eventId/sessions                controllers.api.Events.getSessions(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /api/v1/events/:eventId/sessions/all            controllers.api.Events.getAllSessions(eventId: String)
+GET    /api/v1/events/:eventId/sessions/:sessionId     controllers.api.Events.getSession(eventId: String, sessionId: String)
+GET    /api/v1/events/:eventId/exponents               controllers.api.Events.getExponents(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET    /api/v1/events/:eventId/exponents/all           controllers.api.Events.getAllExponents(eventId: String)
+GET    /api/v1/events/:eventId/exponents/:exponentId   controllers.api.Events.getExponent(eventId: String, exponentId: String)
 
-GET    /api/v1/users                             controllers.Application.findUser(deviceId: String)
-GET    /api/v1/users/:uuid                       controllers.Application.getUser(uuid: String)
+# GET    	/api/v1/users?deviceId										find user with specified device id
+# GET    	/api/v1/users/:userId      									get user
+# GET    	/api/v1/events/:eventId/sessions/favs						get sessions but only with fav data
+# GET   	/api/v1/events/:eventId/sessions/:sessionId/favs			users who favorite this session
+# POST   	/api/v1/events/:eventId/sessions/:sessionId/favs?userId		favorite a session
+# DELETE	/api/v1/events/:eventId/sessions/:sessionId/favs?userId		unfavorite a session
 
 # Map static resources from the /public folder to the /assets URL path
-GET    /assets/*file                             controllers.Assets.at(path="/public", file)
+GET    /assets/*file                                   controllers.Assets.at(path="/public", file)

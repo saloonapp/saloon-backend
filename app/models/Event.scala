@@ -34,6 +34,7 @@ case class EventUI(
   sessionCount: Int,
   exponentCount: Int)
 object EventUI {
+  implicit val format = Json.format[EventUI]
   def toModel(d: EventUI): Event = Event(d.uuid, d.name, d.description, d.logo, d.start, d.end, d.address, d.twitterHashtag, d.created, d.updated)
   def fromModel(m: Event, sessionCount: Int, exponentCount: Int): EventUI = EventUI(m.uuid, m.name, m.description, m.logo, m.start, m.end, m.address, m.twitterHashtag, m.created, m.updated, sessionCount, exponentCount)
 }
