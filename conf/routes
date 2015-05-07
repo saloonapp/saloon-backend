@@ -31,19 +31,23 @@ POST      /events/:eventId/sessions/:exponentId           controllers.Sessions.d
 POST      /events/:eventId/sessions/:exponentId/delete    controllers.Sessions.delete(eventId: String, exponentId: String)
 
 # Api
+GET       /api/v1/users/find                              controllers.api.Users.find(deviceId: String)
+POST      /api/v1/users                                   controllers.api.Users.create
+GET       /api/v1/users/:userId                           controllers.api.Users.details(userId: String)
+
 GET       /api/v1/events                                  controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /api/v1/events/all                              controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
 GET       /api/v1/events/:eventId                         controllers.api.Events.details(eventId: String)
 GET       /api/v1/events/:eventId/full                    controllers.api.Events.detailsFull(eventId: String)
-GET       /api/v1/events/:eventId/sessions                controllers.api.Events.getSessions(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId/sessions/all            controllers.api.Events.getAllSessions(eventId: String)
-GET       /api/v1/events/:eventId/sessions/:sessionId     controllers.api.Events.getSession(eventId: String, sessionId: String)
-GET       /api/v1/events/:eventId/exponents               controllers.api.Events.getExponents(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId/exponents/all           controllers.api.Events.getAllExponents(eventId: String)
-GET       /api/v1/events/:eventId/exponents/:exponentId   controllers.api.Events.getExponent(eventId: String, exponentId: String)
 
-# GET    	/api/v1/users?deviceId										find user with specified device id
-# GET    	/api/v1/users/:userId      									get user
+GET       /api/v1/events/:eventId/sessions                controllers.api.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /api/v1/events/:eventId/sessions/all            controllers.api.Sessions.listAll(eventId: String)
+GET       /api/v1/events/:eventId/sessions/:sessionId     controllers.api.Sessions.details(eventId: String, sessionId: String)
+
+GET       /api/v1/events/:eventId/exponents               controllers.api.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /api/v1/events/:eventId/exponents/all           controllers.api.Exponents.listAll(eventId: String)
+GET       /api/v1/events/:eventId/exponents/:exponentId   controllers.api.Exponents.details(eventId: String, exponentId: String)
+
 # GET    	/api/v1/events/:eventId/sessions/favs						get sessions but only with fav data
 # GET   	/api/v1/events/:eventId/sessions/:sessionId/favs			users who favorite this session
 # POST   	/api/v1/events/:eventId/sessions/:sessionId/favs?userId		favorite a session
