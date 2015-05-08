@@ -1,0 +1,18 @@
+@(user: User)
+
+@import helpers.format._
+@import views.html.Application.format._
+
+<div>
+	<h2>Memo</h2>
+	<div class="well">@textMultiline(user.saloonMemo.getOrElse(""))</div>
+	<h2>Device</h2>
+	Uuid: @user.device.uuid<br>
+	Platform: @user.device.platform<br>
+	Manufacturer: @user.device.manufacturer<br>
+	Model: @user.device.model<br>
+	Version: @user.device.version<br>
+	Cordova: @user.device.cordova<br>
+	<br>
+	<p>Créé le @datetime(user.created)</p>
+</div>

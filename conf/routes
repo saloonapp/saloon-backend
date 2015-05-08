@@ -30,6 +30,14 @@ GET       /events/:eventId/sessions/:exponentId/edit      controllers.Sessions.u
 POST      /events/:eventId/sessions/:exponentId           controllers.Sessions.doUpdate(eventId: String, exponentId: String)
 POST      /events/:eventId/sessions/:exponentId/delete    controllers.Sessions.delete(eventId: String, exponentId: String)
 
+GET       /users                                          controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /users/create                                   controllers.Users.create
+POST      /users                                          controllers.Users.doCreate
+GET       /users/:userId                                  controllers.Users.details(userId: String)
+GET       /users/:userId/edit                             controllers.Users.update(userId: String)
+POST      /users/:userId                                  controllers.Users.doUpdate(userId: String)
+POST      /users/:userId/delete                           controllers.Users.delete(userId: String)
+
 # Api
 GET       /api/v1/users/find                              controllers.api.Users.find(deviceId: String)
 POST      /api/v1/users                                   controllers.api.Users.create

@@ -1,0 +1,11 @@
+@(userForm: Form[UserData])
+
+@import helpers.forms._
+
+@fieldHorizontal(userForm("device.uuid"), 'label -> "Uuid"){field => @inputText(field)}
+@fieldHorizontal(userForm("device.platform"), 'label -> "Platform"){field => @inputText(field)}
+@fieldHorizontal(userForm("device.manufacturer"), 'label -> "Manufacturer"){field => @inputText(field)}
+@fieldHorizontal(userForm("device.model"), 'label -> "Model"){field => @inputText(field)}
+@fieldHorizontal(userForm("device.version"), 'label -> "Version"){field => @inputText(field)}
+@fieldHorizontal(userForm("device.cordova"), 'label -> "Cordova"){field => @inputText(field)}
+@fieldHorizontal(userForm("saloonMemo"), 'label -> "Memo (réservé SalooN)"){field => @inputTextarea(field)}

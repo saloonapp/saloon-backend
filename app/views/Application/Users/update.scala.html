@@ -1,0 +1,22 @@
+@(userForm: Form[UserData], user: User)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Modifier "+user.device.uuid){
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Modifier @user.device.uuid</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@routes.Users.doUpdate(user.uuid)">
+						@partials.form(userForm)
+						<div class="form-group">
+						<div class="col-md-offset-2 col-md-10">
+							<a href="@routes.Users.details(user.uuid)" class="btn btn-default">Annuler</a>
+							<button type="submit" class="btn btn-success">Modifier</button>
+						</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,41 @@
+@(userPage: models.common.Page[User])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Utilisateurs"){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					Utilisateurs
+					<div class="pull-right">
+						<form class="form-inline inline">
+							<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search" class="form-control">
+							@if(req.getQueryString("page").isDefined){ <input type="hidden" name="page" value="@req.getQueryString("page")"> }
+							@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
+						</form>
+						<form class="form-inline inline">
+							<a class="btn btn-sm btn-success" href="@routes.Users.create()"><i class="fa fa-plus"></i> Créer un utilisateur</a>
+						</form>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<div class="widget-body no-padding">
+					<div class="table-responsive">
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr><th>Uuid</th><th>Platform</th><th>Manufacturer</th><th>Model</th><th>Version</th><th>Cordova</th><th>Memo</th><th>Créé</th><th></th></tr>
+							</thead>
+							<tbody>
+								@userPage.items.map { user =>
+									@partials.tableItem(user)
+								}
+							</tbody>
+						</table>
+					</div>
+					<div style="padding-left: 10px;">
+						@helpers.pagination(userPage, (p: Int) => routes.Users.list(req.getQueryString("query"), Some(p), req.getQueryString("sort")))
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
