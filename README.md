@@ -1,10 +1,10 @@
 # SalooN
 
-##Installation
+## Installation
 
-###Linux
+### Linux
 
-###OS X
+### OS X
 
 - Install scala : `brew install scala`
 - Install sbt : `brew install sbt`
