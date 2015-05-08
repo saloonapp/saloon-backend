@@ -37,7 +37,7 @@ object Events extends Controller {
       if (curPage > 1 && eltPage.totalPages < curPage)
         Future(Redirect(mainRoute.list(query, Some(eltPage.totalPages), sort)))
       else
-        eltPage.mapSeqAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(viewList(eltUIPage)) }
+        eltPage.batchMapAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(viewList(eltUIPage)) }
     }
   }
 

@@ -11,8 +11,8 @@ case class Page[A](items: Seq[A], currentPage: Int, pageSize: Int, totalItems: L
   lazy val totalPages: Int = Math.ceil(totalItems.toDouble / pageSize.toDouble).toInt
   def map[B](f: (A) => B): Page[B] = this.copy(items = items.map(f))
   def mapAsync[B](f: (A) => Future[B]): Future[Page[B]] = Future.sequence(items.map(f)).map(newItems => this.copy(items = newItems))
-  def mapSeq[B](f: (Seq[A]) => Seq[B]): Page[B] = this.copy(items = f(items))
-  def mapSeqAsync[B](f: (Seq[A]) => Future[Seq[B]]): Future[Page[B]] = f(items).map(newItems => this.copy(items = newItems))
+  def batchMap[B](f: (Seq[A]) => Seq[B]): Page[B] = this.copy(items = f(items))
+  def batchMapAsync[B](f: (Seq[A]) => Future[Seq[B]]): Future[Page[B]] = f(items).map(newItems => this.copy(items = newItems))
 }
 object Page {
   val defaultSize: Int = 10

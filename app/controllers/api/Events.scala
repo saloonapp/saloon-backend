@@ -18,7 +18,7 @@ object Events extends Controller {
 
   def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     repository.findPage(query.getOrElse(""), page.getOrElse(1), sort.getOrElse("-start")).flatMap { eltPage =>
-      eltPage.mapSeqAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(Json.toJson(eltUIPage)) }
+      eltPage.batchMapAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(Json.toJson(eltUIPage)) }
     }
   }
 
