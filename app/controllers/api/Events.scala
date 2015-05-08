@@ -43,8 +43,7 @@ object Events extends Controller {
           sessions <- SessionRepository.findByEvent(elt.uuid)
           exponents <- ExponentRepository.findByEvent(elt.uuid)
         } yield {
-          Ok(Json.obj(
-            "event" -> elt,
+          Ok(Json.toJson(elt).as[JsObject] ++ Json.obj(
             "sessions" -> sessions,
             "exponents" -> exponents))
         }
