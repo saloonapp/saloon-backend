@@ -5,7 +5,7 @@
 
 <div>
 	<h2>Memo</h2>
-	<div class="well">@textMultiline(user.saloonMemo.getOrElse(""))</div>
+	<div class="well">@textMultiline(user.saloonMemo)</div>
 	<h2>Device</h2>
 	Uuid: @user.device.uuid<br>
 	Platform: @user.device.platform<br>
@@ -13,6 +13,11 @@
 	Model: @user.device.model<br>
 	Version: @user.device.version<br>
 	Cordova: @user.device.cordova<br>
+	@user.push.map { push =>
+		<h2>Push</h2>
+		Uuid: @push.uuid<br>
+		Platform: @push.platform<br>
+	}
 	<br>
 	<p>Créé le @datetime(user.created)</p>
 </div>

@@ -16,7 +16,7 @@ trait MongoDbUserRepository extends Repository[User] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.USERS)
 
-  private val crud = MongoDbCrudUtils(collection, User.format, List("device.uuid"), "uuid")
+  private val crud = MongoDbCrudUtils(collection, User.format, List("device.platform", "device.manufacturer", "device.model", "device.version", "device.cordova", "push.platform", "saloonMemo"), "uuid")
 
   override def findAll(query: String = "", sort: String = ""): Future[List[User]] = crud.findAll(query, sort)
   override def findPage(query: String = "", page: Int = 1, sort: String = ""): Future[Page[User]] = crud.findPage(query, page, sort)
