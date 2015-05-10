@@ -29,5 +29,7 @@ trait MongoDbSessionRepository extends Repository[Session] {
   def findPageByEvent(eventId: String, query: String = "", page: Int = 1, sort: String = ""): Future[Page[Session]] = crud.findPage(query, page, sort, filter = Json.obj("eventId" -> eventId))
   def countForEvent(eventId: String): Future[Int] = crud.countFor("eventId", eventId)
   def countForEvents(eventIds: Seq[String]): Future[Map[String, Int]] = crud.countFor("eventId", eventIds)
+  def bulkInsert(elts: List[Session]): Future[Int] = crud.bulkInsert(elts)
+  def drop(): Future[Boolean] = crud.drop()
 }
 object SessionRepository extends MongoDbSessionRepository

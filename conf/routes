@@ -9,6 +9,9 @@ GET       /sample                                         controllers.Applicatio
 GET       /events                                         controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/create                                  controllers.Events.create
 POST      /events                                         controllers.Events.doCreate
+GET       /events/operations                              controllers.Events.operations
+POST      /events/fileImport                              controllers.Events.fileImport
+POST      /events/fileExport                              controllers.Events.fileExport
 GET       /events/:eventId                                controllers.Events.details(eventId: String)
 GET       /events/:eventId/edit                           controllers.Events.update(eventId: String)
 POST      /events/:eventId                                controllers.Events.doUpdate(eventId: String)
@@ -28,6 +31,9 @@ POST      /events/:eventId/exponents/:sessionId/delete    controllers.Exponents.
 GET       /events/:eventId/sessions                       controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/:eventId/sessions/create                controllers.Sessions.create(eventId: String)
 POST      /events/:eventId/sessions                       controllers.Sessions.doCreate(eventId: String)
+GET       /events/:eventId/sessions/operations            controllers.Sessions.operations(eventId: String)
+POST      /events/:eventId/sessions/fileImport            controllers.Sessions.fileImport(eventId: String)
+POST      /events/:eventId/sessions/fileExport            controllers.Sessions.fileExport(eventId: String)
 GET       /events/:eventId/sessions/:exponentId           controllers.Sessions.details(eventId: String, exponentId: String)
 GET       /events/:eventId/sessions/:exponentId/edit      controllers.Sessions.update(eventId: String, exponentId: String)
 POST      /events/:eventId/sessions/:exponentId           controllers.Sessions.doUpdate(eventId: String, exponentId: String)

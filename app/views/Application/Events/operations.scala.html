@@ -1,0 +1,43 @@
+@(importForm: Form[ImportConfig])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@import helpers.forms._
+@import services.FileImporter
+
+@layout("Operations"){
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@routes.Events.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Evénements</a>
+					Importer des événements
+				</div>
+				<div class="widget-body">
+					<form method="POST" action="@routes.Events.fileImport" enctype="multipart/form-data">
+						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
+							@inputFile(field, 'required -> "true")
+							<p class="help-block">
+								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
+								Champs obligatoires : <b>name</b><br>
+								Champs optionnels : <b>description</b>, <b>logo</b>, <b>start</b>, <b>end</b>, <b>address.name</b>, <b>twitterHashtag</b>, <b>created</b> et <b>updated</b><br>
+								Format des dates : @FileImporter.datePattern<br>
+							</p>
+						}
+						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")						
+						<a href="@routes.Events.list()" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Importer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Exporter les événements</div>
+				<div class="widget-body">
+					<form method="POST" action="@routes.Events.fileExport">
+						<button type="submit" class="btn btn-success">Exporter</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

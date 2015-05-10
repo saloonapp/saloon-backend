@@ -31,7 +31,7 @@ object Users extends Controller {
     val curPage = page.getOrElse(1)
     repository.findPage(query.getOrElse(""), curPage, sort.getOrElse("-start")).map { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
-       Redirect(mainRoute.list(query, Some(eltPage.totalPages), sort))
+        Redirect(mainRoute.list(query, Some(eltPage.totalPages), sort))
       else
         Ok(viewList(eltPage))
     }

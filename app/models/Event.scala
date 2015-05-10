@@ -1,6 +1,7 @@
 package models
 
 import infrastructure.repository.common.Repository
+import services.FileImporter
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -15,9 +16,37 @@ case class Event(
   address: Option[Address],
   twitterHashtag: Option[String],
   created: DateTime,
-  updated: DateTime)
+  updated: DateTime) {
+  def toMap(): Map[String, String] = Event.toMap(this)
+}
 object Event {
   implicit val format = Json.format[Event]
+  def fromMap(d: Map[String, String]): Option[Event] =
+    if (d.get("name").isDefined) {
+      Some(Event(
+        Repository.generateUuid(),
+        d.get("name").get,
+        d.get("description").getOrElse(""),
+        d.get("logo"),
+        d.get("start").map(d => DateTime.parse(d, FileImporter.dateFormat)),
+        d.get("end").map(d => DateTime.parse(d, FileImporter.dateFormat)),
+        d.get("address.name").map(name => Address(name)),
+        d.get("twitterHashtag"),
+        d.get("created").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime()),
+        d.get("updated").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime())))
+    } else {
+      None
+    }
+  def toMap(e: Event): Map[String, String] = Map(
+    "name" -> e.name,
+    "description" -> e.description,
+    "logo" -> e.logo.getOrElse(""),
+    "start" -> e.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
+    "end" -> e.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
+    "address.name" -> e.address.map(_.name).getOrElse(""),
+    "twitterHashtag" -> e.twitterHashtag.getOrElse(""),
+    "created" -> e.created.toString(FileImporter.dateFormat),
+    "updated" -> e.updated.toString(FileImporter.dateFormat))
 }
 
 case class EventUI(

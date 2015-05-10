@@ -8,11 +8,11 @@
 		<div class="col-md-6">
 			<div class="widget">
 				<div class="widget-header">
-					<a href="@routes.Exponents.list(event.uuid)" class="back-btn"><i class="fa fa-arrow-left"></i>Exposants</a>
-					Importer des exposants
+					<a href="@routes.Sessions.list(event.uuid)" class="back-btn"><i class="fa fa-arrow-left"></i>Sessions</a>
+					Importer des sessions
 				</div>
 				<div class="widget-body">
-					<form method="POST" action="@routes.Exponents.fileImport(event.uuid)" enctype="multipart/form-data">
+					<form method="POST" action="@routes.Sessions.fileImport(event.uuid)" enctype="multipart/form-data">
 						<div class="form-group">
 							<label class="control-label">Evénement</label>
 							@inputHidden(importForm("eventId"), 'value -> event.uuid)
@@ -22,8 +22,8 @@
 							@inputFile(field, 'required -> "true")
 							<p class="help-block">
 								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
-								Champs obligatoires : <b>name</b> et <b>company</b><br>
-								Champs optionnels : <b>description</b>, <b>place.ref</b>, <b>place.name</b>, <b>tags</b> (séparés par des ','), <b>created</b> et <b>updated</b><br>
+								Champs obligatoires : <b>title</b><br>
+								Champs optionnels : <b>summary</b>, <b>format</b>, <b>category</b>, <b>place.ref</b>, <b>place.name</b>, <b>start</b>, <b>end</b>, <b>tags</b> (séparés par des ','), <b>created</b> et <b>updated</b><br>
 								Format des dates : @FileImporter.datePattern<br>
 							</p>
 						}
@@ -36,9 +36,9 @@
 		</div>
 		<div class="col-md-6">
 			<div class="widget">
-				<div class="widget-header">Exporter les exposants</div>
+				<div class="widget-header">Exporter les sessions</div>
 				<div class="widget-body">
-					<form method="POST" action="@routes.Exponents.fileExport(event.uuid)">
+					<form method="POST" action="@routes.Sessions.fileExport(event.uuid)">
 						<div class="form-group">
 							<label class="control-label">Evénement</label>
 							@inputHidden(importForm("eventId"), 'value -> event.uuid)

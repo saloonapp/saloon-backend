@@ -1,10 +1,14 @@
 package controllers
 
+import common.FileBodyParser
+import models.Session
+import models.SessionData
+import models.ImportConfig
+import services.FileImporter
+import services.FileExporter
 import infrastructure.repository.common.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
-import models.Session
-import models.SessionData
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -13,12 +17,14 @@ import play.api.data.Form
 
 object Sessions extends Controller {
   val form: Form[SessionData] = Form(SessionData.fields)
+  val importForm = Form(ImportConfig.fields)
   val repository: Repository[Session] = SessionRepository
   val mainRoute = routes.Sessions
   val viewList = views.html.Application.Sessions.list
   val viewDetails = views.html.Application.Sessions.details
   val viewCreate = views.html.Application.Sessions.create
   val viewUpdate = views.html.Application.Sessions.update
+  val viewOps = views.html.Application.Sessions.operations
   def createElt(data: SessionData): Session = SessionData.toModel(data)
   def toData(elt: Session): SessionData = SessionData.fromModel(elt)
   def updateElt(elt: Session, data: SessionData): Session = SessionData.merge(elt, data)
@@ -27,6 +33,7 @@ object Sessions extends Controller {
   def successUpdateFlash(elt: Session) = s"Exponent '${elt.title}' has been modified"
   def errorUpdateFlash(elt: Session) = s"Exponent '${elt.title}' can't be modified"
   def successDeleteFlash(elt: Session) = s"Exponent '${elt.title}' has been deleted"
+  def successImportFlash(count: Int) = s"${count} exponents imported"
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
@@ -114,6 +121,45 @@ object Sessions extends Controller {
         repository.delete(uuid)
         Redirect(mainRoute.list(eventId)).flashing("success" -> successDeleteFlash(elt))
       }.getOrElse(NotFound(views.html.error404()))
+    }
+  }
+
+  def operations(eventId: String) = Action.async { implicit req =>
+    EventRepository.getByUuid(eventId).map { eventOpt =>
+      eventOpt
+        .map { event => Ok(viewOps(importForm, event)) }
+        .getOrElse(NotFound(views.html.error404()))
+    }
+  }
+
+  def fileImport(eventId: String) = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        importForm.bindFromRequest.fold(
+          formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
+          formData => {
+            req.body.file("importedFile").map { filePart =>
+              val reader = new java.io.StringReader(new String(filePart.ref))
+              FileImporter.importSessions(reader, formData, eventId).map { nbInserted =>
+                Redirect(mainRoute.list(eventId)).flashing("success" -> successImportFlash(nbInserted))
+              }
+            }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData), event)).flashing("error" -> "You must import a file !")))
+          })
+      }.getOrElse(Future(NotFound(views.html.error404())))
+    }
+  }
+
+  def fileExport(eventId: String) = Action.async { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        SessionRepository.findByEvent(eventId).map { elts =>
+          val filename = event.name + "_sessions.csv"
+          val content = FileExporter.makeCsv(elts.map(_.toMap))
+          Ok(content)
+            .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+            .as("text/csv")
+        }
+      }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
 }

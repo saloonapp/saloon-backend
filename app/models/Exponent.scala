@@ -1,8 +1,8 @@
 package models
 
 import infrastructure.repository.common.Repository
+import services.FileImporter
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
@@ -20,8 +20,6 @@ case class Exponent(
 }
 object Exponent {
   implicit val format = Json.format[Exponent]
-  private val datePattern = "dd/MM/yyyy HH:mm"
-  private val dateFormat = DateTimeFormat.forPattern(datePattern)
   def fromMap(d: Map[String, String], eventId: String): Option[Exponent] =
     if (d.get("name").isDefined && d.get("company").isDefined) {
       Some(Exponent(
@@ -34,12 +32,22 @@ object Exponent {
           d.get("place.ref").getOrElse(""),
           d.get("place.name").getOrElse("")),
         ExponentData.toTags(d.get("tags").getOrElse("")),
-        d.get("created").map(d => DateTime.parse(d, dateFormat)).getOrElse(new DateTime()),
-        d.get("updated").map(d => DateTime.parse(d, dateFormat)).getOrElse(new DateTime())))
+        d.get("created").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime()),
+        d.get("updated").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime())))
     } else {
       None
     }
-  def toMap(e: Exponent): Map[String, String] = Map("uuid" -> e.uuid, "eventId" -> e.eventId, "name" -> e.name, "description" -> e.description, "company" -> e.company, "place.ref" -> e.place.ref, "place.name" -> e.place.name, "tags" -> e.tags.mkString(", "), "created" -> e.created.toString(dateFormat), "updated" -> e.updated.toString(dateFormat))
+  def toMap(e: Exponent): Map[String, String] = Map(
+    "uuid" -> e.uuid,
+    "eventId" -> e.eventId,
+    "name" -> e.name,
+    "description" -> e.description,
+    "company" -> e.company,
+    "place.ref" -> e.place.ref,
+    "place.name" -> e.place.name,
+    "tags" -> e.tags.mkString(", "),
+    "created" -> e.created.toString(FileImporter.dateFormat),
+    "updated" -> e.updated.toString(FileImporter.dateFormat))
 }
 
 // mapping object for Exponent Form
