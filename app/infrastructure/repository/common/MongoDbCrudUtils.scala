@@ -7,8 +7,8 @@ import play.api.libs.json._
 import play.api.libs.iteratee.Enumerator
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.json.BSONFormats
-import reactivemongo.core.commands.LastError
 import reactivemongo.api.QueryOpts
+import reactivemongo.core.commands.LastError
 import reactivemongo.core.commands.Count
 import reactivemongo.core.commands.Drop
 import reactivemongo.core.commands.RawCommand
@@ -38,7 +38,8 @@ case class MongoDbCrudUtils[T](
   def countFor(fieldName: String, fieldValues: Seq[String]): Future[Map[String, Int]] = MongoDbCrudUtils.countForList(fieldValues, collection, fieldName)
   def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(elt, collection)
   def update(uuid: String, elt: T): Future[LastError] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
-  def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.delete(uuid, collection, fieldUuid)
+  def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
+  def deleteBy(fieldName: String, fieldValue: String): Future[LastError] = MongoDbCrudUtils.deleteBy(fieldValue, collection, fieldName)
   def bulkInsert(elts: List[T]): Future[Int] = MongoDbCrudUtils.bulkInsert(elts, collection)
   def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
@@ -109,7 +110,7 @@ object MongoDbCrudUtils {
     collection.update(Json.obj(fieldUuid -> uuid), elt)
   }
 
-  def delete(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
+  def deleteBy(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
     collection.remove(Json.obj(fieldUuid -> uuid))
   }
 

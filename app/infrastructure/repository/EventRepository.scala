@@ -23,7 +23,13 @@ trait MongoDbEventRepository extends Repository[Event] {
   override def getByUuid(uuid: String): Future[Option[Event]] = crud.getByUuid(uuid)
   override def insert(elt: Event): Future[Option[Event]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
   override def update(uuid: String, elt: Event): Future[Option[Event]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
-  override def delete(uuid: String): Future[Option[Event]] = crud.delete(uuid).map(err => None) // TODO : return deleted elt !
+  override def delete(uuid: String): Future[Option[Event]] = {
+    crud.delete(uuid).map { err =>
+      ExponentRepository.deleteByEvent(uuid)
+      SessionRepository.deleteByEvent(uuid)
+      None
+    } // TODO : return deleted elt !
+  }
 
   def bulkInsert(elts: List[Event]): Future[Int] = crud.bulkInsert(elts)
   def drop(): Future[Boolean] = crud.drop()

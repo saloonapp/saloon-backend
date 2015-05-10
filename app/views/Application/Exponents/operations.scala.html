@@ -18,6 +18,7 @@
 							@inputHidden(importForm("eventId"), 'value -> event.uuid)
 							<p class="form-control-static">@event.name</p>
 						</div>
+						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")
 						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
 							<p class="help-block">
@@ -27,7 +28,6 @@
 								Format des dates : @FileImporter.datePattern<br>
 							</p>
 						}
-						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")						
 						<a href="@routes.Exponents.list(event.uuid)" class="btn btn-default">Annuler</a>
 						<button type="submit" class="btn btn-success">Importer</button>
 					</form>

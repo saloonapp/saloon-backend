@@ -35,7 +35,7 @@ object FileImporter {
     val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Exponent.fromMap(line, eventId) }.flatten
 
     if (cfg.shouldClean) {
-      ExponentRepository.drop().flatMap { dropped =>
+      ExponentRepository.deleteByEvent(eventId).flatMap { dropped =>
         ExponentRepository.bulkInsert(elts)
       }
     } else {
@@ -48,7 +48,7 @@ object FileImporter {
     val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Session.fromMap(line, eventId) }.flatten
 
     if (cfg.shouldClean) {
-      SessionRepository.drop().flatMap { dropped =>
+      SessionRepository.deleteByEvent(eventId).flatMap { dropped =>
         SessionRepository.bulkInsert(elts)
       }
     } else {

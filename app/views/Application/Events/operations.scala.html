@@ -13,6 +13,7 @@
 				</div>
 				<div class="widget-body">
 					<form method="POST" action="@routes.Events.fileImport" enctype="multipart/form-data">
+						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")
 						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
 							<p class="help-block">
@@ -22,7 +23,6 @@
 								Format des dates : @FileImporter.datePattern<br>
 							</p>
 						}
-						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")						
 						<a href="@routes.Events.list()" class="btn btn-default">Annuler</a>
 						<button type="submit" class="btn btn-success">Importer</button>
 					</form>
