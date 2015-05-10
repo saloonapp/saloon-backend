@@ -1,0 +1,27 @@
+@(field: Field, args: (Symbol, String)*)
+
+@import views.helpers._
+
+<div class="checkbox @if(field.hasErrors){has-error}">
+	<label for="@field.name">
+		<input
+			type="checkbox"
+			name="@field.name"
+			id="@field.id"
+			value="true"
+			@Helpers.toHtmlArgs(args)
+			@if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}
+			@if(field.value == Some("true")) {checked}>
+		@Helpers.getArg(args, "label", field.name)
+	</label>
+	@if(field.hasErrors && field.errors.length > 0){
+		@for(error <- field.errors) {
+			<p class="help-block error">@Messages(error.message, error.args: _*)</p>
+		}
+	}
+	@if(!field.hasErrors && field.constraints.length > 0){
+		@for(constraint <- field.constraints) {
+			<p class="help-block info">@Messages(constraint._1, constraint._2)</p>
+		}
+	}
+</div>

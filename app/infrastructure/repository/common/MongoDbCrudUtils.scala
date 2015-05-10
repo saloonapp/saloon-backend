@@ -4,11 +4,13 @@ import models.common.Page
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
+import play.api.libs.iteratee.Enumerator
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.json.BSONFormats
 import reactivemongo.core.commands.LastError
 import reactivemongo.api.QueryOpts
 import reactivemongo.core.commands.Count
+import reactivemongo.core.commands.Drop
 import reactivemongo.core.commands.RawCommand
 import reactivemongo.bson.BSONDocument
 import reactivemongo.bson.BSONArray
@@ -37,6 +39,8 @@ case class MongoDbCrudUtils[T](
   def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(elt, collection)
   def update(uuid: String, elt: T): Future[LastError] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
   def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.delete(uuid, collection, fieldUuid)
+  def bulkInsert(elts: List[T]): Future[Int] = MongoDbCrudUtils.bulkInsert(elts, collection)
+  def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
 object MongoDbCrudUtils {
   def findAll[T](collection: JSONCollection, filter: JsObject, query: String = "", filterFields: List[String] = Nil, sort: String = "")(implicit r: Reads[T]): Future[List[T]] = {
@@ -107,6 +111,14 @@ object MongoDbCrudUtils {
 
   def delete(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
     collection.remove(Json.obj(fieldUuid -> uuid))
+  }
+
+  def bulkInsert[T](elts: List[T], collection: JSONCollection)(implicit w: Writes[T]): Future[Int] = {
+    collection.bulkInsert(Enumerator.enumerate(elts))
+  }
+
+  def drop(collection: JSONCollection): Future[Boolean] = {
+    collection.db.command(new Drop(collection.name))
   }
 
   private def buildFilter(filter: JsObject, query: String, filterFields: List[String]): JsObject = {

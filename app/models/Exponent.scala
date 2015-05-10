@@ -2,6 +2,7 @@ package models
 
 import infrastructure.repository.common.Repository
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
@@ -14,9 +15,31 @@ case class Exponent(
   place: Place, // room, booth...
   tags: List[String],
   created: DateTime,
-  updated: DateTime)
+  updated: DateTime) {
+  def toMap(): Map[String, String] = Exponent.toMap(this)
+}
 object Exponent {
   implicit val format = Json.format[Exponent]
+  private val datePattern = "dd/MM/yyyy HH:mm"
+  private val dateFormat = DateTimeFormat.forPattern(datePattern)
+  def fromMap(d: Map[String, String], eventId: String): Option[Exponent] =
+    if (d.get("name").isDefined && d.get("company").isDefined) {
+      Some(Exponent(
+        Repository.generateUuid(),
+        eventId,
+        d.get("name").get,
+        d.get("description").getOrElse(""),
+        d.get("company").get,
+        Place(
+          d.get("place.ref").getOrElse(""),
+          d.get("place.name").getOrElse("")),
+        ExponentData.toTags(d.get("tags").getOrElse("")),
+        d.get("created").map(d => DateTime.parse(d, dateFormat)).getOrElse(new DateTime()),
+        d.get("updated").map(d => DateTime.parse(d, dateFormat)).getOrElse(new DateTime())))
+    } else {
+      None
+    }
+  def toMap(e: Exponent): Map[String, String] = Map("uuid" -> e.uuid, "eventId" -> e.eventId, "name" -> e.name, "description" -> e.description, "company" -> e.company, "place.ref" -> e.place.ref, "place.name" -> e.place.name, "tags" -> e.tags.mkString(", "), "created" -> e.created.toString(dateFormat), "updated" -> e.updated.toString(dateFormat))
 }
 
 // mapping object for Exponent Form
@@ -41,5 +64,5 @@ object ExponentData {
   def fromModel(m: Exponent): ExponentData = ExponentData(m.eventId, m.name, m.description, m.company, m.place, m.tags.mkString(", "))
   def merge(m: Exponent, d: ExponentData): Exponent = m.copy(eventId = d.eventId, name = d.name, description = d.description, company = d.company, place = d.place, tags = toTags(d.tags), updated = new DateTime())
 
-  private def toTags(str: String): List[String] = str.split(",").toList.map(_.trim())
+  def toTags(str: String): List[String] = str.split(",").toList.map(_.trim())
 }

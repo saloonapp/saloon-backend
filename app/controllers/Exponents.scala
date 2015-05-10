@@ -1,10 +1,13 @@
 package controllers
 
+import models.Exponent
+import models.ExponentData
+import models.ImportConfig
+import services.FileImporter
+import services.FileExporter
 import infrastructure.repository.common.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.ExponentRepository
-import models.Exponent
-import models.ExponentData
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -13,12 +16,14 @@ import play.api.data.Form
 
 object Exponents extends Controller {
   val form: Form[ExponentData] = Form(ExponentData.fields)
+  val importForm = Form(ImportConfig.fields)
   val repository: Repository[Exponent] = ExponentRepository
   val mainRoute = routes.Exponents
   val viewList = views.html.Application.Exponents.list
   val viewDetails = views.html.Application.Exponents.details
   val viewCreate = views.html.Application.Exponents.create
   val viewUpdate = views.html.Application.Exponents.update
+  val viewOps = views.html.Application.Exponents.operations
   def createElt(data: ExponentData): Exponent = ExponentData.toModel(data)
   def toData(elt: Exponent): ExponentData = ExponentData.fromModel(elt)
   def updateElt(elt: Exponent, data: ExponentData): Exponent = ExponentData.merge(elt, data)
@@ -27,6 +32,7 @@ object Exponents extends Controller {
   def successUpdateFlash(elt: Exponent) = s"Exponent '${elt.name}' has been modified"
   def errorUpdateFlash(elt: Exponent) = s"Exponent '${elt.name}' can't be modified"
   def successDeleteFlash(elt: Exponent) = s"Exponent '${elt.name}' has been deleted"
+  def successImportFlash(count: Int) = s"${count} exponents imported"
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
@@ -114,6 +120,44 @@ object Exponents extends Controller {
         repository.delete(uuid)
         Redirect(mainRoute.list(eventId)).flashing("success" -> successDeleteFlash(elt))
       }.getOrElse(NotFound(views.html.error404()))
+    }
+  }
+
+  def operations(eventId: String) = Action.async { implicit req =>
+    EventRepository.getByUuid(eventId).map { eventOpt =>
+      eventOpt
+        .map { event => Ok(viewOps(importForm, event)) }
+        .getOrElse(NotFound(views.html.error404()))
+    }
+  }
+
+  def fileImport(eventId: String) = Action.async(parse.multipartFormData) { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        importForm.bindFromRequest.fold(
+          formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
+          formData => {
+            formData.withFile().map { cfg =>
+              FileImporter.importExponents(cfg, eventId).map { nbInserted =>
+                Redirect(mainRoute.list(eventId)).flashing("success" -> successImportFlash(nbInserted))
+              }
+            }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData), event))))
+          })
+      }.getOrElse(Future(NotFound(views.html.error404())))
+    }
+  }
+
+  def fileExport(eventId: String) = Action.async { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        ExponentRepository.findByEvent(eventId).map { elts =>
+          val filename = event.name + "_exponents.csv"
+          val content = FileExporter.makeCsv(elts.map(_.toMap))
+          Ok(content)
+            .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+            .as("text/csv")
+        }
+      }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
 }

@@ -8,5 +8,5 @@
   id="@field.id"
   value="true"
   @Helpers.toHtmlArgs(args)
-  @if(Helpers.isRequired(field)){required}
+  @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}
   @if(field.value == Some("true")) {checked}>

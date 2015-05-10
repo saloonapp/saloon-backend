@@ -10,7 +10,7 @@
       id="@value"
       value="@value"
       @Helpers.toHtmlArgs(args)
-      @if(Helpers.isRequired(field)){required}
+      @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}
       @if(field.value == Some(value)) {checked}>
     @label
   </label>

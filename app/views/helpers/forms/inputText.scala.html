@@ -9,4 +9,4 @@
   id="@field.id"
   value="@field.value"
   @Helpers.toHtmlArgs(args, Seq("type", "class"))
-  @if(Helpers.isRequired(field)){required}>
+  @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>

@@ -9,10 +9,10 @@
 					<form class="form-horizontal" method="POST" action="@routes.Exponents.doUpdate(event.uuid, exponent.uuid)">
 						@partials.form(exponentForm, event)
 						<div class="form-group">
-						<div class="col-md-offset-2 col-md-10">
-							<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
-							<button type="submit" class="btn btn-success">Modifier</button>
-						</div>
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Modifier</button>
+							</div>
 						</div>
 					</form>
 				</div>

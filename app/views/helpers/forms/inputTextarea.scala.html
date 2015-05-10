@@ -7,4 +7,4 @@
   name="@field.name"
   id="@field.id"
   @Helpers.toHtmlArgs(args, Seq("class"))
-  @if(Helpers.isRequired(field)){required}>@field.value</textarea>
+  @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>@field.value</textarea>

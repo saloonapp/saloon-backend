@@ -29,5 +29,7 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
   def findPageByEvent(eventId: String, query: String = "", page: Int = 1, sort: String = ""): Future[Page[Exponent]] = crud.findPage(query, page, sort, filter = Json.obj("eventId" -> eventId))
   def countForEvent(eventId: String): Future[Int] = crud.countFor("eventId", eventId)
   def countForEvents(eventIds: Seq[String]): Future[Map[String, Int]] = crud.countFor("eventId", eventIds)
+  def bulkInsert(elts: List[Exponent]): Future[Int] = crud.bulkInsert(elts)
+  def drop(): Future[Boolean] = crud.drop()
 }
 object ExponentRepository extends MongoDbExponentRepository
