@@ -17,20 +17,6 @@ object FileImporter {
     override val delimiter = FileImporter.delimiter
   }
 
-  /*def importExponents(importedFile: File, shouldClean: Boolean, eventId: String): Future[Int] = {
-    val reader = CSVReader.open(importedFile)
-    val lines = reader.allWithHeaders()
-    val exponents = lines.map { line => Exponent.fromMap(line, eventId) }.flatten
-
-    if (shouldClean) {
-      ExponentRepository.drop().flatMap { dropped =>
-        ExponentRepository.bulkInsert(exponents)
-      }
-    } else {
-      ExponentRepository.bulkInsert(exponents)
-    }
-  }*/
-
   def importExponents(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[Int] = {
     val lines = CSVReader.open(importedFile).allWithHeaders()
     val exponents = lines.map { line => Exponent.fromMap(line, eventId) }.flatten

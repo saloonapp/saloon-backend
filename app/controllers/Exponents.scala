@@ -132,39 +132,6 @@ object Exponents extends Controller {
     }
   }
 
-  /*def fileImport1(eventId: String) = Action.async(parse.multipartFormData) { implicit req =>
-    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
-      eventOpt.map { event =>
-        importForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
-          formData => {
-            getFile().map { file =>
-              FileImporter.importExponents(file, formData.shouldClean, eventId).map { nbInserted =>
-                Redirect(mainRoute.list(eventId)).flashing("success" -> successImportFlash(nbInserted))
-              }
-            }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData), event))))
-          })
-      }.getOrElse(Future(NotFound(views.html.error404())))
-    }
-  }
-
-  def fileImport2(eventId: String) = Action.async(parse.tolerantText) { implicit req =>
-    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
-      eventOpt.map { event =>
-        importForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
-          formData => {
-            val reader = new java.io.StringReader(req.body)
-            play.Logger.info("\n\n\nbody: \n\n" + req.body + "\n\n\n")
-            play.Logger.info("\n\n\nreader: \n\n" + reader.toString() + "\n\n\n")
-            FileImporter.importExponents(reader, formData.shouldClean, eventId).map { nbInserted =>
-              Redirect(mainRoute.list(eventId)).flashing("success" -> successImportFlash(nbInserted))
-            }
-          })
-      }.getOrElse(Future(NotFound(views.html.error404())))
-    }
-  }*/
-
   def fileImport(eventId: String) = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
@@ -195,12 +162,4 @@ object Exponents extends Controller {
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
-
-  /*private def getFile()(implicit req: Request[MultipartFormData[TemporaryFile]]): Option[File] = {
-    req.body.file("importedFile").map { data =>
-      val file = new File(play.Play.application().path().getAbsolutePath + "/upload/" + System.currentTimeMillis + "_" + data.filename)
-      data.ref.moveTo(file)
-      file
-    }
-  }*/
 }
