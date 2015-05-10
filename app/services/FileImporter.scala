@@ -13,20 +13,13 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import com.github.tototoshi.csv._
 
-
 object FileImporter {
   val datePattern = "dd/MM/yyyy HH:mm"
   val dateFormat = DateTimeFormat.forPattern(datePattern)
-  val delimiter = ';'
-  val eol = '\n'
-
-  implicit object MyFormat extends DefaultCSVFormat {
-    override val delimiter = FileImporter.delimiter
-  }
 
   def importEvents(importedFile: Reader, cfg: ImportConfig): Future[Int] = {
     val lines = CSVReader.open(importedFile).allWithHeaders()
-    val elts = lines.map { line => Event.fromMap(line) }.flatten
+    val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Event.fromMap(line) }.flatten
 
     if (cfg.shouldClean) {
       EventRepository.drop().flatMap { dropped =>
@@ -39,7 +32,7 @@ object FileImporter {
 
   def importExponents(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[Int] = {
     val lines = CSVReader.open(importedFile).allWithHeaders()
-    val elts = lines.map { line => Exponent.fromMap(line, eventId) }.flatten
+    val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Exponent.fromMap(line, eventId) }.flatten
 
     if (cfg.shouldClean) {
       ExponentRepository.drop().flatMap { dropped =>
@@ -52,7 +45,7 @@ object FileImporter {
 
   def importSessions(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[Int] = {
     val lines = CSVReader.open(importedFile).allWithHeaders()
-    val elts = lines.map { line => Session.fromMap(line, eventId) }.flatten
+    val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Session.fromMap(line, eventId) }.flatten
 
     if (cfg.shouldClean) {
       SessionRepository.drop().flatMap { dropped =>
