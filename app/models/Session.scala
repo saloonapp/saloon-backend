@@ -23,7 +23,7 @@ case class Session(
 }
 object Session {
   implicit val format = Json.format[Session]
-  def fromMap(d: Map[String, String], eventId: String): Option[Session] =
+  def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
     if (d.get("title").isDefined) {
       Some(Session(
         Repository.generateUuid(),

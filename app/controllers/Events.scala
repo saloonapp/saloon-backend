@@ -111,8 +111,12 @@ object Events extends Controller {
       formData => {
         req.body.file("importedFile").map { filePart =>
           val reader = new java.io.StringReader(new String(filePart.ref))
-          FileImporter.importEvents(reader, formData).map { nbInserted =>
-            Redirect(mainRoute.list()).flashing("success" -> successImportFlash(nbInserted))
+          FileImporter.importEvents(reader, formData).map {
+            case (nbInserted, errors) =>
+              Redirect(mainRoute.list())
+                .flashing(
+                  "success" -> successImportFlash(nbInserted),
+                  "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
           }
         }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData))).flashing("error" -> "You must import a file !")))
       })

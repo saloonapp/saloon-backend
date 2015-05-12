@@ -140,8 +140,12 @@ object Sessions extends Controller {
           formData => {
             req.body.file("importedFile").map { filePart =>
               val reader = new java.io.StringReader(new String(filePart.ref))
-              FileImporter.importSessions(reader, formData, eventId).map { nbInserted =>
-                Redirect(mainRoute.list(eventId)).flashing("success" -> successImportFlash(nbInserted))
+              FileImporter.importSessions(reader, formData, eventId).map {
+                case (nbInserted, errors) =>
+                  Redirect(mainRoute.list(eventId))
+                    .flashing(
+                      "success" -> successImportFlash(nbInserted),
+                      "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
               }
             }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData), event)).flashing("error" -> "You must import a file !")))
           })

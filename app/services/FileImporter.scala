@@ -18,42 +18,25 @@ object FileImporter {
   val datePattern = "dd/MM/yyyy HH:mm"
   val dateFormat = DateTimeFormat.forPattern(datePattern)
 
-  def importEvents(importedFile: Reader, cfg: ImportConfig): Future[Int] = {
-    val lines = CSVReader.open(importedFile).allWithHeaders()
-    val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Event.fromMap(line) }.flatten
-
-    if (cfg.shouldClean) {
-      EventRepository.drop().flatMap { dropped =>
-        EventRepository.bulkInsert(elts)
-      }
-    } else {
-      EventRepository.bulkInsert(elts)
-    }
+  def importEvents(importedFile: Reader, cfg: ImportConfig): Future[(Int, List[Map[String, String]])] = {
+    importData(Event.fromMap, EventRepository.drop, EventRepository.bulkInsert)(importedFile, cfg)
   }
 
-  def importExponents(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[Int] = {
-    val lines = CSVReader.open(importedFile).allWithHeaders()
-    val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Exponent.fromMap(line, eventId) }.flatten
-
-    if (cfg.shouldClean) {
-      ExponentRepository.deleteByEvent(eventId).flatMap { dropped =>
-        ExponentRepository.bulkInsert(elts)
-      }
-    } else {
-      ExponentRepository.bulkInsert(elts)
-    }
+  def importExponents(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[(Int, List[Map[String, String]])] = {
+    importData(Exponent.fromMap(eventId), () => ExponentRepository.deleteByEvent(eventId).map(_.ok), ExponentRepository.bulkInsert)(importedFile, cfg)
   }
 
-  def importSessions(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[Int] = {
-    val lines = CSVReader.open(importedFile).allWithHeaders()
-    val elts = lines.map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }.map { line => Session.fromMap(line, eventId) }.flatten
+  def importSessions(importedFile: Reader, cfg: ImportConfig, eventId: String): Future[(Int, List[Map[String, String]])] = {
+    importData(Session.fromMap(eventId), () => SessionRepository.deleteByEvent(eventId).map(_.ok), SessionRepository.bulkInsert)(importedFile, cfg)
+  }
 
-    if (cfg.shouldClean) {
-      SessionRepository.deleteByEvent(eventId).flatMap { dropped =>
-        SessionRepository.bulkInsert(elts)
-      }
-    } else {
-      SessionRepository.bulkInsert(elts)
+  private def importData[T](formatData: Map[String, String] => Option[T], deleteOld: () => Future[Boolean], bulkInsert: List[T] => Future[Int])(importedFile: Reader, cfg: ImportConfig): Future[(Int, List[Map[String, String]])] = {
+    val lines = CSVReader.open(importedFile).allWithHeaders().map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }
+    val elts = lines.map { line => formatData(line) }.flatten
+    val errors = lines.map { line => formatData(line).map(_ => None).getOrElse(Some(line)) }.flatten
+
+    (if (cfg.shouldClean) { deleteOld() } else { Future(true) }).flatMap { _ =>
+      bulkInsert(elts).map { inserted => (inserted, errors) }
     }
   }
 }

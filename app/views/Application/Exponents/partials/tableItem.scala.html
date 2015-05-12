@@ -7,6 +7,7 @@
 	<td>@exponent.name</td>
 	<td>@company(exponent.company)</td>
 	<td>@place(exponent.place)</td>
+	<td>@if(exponent.siteUrl.isDefined){ <a href="@exponent.siteUrl.get" target="_blank">@exponent.siteName.getOrElse(exponent.siteUrl.get)</a> }</td>
 	<td>@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
 	<td>
 		<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Détails</a>
