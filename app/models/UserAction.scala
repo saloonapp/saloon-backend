@@ -12,18 +12,17 @@ import play.api.libs.json._
 case class UserAction(
   uuid: String,
   userId: String,
-  actionType: String,
   action: UserActionConent,
   itemType: String,
   itemId: String,
   eventId: Option[String],
   created: DateTime,
-  updated: DateTime)
+  updated: DateTime) {
+  def withContent(c: UserActionConent): UserAction = this.copy(action = c, updated = new DateTime())
+}
 object UserAction {
-  val favorite = "favorite"
-  val comment = "comment"
-
-  def fav(userId: String, itemType: String, itemId: String, eventId: String): UserAction = UserAction(Repository.generateUuid(), userId, favorite, FavoriteUserAction(), itemType, itemId, Some(eventId), new DateTime(), new DateTime())
+  def favorite(userId: String, itemType: String, itemId: String, eventId: String): UserAction = UserAction(Repository.generateUuid(), userId, FavoriteUserAction(), itemType, itemId, Some(eventId), new DateTime(), new DateTime())
+  def comment(userId: String, itemType: String, itemId: String, text: String, eventId: String): UserAction = UserAction(Repository.generateUuid(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), new DateTime(), new DateTime())
 
   implicit val formatFavoriteUserAction = Json.format[FavoriteUserAction]
   implicit val formatCommentUserAction = Json.format[CommentUserAction]

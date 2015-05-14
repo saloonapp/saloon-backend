@@ -18,7 +18,7 @@ import play.api.libs.json._
 
 object Exponents extends Controller {
   val repository: Repository[Exponent] = ExponentRepository
-  val itemType = "exponent"
+  val itemType = ExponentRepository.collection.name
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), sort.getOrElse("name")).map { eltPage =>
@@ -38,53 +38,92 @@ object Exponents extends Controller {
     }
   }
 
-  def actions(eventId: String, uuid: String) = Action.async { implicit req =>
-    UserActionRepository.findByItem(itemType, uuid).map { actions =>
-      val res: Map[String, List[UserAction]] = actions.groupBy(_.actionType)
-      Ok(Json.obj("users" -> res))
-    }
-  }
-
-  def favorite(eventId: String, uuid: String) = Action.async { implicit req =>
-    checkData(eventId, uuid) { (event, exponent, user) =>
-      UserActionRepository.getFavorite(user.uuid, itemType, exponent.uuid).flatMap { fav =>
-        fav.map { _ => Future(Ok) }.getOrElse {
-          UserActionRepository.insert(UserAction.fav(user.uuid, itemType, exponent.uuid, event.uuid)).map { elt =>
-            if (elt.isDefined) { Created } else { InternalServerError }
+  def favorite(eventId: String, itemId: String) = Action.async { implicit req =>
+    withUser() { user =>
+      withData(eventId, itemId) { (event, item) =>
+        UserActionRepository.getFavorite(user.uuid, itemType, item.uuid).flatMap {
+          _.map { elt => Future(Ok(Json.toJson(elt))) }.getOrElse {
+            UserActionRepository.insertFavorite(user.uuid, itemType, item.uuid, event.uuid).map { eltOpt =>
+              eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
+            }
           }
         }
       }
     }
   }
 
-  def unfavorite(eventId: String, uuid: String) = Action.async { implicit req =>
-    checkData(eventId, uuid) { (event, exponent, user) =>
-      UserActionRepository.deleteFavorite(user.uuid, itemType, exponent.uuid).map { lastError =>
-        if (lastError.ok) { NoContent } else { InternalServerError }
+  def unfavorite(eventId: String, itemId: String) = Action.async { implicit req =>
+    withUser() { user =>
+      withData(eventId, itemId) { (event, item) =>
+        UserActionRepository.deleteFavorite(user.uuid, itemType, item.uuid).map { lastError =>
+          if (lastError.ok) { NoContent } else { InternalServerError }
+        }
       }
     }
   }
 
-  private def checkData(eventId: String, exponentId: String)(exec: (Event, Exponent, User) => Future[Result])(implicit req: Request[AnyContent]) = {
-    req.headers.get("userId").map { userId =>
-      val futureData = for {
-        event <- EventRepository.getByUuid(eventId)
-        exponent <- ExponentRepository.getByUuid(exponentId)
-        user <- UserRepository.getByUuid(userId)
-      } yield (event, exponent, user)
-
-      futureData.flatMap {
-        case (event, exponent, user) =>
-          if (event.isDefined && exponent.isDefined && user.isDefined) {
-            exec(event.get, exponent.get, user.get)
-          } else {
-            val notFounds = List(
-              event.map(_ => None).getOrElse(Some(s"Event <$eventId>")),
-              exponent.map(_ => None).getOrElse(Some(s"Exponent <$exponentId>")),
-              user.map(_ => None).getOrElse(Some(s"User <$userId>"))).flatten
-            Future(NotFound(Json.obj("message" -> s"Not found : ${notFounds.mkString(", ")}")))
+  def createComment(eventId: String, itemId: String) = Action.async(parse.json) { implicit req =>
+    (req.body \ "text").asOpt[String].map { text =>
+      withUser() { user =>
+        withData(eventId, itemId) { (event, item) =>
+          UserActionRepository.insertComment(user.uuid, itemType, item.uuid, text, event.uuid).map { eltOpt =>
+            eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
           }
+        }
+      }
+    }.getOrElse(Future(BadRequest(Json.obj("message" -> "Your request body should have a JSON object with a field 'text' !"))))
+  }
+
+  def updateComment(eventId: String, itemId: String, uuid: String) = Action.async(parse.json) { implicit req =>
+    (req.body \ "text").asOpt[String].map { text =>
+      withUser() { user =>
+        withData(eventId, itemId) { (event, item) =>
+          UserActionRepository.getComment(user.uuid, itemType, item.uuid, uuid).flatMap {
+            _.map { userAction =>
+              UserActionRepository.updateComment(user.uuid, itemType, item.uuid, uuid, userAction, text).map { eltOpt =>
+                eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
+              }
+            }.getOrElse(Future(NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid"))))
+          }
+        }
+      }
+    }.getOrElse(Future(BadRequest(Json.obj("message" -> "Your request body should have a JSON object with a field 'text' !"))))
+  }
+
+  def deleteComment(eventId: String, itemId: String, uuid: String) = Action.async { implicit req =>
+    withUser() { user =>
+      withData(eventId, itemId) { (event, item) =>
+        UserActionRepository.deleteComment(user.uuid, itemType, item.uuid, uuid).map { lastError =>
+          if (lastError.ok) { NoContent } else { InternalServerError }
+        }
+      }
+    }
+  }
+
+  private def withUser()(exec: (User) => Future[Result])(implicit req: Request[Any]) = {
+    req.headers.get("userId").map { userId =>
+      UserRepository.getByUuid(userId).flatMap {
+        _.map { user => exec(user) }.getOrElse(Future(NotFound(Json.obj("message" -> s"User <$userId> not found !"))))
       }
     }.getOrElse(Future(BadRequest(Json.obj("message" -> "You should set 'userId' header !"))))
+  }
+
+  private def withData(eventId: String, exponentId: String)(exec: (Event, Exponent) => Future[Result])(implicit req: Request[Any]) = {
+    val futureData = for {
+      event <- EventRepository.getByUuid(eventId)
+      exponent <- ExponentRepository.getByUuid(exponentId)
+    } yield (event, exponent)
+
+    futureData.flatMap {
+      case (event, exponent) =>
+        if (event.isDefined && exponent.isDefined) {
+          exec(event.get, exponent.get)
+        } else {
+          val notFounds = List(
+            event.map(_ => None).getOrElse(Some(s"Event <$eventId>")),
+            exponent.map(_ => None).getOrElse(Some(s"Exponent <$exponentId>"))).flatten
+          Future(NotFound(Json.obj("message" -> s"Not found : ${notFounds.mkString(", ")}")))
+        }
+    }
   }
 }

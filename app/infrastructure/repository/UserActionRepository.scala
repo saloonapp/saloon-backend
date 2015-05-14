@@ -4,6 +4,8 @@ import infrastructure.repository.common.Repository
 import infrastructure.repository.common.MongoDbCrudUtils
 import models.common.Page
 import models.UserAction
+import models.CommentUserAction
+import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -13,23 +15,31 @@ import reactivemongo.core.commands.LastError
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
-trait MongoDbUserActionRepository extends Repository[UserAction] {
+trait MongoDbUserActionRepository {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.USERACTIONS)
 
   private val crud = MongoDbCrudUtils(collection, UserAction.format, List("action.text"), "uuid")
 
-  override def findAll(query: String = "", sort: String = ""): Future[List[UserAction]] = crud.findAll(query, sort)
-  override def findPage(query: String = "", page: Int = 1, sort: String = ""): Future[Page[UserAction]] = crud.findPage(query, page, sort)
-  override def getByUuid(uuid: String): Future[Option[UserAction]] = crud.getByUuid(uuid)
-  override def insert(elt: UserAction): Future[Option[UserAction]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
-  override def update(uuid: String, elt: UserAction): Future[Option[UserAction]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
-  override def delete(uuid: String): Future[Option[UserAction]] = crud.delete(uuid).map(err => None) // TODO : return deleted elt !
-
-  def findByItem(itemType: String, itemId: String): Future[List[UserAction]] = crud.find(Json.obj("itemType" -> itemType, "itemId" -> itemId))
   def findByUser(userId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId))
   def findByUserEvent(userId: String, eventId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId, "eventId" -> eventId))
-  def getFavorite(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "actionType" -> UserAction.favorite, "itemType" -> itemType, "itemId" -> itemId))
-  def deleteFavorite(userId: String, itemType: String, itemId: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "actionType" -> UserAction.favorite, "itemType" -> itemType, "itemId" -> itemId))
+
+  def getFavorite(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.favorite" -> true, "itemType" -> itemType, "itemId" -> itemId))
+  def insertFavorite(userId: String, itemType: String, itemId: String, eventId: String): Future[Option[UserAction]] = {
+    val elt = UserAction.favorite(userId, itemType, itemId, eventId)
+    crud.insert(elt).map { err => if (err.ok) Some(elt) else None }
+  }
+  def deleteFavorite(userId: String, itemType: String, itemId: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.favorite" -> true, "itemType" -> itemType, "itemId" -> itemId))
+
+  def getComment(userId: String, itemType: String, itemId: String, uuid: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.comment" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
+  def insertComment(userId: String, itemType: String, itemId: String, text: String, eventId: String): Future[Option[UserAction]] = {
+    val elt = UserAction.comment(userId, itemType, itemId, text, eventId)
+    crud.insert(elt).map { err => if (err.ok) Some(elt) else None }
+  }
+  def updateComment(userId: String, itemType: String, itemId: String, uuid: String, oldElt: UserAction, text: String): Future[Option[UserAction]] = {
+    val elt = oldElt.withContent(CommentUserAction(text))
+    crud.update(Json.obj("userId" -> userId, "action.comment" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid), elt).map { err => if (err.ok) Some(elt) else None }
+  }
+  def deleteComment(userId: String, itemType: String, itemId: String, uuid: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.comment" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
 }
 object UserActionRepository extends MongoDbUserActionRepository

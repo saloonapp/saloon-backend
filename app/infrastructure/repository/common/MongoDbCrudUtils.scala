@@ -29,6 +29,9 @@ case class MongoDbCrudUtils[T](
   implicit val w: Writes[T] = format
   def find(filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.find(collection, filter)
   def get(filter: JsObject = Json.obj()): Future[Option[T]] = MongoDbCrudUtils.get(collection, filter)
+  def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(collection, elt)
+  def update(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
+  def update(filter: JsObject, elt: JsObject): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
   def delete(filter: JsObject = Json.obj()): Future[LastError] = MongoDbCrudUtils.delete(collection, filter)
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)
   def findPage(query: String = "", page: Int = 1, sort: String = "", pageSize: Int = Page.defaultSize, filter: JsObject = Json.obj()): Future[Page[T]] = MongoDbCrudUtils.findPage(collection, filter, query, filterFields, page, pageSize, sort)
@@ -39,7 +42,6 @@ case class MongoDbCrudUtils[T](
   def getBy(fieldName: String, fieldValue: String): Future[Option[T]] = MongoDbCrudUtils.getBy(fieldValue, collection, fieldName)
   def findBy(fieldName: String, fieldValues: Seq[String]): Future[List[T]] = MongoDbCrudUtils.findByList(fieldValues, collection, fieldName)
   def countFor(fieldName: String, fieldValues: Seq[String]): Future[Map[String, Int]] = MongoDbCrudUtils.countForList(fieldValues, collection, fieldName)
-  def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(elt, collection)
   def update(uuid: String, elt: T): Future[LastError] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
   def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
   def deleteBy(fieldName: String, fieldValue: String): Future[LastError] = MongoDbCrudUtils.deleteBy(fieldValue, collection, fieldName)
@@ -53,6 +55,18 @@ object MongoDbCrudUtils {
 
   def get[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = {
     collection.find(filter).one[T]
+  }
+
+  def insert[T](collection: JSONCollection, elt: T)(implicit w: Writes[T]): Future[LastError] = {
+    collection.save(elt)
+  }
+
+  def update[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T]): Future[LastError] = {
+    collection.update(filter, elt)
+  }
+
+  def update[T](collection: JSONCollection, filter: JsObject, elt: JsObject): Future[LastError] = {
+    collection.update(filter, elt)
   }
 
   def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[LastError] = {
@@ -115,10 +129,6 @@ object MongoDbCrudUtils {
         ((obj \ "_id").as[String], (obj \ "count").as[Int])
       }.toMap
     }
-  }
-
-  def insert[T](elt: T, collection: JSONCollection)(implicit w: Writes[T]): Future[LastError] = {
-    collection.save(elt)
   }
 
   def update[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[LastError] = {
