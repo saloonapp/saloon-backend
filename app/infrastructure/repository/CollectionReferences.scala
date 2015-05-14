@@ -5,5 +5,5 @@ object CollectionReferences {
   val SESSIONS = "Sessions"
   val EXPONENTS = "Exponents"
   val USERS = "Users"
-  val USERFAVS = "UserFavs"
+  val USERACTIONS = "UserActions"
 }

@@ -4,11 +4,11 @@ import infrastructure.repository.common.Repository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.UserRepository
-import infrastructure.repository.UserFavRepository
+import infrastructure.repository.UserActionRepository
 import models.Event
 import models.Exponent
 import models.User
-import models.UserFav
+import models.UserAction
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -18,7 +18,7 @@ import play.api.libs.json._
 
 object Exponents extends Controller {
   val repository: Repository[Exponent] = ExponentRepository
-  val favType = "exponent"
+  val itemType = "exponent"
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), sort.getOrElse("name")).map { eltPage =>
@@ -38,24 +38,28 @@ object Exponents extends Controller {
     }
   }
 
-  def favorited(eventId: String, uuid: String) = Action.async { implicit req =>
-    UserFavRepository.findByElt(favType, uuid).map { favs =>
-      val res: List[String] = favs.map(_.userId)
+  def actions(eventId: String, uuid: String) = Action.async { implicit req =>
+    UserActionRepository.findByItem(itemType, uuid).map { actions =>
+      val res: Map[String, List[UserAction]] = actions.groupBy(_.actionType)
       Ok(Json.obj("users" -> res))
     }
   }
 
   def favorite(eventId: String, uuid: String) = Action.async { implicit req =>
     checkData(eventId, uuid) { (event, exponent, user) =>
-      UserFavRepository.insert(UserFav(favType, exponent.uuid, event.uuid, user.uuid)).map { lastError =>
-        if (lastError.ok) { Created } else { InternalServerError }
+      UserActionRepository.getFavorite(user.uuid, itemType, exponent.uuid).flatMap { fav =>
+        fav.map { _ => Future(Ok) }.getOrElse {
+          UserActionRepository.insert(UserAction.fav(user.uuid, itemType, exponent.uuid, event.uuid)).map { elt =>
+            if (elt.isDefined) { Created } else { InternalServerError }
+          }
+        }
       }
     }
   }
 
   def unfavorite(eventId: String, uuid: String) = Action.async { implicit req =>
     checkData(eventId, uuid) { (event, exponent, user) =>
-      UserFavRepository.delete(UserFav(favType, exponent.uuid, event.uuid, user.uuid)).map { lastError =>
+      UserActionRepository.deleteFavorite(user.uuid, itemType, exponent.uuid).map { lastError =>
         if (lastError.ok) { NoContent } else { InternalServerError }
       }
     }

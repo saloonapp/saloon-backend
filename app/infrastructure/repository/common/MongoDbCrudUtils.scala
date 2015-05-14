@@ -27,6 +27,9 @@ case class MongoDbCrudUtils[T](
   fieldUuid: String) {
   implicit val r: Reads[T] = format
   implicit val w: Writes[T] = format
+  def find(filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.find(collection, filter)
+  def get(filter: JsObject = Json.obj()): Future[Option[T]] = MongoDbCrudUtils.get(collection, filter)
+  def delete(filter: JsObject = Json.obj()): Future[LastError] = MongoDbCrudUtils.delete(collection, filter)
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)
   def findPage(query: String = "", page: Int = 1, sort: String = "", pageSize: Int = Page.defaultSize, filter: JsObject = Json.obj()): Future[Page[T]] = MongoDbCrudUtils.findPage(collection, filter, query, filterFields, page, pageSize, sort)
   def findBy(fieldName: String, fieldValue: String): Future[List[T]] = MongoDbCrudUtils.findBy(fieldValue, collection, fieldName)
@@ -44,6 +47,18 @@ case class MongoDbCrudUtils[T](
   def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
 object MongoDbCrudUtils {
+  def find[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[List[T]] = {
+    collection.find(filter).cursor[T].collect[List]()
+  }
+
+  def get[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = {
+    collection.find(filter).one[T]
+  }
+
+  def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[LastError] = {
+    collection.remove(filter)
+  }
+
   def findAll[T](collection: JSONCollection, filter: JsObject, query: String = "", filterFields: List[String] = Nil, sort: String = "")(implicit r: Reads[T]): Future[List[T]] = {
     val mongoFilterJson = buildFilter(filter, query, filterFields)
     val mongoOrder = buildOrder(sort)
