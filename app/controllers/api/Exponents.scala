@@ -8,7 +8,6 @@ import infrastructure.repository.UserActionRepository
 import models.Event
 import models.Exponent
 import models.User
-import models.UserAction
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
