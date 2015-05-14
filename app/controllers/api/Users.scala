@@ -2,7 +2,9 @@ package controllers.api
 
 import infrastructure.repository.common.Repository
 import infrastructure.repository.UserRepository
+import infrastructure.repository.UserFavRepository
 import models.User
+import models.UserFav
 import models.Device
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -37,6 +39,20 @@ object Users extends Controller {
   def details(uuid: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt => Ok(Json.toJson(elt)) }.getOrElse(NotFound)
+    }
+  }
+
+  def favorites(uuid: String) = Action.async { implicit req =>
+    UserFavRepository.findByUser(uuid).map { favs =>
+      val res: Map[String, Map[String, List[String]]] = favs.groupBy(_.eventId).map { case (key, list) => (key, list.groupBy(_.elt).map { case (key, list) => (key, list.map(_.eltId)) }) }
+      Ok(Json.toJson(res))
+    }
+  }
+
+  def eventFavorites(uuid: String, eventId: String) = Action.async { implicit req =>
+    UserFavRepository.findByEventUser(eventId, uuid).map { favs =>
+      val res: Map[String, List[String]] = favs.groupBy(_.elt).map { case (key, list) => (key, list.map(_.eltId)) }
+      Ok(Json.toJson(res))
     }
   }
 }
