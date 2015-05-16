@@ -19,7 +19,7 @@ trait MongoDbUserRepository extends Repository[User] {
   private val crud = MongoDbCrudUtils(collection, User.format, List("device.platform", "device.manufacturer", "device.model", "device.version", "device.cordova", "push.platform", "saloonMemo"), "uuid")
 
   override def findAll(query: String = "", sort: String = ""): Future[List[User]] = crud.findAll(query, sort)
-  override def findPage(query: String = "", page: Int = 1, sort: String = ""): Future[Page[User]] = crud.findPage(query, page, sort)
+  override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = ""): Future[Page[User]] = crud.findPage(query, page, pageSize, sort)
   override def getByUuid(uuid: String): Future[Option[User]] = crud.getByUuid(uuid)
   override def insert(elt: User): Future[Option[User]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
   override def update(uuid: String, elt: User): Future[Option[User]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)

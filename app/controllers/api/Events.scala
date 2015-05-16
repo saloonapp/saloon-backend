@@ -4,6 +4,7 @@ import infrastructure.repository.common.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
+import models.common.Page
 import models.Event
 import services.EventSrv
 import scala.concurrent.Future
@@ -17,7 +18,7 @@ object Events extends Controller {
   val repository: Repository[Event] = EventRepository
 
   def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    repository.findPage(query.getOrElse(""), page.getOrElse(1), sort.getOrElse("-start")).flatMap { eltPage =>
+    repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start")).flatMap { eltPage =>
       eltPage.batchMapAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(Json.toJson(eltUIPage)) }
     }
   }

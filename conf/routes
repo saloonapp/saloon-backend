@@ -6,7 +6,7 @@
 GET       /                                                                   controllers.Application.home
 GET       /sample                                                             controllers.Application.sample
 
-GET       /events                                                             controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /events                                                             controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/create                                                      controllers.Events.create
 POST      /events                                                             controllers.Events.doCreate
 GET       /events/operations                                                  controllers.Events.operations
@@ -17,7 +17,7 @@ GET       /events/:eventId/edit                                               co
 POST      /events/:eventId                                                    controllers.Events.doUpdate(eventId: String)
 POST      /events/:eventId/delete                                             controllers.Events.delete(eventId: String)
 
-GET       /events/:eventId/exponents                                          controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /events/:eventId/exponents                                          controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/:eventId/exponents/create                                   controllers.Exponents.create(eventId: String)
 POST      /events/:eventId/exponents                                          controllers.Exponents.doCreate(eventId: String)
 GET       /events/:eventId/exponents/operations                               controllers.Exponents.operations(eventId: String)
@@ -28,7 +28,7 @@ GET       /events/:eventId/exponents/:sessionId/edit                          co
 POST      /events/:eventId/exponents/:sessionId                               controllers.Exponents.doUpdate(eventId: String, sessionId: String)
 POST      /events/:eventId/exponents/:sessionId/delete                        controllers.Exponents.delete(eventId: String, sessionId: String)
 
-GET       /events/:eventId/sessions                                           controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /events/:eventId/sessions                                           controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/:eventId/sessions/create                                    controllers.Sessions.create(eventId: String)
 POST      /events/:eventId/sessions                                           controllers.Sessions.doCreate(eventId: String)
 GET       /events/:eventId/sessions/operations                                controllers.Sessions.operations(eventId: String)
@@ -39,7 +39,7 @@ GET       /events/:eventId/sessions/:exponentId/edit                          co
 POST      /events/:eventId/sessions/:exponentId                               controllers.Sessions.doUpdate(eventId: String, exponentId: String)
 POST      /events/:eventId/sessions/:exponentId/delete                        controllers.Sessions.delete(eventId: String, exponentId: String)
 
-GET       /users                                                              controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /users                                                              controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /users/create                                                       controllers.Users.create
 POST      /users                                                              controllers.Users.doCreate
 GET       /users/:userId                                                      controllers.Users.details(userId: String)

@@ -2,6 +2,7 @@ package controllers
 
 import infrastructure.repository.common.Repository
 import infrastructure.repository.UserRepository
+import models.common.Page
 import models.User
 import models.UserData
 import scala.concurrent.Future
@@ -27,11 +28,11 @@ object Users extends Controller {
   def errorUpdateFlash(elt: User) = s"User '${elt.device.uuid}' can't be modified"
   def successDeleteFlash(elt: User) = s"User '${elt.device.uuid}' has been deleted"
 
-  def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
-    repository.findPage(query.getOrElse(""), curPage, sort.getOrElse("-start")).map { eltPage =>
+    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-start")).map { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
-        Redirect(mainRoute.list(query, Some(eltPage.totalPages), sort))
+        Redirect(mainRoute.list(query, Some(eltPage.totalPages), pageSize, sort))
       else
         Ok(viewList(eltPage))
     }

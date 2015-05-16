@@ -1,6 +1,7 @@
 package controllers
 
 import common.FileBodyParser
+import models.common.Page
 import models.Exponent
 import models.ExponentData
 import models.ImportConfig
@@ -35,14 +36,14 @@ object Exponents extends Controller {
   def successDeleteFlash(elt: Exponent) = s"Exponent '${elt.name}' has been deleted"
   def successImportFlash(count: Int) = s"${count} exponents imported"
 
-  def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
     for {
-      eltPage <- ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, sort.getOrElse("name"))
+      eltPage <- ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("name"))
       eventOpt <- EventRepository.getByUuid(eventId)
     } yield {
       if (curPage > 1 && eltPage.totalPages < curPage)
-        Redirect(mainRoute.list(eventId, query, Some(eltPage.totalPages), sort))
+        Redirect(mainRoute.list(eventId, query, Some(eltPage.totalPages), pageSize, sort))
       else
         eventOpt
           .map { event => Ok(viewList(eltPage, event)) }

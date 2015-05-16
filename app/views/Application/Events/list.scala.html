@@ -33,7 +33,7 @@
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(eventPage, (p: Int) => routes.Events.list(req.getQueryString("query"), Some(p), req.getQueryString("sort")))
+						@helpers.pagination(eventPage, (p: Int) => routes.Events.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

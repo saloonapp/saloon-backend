@@ -5,6 +5,7 @@ import infrastructure.repository.ExponentRepository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
+import models.common.Page
 import models.Event
 import models.Exponent
 import models.User
@@ -20,7 +21,7 @@ object Exponents extends Controller {
   val itemType = ExponentRepository.collection.name
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), sort.getOrElse("name")).map { eltPage =>
+    ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("name")).map { eltPage =>
       Ok(Json.toJson(eltPage))
     }
   }

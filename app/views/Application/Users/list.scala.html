@@ -32,7 +32,7 @@
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(userPage, (p: Int) => routes.Users.list(req.getQueryString("query"), Some(p), req.getQueryString("sort")))
+						@helpers.pagination(userPage, (p: Int) => routes.Users.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

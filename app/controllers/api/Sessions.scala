@@ -5,6 +5,7 @@ import infrastructure.repository.SessionRepository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
+import models.common.Page
 import models.Event
 import models.Session
 import models.User
@@ -20,7 +21,7 @@ object Sessions extends Controller {
   val itemType = SessionRepository.collection.name
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), sort.getOrElse("-start")).map { eltPage =>
+    SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start")).map { eltPage =>
       Ok(Json.toJson(eltPage))
     }
   }

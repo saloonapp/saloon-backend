@@ -1,6 +1,7 @@
 package controllers
 
 import common.FileBodyParser
+import models.common.Page
 import models.Event
 import models.EventUI
 import models.EventData
@@ -38,11 +39,11 @@ object Events extends Controller {
   def successDeleteFlash(elt: Event) = s"Event '${elt.name}' has been deleted"
   def successImportFlash(count: Int) = s"${count} events imported"
 
-  def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
-    repository.findPage(query.getOrElse(""), curPage, sort.getOrElse("-start")).flatMap { eltPage =>
+    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-start")).flatMap { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
-        Future(Redirect(mainRoute.list(query, Some(eltPage.totalPages), sort)))
+        Future(Redirect(mainRoute.list(query, Some(eltPage.totalPages), pageSize, sort)))
       else
         eltPage.batchMapAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(viewList(eltUIPage)) }
     }

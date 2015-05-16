@@ -10,7 +10,7 @@ import scala.concurrent.Future
  */
 trait Repository[A] {
   def findAll(query: String = "", sort: String = ""): Future[List[A]]
-  def findPage(query: String = "", page: Int = 1, sort: String = ""): Future[Page[A]]
+  def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = ""): Future[Page[A]]
   def getByUuid(uuid: String): Future[Option[A]]
   def insert(elt: A): Future[Option[A]]
   def update(uuid: String, elt: A): Future[Option[A]]

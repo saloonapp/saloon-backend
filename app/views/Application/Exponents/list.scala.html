@@ -34,7 +34,7 @@
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(exponentPage, (p: Int) => routes.Exponents.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("sort")))
+						@helpers.pagination(exponentPage, (p: Int) => routes.Exponents.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

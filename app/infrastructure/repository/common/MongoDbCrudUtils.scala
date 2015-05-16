@@ -34,7 +34,7 @@ case class MongoDbCrudUtils[T](
   def update(filter: JsObject, elt: JsObject): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
   def delete(filter: JsObject = Json.obj()): Future[LastError] = MongoDbCrudUtils.delete(collection, filter)
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)
-  def findPage(query: String = "", page: Int = 1, sort: String = "", pageSize: Int = Page.defaultSize, filter: JsObject = Json.obj()): Future[Page[T]] = MongoDbCrudUtils.findPage(collection, filter, query, filterFields, page, pageSize, sort)
+  def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[T]] = MongoDbCrudUtils.findPage(collection, filter, query, filterFields, page, pageSize, sort)
   def findBy(fieldName: String, fieldValue: String): Future[List[T]] = MongoDbCrudUtils.findBy(fieldValue, collection, fieldName)
   def countFor(fieldName: String, fieldValue: String): Future[Int] = MongoDbCrudUtils.countFor(fieldValue, collection, fieldName)
   def getByUuid(uuid: String): Future[Option[T]] = MongoDbCrudUtils.getBy(uuid, collection, fieldUuid)
