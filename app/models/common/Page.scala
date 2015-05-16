@@ -15,7 +15,7 @@ case class Page[A](items: Seq[A], currentPage: Int, pageSize: Int, totalItems: L
   def batchMapAsync[B](f: (Seq[A]) => Future[Seq[B]]): Future[Page[B]] = f(items).map(newItems => this.copy(items = newItems))
 }
 object Page {
-  val defaultSize: Int = 10
+  val defaultSize: Int = 20
   implicit def format[T: Format] = new Format[Page[T]] {
     val tFormatter: Format[T] = implicitly[Format[T]]
     def reads(js: JsValue): JsResult[Page[T]] = {

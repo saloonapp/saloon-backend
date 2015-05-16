@@ -4,9 +4,11 @@
 @import views.html.Application.format._
 
 <tr>
+	<td>@exponent.image.map{i => <img src="@i" style="max-height: 50px;">}</td>
 	<td>@exponent.name</td>
 	<td>@company(exponent.company)</td>
 	<td>@place(exponent.place)</td>
+	<td>@exponent.description</td>
 	<td>@if(exponent.siteUrl.isDefined){ <a href="@exponent.siteUrl.get" target="_blank">@exponent.siteName.getOrElse(exponent.siteUrl.get)</a> }</td>
 	<td>@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
 	<td>

@@ -37,7 +37,7 @@ object Session {
           d.get("place.name").getOrElse("")),
         d.get("start").map(d => DateTime.parse(d, FileImporter.dateFormat)),
         d.get("end").map(d => DateTime.parse(d, FileImporter.dateFormat)),
-        ExponentData.toTags(d.get("tags").getOrElse("")),
+        ExponentData.toArray(d.get("tags").getOrElse("")),
         d.get("created").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime()),
         d.get("updated").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime())))
     } else {
