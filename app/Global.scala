@@ -7,7 +7,7 @@ object Global extends GlobalSettings {
     action.apply(request).map(_.withHeaders(
       "Access-Control-Allow-Origin" -> "*",
       "Access-Control-Allow-Methods" -> "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers" -> "Content-Type, X-Requested-With, Accept",
+      "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent, userId",
       // cache access control response for one day
       "Access-Control-Max-Age" -> (60 * 60 * 24).toString))
   }
