@@ -32,6 +32,7 @@ case class MongoDbCrudUtils[T](
   def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(collection, elt)
   def update(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
   def update(filter: JsObject, elt: JsObject): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
+  def upsert(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.upsert(collection, filter, elt)
   def delete(filter: JsObject = Json.obj()): Future[LastError] = MongoDbCrudUtils.delete(collection, filter)
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)
   def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[T]] = MongoDbCrudUtils.findPage(collection, filter, query, filterFields, page, pageSize, sort)
@@ -67,6 +68,10 @@ object MongoDbCrudUtils {
 
   def update[T](collection: JSONCollection, filter: JsObject, elt: JsObject): Future[LastError] = {
     collection.update(filter, elt)
+  }
+
+  def upsert[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T]): Future[LastError] = {
+    collection.update(filter, elt, upsert = true)
   }
 
   def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[LastError] = {

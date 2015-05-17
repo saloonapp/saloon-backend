@@ -57,7 +57,7 @@ object Exponent {
     "siteUrl" -> e.siteUrl.getOrElse(""),
     "siteName" -> e.siteName.getOrElse(""),
     "image" -> e.image.getOrElse(""),
-    "images" -> e.images.map(_.mkString(", ")),
+    "images" -> e.images.map(_.mkString(", ")).getOrElse(""),
     "tags" -> e.tags.mkString(", "),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))

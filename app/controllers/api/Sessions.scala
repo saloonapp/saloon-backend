@@ -38,6 +38,20 @@ object Sessions extends Controller {
     }
   }
 
+  def mood(eventId: String, itemId: String) = Action.async(parse.json) { implicit req =>
+    (req.body \ "rating").asOpt[String].map { rating =>
+      withUser() { user =>
+        withData(eventId, itemId) { (event, item) =>
+          UserActionRepository.getMood(user.uuid, itemType, item.uuid).flatMap { moodOpt =>
+            UserActionRepository.setMood(user.uuid, itemType, item.uuid, eventId, moodOpt, rating).map { eltOpt =>
+              eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
+            }
+          }
+        }
+      }
+    }.getOrElse(Future(BadRequest(Json.obj("message" -> "Your request body should have a JSON object with a field 'rating' !"))))
+  }
+
   def favorite(eventId: String, itemId: String) = Action.async { implicit req =>
     withUser() { user =>
       withData(eventId, itemId) { (event, item) =>

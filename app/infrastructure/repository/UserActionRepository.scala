@@ -4,6 +4,7 @@ import infrastructure.repository.common.Repository
 import infrastructure.repository.common.MongoDbCrudUtils
 import models.common.Page
 import models.UserAction
+import models.MoodUserAction
 import models.CommentUserAction
 import org.joda.time.DateTime
 import scala.concurrent.Future
@@ -30,6 +31,12 @@ trait MongoDbUserActionRepository {
     crud.insert(elt).map { err => if (err.ok) Some(elt) else None }
   }
   def deleteFavorite(userId: String, itemType: String, itemId: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.favorite" -> true, "itemType" -> itemType, "itemId" -> itemId))
+
+  def getMood(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.mood" -> true, "itemType" -> itemType, "itemId" -> itemId))
+  def setMood(userId: String, itemType: String, itemId: String, eventId: String, oldElt: Option[UserAction], rating: String): Future[Option[UserAction]] = {
+    val elt = oldElt.map(e => e.withContent(MoodUserAction(rating))).getOrElse(UserAction.mood(userId, itemType, itemId, rating, eventId))
+    crud.upsert(Json.obj("userId" -> userId, "action.mood" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
+  }
 
   def getComment(userId: String, itemType: String, itemId: String, uuid: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.comment" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
   def insertComment(userId: String, itemType: String, itemId: String, text: String, eventId: String): Future[Option[UserAction]] = {
