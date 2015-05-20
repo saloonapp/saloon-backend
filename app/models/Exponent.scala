@@ -9,10 +9,9 @@ import play.api.libs.json.Json
 case class Exponent(
   uuid: String,
   eventId: String,
-  image: Option[String],
+  image: String,
   name: String,
   description: String,
-
   company: String,
   place: Place, // room, booth...
   siteUrl: Option[String],
@@ -31,7 +30,7 @@ object Exponent {
       Some(Exponent(
         Repository.generateUuid(),
         eventId,
-        images.headOption,
+        images.headOption.getOrElse(""),
         d.get("name").get,
         d.get("description").getOrElse(""),
         d.get("company").get,
@@ -50,7 +49,7 @@ object Exponent {
   def toMap(e: Exponent): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "eventId" -> e.eventId,
-    "image" -> e.image.getOrElse(""),
+    "image" -> e.image,
     "name" -> e.name,
     "description" -> e.description,
     "company" -> e.company,
@@ -67,7 +66,7 @@ object Exponent {
 // mapping object for Exponent Form
 case class ExponentData(
   eventId: String,
-  image: Option[String],
+  image: String,
   name: String,
   description: String,
   company: String,
@@ -80,7 +79,7 @@ object ExponentData {
   implicit val format = Json.format[ExponentData]
   val fields = mapping(
     "eventId" -> nonEmptyText,
-    "image" -> optional(text),
+    "image" -> text,
     "name" -> nonEmptyText,
     "description" -> text,
     "company" -> nonEmptyText,

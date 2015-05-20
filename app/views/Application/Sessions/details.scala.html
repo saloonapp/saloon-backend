@@ -1,6 +1,6 @@
 @(session: models.Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout(session.name.getOrElse("")) {
+@layout(session.name) {
 	<div class="row">
 		<div class="col-md-12">
 			<div class="widget">

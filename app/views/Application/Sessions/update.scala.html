@@ -1,10 +1,10 @@
 @(sessionForm: Form[SessionData], session: models.Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout("Modifier "+session.title){
+@layout("Modifier "+session.name){
 	<div class="row">
 		<div class="col-md-6">
 			<div class="widget">
-				<div class="widget-header">Modifier @session.title</div>
+				<div class="widget-header">Modifier @session.name</div>
 				<div class="widget-body">
 					<form class="form-horizontal" method="POST" action="@routes.Sessions.doUpdate(event.uuid, session.uuid)">
 						@partials.form(sessionForm, event)

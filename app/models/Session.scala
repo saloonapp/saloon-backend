@@ -9,13 +9,9 @@ import play.api.libs.json.Json
 case class Session(
   uuid: String,
   eventId: String,
-  image: Option[String],
-  name: Option[String],
-  description: Option[String],
-
-  title: Option[String],
-  summary: Option[String],
-
+  image: String,
+  name: String,
+  description: String,
   format: String,
   category: String,
   place: Place, // room, booth...
@@ -33,11 +29,9 @@ object Session {
       Some(Session(
         Repository.generateUuid(),
         eventId,
-        Some(d.get("image").getOrElse("")),
-        Some(d.get("name").get),
-        Some(d.get("description").getOrElse("")),
-        None,
-        None,
+        d.get("image").getOrElse(""),
+        d.get("name").get,
+        d.get("description").getOrElse(""),
         d.get("format").getOrElse(""),
         d.get("category").getOrElse(""),
         Place(
@@ -54,9 +48,9 @@ object Session {
   def toMap(e: Session): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "eventId" -> e.eventId,
-    "image" -> e.image.getOrElse(""),
-    "name" -> e.name.getOrElse(""),
-    "description" -> e.description.getOrElse(""),
+    "image" -> e.image,
+    "name" -> e.name,
+    "description" -> e.description,
     "format" -> e.format,
     "category" -> e.category,
     "place.ref" -> e.place.ref,
@@ -94,9 +88,9 @@ object SessionData {
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "tags" -> text)(SessionData.apply)(SessionData.unapply)
 
-  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, Some(d.image), Some(d.name), Some(d.description), None, None, d.format, d.category, d.place, d.start, d.end, toTags(d.tags), new DateTime(), new DateTime())
-  def fromModel(m: Session): SessionData = SessionData(m.eventId, m.image.getOrElse(""), m.name.getOrElse(""), m.description.getOrElse(""), m.format, m.category, m.place, m.start, m.end, m.tags.mkString(", "))
-  def merge(m: Session, d: SessionData): Session = m.copy(eventId = d.eventId, image = Some(d.image), name = Some(d.name), description = Some(d.description), format = d.format, category = d.category, place = d.place, start = d.start, end = d.end, tags = toTags(d.tags), updated = new DateTime())
+  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, toTags(d.tags), new DateTime(), new DateTime())
+  def fromModel(m: Session): SessionData = SessionData(m.eventId, m.image, m.name, m.description, m.format, m.category, m.place, m.start, m.end, m.tags.mkString(", "))
+  def merge(m: Session, d: SessionData): Session = m.copy(eventId = d.eventId, image = d.image, name = d.name, description = d.description, format = d.format, category = d.category, place = d.place, start = d.start, end = d.end, tags = toTags(d.tags), updated = new DateTime())
 
   private def toTags(str: String): List[String] = str.split(",").toList.map(_.trim())
 }

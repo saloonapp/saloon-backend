@@ -5,7 +5,7 @@
 
 <div class="media">
 	<div class="media-body">
-		<h4 class="media-heading">@exponent.name @company(exponent.company, Html("("), Html(")"))</h4>
+		<h4 class="media-heading"><img src="@exponent.image" style="max-height: 50px;"> @exponent.name @company(exponent.company, Html("("), Html(")"))</h4>
 		@if(exponent.siteUrl.isDefined){ <p><a href="@exponent.siteUrl.get" target="_blank">@exponent.siteName.getOrElse(exponent.siteUrl.get)</a></p> }
 		<p class="well">@textMultiline(exponent.description)</p>
 		<p class="text-muted">@place(exponent.place) @exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</p>

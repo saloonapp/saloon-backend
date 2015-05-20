@@ -17,7 +17,8 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  def migrate = Action.async {
+  def migrate = TODO
+  /*def migrate = Action.async {
     for {
       events <- migrateEvents()
       exponents <- migrateExponents()
@@ -51,7 +52,7 @@ object Application extends Controller {
         title = None,
         summary = None))
     }))
-  }
+  }*/
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(
