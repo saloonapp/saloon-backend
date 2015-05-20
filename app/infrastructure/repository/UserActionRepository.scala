@@ -22,9 +22,6 @@ trait MongoDbUserActionRepository {
 
   private val crud = MongoDbCrudUtils(collection, UserAction.format, List("action.text"), "uuid")
 
-  def findAll(): Future[List[UserAction]] = crud.find()
-  def update(uuid: String, elt: UserAction): Future[Option[UserAction]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
-
   def findByUser(userId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId))
   def findByUserEvent(userId: String, eventId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId, "eventId" -> eventId))
 

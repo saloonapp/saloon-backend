@@ -15,8 +15,8 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  // def migrate = TODO
-  def migrate = Action.async {
+  def migrate = TODO
+  /*def migrate = Action.async {
     for {
       m1 <- migrateUserActions()
     } yield {
@@ -28,7 +28,7 @@ object Application extends Controller {
     UserActionRepository.findAll().flatMap(list => Future.sequence(list.map { e =>
       UserActionRepository.update(e.uuid, e.copy(itemType = e.itemType.toLowerCase()))
     }))
-  }
+  }*/
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(
