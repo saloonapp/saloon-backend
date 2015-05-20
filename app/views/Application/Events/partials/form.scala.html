@@ -4,8 +4,9 @@
 
 @fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field)}
 @fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
-@fieldHorizontal(eventForm("logo"), 'label -> "Url du logo"){field => @inputText(field)}
+@fieldHorizontal(eventForm("image"), 'label -> "Image"){field => @inputText(field)}
 @fieldHorizontal(eventForm("start"), 'label -> "Début"){field => @inputDatetime(field)}
 @fieldHorizontal(eventForm("end"), 'label -> "Fin"){field => @inputDatetime(field)}
 @fieldHorizontal(eventForm("address.name"), 'label -> "Adresse"){field => @inputText(field)}
 @fieldHorizontal(eventForm("twitterHashtag"), 'label -> "Hashtag"){field => @inputText(field)}
+@fieldHorizontal(eventForm("published"), 'label -> "Publié (dans l'application)"){field => @inputCheckbox(field)}

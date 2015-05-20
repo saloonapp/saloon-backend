@@ -5,9 +5,9 @@
 
 <div class="media">
 	<div class="media-body">
-		<h4 class="media-heading">[@session.format] @session.title (@session.category)</h4>
+		<h4 class="media-heading">[@session.format] @session.name (@session.category)</h4>
 		<p>@datetimeOpt(session.start) - @datetimeOpt(session.end)</p>
-		<p class="well">@textMultiline(session.summary)</p>
+		<p class="well">@textMultiline(session.description.getOrElse(""))</p>
 		<p class="text-muted">@place(session.place) @session.tags.map { tag => <span class="label label-primary">@tag</span> }</p>
 	</div>
 </div>

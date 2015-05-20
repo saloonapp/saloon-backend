@@ -29,12 +29,12 @@ object Sessions extends Controller {
   def createElt(data: SessionData): Session = SessionData.toModel(data)
   def toData(elt: Session): SessionData = SessionData.fromModel(elt)
   def updateElt(elt: Session, data: SessionData): Session = SessionData.merge(elt, data)
-  def successCreateFlash(elt: Session) = s"Exponent '${elt.title}' has been created"
-  def errorCreateFlash(elt: SessionData) = s"Exponent '${elt.title}' can't be created"
-  def successUpdateFlash(elt: Session) = s"Exponent '${elt.title}' has been modified"
-  def errorUpdateFlash(elt: Session) = s"Exponent '${elt.title}' can't be modified"
-  def successDeleteFlash(elt: Session) = s"Exponent '${elt.title}' has been deleted"
-  def successImportFlash(count: Int) = s"${count} exponents imported"
+  def successCreateFlash(elt: Session) = s"Session '${elt.name}' has been created"
+  def errorCreateFlash(elt: SessionData) = s"Session '${elt.name}' can't be created"
+  def successUpdateFlash(elt: Session) = s"Session '${elt.name}' has been modified"
+  def errorUpdateFlash(elt: Session) = s"Session '${elt.name}' can't be modified"
+  def successDeleteFlash(elt: Session) = s"Session '${elt.name}' has been deleted"
+  def successImportFlash(count: Int) = s"${count} sessions imported"
 
   def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)

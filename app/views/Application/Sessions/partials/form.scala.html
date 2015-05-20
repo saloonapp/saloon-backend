@@ -10,8 +10,9 @@
 	</div>
 </div>
 
-@fieldHorizontal(sessionForm("title"), 'label -> "Titre"){field => @inputText(field)}
-@fieldHorizontal(sessionForm("summary"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
+@fieldHorizontal(sessionForm("name"), 'label -> "Name"){field => @inputText(field)}
+@fieldHorizontal(sessionForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
+@fieldHorizontal(sessionForm("image"), 'label -> "Image"){field => @inputText(field)}
 @fieldHorizontal(sessionForm("format"), 'label -> "Format"){field => @inputText(field)}
 @fieldHorizontal(sessionForm("category"), 'label -> "Catégorie"){field => @inputText(field)}
 @fieldHorizontal(sessionForm("place.ref"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "référence") @inputText(sessionForm("place.name"), 'placeholder -> "nom")}
