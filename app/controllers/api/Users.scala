@@ -4,8 +4,6 @@ import infrastructure.repository.common.Repository
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
 import models.User
-import models.UserAction
-import models.UserActionConent
 import models.Device
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -45,16 +43,14 @@ object Users extends Controller {
 
   def actions(uuid: String) = Action.async { implicit req =>
     UserActionRepository.findByUser(uuid).map { actions =>
-      //val res: Map[String, List[UserAction]] = actions.groupBy(_.action).map { case (key, value) => (key.getType(), value) }
-      val res: Map[String, List[UserAction]] = actions.groupBy(_.eventId.getOrElse("unknown"))
+      val res = actions.groupBy(_.eventId.getOrElse("unknown")).map { case (key, value) => (key, Json.obj("actions" -> value)) }
       Ok(Json.toJson(res))
     }
   }
 
   def eventActions(uuid: String, eventId: String) = Action.async { implicit req =>
     UserActionRepository.findByUserEvent(uuid, eventId).map { actions =>
-      //val res: Map[String, List[UserAction]] = actions.groupBy(_.action).map { case (key, value) => (key.getType(), value) }
-      Ok(Json.toJson(actions))
+      Ok(Json.obj("actions" -> actions))
     }
   }
 }
