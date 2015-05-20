@@ -63,6 +63,27 @@ object Exponent {
     "updated" -> e.updated.toString(FileImporter.dateFormat))
 }
 
+case class ExponentUI(
+  uuid: String,
+  eventId: String,
+  image: String,
+  name: String,
+  description: String,
+  company: String,
+  place: Place, // room, booth...
+  siteUrl: Option[String],
+  siteName: Option[String],
+  images: Option[List[String]],
+  tags: List[String],
+  created: DateTime,
+  updated: DateTime,
+  className: String = "exponents")
+object ExponentUI {
+  implicit val format = Json.format[ExponentUI]
+  def toModel(d: ExponentUI): Exponent = Exponent(d.uuid, d.eventId, d.image, d.name, d.description, d.company, d.place, d.siteUrl, d.siteName, d.images, d.tags, d.created, d.updated)
+  def fromModel(d: Exponent): ExponentUI = ExponentUI(d.uuid, d.eventId, d.image, d.name, d.description, d.company, d.place, d.siteUrl, d.siteName, d.images, d.tags, d.created, d.updated)
+}
+
 // mapping object for Exponent Form
 case class ExponentData(
   eventId: String,

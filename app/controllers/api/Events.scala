@@ -6,6 +6,8 @@ import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import models.common.Page
 import models.Event
+import models.SessionUI
+import models.ExponentUI
 import services.EventSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -45,8 +47,8 @@ object Events extends Controller {
           exponents <- ExponentRepository.findByEvent(elt.uuid)
         } yield {
           Ok(Json.toJson(elt).as[JsObject] ++ Json.obj(
-            "sessions" -> sessions,
-            "exponents" -> exponents))
+            "sessions" -> sessions.map(e => SessionUI.fromModel(e)),
+            "exponents" -> exponents.map(e => ExponentUI.fromModel(e))))
         }
       }.getOrElse(Future(NotFound))
     }

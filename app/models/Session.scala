@@ -62,6 +62,27 @@ object Session {
     "updated" -> e.updated.toString(FileImporter.dateFormat))
 }
 
+case class SessionUI(
+  uuid: String,
+  eventId: String,
+  image: String,
+  name: String,
+  description: String,
+  format: String,
+  category: String,
+  place: Place,
+  start: Option[DateTime],
+  end: Option[DateTime],
+  tags: List[String],
+  created: DateTime,
+  updated: DateTime,
+  className: String = "sessions")
+object SessionUI {
+  implicit val format = Json.format[SessionUI]
+  def toModel(d: SessionUI): Session = Session(d.uuid, d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.tags, d.created, d.updated)
+  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.tags, d.created, d.updated)
+}
+
 // mapping object for Session Form
 case class SessionData(
   eventId: String,
