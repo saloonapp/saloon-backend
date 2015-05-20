@@ -47,6 +47,7 @@ object Events extends Controller {
           exponents <- ExponentRepository.findByEvent(elt.uuid)
         } yield {
           Ok(Json.toJson(elt).as[JsObject] ++ Json.obj(
+            "className" -> "events",
             "sessions" -> sessions.map(e => SessionUI.fromModel(e)),
             "exponents" -> exponents.map(e => ExponentUI.fromModel(e))))
         }
