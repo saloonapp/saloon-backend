@@ -19,7 +19,7 @@ import play.api.libs.json._
 
 object Sessions extends Controller {
   val repository: Repository[Session] = SessionRepository
-  val itemType = SessionRepository.collection.name
+  val itemType = SessionUI.className
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start")).map { eltPage =>

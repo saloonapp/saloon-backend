@@ -77,8 +77,9 @@ case class ExponentUI(
   tags: List[String],
   created: DateTime,
   updated: DateTime,
-  className: String = "exponents")
+  className: String = ExponentUI.className)
 object ExponentUI {
+  val className = "exponents"
   implicit val format = Json.format[ExponentUI]
   def toModel(d: ExponentUI): Exponent = Exponent(d.uuid, d.eventId, d.image, d.name, d.description, d.company, d.place, d.siteUrl, d.siteName, d.images, d.tags, d.created, d.updated)
   def fromModel(d: Exponent): ExponentUI = ExponentUI(d.uuid, d.eventId, d.image, d.name, d.description, d.company, d.place, d.siteUrl, d.siteName, d.images, d.tags, d.created, d.updated)

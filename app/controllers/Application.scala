@@ -1,8 +1,6 @@
 package controllers
 
-import infrastructure.repository.EventRepository
-import infrastructure.repository.SessionRepository
-import infrastructure.repository.ExponentRepository
+import infrastructure.repository.UserActionRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -17,42 +15,20 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  def migrate = TODO
-  /*def migrate = Action.async {
+  // def migrate = TODO
+  def migrate = Action.async {
     for {
-      events <- migrateEvents()
-      exponents <- migrateExponents()
-      sessions <- migrateSessions()
+      m1 <- migrateUserActions()
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
   }
 
-  private def migrateEvents(): Future[List[Option[models.Event]]] = {
-    EventRepository.findAll().flatMap(list => Future.sequence(list.map { e =>
-      EventRepository.update(e.uuid, e.copy(
-        image = Some(e.logo.orElse(e.image).getOrElse("")),
-        published = Some(true)))
+  private def migrateUserActions(): Future[List[Option[models.UserAction]]] = {
+    UserActionRepository.findAll().flatMap(list => Future.sequence(list.map { e =>
+      UserActionRepository.update(e.uuid, e.copy(itemType = e.itemType.toLowerCase()))
     }))
   }
-
-  private def migrateExponents(): Future[List[Option[models.Exponent]]] = {
-    ExponentRepository.findAll().flatMap(list => Future.sequence(list.map { e =>
-      ExponentRepository.update(e.uuid, e.copy(
-        image = Some("")))
-    }))
-  }
-
-  private def migrateSessions(): Future[List[Option[models.Session]]] = {
-    SessionRepository.findAll().flatMap(list => Future.sequence(list.map { e =>
-      SessionRepository.update(e.uuid, e.copy(
-        image = Some(""),
-        name = Some(e.title.orElse(e.name).getOrElse("")),
-        description = Some(e.summary.orElse(e.description).getOrElse("")),
-        title = None,
-        summary = None))
-    }))
-  }*/
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(

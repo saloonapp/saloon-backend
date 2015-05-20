@@ -19,7 +19,7 @@ import play.api.libs.json._
 
 object Exponents extends Controller {
   val repository: Repository[Exponent] = ExponentRepository
-  val itemType = ExponentRepository.collection.name
+  val itemType = ExponentUI.className
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("name")).map { eltPage =>

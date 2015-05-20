@@ -76,8 +76,9 @@ case class SessionUI(
   tags: List[String],
   created: DateTime,
   updated: DateTime,
-  className: String = "sessions")
+  className: String = SessionUI.className)
 object SessionUI {
+  val className = "sessions"
   implicit val format = Json.format[SessionUI]
   def toModel(d: SessionUI): Session = Session(d.uuid, d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.tags, d.created, d.updated)
   def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.tags, d.created, d.updated)
