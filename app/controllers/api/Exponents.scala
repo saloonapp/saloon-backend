@@ -127,7 +127,7 @@ object Exponents extends Controller {
   }
 
   private def withTime()(implicit req: Request[Any]): Option[DateTime] = {
-    req.headers.get("timestamp").map(t => new DateTime(t))
+    req.headers.get("timestamp").map(t => new DateTime(t.toLong))
   }
 
   private def withData(eventId: String, exponentId: String)(exec: (Event, Exponent) => Future[Result])(implicit req: Request[Any]) = {
