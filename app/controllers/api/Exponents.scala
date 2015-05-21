@@ -112,7 +112,7 @@ object Exponents extends Controller {
     withUser() { user =>
       withData(eventId, itemId) { (event, item) =>
         UserActionRepository.deleteComment(user.uuid, itemType, item.uuid, uuid).map { lastError =>
-          if (lastError.ok) { NoContent } else { InternalServerError }
+          if (lastError.ok) { if (lastError.n == 0) NotFound else NoContent } else { InternalServerError }
         }
       }
     }
