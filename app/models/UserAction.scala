@@ -18,12 +18,12 @@ case class UserAction(
   eventId: Option[String],
   created: DateTime,
   updated: DateTime) {
-  def withContent(c: UserActionConent): UserAction = this.copy(action = c, updated = new DateTime())
+  def withContent(c: UserActionConent, time: Option[DateTime] = None): UserAction = this.copy(action = c, updated = time.getOrElse(new DateTime()))
 }
 object UserAction {
-  def favorite(userId: String, itemType: String, itemId: String, eventId: String): UserAction = UserAction(Repository.generateUuid(), userId, FavoriteUserAction(), itemType, itemId, Some(eventId), new DateTime(), new DateTime())
-  def mood(userId: String, itemType: String, itemId: String, rating: String, eventId: String): UserAction = UserAction(Repository.generateUuid(), userId, MoodUserAction(rating), itemType, itemId, Some(eventId), new DateTime(), new DateTime())
-  def comment(userId: String, itemType: String, itemId: String, text: String, eventId: String): UserAction = UserAction(Repository.generateUuid(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), new DateTime(), new DateTime())
+  def favorite(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, FavoriteUserAction(), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def mood(userId: String, itemType: String, itemId: String, rating: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, MoodUserAction(rating), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def comment(userId: String, itemType: String, itemId: String, text: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
 
   implicit val formatFavoriteUserAction = Json.format[FavoriteUserAction]
   implicit val formatMoodUserAction = Json.format[MoodUserAction]

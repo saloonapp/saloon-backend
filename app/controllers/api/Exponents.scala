@@ -10,6 +10,7 @@ import models.Event
 import models.Exponent
 import models.ExponentUI
 import models.User
+import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -41,26 +42,12 @@ object Exponents extends Controller {
     }
   }
 
-  def mood(eventId: String, itemId: String) = Action.async(parse.json) { implicit req =>
-    (req.body \ "rating").asOpt[String].map { rating =>
-      withUser() { user =>
-        withData(eventId, itemId) { (event, item) =>
-          UserActionRepository.getMood(user.uuid, itemType, item.uuid).flatMap { moodOpt =>
-            UserActionRepository.setMood(user.uuid, itemType, item.uuid, eventId, moodOpt, rating).map { eltOpt =>
-              eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
-            }
-          }
-        }
-      }
-    }.getOrElse(Future(BadRequest(Json.obj("message" -> "Your request body should have a JSON object with a field 'rating' !"))))
-  }
-
   def favorite(eventId: String, itemId: String) = Action.async { implicit req =>
     withUser() { user =>
       withData(eventId, itemId) { (event, item) =>
         UserActionRepository.getFavorite(user.uuid, itemType, item.uuid).flatMap {
           _.map { elt => Future(Ok(Json.toJson(elt))) }.getOrElse {
-            UserActionRepository.insertFavorite(user.uuid, itemType, item.uuid, event.uuid).map { eltOpt =>
+            UserActionRepository.insertFavorite(user.uuid, itemType, item.uuid, event.uuid, withTime()).map { eltOpt =>
               eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
             }
           }
@@ -79,11 +66,25 @@ object Exponents extends Controller {
     }
   }
 
+  def mood(eventId: String, itemId: String) = Action.async(parse.json) { implicit req =>
+    (req.body \ "rating").asOpt[String].map { rating =>
+      withUser() { user =>
+        withData(eventId, itemId) { (event, item) =>
+          UserActionRepository.getMood(user.uuid, itemType, item.uuid).flatMap { moodOpt =>
+            UserActionRepository.setMood(user.uuid, itemType, item.uuid, eventId, moodOpt, rating, withTime()).map { eltOpt =>
+              eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
+            }
+          }
+        }
+      }
+    }.getOrElse(Future(BadRequest(Json.obj("message" -> "Your request body should have a JSON object with a field 'rating' !"))))
+  }
+
   def createComment(eventId: String, itemId: String) = Action.async(parse.json) { implicit req =>
     (req.body \ "text").asOpt[String].map { text =>
       withUser() { user =>
         withData(eventId, itemId) { (event, item) =>
-          UserActionRepository.insertComment(user.uuid, itemType, item.uuid, text, event.uuid).map { eltOpt =>
+          UserActionRepository.insertComment(user.uuid, itemType, item.uuid, text, event.uuid, withTime()).map { eltOpt =>
             eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
           }
         }
@@ -97,7 +98,7 @@ object Exponents extends Controller {
         withData(eventId, itemId) { (event, item) =>
           UserActionRepository.getComment(user.uuid, itemType, item.uuid, uuid).flatMap {
             _.map { userAction =>
-              UserActionRepository.updateComment(user.uuid, itemType, item.uuid, uuid, userAction, text).map { eltOpt =>
+              UserActionRepository.updateComment(user.uuid, itemType, item.uuid, uuid, userAction, text, withTime()).map { eltOpt =>
                 eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
               }
             }.getOrElse(Future(NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid"))))
@@ -123,6 +124,10 @@ object Exponents extends Controller {
         _.map { user => exec(user) }.getOrElse(Future(NotFound(Json.obj("message" -> s"User <$userId> not found !"))))
       }
     }.getOrElse(Future(BadRequest(Json.obj("message" -> "You should set 'userId' header !"))))
+  }
+
+  private def withTime()(implicit req: Request[Any]): Option[DateTime] = {
+    req.headers.get("timestamp").map(t => new DateTime(t))
   }
 
   private def withData(eventId: String, exponentId: String)(exec: (Event, Exponent) => Future[Result])(implicit req: Request[Any]) = {
