@@ -83,6 +83,8 @@ DELETE    /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId   co
 GET       /api/v1/tools/import/voxxrin/events                                 controllers.tools.Voxxrin.getEvents()
 GET       /api/v1/tools/import/voxxrin/events/:eventId                        controllers.tools.Voxxrin.getEvent(eventId: String)
 GET       /api/v1/tools/import/voxxrin/events/:eventId/full                   controllers.tools.Voxxrin.getFullEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb               controllers.tools.Voxxrin.saveEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb/:saloonId     controllers.tools.Voxxrin.updateEvent(eventId: String, saloonId: String)
 GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId             controllers.tools.Voxxrin.getEventDay(eventId: String, dayId: String)
 GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId    controllers.tools.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
 

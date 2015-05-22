@@ -31,9 +31,7 @@ case class VoxxrinEvent(
   schedule: Option[List[VoxxrinSession]],
   enabled: Boolean,
   lastmodified: Long) {
-  def toEvent(): (Event, List[Session]) = {
-    val eventId = Repository.generateUuid()
-
+  def toEvent(eventId: String = Repository.generateUuid()): (Event, List[Session]) = {
     val event = Event(
       eventId,
       "",

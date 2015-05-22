@@ -24,9 +24,9 @@ case class VoxxrinSession(
   nextId: Option[String],
   previousId: Option[String],
   uri: String) {
-  def toSession(eventId: String): Session = {
+  def toSession(eventId: String, sessionId: String = Repository.generateUuid()): Session = {
     Session(
-      Repository.generateUuid(),
+      sessionId,
       eventId,
       "",
       this.title,
