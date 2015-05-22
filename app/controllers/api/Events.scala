@@ -21,13 +21,13 @@ object Events extends Controller {
   val repository: Repository[Event] = EventRepository
 
   def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start")).flatMap { eltPage =>
+    repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start"), Json.obj("published" -> true)).flatMap { eltPage =>
       eltPage.batchMapAsync(EventSrv.addMetadata _).map { eltUIPage => Ok(Json.toJson(eltUIPage)) }
     }
   }
 
   def listAll(query: Option[String], sort: Option[String]) = Action.async { implicit req =>
-    repository.findAll(query.getOrElse(""), sort.getOrElse("-start")).flatMap { elts =>
+    repository.findAll(query.getOrElse(""), sort.getOrElse("-start"), Json.obj("published" -> true)).flatMap { elts =>
       EventSrv.addMetadata(elts).map { eltsUI => Ok(Json.toJson(eltsUI)) }
     }
   }

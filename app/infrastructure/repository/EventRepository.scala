@@ -7,7 +7,7 @@ import models.Event
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json.Json
+import play.api.libs.json._
 import reactivemongo.api.DB
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
@@ -18,8 +18,8 @@ trait MongoDbEventRepository extends Repository[Event] {
 
   private val crud = MongoDbCrudUtils(collection, Event.format, List("name", "description", "address", "twitterHashtag"), "uuid")
 
-  override def findAll(query: String = "", sort: String = ""): Future[List[Event]] = crud.findAll(query, sort)
-  override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = ""): Future[Page[Event]] = crud.findPage(query, page, pageSize, sort)
+  override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Event]] = crud.findAll(query, sort, filter)
+  override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Event]] = crud.findPage(query, page, pageSize, sort, filter)
   override def getByUuid(uuid: String): Future[Option[Event]] = crud.getByUuid(uuid)
   override def insert(elt: Event): Future[Option[Event]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
   override def update(uuid: String, elt: Event): Future[Option[Event]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
