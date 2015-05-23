@@ -112,7 +112,7 @@ object ExponentData {
     "tags" -> text)(ExponentData.apply)(ExponentData.unapply)
 
   def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.image, d.name, d.description, d.company, d.place, d.siteUrl, d.siteName, Some(toArray(d.images)), toArray(d.tags), new DateTime(), new DateTime())
-  def fromModel(m: Exponent): ExponentData = ExponentData(m.eventId, m.image, m.name, m.description, m.company, m.place, m.siteUrl, m.siteName, m.images.mkString(", "), m.tags.mkString(", "))
+  def fromModel(m: Exponent): ExponentData = ExponentData(m.eventId, m.image, m.name, m.description, m.company, m.place, m.siteUrl, m.siteName, m.images.map(_.mkString(", ")).getOrElse(""), m.tags.mkString(", "))
   def merge(m: Exponent, d: ExponentData): Exponent = m.copy(eventId = d.eventId, image = d.image, name = d.name, description = d.description, company = d.company, place = d.place, siteUrl = d.siteUrl, siteName = d.siteName, images = Some(toArray(d.images)), tags = toArray(d.tags), updated = new DateTime())
 
   def toArray(str: String): List[String] = str.split(",").toList.map(_.trim())
