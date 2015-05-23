@@ -2,14 +2,17 @@ package controllers
 
 import infrastructure.repository.common.Repository
 import infrastructure.repository.UserRepository
+import infrastructure.repository.UserActionRepository
 import models.common.Page
 import models.User
 import models.UserData
+import models.UserAction
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
+import reactivemongo.core.commands.LastError
 
 object Users extends Controller {
   val form: Form[UserData] = Form(UserData.fields)
@@ -53,9 +56,12 @@ object Users extends Controller {
   }
 
   def details(uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).map {
-      _.map { elt =>
-        Ok(viewDetails(elt))
+    for {
+      userOpt <- repository.getByUuid(uuid)
+      actions <- UserActionRepository.findByUser(uuid)
+    } yield {
+      userOpt.map { elt =>
+        Ok(viewDetails(elt, actions.groupBy(_.eventId.getOrElse("unknown"))))
       }.getOrElse(NotFound(views.html.error404()))
     }
   }
@@ -88,6 +94,20 @@ object Users extends Controller {
         repository.delete(uuid)
         Redirect(mainRoute.list()).flashing("success" -> successDeleteFlash(elt))
       }.getOrElse(NotFound(views.html.error404()))
+    }
+  }
+
+  def deleteAction(userId: String, itemType: String, itemId: String, actionType: String, actionId: String) = Action.async { implicit req =>
+    repository.getByUuid(userId).flatMap {
+      _.map { elt =>
+        val res: Future[LastError] =
+          if (actionType == "favorite") UserActionRepository.deleteFavorite(userId, itemType, itemId)
+          else if (actionType == "mood") UserActionRepository.deleteMood(userId, itemType, itemId)
+          else if (actionType == "comment") UserActionRepository.deleteComment(userId, itemType, itemId, actionId)
+          else Future.successful(LastError(false, Some("Unknown actionType <" + actionType + ">"), None, None, None, 0, false))
+
+        res.map(err => Redirect(mainRoute.details(userId)))
+      }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
 }

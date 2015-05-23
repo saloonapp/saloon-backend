@@ -37,6 +37,7 @@ trait MongoDbUserActionRepository {
     val elt = oldElt.map(e => e.withContent(MoodUserAction(rating), time)).getOrElse(UserAction.mood(userId, itemType, itemId, rating, eventId, time))
     crud.upsert(Json.obj("userId" -> userId, "action.mood" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
+  def deleteMood(userId: String, itemType: String, itemId: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.mood" -> true, "itemType" -> itemType, "itemId" -> itemId))
 
   def getComment(userId: String, itemType: String, itemId: String, uuid: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.comment" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
   def insertComment(userId: String, itemType: String, itemId: String, text: String, eventId: String, time: Option[DateTime] = None): Future[Option[UserAction]] = {

@@ -3,93 +3,94 @@
 # ~~~~
 
 # Web site
-GET       /                                                                   controllers.Application.home
-GET       /sample                                                             controllers.Application.sample
-GET       /migrate                                                            controllers.Application.migrate
+GET       /                                                                       controllers.Application.home
+GET       /sample                                                                 controllers.Application.sample
+GET       /migrate                                                                controllers.Application.migrate
 
-GET       /events                                                             controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /events/create                                                      controllers.Events.create
-POST      /events                                                             controllers.Events.doCreate
-GET       /events/operations                                                  controllers.Events.operations
-POST      /events/fileImport                                                  controllers.Events.fileImport
-POST      /events/fileExport                                                  controllers.Events.fileExport
-GET       /events/:eventId                                                    controllers.Events.details(eventId: String)
-GET       /events/:eventId/edit                                               controllers.Events.update(eventId: String)
-POST      /events/:eventId                                                    controllers.Events.doUpdate(eventId: String)
-POST      /events/:eventId/delete                                             controllers.Events.delete(eventId: String)
+GET       /events                                                                 controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /events/create                                                          controllers.Events.create
+POST      /events                                                                 controllers.Events.doCreate
+GET       /events/operations                                                      controllers.Events.operations
+POST      /events/fileImport                                                      controllers.Events.fileImport
+POST      /events/fileExport                                                      controllers.Events.fileExport
+GET       /events/:eventId                                                        controllers.Events.details(eventId: String)
+GET       /events/:eventId/edit                                                   controllers.Events.update(eventId: String)
+POST      /events/:eventId                                                        controllers.Events.doUpdate(eventId: String)
+POST      /events/:eventId/delete                                                 controllers.Events.delete(eventId: String)
 
-GET       /events/:eventId/exponents                                          controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /events/:eventId/exponents/create                                   controllers.Exponents.create(eventId: String)
-POST      /events/:eventId/exponents                                          controllers.Exponents.doCreate(eventId: String)
-GET       /events/:eventId/exponents/operations                               controllers.Exponents.operations(eventId: String)
-POST      /events/:eventId/exponents/fileImport                               controllers.Exponents.fileImport(eventId: String)
-POST      /events/:eventId/exponents/fileExport                               controllers.Exponents.fileExport(eventId: String)
-GET       /events/:eventId/exponents/:sessionId                               controllers.Exponents.details(eventId: String, sessionId: String)
-GET       /events/:eventId/exponents/:sessionId/edit                          controllers.Exponents.update(eventId: String, sessionId: String)
-POST      /events/:eventId/exponents/:sessionId                               controllers.Exponents.doUpdate(eventId: String, sessionId: String)
-POST      /events/:eventId/exponents/:sessionId/delete                        controllers.Exponents.delete(eventId: String, sessionId: String)
+GET       /events/:eventId/exponents                                              controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /events/:eventId/exponents/create                                       controllers.Exponents.create(eventId: String)
+POST      /events/:eventId/exponents                                              controllers.Exponents.doCreate(eventId: String)
+GET       /events/:eventId/exponents/operations                                   controllers.Exponents.operations(eventId: String)
+POST      /events/:eventId/exponents/fileImport                                   controllers.Exponents.fileImport(eventId: String)
+POST      /events/:eventId/exponents/fileExport                                   controllers.Exponents.fileExport(eventId: String)
+GET       /events/:eventId/exponents/:sessionId                                   controllers.Exponents.details(eventId: String, sessionId: String)
+GET       /events/:eventId/exponents/:sessionId/edit                              controllers.Exponents.update(eventId: String, sessionId: String)
+POST      /events/:eventId/exponents/:sessionId                                   controllers.Exponents.doUpdate(eventId: String, sessionId: String)
+POST      /events/:eventId/exponents/:sessionId/delete                            controllers.Exponents.delete(eventId: String, sessionId: String)
 
-GET       /events/:eventId/sessions                                           controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /events/:eventId/sessions/create                                    controllers.Sessions.create(eventId: String)
-POST      /events/:eventId/sessions                                           controllers.Sessions.doCreate(eventId: String)
-GET       /events/:eventId/sessions/operations                                controllers.Sessions.operations(eventId: String)
-POST      /events/:eventId/sessions/fileImport                                controllers.Sessions.fileImport(eventId: String)
-POST      /events/:eventId/sessions/fileExport                                controllers.Sessions.fileExport(eventId: String)
-GET       /events/:eventId/sessions/:exponentId                               controllers.Sessions.details(eventId: String, exponentId: String)
-GET       /events/:eventId/sessions/:exponentId/edit                          controllers.Sessions.update(eventId: String, exponentId: String)
-POST      /events/:eventId/sessions/:exponentId                               controllers.Sessions.doUpdate(eventId: String, exponentId: String)
-POST      /events/:eventId/sessions/:exponentId/delete                        controllers.Sessions.delete(eventId: String, exponentId: String)
+GET       /events/:eventId/sessions                                               controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /events/:eventId/sessions/create                                        controllers.Sessions.create(eventId: String)
+POST      /events/:eventId/sessions                                               controllers.Sessions.doCreate(eventId: String)
+GET       /events/:eventId/sessions/operations                                    controllers.Sessions.operations(eventId: String)
+POST      /events/:eventId/sessions/fileImport                                    controllers.Sessions.fileImport(eventId: String)
+POST      /events/:eventId/sessions/fileExport                                    controllers.Sessions.fileExport(eventId: String)
+GET       /events/:eventId/sessions/:exponentId                                   controllers.Sessions.details(eventId: String, exponentId: String)
+GET       /events/:eventId/sessions/:exponentId/edit                              controllers.Sessions.update(eventId: String, exponentId: String)
+POST      /events/:eventId/sessions/:exponentId                                   controllers.Sessions.doUpdate(eventId: String, exponentId: String)
+POST      /events/:eventId/sessions/:exponentId/delete                            controllers.Sessions.delete(eventId: String, exponentId: String)
 
-GET       /users                                                              controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /users/create                                                       controllers.Users.create
-POST      /users                                                              controllers.Users.doCreate
-GET       /users/:userId                                                      controllers.Users.details(userId: String)
-GET       /users/:userId/edit                                                 controllers.Users.update(userId: String)
-POST      /users/:userId                                                      controllers.Users.doUpdate(userId: String)
-POST      /users/:userId/delete                                               controllers.Users.delete(userId: String)
+GET       /users                                                                  controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /users/create                                                           controllers.Users.create
+POST      /users                                                                  controllers.Users.doCreate
+GET       /users/:userId                                                          controllers.Users.details(userId: String)
+GET       /users/:userId/edit                                                     controllers.Users.update(userId: String)
+POST      /users/:userId                                                          controllers.Users.doUpdate(userId: String)
+POST      /users/:userId/delete                                                   controllers.Users.delete(userId: String)
+POST      /users/:userId/actions/:itemType/:itemId/:actionType/:actionId/delete   controllers.Users.deleteAction(userId: String, itemType: String, itemId: String, actionType: String, actionId: String)
 
 # Api
-GET       /api/v1/users/find                                                  controllers.api.Users.find(deviceId: String)
-POST      /api/v1/users                                                       controllers.api.Users.create
-GET       /api/v1/users/:userId                                               controllers.api.Users.details(userId: String)
-GET       /api/v1/users/:userId/actions                                       controllers.api.Users.actions(userId: String)
-GET       /api/v1/users/:userId/actions/:eventId                              controllers.api.Users.eventActions(userId: String, eventId: String)
+GET       /api/v1/users/find                                                      controllers.api.Users.find(deviceId: String)
+POST      /api/v1/users                                                           controllers.api.Users.create
+GET       /api/v1/users/:userId                                                   controllers.api.Users.details(userId: String)
+GET       /api/v1/users/:userId/actions                                           controllers.api.Users.actions(userId: String)
+GET       /api/v1/users/:userId/actions/:eventId                                  controllers.api.Users.eventActions(userId: String, eventId: String)
 
-GET       /api/v1/events                                                      controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/all                                                  controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId                                             controllers.api.Events.details(eventId: String)
-GET       /api/v1/events/:eventId/full                                        controllers.api.Events.detailsFull(eventId: String)
+GET       /api/v1/events                                                          controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /api/v1/events/all                                                      controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
+GET       /api/v1/events/:eventId                                                 controllers.api.Events.details(eventId: String)
+GET       /api/v1/events/:eventId/full                                            controllers.api.Events.detailsFull(eventId: String)
 
-GET       /api/v1/events/:eventId/sessions                                    controllers.api.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId/sessions/all                                controllers.api.Sessions.listAll(eventId: String)
-GET       /api/v1/events/:eventId/sessions/:sessionId                         controllers.api.Sessions.details(eventId: String, sessionId: String)
-POST      /api/v1/events/:eventId/sessions/:sessionId/mood                    controllers.api.Sessions.mood(eventId: String, sessionId: String)
-POST      /api/v1/events/:eventId/sessions/:sessionId/favorites               controllers.api.Sessions.favorite(eventId: String, sessionId: String)
-DELETE    /api/v1/events/:eventId/sessions/:sessionId/favorites               controllers.api.Sessions.unfavorite(eventId: String, sessionId: String)
-POST      /api/v1/events/:eventId/sessions/:sessionId/comments                controllers.api.Sessions.createComment(eventId: String, sessionId: String)
-PUT       /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId     controllers.api.Sessions.updateComment(eventId: String, sessionId: String, commentId: String)
-DELETE    /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId     controllers.api.Sessions.deleteComment(eventId: String, sessionId: String, commentId: String)
+GET       /api/v1/events/:eventId/sessions                                        controllers.api.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /api/v1/events/:eventId/sessions/all                                    controllers.api.Sessions.listAll(eventId: String)
+GET       /api/v1/events/:eventId/sessions/:sessionId                             controllers.api.Sessions.details(eventId: String, sessionId: String)
+POST      /api/v1/events/:eventId/sessions/:sessionId/mood                        controllers.api.Sessions.mood(eventId: String, sessionId: String)
+POST      /api/v1/events/:eventId/sessions/:sessionId/favorites                   controllers.api.Sessions.favorite(eventId: String, sessionId: String)
+DELETE    /api/v1/events/:eventId/sessions/:sessionId/favorites                   controllers.api.Sessions.unfavorite(eventId: String, sessionId: String)
+POST      /api/v1/events/:eventId/sessions/:sessionId/comments                    controllers.api.Sessions.createComment(eventId: String, sessionId: String)
+PUT       /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId         controllers.api.Sessions.updateComment(eventId: String, sessionId: String, commentId: String)
+DELETE    /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId         controllers.api.Sessions.deleteComment(eventId: String, sessionId: String, commentId: String)
 
-GET       /api/v1/events/:eventId/exponents                                   controllers.api.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId/exponents/all                               controllers.api.Exponents.listAll(eventId: String)
-GET       /api/v1/events/:eventId/exponents/:exponentId                       controllers.api.Exponents.details(eventId: String, exponentId: String)
-POST      /api/v1/events/:eventId/exponents/:exponentId/mood                  controllers.api.Exponents.mood(eventId: String, exponentId: String)
-POST      /api/v1/events/:eventId/exponents/:exponentId/favorites             controllers.api.Exponents.favorite(eventId: String, exponentId: String)
-DELETE    /api/v1/events/:eventId/exponents/:exponentId/favorites             controllers.api.Exponents.unfavorite(eventId: String, exponentId: String)
-POST      /api/v1/events/:eventId/exponents/:exponentId/comments              controllers.api.Exponents.createComment(eventId: String, exponentId: String)
-PUT       /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId   controllers.api.Exponents.updateComment(eventId: String, exponentId: String, commentId: String)
-DELETE    /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId   controllers.api.Exponents.deleteComment(eventId: String, exponentId: String, commentId: String)
+GET       /api/v1/events/:eventId/exponents                                       controllers.api.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /api/v1/events/:eventId/exponents/all                                   controllers.api.Exponents.listAll(eventId: String)
+GET       /api/v1/events/:eventId/exponents/:exponentId                           controllers.api.Exponents.details(eventId: String, exponentId: String)
+POST      /api/v1/events/:eventId/exponents/:exponentId/mood                      controllers.api.Exponents.mood(eventId: String, exponentId: String)
+POST      /api/v1/events/:eventId/exponents/:exponentId/favorites                 controllers.api.Exponents.favorite(eventId: String, exponentId: String)
+DELETE    /api/v1/events/:eventId/exponents/:exponentId/favorites                 controllers.api.Exponents.unfavorite(eventId: String, exponentId: String)
+POST      /api/v1/events/:eventId/exponents/:exponentId/comments                  controllers.api.Exponents.createComment(eventId: String, exponentId: String)
+PUT       /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId       controllers.api.Exponents.updateComment(eventId: String, exponentId: String, commentId: String)
+DELETE    /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId       controllers.api.Exponents.deleteComment(eventId: String, exponentId: String, commentId: String)
 
-GET       /api/v1/tools/import/voxxrin/events                                 controllers.tools.Voxxrin.getEvents()
-GET       /api/v1/tools/import/voxxrin/events/:eventId                        controllers.tools.Voxxrin.getEvent(eventId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/full                   controllers.tools.Voxxrin.getFullEvent(eventId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb               controllers.tools.Voxxrin.saveEvent(eventId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb/:saloonId     controllers.tools.Voxxrin.updateEvent(eventId: String, saloonId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId             controllers.tools.Voxxrin.getEventDay(eventId: String, dayId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId    controllers.tools.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
+GET       /api/v1/tools/import/voxxrin/events                                     controllers.tools.Voxxrin.getEvents()
+GET       /api/v1/tools/import/voxxrin/events/:eventId                            controllers.tools.Voxxrin.getEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/full                       controllers.tools.Voxxrin.getFullEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb                   controllers.tools.Voxxrin.saveEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb/:saloonId         controllers.tools.Voxxrin.updateEvent(eventId: String, saloonId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId                 controllers.tools.Voxxrin.getEventDay(eventId: String, dayId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId        controllers.tools.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
 
 # Allow cross-origin for API
-OPTIONS   /api/v1/*all                                                        controllers.Application.corsPreflight(all: String)
+OPTIONS   /api/v1/*all                                                            controllers.Application.corsPreflight(all: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET       /assets/*file                                                       controllers.Assets.at(path="/public", file)
+GET       /assets/*file                                                           controllers.Assets.at(path="/public", file)
