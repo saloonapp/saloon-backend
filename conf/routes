@@ -81,13 +81,13 @@ POST      /api/v1/events/:eventId/exponents/:exponentId/comments                
 PUT       /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId       controllers.api.Exponents.updateComment(eventId: String, exponentId: String, commentId: String)
 DELETE    /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId       controllers.api.Exponents.deleteComment(eventId: String, exponentId: String, commentId: String)
 
-GET       /api/v1/tools/import/voxxrin/events                                     controllers.integrations.Voxxrin.getEvents()
-GET       /api/v1/tools/import/voxxrin/events/:eventId                            controllers.integrations.Voxxrin.getEvent(eventId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/full                       controllers.integrations.Voxxrin.getFullEvent(eventId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb                   controllers.integrations.Voxxrin.saveEvent(eventId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb/:saloonId         controllers.integrations.Voxxrin.updateEvent(eventId: String, saloonId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId                 controllers.integrations.Voxxrin.getEventDay(eventId: String, dayId: String)
-GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId        controllers.integrations.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
+GET       /api/v1/tools/import/voxxrin/events                                     controllers.tools.Voxxrin.getEvents()
+GET       /api/v1/tools/import/voxxrin/events/:eventId                            controllers.tools.Voxxrin.getEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/full                       controllers.tools.Voxxrin.getFullEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb                   controllers.tools.Voxxrin.saveEvent(eventId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb/:saloonId         controllers.tools.Voxxrin.updateEvent(eventId: String, saloonId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId                 controllers.tools.Voxxrin.getEventDay(eventId: String, dayId: String)
+GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId        controllers.tools.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
 
 # Allow cross-origin for API
 OPTIONS   /api/v1/*all                                                            controllers.Application.corsPreflight(all: String)
