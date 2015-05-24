@@ -16,8 +16,8 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  //def migrate(eventId: String) = TODO
-  def migrate(eventId: String) = Action.async {
+  def migrate(eventId: String) = TODO
+  /*def migrate(eventId: String) = Action.async {
     for {
       m1 <- migrateSessions(eventId)
     } yield {
@@ -29,7 +29,7 @@ object Application extends Controller {
     SessionRepository.findByEvent(eventId).flatMap(list => Future.sequence(list.map { e =>
       SessionRepository.update(e.uuid, e.copy(description = Utils.htmlToText(e.description)))
     }))
-  }
+  }*/
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(
