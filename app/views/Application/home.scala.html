@@ -1,18 +1,11 @@
 @()(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@import org.joda.time.format.DateTimeFormat
-@import play.api.libs.json.Json
-
 @layout(){
 	<div class="row">
 		<div class="col-lg-12">
 			<div class="widget">
 				<div class="widget-body medium">
-					Home<br>
-					@DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").parseDateTime("2015-06-10 13:00:00.0") =>
-					@Json.toJson(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").parseDateTime("2015-06-10 13:00:00.0"))<br>
-					@DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withLocale(java.util.Locale.FRANCE).parseDateTime("2015-06-10 13:00:00.0") =>
-					@Json.toJson(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withLocale(java.util.Locale.FRANCE).parseDateTime("2015-06-10 13:00:00.0"))<br>
+					Home
 				</div>
 			</div>
 		</div>
