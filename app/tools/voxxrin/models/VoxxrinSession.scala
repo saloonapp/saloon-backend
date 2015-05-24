@@ -5,6 +5,7 @@ import models.Session
 import infrastructure.repository.common.Repository
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.DateTimeZone
 import play.api.libs.json.Json
 
 case class VoxxrinSession(
@@ -44,5 +45,6 @@ case class VoxxrinSession(
 }
 object VoxxrinSession {
   implicit val format = Json.format[VoxxrinSession]
-  def parseDate(date: String): Option[DateTime] = if (date.isEmpty) None else Some(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").parseDateTime(date))
+  private val datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withZone(DateTimeZone.forID("Europe/Paris"))
+  def parseDate(date: String): Option[DateTime] = if (date.isEmpty) None else Some(datePattern.parseDateTime(date))
 }
