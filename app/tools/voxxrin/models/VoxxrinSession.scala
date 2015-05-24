@@ -45,6 +45,6 @@ case class VoxxrinSession(
 }
 object VoxxrinSession {
   implicit val format = Json.format[VoxxrinSession]
-  private val datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withZone(DateTimeZone.forID("Europe/Paris"))
+  private val datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
   def parseDate(date: String): Option[DateTime] = if (date.isEmpty) None else Some(datePattern.parseDateTime(date))
 }
