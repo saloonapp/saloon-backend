@@ -14,5 +14,6 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23",
-  "com.github.tototoshi" %% "scala-csv" % "1.2.1"
+  "com.github.tototoshi" %% "scala-csv" % "1.2.1",
+  "org.jsoup" % "jsoup" % "1.8.2"
 )

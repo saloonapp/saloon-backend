@@ -1,5 +1,6 @@
 package tools.voxxrin.models
 
+import common.Utils
 import models.Session
 import infrastructure.repository.common.Repository
 import org.joda.time.DateTime
@@ -30,7 +31,7 @@ case class VoxxrinSession(
       eventId,
       "",
       this.title,
-      this.summary.getOrElse(""),
+      this.summary.map(html => Utils.htmlToText(html)).getOrElse(""),
       this.`type`,
       this.kind,
       this.room.toPlace(),

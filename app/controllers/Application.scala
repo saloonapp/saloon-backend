@@ -1,6 +1,7 @@
 package controllers
 
-import infrastructure.repository.UserActionRepository
+import common.Utils
+import infrastructure.repository.SessionRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -15,20 +16,20 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  def migrate = TODO
-  /*def migrate = Action.async {
+  //def migrate(eventId: String) = TODO
+  def migrate(eventId: String) = Action.async {
     for {
-      m1 <- migrateUserActions()
+      m1 <- migrateSessions(eventId)
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
   }
 
-  private def migrateUserActions(): Future[List[Option[models.UserAction]]] = {
-    UserActionRepository.findAll().flatMap(list => Future.sequence(list.map { e =>
-      UserActionRepository.update(e.uuid, e.copy(itemType = e.itemType.toLowerCase()))
+  private def migrateSessions(eventId: String): Future[List[Option[models.Session]]] = {
+    SessionRepository.findByEvent(eventId).flatMap(list => Future.sequence(list.map { e =>
+      SessionRepository.update(e.uuid, e.copy(description = Utils.htmlToText(e.description)))
     }))
-  }*/
+  }
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(

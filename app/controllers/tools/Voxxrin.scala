@@ -31,7 +31,7 @@ object Voxxrin extends Controller {
 
   def getEventDay(eventId: String, dayId: String) = Action.async {
     VoxxrinApi.getEventDay(eventId, dayId).map { res =>
-      Ok(Json.toJson(res))
+      Ok(Json.toJson(res.schedule.map(_.toSession("eventId"))))
     }
   }
 
