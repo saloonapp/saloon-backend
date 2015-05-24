@@ -1,6 +1,7 @@
-import play.api.GlobalSettings
+import play.api._
 import play.api.mvc.EssentialAction
 import scala.concurrent.ExecutionContext.Implicits.global
+import org.joda.time.DateTimeZone
 
 object Global extends GlobalSettings {
   override def doFilter(action: EssentialAction): EssentialAction = EssentialAction { request =>
@@ -10,5 +11,9 @@ object Global extends GlobalSettings {
       "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent, userId, timestamp",
       // cache access control response for one day
       "Access-Control-Max-Age" -> (60 * 60 * 24).toString))
+  }
+
+  override def onStart(app: Application) {
+    DateTimeZone.setDefault(DateTimeZone.forID("Europe/Paris"))
   }
 }
