@@ -1,4 +1,4 @@
-package controllers.tools
+package controllers.integrations
 
 import tools.voxxrin.VoxxrinApi
 import infrastructure.repository.EventRepository
