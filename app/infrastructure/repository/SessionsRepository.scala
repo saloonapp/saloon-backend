@@ -17,7 +17,7 @@ trait MongoDbSessionRepository extends Repository[Session] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.SESSIONS)
 
-  private val crud = MongoDbCrudUtils(collection, Session.format, List("title", "summary", "place.ref", "place.name", "format", "category", "tags"), "uuid")
+  private val crud = MongoDbCrudUtils(collection, Session.format, List("name", "description", "place.ref", "place.name", "format", "category", "tags"), "uuid")
 
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Session]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Session]] = crud.findPage(query, page, pageSize, sort, filter)
