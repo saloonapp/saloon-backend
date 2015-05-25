@@ -32,6 +32,13 @@ trait MongoDbUserActionRepository {
   }
   def deleteFavorite(userId: String, itemType: String, itemId: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.favorite" -> true, "itemType" -> itemType, "itemId" -> itemId))
 
+  def getDone(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.done" -> true, "itemType" -> itemType, "itemId" -> itemId))
+  def insertDone(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): Future[Option[UserAction]] = {
+    val elt = UserAction.done(userId, itemType, itemId, eventId, time)
+    crud.insert(elt).map { err => if (err.ok) Some(elt) else None }
+  }
+  def deleteDone(userId: String, itemType: String, itemId: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.done" -> true, "itemType" -> itemType, "itemId" -> itemId))
+
   def getMood(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action.mood" -> true, "itemType" -> itemType, "itemId" -> itemId))
   def setMood(userId: String, itemType: String, itemId: String, eventId: String, oldElt: Option[UserAction], rating: String, time: Option[DateTime] = None): Future[Option[UserAction]] = {
     val elt = oldElt.map(e => e.withContent(MoodUserAction(rating), time)).getOrElse(UserAction.mood(userId, itemType, itemId, rating, eventId, time))

@@ -19,7 +19,7 @@ case class Exponent(
   images: Option[List[String]],
   tags: List[String],
   created: DateTime,
-  updated: DateTime) {
+  updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Exponent.toMap(this)
 }
 object Exponent {

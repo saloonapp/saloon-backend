@@ -4,7 +4,7 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 
-case class Page[A](items: Seq[A], currentPage: Int, pageSize: Int, totalItems: Long) {
+case class Page[+A](items: Seq[A], currentPage: Int, pageSize: Int, totalItems: Long) {
   import java.math
   lazy val prev: Option[Int] = Option(currentPage - 1).filter(_ >= 1)
   lazy val next: Option[Int] = Option(currentPage + 1).filter(_ => ((currentPage - 1) * pageSize + items.size) < totalItems)

@@ -19,7 +19,7 @@ case class Session(
   end: Option[DateTime],
   tags: List[String],
   created: DateTime,
-  updated: DateTime) {
+  updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Session.toMap(this)
 }
 object Session {
