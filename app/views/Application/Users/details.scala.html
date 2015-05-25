@@ -20,7 +20,7 @@
 		<div class="col-md-6">
 			<div class="widget">
 				<div class="widget-header">Actions</div>
-				<div class="widget-body large no-padding">
+				<div class="widget-body xlarge no-padding">
 					<div class="table-responsive">
 						<table class="table">
 							@actionsByEvents.map { case (eventId, actions) =>
@@ -39,6 +39,11 @@
 													<td>Fav</td>
 													<td></td>
 													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, "favorite", action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
+												}
+												case DoneUserAction(d) => {
+													<td>Done</td>
+													<td></td>
+													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, "done", action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
 												}
 												case MoodUserAction(rating, m) => {
 													<td>Mood</td>
