@@ -6,6 +6,7 @@ import infrastructure.repository.EventItemRepository
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
 import models.Event
+import models.EventUI
 import models.EventItem
 import models.User
 import org.joda.time.DateTime
@@ -111,6 +112,37 @@ object UserActions extends Controller {
       withData(eventId, itemType, itemId) { (event, item) =>
         UserActionRepository.deleteComment(user.uuid, itemType, item.uuid, uuid).map { lastError =>
           if (lastError.ok) { if (lastError.n == 0) NotFound else NoContent } else { InternalServerError }
+        }
+      }
+    }
+  }
+
+  def subscribe(eventId: String): Action[JsValue] = subscribe(eventId, EventUI.className, eventId)
+  def subscribe(eventId: String, itemType: String, itemId: String) = Action.async(parse.json) { implicit req =>
+    (for {
+      email <- (req.body \ "email").asOpt[String]
+      filter <- (req.body \ "filter").asOpt[String]
+    } yield {
+      withUser() { user =>
+        withData(eventId, itemType, itemId) { (event, item) =>
+          UserActionRepository.getSubscribe(user.uuid, itemType, item.uuid).flatMap {
+            _.map { elt => Future(Ok(Json.toJson(elt))) }.getOrElse {
+              UserActionRepository.insertSubscribe(user.uuid, itemType, item.uuid, email, filter, event.uuid, withTime()).map { eltOpt =>
+                eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
+              }
+            }
+          }
+        }
+      }
+    }).getOrElse(Future(BadRequest(Json.obj("message" -> "Your request body should have a JSON object with fields 'email' & 'filter' !"))))
+  }
+
+  def unsubscribe(eventId: String): Action[AnyContent] = unsubscribe(eventId, EventUI.className, eventId)
+  def unsubscribe(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
+    withUser() { user =>
+      withData(eventId, itemType, itemId) { (event, item) =>
+        UserActionRepository.deleteSubscribe(user.uuid, itemType, item.uuid).map { lastError =>
+          if (lastError.ok) { NoContent } else { InternalServerError }
         }
       }
     }

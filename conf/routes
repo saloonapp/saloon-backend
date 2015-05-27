@@ -60,6 +60,8 @@ GET       /api/v1/events                                                        
 GET       /api/v1/events/all                                                      controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
 GET       /api/v1/events/:eventId                                                 controllers.api.Events.details(eventId: String)
 GET       /api/v1/events/:eventId/full                                            controllers.api.Events.detailsFull(eventId: String)
+POST      /api/v1/events/:eventId/subscribe                                       controllers.api.UserActions.subscribe(eventId: String)
+DELETE    /api/v1/events/:eventId/subscribe                                       controllers.api.UserActions.unsubscribe(eventId: String)
 
 GET       /api/v1/events/:eventId/sessions                                        controllers.api.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /api/v1/events/:eventId/sessions/all                                    controllers.api.Sessions.listAll(eventId: String)
