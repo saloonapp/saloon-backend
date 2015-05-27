@@ -19,9 +19,8 @@ import play.api.libs.json._
 import reactivemongo.core.commands.LastError
 
 object UserActions extends Controller {
-
   def favorite(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
-    setActionUnique(eventId, itemType, itemId)(UserActionRepository.getFavorite, UserActionRepository.insertFavorite)
+    insertActionUnique(eventId, itemType, itemId)(UserActionRepository.getFavorite, UserActionRepository.insertFavorite)
   }
 
   def unfavorite(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
@@ -29,7 +28,7 @@ object UserActions extends Controller {
   }
 
   def done(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
-    setActionUnique(eventId, itemType, itemId)(UserActionRepository.getDone, UserActionRepository.insertDone)
+    insertActionUnique(eventId, itemType, itemId)(UserActionRepository.getDone, UserActionRepository.insertDone)
   }
 
   def undone(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
@@ -38,15 +37,7 @@ object UserActions extends Controller {
 
   def mood(eventId: String, itemType: String, itemId: String) = Action.async(parse.json) { implicit req =>
     bodyWith("rating") { rating =>
-      withUser() { user =>
-        withData(eventId, itemType, itemId) { (event, item) =>
-          UserActionRepository.getMood(user.uuid, itemType, item.uuid).flatMap { moodOpt =>
-            UserActionRepository.setMood(user.uuid, itemType, item.uuid, eventId, moodOpt, rating, withTime()).map { eltOpt =>
-              eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
-            }
-          }
-        }
-      }
+      setActionUnique(eventId, itemType, itemId)(UserActionRepository.getMood, UserActionRepository.setMood(rating))
     }
   }
 
@@ -91,7 +82,7 @@ object UserActions extends Controller {
   def subscribe(eventId: String): Action[JsValue] = subscribe(eventId, EventUI.className, eventId)
   def subscribe(eventId: String, itemType: String, itemId: String) = Action.async(parse.json) { implicit req =>
     bodyWith("email", "filter") { (email, filter) =>
-      setActionUnique(eventId, itemType, itemId)(UserActionRepository.getSubscribe, UserActionRepository.insertSubscribe(email, filter))
+      setActionUnique(eventId, itemType, itemId)(UserActionRepository.getSubscribe, UserActionRepository.setSubscribe(email, filter))
     }
   }
 
@@ -100,7 +91,10 @@ object UserActions extends Controller {
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteSubscribe)
   }
 
-  private def setActionUnique(eventId: String, itemType: String, itemId: String)(get: (String, String, String) => Future[Option[UserAction]], insert: (String, String, String, String, Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
+  /*
+   * There must be a max of one action for (itemType, itemId)
+   */
+  private def insertActionUnique(eventId: String, itemType: String, itemId: String)(get: (String, String, String) => Future[Option[UserAction]], insert: (String, String, String, String, Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
     withUser() { user =>
       withData(eventId, itemType, itemId) { (event, item) =>
         get(user.uuid, itemType, item.uuid).flatMap {
@@ -114,6 +108,24 @@ object UserActions extends Controller {
     }
   }
 
+  /*
+   * There must be a max of one action for (itemType, itemId) but it can be overriden
+   */
+  private def setActionUnique(eventId: String, itemType: String, itemId: String)(get: (String, String, String) => Future[Option[UserAction]], set: (String, String, String, String, Option[UserAction], Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
+    withUser() { user =>
+      withData(eventId, itemType, itemId) { (event, item) =>
+        get(user.uuid, itemType, item.uuid).flatMap { eltOpt =>
+          set(user.uuid, itemType, item.uuid, event.uuid, eltOpt, withTime()).map { newEltOpt =>
+            newEltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
+          }
+        }
+      }
+    }
+  }
+
+  /*
+   * Delete the unique action
+   */
   private def deleteActionUnique(eventId: String, itemType: String, itemId: String)(delete: (String, String, String) => Future[LastError])(implicit req: Request[Any]): Future[Result] = {
     withUser() { user =>
       withData(eventId, itemType, itemId) { (event, item) =>

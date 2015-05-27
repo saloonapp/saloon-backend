@@ -37,7 +37,7 @@ trait MongoDbUserActionRepository {
   def deleteDone(userId: String, itemType: String, itemId: String): Future[LastError] = deleteAction(DoneUserAction.className)(userId, itemType, itemId)
 
   def getMood(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = getAction(MoodUserAction.className)(userId, itemType, itemId)
-  def setMood(userId: String, itemType: String, itemId: String, eventId: String, oldElt: Option[UserAction], rating: String, time: Option[DateTime] = None): Future[Option[UserAction]] = {
+  def setMood(rating: String)(userId: String, itemType: String, itemId: String, eventId: String, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
     val elt = oldElt.map(e => e.withContent(MoodUserAction(rating), time)).getOrElse(UserAction.mood(userId, itemType, itemId, rating, eventId, time))
     crud.upsert(Json.obj("userId" -> userId, "action." + MoodUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
@@ -52,7 +52,10 @@ trait MongoDbUserActionRepository {
   def deleteComment(userId: String, itemType: String, itemId: String, uuid: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
 
   def getSubscribe(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = getAction(SubscribeUserAction.className)(userId, itemType, itemId)
-  def insertSubscribe(email: String, filter: String)(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.subscribe(userId, itemType, itemId, email, filter, eventId, time))
+  def setSubscribe(email: String, filter: String)(userId: String, itemType: String, itemId: String, eventId: String, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
+    val elt = oldElt.map(e => e.withContent(SubscribeUserAction(email, filter), time)).getOrElse(UserAction.subscribe(userId, itemType, itemId, email, filter, eventId, time))
+    crud.upsert(Json.obj("userId" -> userId, "action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
+  }
   def deleteSubscribe(userId: String, itemType: String, itemId: String): Future[LastError] = deleteAction(SubscribeUserAction.className)(userId, itemType, itemId)
 
   private def getAction(actionType: String)(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId))
