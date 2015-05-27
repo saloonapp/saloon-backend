@@ -49,7 +49,7 @@ trait MongoDbUserActionRepository {
   def deleteComment(userId: String, itemType: String, itemId: String, uuid: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action.comment" -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
 
   def getSubscribe(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = getAction("subscribe")(userId, itemType, itemId)
-  def insertSubscribe(userId: String, itemType: String, itemId: String, email: String, filter: String, eventId: String, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.subscribe(userId, itemType, itemId, email, filter, eventId, time))
+  def insertSubscribe(email: String, filter: String)(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.subscribe(userId, itemType, itemId, email, filter, eventId, time))
   def deleteSubscribe(userId: String, itemType: String, itemId: String): Future[LastError] = deleteAction("subscribe")(userId, itemType, itemId)
 
   private def getAction(actionType: String)(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId))
