@@ -17,7 +17,7 @@ case class Event(
   twitterHashtag: Option[String],
   published: Boolean,
   created: DateTime,
-  updated: DateTime) {
+  updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Event.toMap(this)
 }
 object Event {

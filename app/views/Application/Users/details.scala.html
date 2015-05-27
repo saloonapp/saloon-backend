@@ -31,29 +31,35 @@
 									@actions.map { action =>
 										<tr>
 											<td>
-												@if(action.itemType == "sessions"){ Session <a href="@routes.Sessions.details(eventId, action.itemId)">@action.itemId</a> }
-												@if(action.itemType == "exponents"){ Exposant <a href="@routes.Exponents.details(eventId, action.itemId)">@action.itemId</a> }
+												@if(action.itemType == EventUI.className){ Event <a href="@routes.Events.details(action.itemId)">@action.itemId</a> }
+												@if(action.itemType == SessionUI.className){ Session <a href="@routes.Sessions.details(eventId, action.itemId)">@action.itemId</a> }
+												@if(action.itemType == ExponentUI.className){ Exposant <a href="@routes.Exponents.details(eventId, action.itemId)">@action.itemId</a> }
 											</td>
 											@action.action match {
 												case FavoriteUserAction(f) => {
 													<td>Fav</td>
 													<td></td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, "favorite", action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, FavoriteUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
 												}
 												case DoneUserAction(d) => {
 													<td>Done</td>
 													<td></td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, "done", action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, DoneUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
 												}
 												case MoodUserAction(rating, m) => {
 													<td>Mood</td>
 													<td>@rating</td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, "mood", action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, MoodUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
 												}
 												case CommentUserAction(text, c) => {
 													<td>Comment</td>
 													<td>@text</td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, "comment", action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, CommentUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
+												}
+												case SubscribeUserAction(email, filter, s) => {
+													<td>Subscribe</td>
+													<td>@email : @filter</td>
+													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, SubscribeUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger">Supprimer</button></form></td>
 												}
 											}
 										</tr>

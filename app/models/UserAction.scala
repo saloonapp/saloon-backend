@@ -50,8 +50,22 @@ object UserAction {
 
 sealed trait UserActionConent
 case class FavoriteUserAction(favorite: Boolean = true) extends UserActionConent
+object FavoriteUserAction {
+  val className = "favorite"
+}
 case class DoneUserAction(done: Boolean = true) extends UserActionConent
+object DoneUserAction {
+  val className = "done"
+}
 case class MoodUserAction(rating: String, mood: Boolean = true) extends UserActionConent
+object MoodUserAction {
+  val className = "mood"
+}
 case class CommentUserAction(text: String, comment: Boolean = true) extends UserActionConent
+object CommentUserAction {
+  val className = "comment"
+}
 case class SubscribeUserAction(email: String, filter: String, subscribe: Boolean = true) extends UserActionConent
-
+object SubscribeUserAction {
+  val className = "subscribe"
+}
