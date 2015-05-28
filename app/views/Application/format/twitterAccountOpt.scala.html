@@ -1,0 +1,5 @@
+@(accountOpt: Option[String])
+
+@accountOpt.map(twitterAccount(_)).getOrElse {
+	<span class="account"></span>
+}

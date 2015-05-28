@@ -1,0 +1,8 @@
+@(account: String)
+
+@account.isEmpty match {
+	case true => { @twitterAccountOpt(None) }
+	case false => {
+		<a href="https://twitter.com/@account" target="_blank">@@@account</a>
+	}
+}

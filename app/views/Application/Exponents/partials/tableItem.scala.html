@@ -4,11 +4,11 @@
 @import views.html.Application.format._
 
 <tr>
-	<td><img src="@exponent.logoUrl" style="max-height: 50px;"></td>
-	<td>@exponent.name</td>
-	<td>@placeOpt(exponent.place)</td>
+	<td><img src="@exponent.logoUrl" style="max-height: 32px;"> @exponent.name</td>
 	<td>@exponent.description</td>
+	<td>@placeOpt(exponent.place)</td>
 	<td><a href="@exponent.siteUrl" target="_blank">@exponent.siteUrl</a></td>
+	<td>niveau: @exponent.level @if(exponent.sponsor){ + sponsor }</td>
 	<td>@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
 	<td>
 		<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Détails</a>

@@ -1,5 +1,5 @@
 @(hashtagOpt: Option[String])
 
-@hashtagOpt.map(hashtag(_)).getOrElse {
+@hashtagOpt.map(twitterHashtag(_)).getOrElse {
 	<span class="hashtag"></span>
 }

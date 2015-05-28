@@ -10,12 +10,14 @@
 	</div>
 </div>
 
-@fieldHorizontal(exponentForm("name"), 'label -> "Nom"){field => @inputText(field)}
-@fieldHorizontal(exponentForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
-@fieldHorizontal(exponentForm("image"), 'label -> "Image"){field => @inputText(field)}
-@fieldHorizontal(exponentForm("company"), 'label -> "Société"){field => @inputText(field)}
+@fieldHorizontal(exponentForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Soat")}
+@fieldHorizontal(exponentForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Société d'expertise et de conseil en informatique")}
+@fieldHorizontal(exponentForm("logoUrl"), 'label -> "Logo"){field => @inputText(field, 'placeholder -> "ex: http://www.top50-ssii.com/img/logos/4633_so@t%20150px%20baseline.jpg")}
+@fieldHorizontal(exponentForm("landingUrl"), 'label -> "Image paysage"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/wp-content/themes/soat/images/logo.svg")}
+@fieldHorizontal(exponentForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
 @fieldHorizontal(exponentForm("place.ref"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "référence") @inputText(exponentForm("place.name"), 'placeholder -> "nom")}
-@fieldHorizontal(exponentForm("siteUrl"), 'label -> "Url du site"){field => @inputText(field)}
-@fieldHorizontal(exponentForm("siteName"), 'label -> "Nom du site"){field => @inputText(field)}
+@* team *@
+@fieldHorizontal(exponentForm("level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
+@fieldHorizontal(exponentForm("sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}
+@fieldHorizontal(exponentForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: Java-JEE, Microsoft, Front-end, Mobile, méthodes agiles")}
 @fieldHorizontal(exponentForm("images"), 'label -> "Images"){field => @inputText(field)}
-@fieldHorizontal(exponentForm("tags"), 'label -> "Tags"){field => @inputText(field)}

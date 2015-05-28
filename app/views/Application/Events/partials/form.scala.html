@@ -2,11 +2,20 @@
 
 @import helpers.forms._
 
-@fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field)}
-@fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
-@fieldHorizontal(eventForm("image"), 'label -> "Image"){field => @inputText(field)}
-@fieldHorizontal(eventForm("start"), 'label -> "Début"){field => @inputDatetime(field)}
-@fieldHorizontal(eventForm("end"), 'label -> "Fin"){field => @inputDatetime(field)}
-@fieldHorizontal(eventForm("address.name"), 'label -> "Adresse"){field => @inputText(field)}
-@fieldHorizontal(eventForm("twitterHashtag"), 'label -> "Hashtag"){field => @inputText(field)}
+@fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Best Of Web 2015")}
+@fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: 8 meetups web parisiens se réunissent pour vous proposer un Best Of de leurs talks de l'année, ainsi que quelques talks inédits.")}
+@fieldHorizontal(eventForm("logoUrl"), 'label -> "Logo"){field => @inputText(field, 'placeholder -> "ex: https://pbs.twimg.com/profile_images/570392376288350208/eQU-GIa9.png") <p class="help-block info">Image carrée, environ 100x100</p>}
+@fieldHorizontal(eventForm("landingUrl"), 'label -> "Image paysage"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/images/header_big.jpg") <p class="help-block info">Image paysage, environ 400x150</p>}
+@fieldHorizontal(eventForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/")}
+@fieldHorizontal(eventForm("start"), 'label -> "Début"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 08:00")}
+@fieldHorizontal(eventForm("end"), 'label -> "Fin"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 18:00")}
+@fieldHorizontal(eventForm("address.name"), 'label -> "Nom du lieu"){field => @inputText(field, 'placeholder -> "ex: La Grande Crypte")}
+@fieldHorizontal(eventForm("address.street"), 'label -> "Rue"){field => @inputText(field, 'placeholder -> "ex: 69bis Rue Boissière")}
+@fieldHorizontal(eventForm("address.zipCode"), 'label -> "Code postal"){field => @inputText(field, 'placeholder -> "ex: 75116")}
+@fieldHorizontal(eventForm("address.city"), 'label -> "Ville"){field => @inputText(field, 'placeholder -> "ex: Paris")}
+@fieldHorizontal(eventForm("price"), 'label -> "Prix des billets"){field => @inputText(field, 'placeholder -> "ex: 15€ - 50€")}
+@fieldHorizontal(eventForm("priceUrl"), 'label -> "Page d'achat des billets"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/#tickets")}
+@fieldHorizontal(eventForm("twitterHashtag"), 'label -> "Hashtag twitter officiel"){field => @inputText(field, 'placeholder -> "ex: bestofweb2015")}
+@fieldHorizontal(eventForm("twitterAccount"), 'label -> "Compte twitter officiel"){field => @inputText(field, 'placeholder -> "ex: bestofweb2015")}
+@fieldHorizontal(eventForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: angularjs, emberjs, web, nodejs, cordova, meetup, paris, d3js, backbonejs, css, javascript")}
 @fieldHorizontal(eventForm("published"), 'label -> "Publié (dans l'application)"){field => @inputCheckbox(field)}

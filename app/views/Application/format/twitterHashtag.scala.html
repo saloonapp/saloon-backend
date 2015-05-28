@@ -1,7 +1,7 @@
 @(hashtag: String)
 
 @hashtag.isEmpty match {
-	case true => { @hashtagOpt(None) }
+	case true => { @twitterHashtagOpt(None) }
 	case false => {
 		<a href="https://twitter.com/hashtag/@hashtag" target="_blank">#@hashtag</a>
 	}

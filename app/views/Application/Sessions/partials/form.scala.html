@@ -10,12 +10,12 @@
 	</div>
 </div>
 
-@fieldHorizontal(sessionForm("name"), 'label -> "Name"){field => @inputText(field)}
-@fieldHorizontal(sessionForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4")}
-@fieldHorizontal(sessionForm("image"), 'label -> "Image"){field => @inputText(field)}
-@fieldHorizontal(sessionForm("format"), 'label -> "Format"){field => @inputText(field)}
-@fieldHorizontal(sessionForm("category"), 'label -> "Catégorie"){field => @inputText(field)}
+@fieldHorizontal(sessionForm("name"), 'label -> "Name"){field => @inputText(field, 'placeholder -> "ex: Reactive Programming avec RxJS")}
+@fieldHorizontal(sessionForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Le développement d'applications Javascript est étroitement lié à la programmation événementiel : du DOM à Node.js, Backbone, React ou Angular, la gestion des événements est centrale. Pour traiter ces flux de données asynchrones, les concepts de FRP sont particulièrement puissants.")}
+@fieldHorizontal(sessionForm("format"), 'label -> "Format"){field => @inputText(field, 'placeholder -> "ex: Quickie") <p class="help-block info">La format de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p>}
+@fieldHorizontal(sessionForm("category"), 'label -> "Catégorie"){field => @inputText(field, 'placeholder -> "ex: Web") <p class="help-block info">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p>}
 @fieldHorizontal(sessionForm("place.ref"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "référence") @inputText(sessionForm("place.name"), 'placeholder -> "nom")}
 @fieldHorizontal(sessionForm("start"), 'label -> "Début"){field => @inputDatetime(field)}
 @fieldHorizontal(sessionForm("end"), 'label -> "Fin"){field => @inputDatetime(field)}
-@fieldHorizontal(sessionForm("tags"), 'label -> "Tags"){field => @inputText(field)}
+@* speakers *@
+@fieldHorizontal(sessionForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: RxJS, ES6, functionnal programming, événementiel, React, Angular")}

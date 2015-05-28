@@ -8,7 +8,7 @@
 	<td>@event.published</td>
 	<td>@datetimeOpt(event.start)</td>
 	<td>@address(event.address)</td>
-	<td>@hashtagOpt(event.twitterHashtag)</td>
+	<td>@twitterHashtagOpt(event.twitterHashtag)</td>
 	<td><a href="@routes.Sessions.list(event.uuid)">@event.sessionCount sessions</a></td>
 	<td><a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a></td>
 	<td>

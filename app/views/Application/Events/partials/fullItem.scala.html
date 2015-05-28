@@ -8,12 +8,14 @@
 		<img class="media-object" src="@event.logoUrl" style="max-height: 100px;">
 	</div>
 	<div class="media-body">
-		<h4 class="media-heading">@event.name (publié: @event.published)</h4>
+		<h4 class="media-heading"><a href="@event.siteUrl" target="_blank">@event.name</a> (<a href="@event.priceUrl" target="_blank">@event.price</a>) (publié: @event.published)</h4>
 		<p class="well">@textMultiline(event.description)</p>
-		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @address(event.address) | @hashtagOpt(event.twitterHashtag)</p>
+		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @address(event.address) | @twitterHashtagOpt(event.twitterHashtag) @twitterAccountOpt(event.twitterAccount)</p>
+		<p class="text-muted">@event.tags.map { tag => <span class="label label-primary">@tag</span> }</p>
 		<p>
 			<a href="@routes.Sessions.list(event.uuid)">@event.sessionCount sessions</a>,
 			<a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a>
 		</p>
+		<img src="@event.landingUrl" style="max-height: 150px;">
 	</div>
 </div>
