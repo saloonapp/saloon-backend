@@ -1,9 +1,11 @@
 package tools.voxxrin.models
 
+import common.infrastructure.repository.Repository
 import models.Event
 import models.Session
 import models.Address
-import infrastructure.repository.common.Repository
+import models.DataSource
+import tools.voxxrin.VoxxrinApi
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 
@@ -34,14 +36,21 @@ case class VoxxrinEvent(
   def toEvent(eventId: String = Repository.generateUuid()): (Event, List[Session]) = {
     val event = Event(
       eventId,
-      "",
       this.title,
       this.description.getOrElse(""),
+      "",
+      "",
+      "",
       VoxxrinEvent.parseDate(this.from),
       VoxxrinEvent.parseDate(this.to),
-      location.map(l => Address(l)),
+      Address("", location.getOrElse(""), "", ""), // TODO : parse address
+      "",
+      "",
       None,
+      None,
+      List(),
       false,
+      Some(DataSource(this.id, VoxxrinApi.eventUrl(this.id))),
       new DateTime(),
       new DateTime())
 

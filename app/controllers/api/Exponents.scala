@@ -1,8 +1,8 @@
 package controllers.api
 
-import infrastructure.repository.common.Repository
+import common.models.Page
+import common.infrastructure.repository.Repository
 import infrastructure.repository.ExponentRepository
-import models.common.Page
 import models.Exponent
 import models.ExponentUI
 import scala.concurrent.Future

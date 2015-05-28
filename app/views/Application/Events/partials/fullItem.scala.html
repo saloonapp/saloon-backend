@@ -5,12 +5,12 @@
 
 <div class="media">
 	<div class="media-left">
-		<img class="media-object" src="@event.image" style="max-height: 100px;">
+		<img class="media-object" src="@event.logoUrl" style="max-height: 100px;">
 	</div>
 	<div class="media-body">
 		<h4 class="media-heading">@event.name (publié: @event.published)</h4>
 		<p class="well">@textMultiline(event.description)</p>
-		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @addressOpt(event.address) | @hashtagOpt(event.twitterHashtag)</p>
+		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @address(event.address) | @hashtagOpt(event.twitterHashtag)</p>
 		<p>
 			<a href="@routes.Sessions.list(event.uuid)">@event.sessionCount sessions</a>,
 			<a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a>

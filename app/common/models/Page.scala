@@ -1,8 +1,9 @@
-package models.common
+package common.models
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
 
 case class Page[+A](items: Seq[A], currentPage: Int, pageSize: Int, totalItems: Long) {
   import java.math

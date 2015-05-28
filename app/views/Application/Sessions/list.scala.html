@@ -1,4 +1,4 @@
-@(sessionPage: models.common.Page[models.Session], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(sessionPage: common.models.Page[models.Session], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Sessions"){
 	<div class="row">
@@ -24,7 +24,7 @@
 					<div class="table-responsive">
 						<table class="table table-striped table-hover">
 							<thead>
-								<tr><th>Img</th><th>Titre</th><th>Format</th><th>Catégorie</th><th>Début</th><th>Emplacement</th><th>Description</th><th>Tags</th><th></th></tr>
+								<tr><th>Titre</th><th>Format</th><th>Catégorie</th><th>Début</th><th>Emplacement</th><th>Description</th><th>Tags</th><th></th></tr>
 							</thead>
 							<tbody>
 								@sessionPage.items.map { session =>

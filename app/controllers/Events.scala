@@ -1,7 +1,7 @@
 package controllers
 
 import common.FileBodyParser
-import models.common.Page
+import common.models.Page
 import models.Event
 import models.EventUI
 import models.EventData
@@ -9,7 +9,7 @@ import models.ImportConfig
 import services.FileImporter
 import services.FileExporter
 import services.EventSrv
-import infrastructure.repository.common.Repository
+import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository

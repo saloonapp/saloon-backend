@@ -1,8 +1,8 @@
 package controllers.api
 
-import infrastructure.repository.common.Repository
+import common.models.Page
+import common.infrastructure.repository.Repository
 import infrastructure.repository.SessionRepository
-import models.common.Page
 import models.Session
 import models.SessionUI
 import scala.concurrent.Future

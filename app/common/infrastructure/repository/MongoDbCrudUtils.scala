@@ -1,6 +1,6 @@
-package infrastructure.repository.common
+package common.infrastructure.repository
 
-import models.common.Page
+import common.models.Page
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._

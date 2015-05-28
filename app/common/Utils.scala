@@ -11,6 +11,10 @@ object Utils {
   def isProd(): Boolean = "prod".equals(getEnv())
 
   def transform[A](o: Option[Future[A]]): Future[Option[A]] = o.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
+  def toList(str: String): List[String] = str.split(",").toList.map(_.trim())
+  def fromList(tags: List[String]): String = tags.mkString(", ")
+  def toTwitterHashtag(str: String): String = if (str.startsWith("#")) str.substring(1) else str
+  def toTwitterAccount(str: String): String = if (str.startsWith("@")) str.substring(1) else str
 
   def htmlToText(html: String): String = Jsoup.parse(html.replaceAll("\\n", "\\\\n")).text().replaceAll("\\\\n", "\n")
   /*

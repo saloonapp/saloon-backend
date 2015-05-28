@@ -1,6 +1,6 @@
 package models
 
-import infrastructure.repository.common.Repository
+import common.infrastructure.repository.Repository
 import org.joda.time.DateTime
 import play.api.libs.json._
 

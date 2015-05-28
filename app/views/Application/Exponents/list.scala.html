@@ -1,4 +1,4 @@
-@(exponentPage: models.common.Page[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(exponentPage: common.models.Page[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Exposants"){
 	<div class="row">
@@ -24,7 +24,7 @@
 					<div class="table-responsive">
 						<table class="table table-striped table-hover">
 							<thead>
-								<tr><th>Img</th><th>Nom</th><th>Société</th><th>Emplacement</th><th>Description</th><th>Site</th><th>Tags</th><th></th></tr>
+								<tr><th>Img</th><th>Nom</th><th>Emplacement</th><th>Description</th><th>Site</th><th>Tags</th><th></th></tr>
 							</thead>
 							<tbody>
 								@exponentPage.items.map { exponent =>

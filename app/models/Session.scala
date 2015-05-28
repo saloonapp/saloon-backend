@@ -1,12 +1,13 @@
 package models
 
-import infrastructure.repository.common.Repository
+import common.Utils
+import common.infrastructure.repository.Repository
 import services.FileImporter
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class Session(
+case class OldSession(
   uuid: String,
   eventId: String,
   image: String,
@@ -14,10 +15,45 @@ case class Session(
   description: String,
   format: String,
   category: String,
-  place: Place, // room, booth...
+  place: Place,
   start: Option[DateTime],
   end: Option[DateTime],
   tags: List[String],
+  created: DateTime,
+  updated: DateTime) {
+  def transform(): Session = Session(
+    this.uuid,
+    this.eventId,
+    this.name,
+    this.description,
+    this.format,
+    this.category,
+    this.place,
+    this.start,
+    this.end,
+    List(),
+    this.tags,
+    None,
+    this.created,
+    this.updated)
+}
+object OldSession {
+  implicit val format = Json.format[OldSession]
+}
+
+case class Session(
+  uuid: String,
+  eventId: String,
+  name: String,
+  description: String,
+  format: String,
+  category: String,
+  place: Place, // where to find this exponent
+  start: Option[DateTime],
+  end: Option[DateTime],
+  speakers: List[Person],
+  tags: List[String],
+  source: Option[DataSource], // where the session were fetched (if applies)
   created: DateTime,
   updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Session.toMap(this)
@@ -27,9 +63,8 @@ object Session {
   def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
     if (d.get("name").isDefined) {
       Some(Session(
-        Repository.generateUuid(),
+        d.get("uuid").getOrElse(Repository.generateUuid()),
         eventId,
-        d.get("image").getOrElse(""),
         d.get("name").get,
         d.get("description").getOrElse(""),
         d.get("format").getOrElse(""),
@@ -39,7 +74,9 @@ object Session {
           d.get("place.name").getOrElse("")),
         d.get("start").map(d => DateTime.parse(d, FileImporter.dateFormat)),
         d.get("end").map(d => DateTime.parse(d, FileImporter.dateFormat)),
-        ExponentData.toArray(d.get("tags").getOrElse("")),
+        d.get("speakers").flatMap(json => Json.parse(json).asOpt[List[Person]]).getOrElse(List()),
+        Utils.toList(d.get("tags").getOrElse("")),
+        d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
         d.get("created").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime()),
         d.get("updated").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime())))
     } else {
@@ -48,7 +85,6 @@ object Session {
   def toMap(e: Session): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "eventId" -> e.eventId,
-    "image" -> e.image,
     "name" -> e.name,
     "description" -> e.description,
     "format" -> e.format,
@@ -57,7 +93,10 @@ object Session {
     "place.name" -> e.place.name,
     "start" -> e.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "end" -> e.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
-    "tags" -> e.tags.mkString(", "),
+    "speakers" -> Json.stringify(Json.toJson(e.speakers)),
+    "tags" -> Utils.fromList(e.tags),
+    "source.ref" -> e.source.map(_.ref).getOrElse(""),
+    "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))
 }
@@ -65,7 +104,6 @@ object Session {
 case class SessionUI(
   uuid: String,
   eventId: String,
-  image: String,
   name: String,
   description: String,
   format: String,
@@ -73,6 +111,7 @@ case class SessionUI(
   place: Place,
   start: Option[DateTime],
   end: Option[DateTime],
+  speakers: List[Person],
   tags: List[String],
   created: DateTime,
   updated: DateTime,
@@ -80,14 +119,13 @@ case class SessionUI(
 object SessionUI {
   val className = "sessions"
   implicit val format = Json.format[SessionUI]
-  def toModel(d: SessionUI): Session = Session(d.uuid, d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.tags, d.created, d.updated)
-  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.tags, d.created, d.updated)
+  // def toModel(d: SessionUI): Session = Session(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.created, d.updated)
+  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.created, d.updated)
 }
 
 // mapping object for Session Form
 case class SessionData(
   eventId: String,
-  image: String,
   name: String,
   description: String,
   format: String,
@@ -95,12 +133,12 @@ case class SessionData(
   place: Place,
   start: Option[DateTime],
   end: Option[DateTime],
+  speakers: List[Person],
   tags: String)
 object SessionData {
   implicit val format = Json.format[SessionData]
   val fields = mapping(
     "eventId" -> nonEmptyText,
-    "image" -> text,
     "name" -> nonEmptyText,
     "description" -> text,
     "format" -> text,
@@ -108,11 +146,10 @@ object SessionData {
     "place" -> Place.fields,
     "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
+    "speakers" -> list(Person.fields),
     "tags" -> text)(SessionData.apply)(SessionData.unapply)
 
-  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.image, d.name, d.description, d.format, d.category, d.place, d.start, d.end, toTags(d.tags), new DateTime(), new DateTime())
-  def fromModel(m: Session): SessionData = SessionData(m.eventId, m.image, m.name, m.description, m.format, m.category, m.place, m.start, m.end, m.tags.mkString(", "))
-  def merge(m: Session, d: SessionData): Session = m.copy(eventId = d.eventId, image = d.image, name = d.name, description = d.description, format = d.format, category = d.category, place = d.place, start = d.start, end = d.end, tags = toTags(d.tags), updated = new DateTime())
-
-  private def toTags(str: String): List[String] = str.split(",").toList.map(_.trim())
+  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, Utils.toList(d.tags), None, new DateTime(), new DateTime())
+  def fromModel(d: Session): SessionData = SessionData(d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, Utils.fromList(d.tags))
+  def merge(m: Session, d: SessionData): Session = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
 }

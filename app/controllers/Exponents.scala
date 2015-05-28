@@ -1,13 +1,13 @@
 package controllers
 
 import common.FileBodyParser
-import models.common.Page
+import common.models.Page
 import models.Exponent
 import models.ExponentData
 import models.ImportConfig
 import services.FileImporter
 import services.FileExporter
-import infrastructure.repository.common.Repository
+import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.ExponentRepository
 import scala.concurrent.Future

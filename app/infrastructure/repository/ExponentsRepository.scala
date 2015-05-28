@@ -1,9 +1,10 @@
 package infrastructure.repository
 
-import infrastructure.repository.common.Repository
-import infrastructure.repository.common.MongoDbCrudUtils
-import models.common.Page
+import common.models.Page
+import common.infrastructure.repository.Repository
+import common.infrastructure.repository.MongoDbCrudUtils
 import models.Exponent
+import models.OldExponent
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -17,7 +18,9 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.EXPONENTS)
 
-  private val crud = MongoDbCrudUtils(collection, Exponent.format, List("name", "description", "place.ref", "place.name", "company", "tags"), "uuid")
+  private val crud = MongoDbCrudUtils(collection, Exponent.format, List("name", "description", "place.ref", "place.name", "team.name", "team.description", "team.company", "tags"), "uuid")
+
+  def findAllOld(): Future[List[OldExponent]] = collection.find(Json.obj()).cursor[OldExponent].collect[List]()
 
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Exponent]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Exponent]] = crud.findPage(query, page, pageSize, sort, filter)

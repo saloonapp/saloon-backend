@@ -1,9 +1,9 @@
 package controllers
 
-import infrastructure.repository.common.Repository
+import common.infrastructure.repository.Repository
+import common.models.Page
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
-import models.common.Page
 import models.User
 import models.UserData
 import models.UserAction

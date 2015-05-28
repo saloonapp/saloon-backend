@@ -1,5 +1,9 @@
 package tools.voxxrin.models
 
+import common.Utils
+import models.Person
+import models.PersonSocial
+import tools.voxxrin.VoxxrinApi
 import play.api.libs.json._
 
 case class VoxxrinSpeaker(
@@ -17,6 +21,18 @@ case class VoxxrinSpeaker(
   __href: Option[String],
   lastmodified: Option[Long]) {
   def merge(s: VoxxrinSpeaker)(implicit w: Format[VoxxrinSpeaker]): VoxxrinSpeaker = (Json.toJson(this).as[JsObject] ++ Json.toJson(s).as[JsObject]).as[VoxxrinSpeaker]
+  def toSpeaker(): Person = Person(
+    this.name,
+    this.bio.orElse(this.__description).map(html => Utils.htmlToText(html)).getOrElse(""),
+    this.__company.getOrElse(""),
+    this.pictureURI.orElse(this.__pictureUrl).map(VoxxrinApi.baseUrl + _).getOrElse(""),
+    "",
+    PersonSocial(
+      None,
+      None,
+      this.__twitter.map(Utils.toTwitterAccount),
+      None,
+      None))
 }
 object VoxxrinSpeaker {
   implicit val format = Json.format[VoxxrinSpeaker]

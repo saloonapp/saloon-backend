@@ -1,6 +1,6 @@
 package controllers.api
 
-import infrastructure.repository.common.Repository
+import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.EventItemRepository
 import infrastructure.repository.UserRepository

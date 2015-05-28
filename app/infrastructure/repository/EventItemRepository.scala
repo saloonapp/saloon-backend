@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.repository.common.Repository
+import common.infrastructure.repository.Repository
 import models.EventItem
 import models.EventUI
 import models.SessionUI

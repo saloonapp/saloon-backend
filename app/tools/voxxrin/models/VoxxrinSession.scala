@@ -1,8 +1,10 @@
 package tools.voxxrin.models
 
 import common.Utils
+import common.infrastructure.repository.Repository
 import models.Session
-import infrastructure.repository.common.Repository
+import models.DataSource
+import tools.voxxrin.VoxxrinApi
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTimeZone
@@ -30,7 +32,6 @@ case class VoxxrinSession(
     Session(
       sessionId,
       eventId,
-      "",
       this.title,
       this.summary.map(html => Utils.htmlToText(html)).getOrElse(""),
       this.`type`,
@@ -38,7 +39,9 @@ case class VoxxrinSession(
       this.room.toPlace(),
       VoxxrinSession.parseDate(this.fromTime),
       VoxxrinSession.parseDate(this.toTime),
+      this.speakers.map(_.map(_.toSpeaker())).getOrElse(List()),
       this.tags.getOrElse(List()),
+      Some(DataSource(this.id, VoxxrinApi.baseUrl + this.uri)),
       new DateTime(),
       new DateTime())
   }
