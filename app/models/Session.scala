@@ -114,5 +114,5 @@ object SessionData {
 
   def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, Utils.toList(d.tags), None, new DateTime(), new DateTime())
   def fromModel(d: Session): SessionData = SessionData(d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, Utils.fromList(d.tags))
-  def merge(m: Session, d: SessionData): Session = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
+  def merge(m: Session, d: SessionData): Session = toModel(d).copy(uuid = m.uuid, speakers = m.speakers, source = m.source, created = m.created) // TODO  don't update speakers until form is ready
 }
