@@ -15,7 +15,7 @@
 @fieldHorizontal(exponentForm("logoUrl"), 'label -> "Logo"){field => @inputText(field, 'placeholder -> "ex: http://www.top50-ssii.com/img/logos/4633_so@t%20150px%20baseline.jpg")}
 @fieldHorizontal(exponentForm("landingUrl"), 'label -> "Image paysage"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/wp-content/themes/soat/images/logo.svg")}
 @fieldHorizontal(exponentForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
-@fieldHorizontal(exponentForm("place.ref"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "référence") @inputText(exponentForm("place.name"), 'placeholder -> "nom")}
+@fieldHorizontal(exponentForm("place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
 @* team *@
 @fieldHorizontal(exponentForm("level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
 @fieldHorizontal(exponentForm("sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}

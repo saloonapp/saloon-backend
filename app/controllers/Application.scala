@@ -18,21 +18,21 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  def migrate = TODO
-  /*def migrate = Action.async {
+  //def migrate = TODO
+  def migrate = Action.async {
     for {
-      m1 <- migrateEvents()
+      //m1 <- migrateEvents()
       m2 <- migrateSessions()
       m3 <- migrateExponents()
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
   }
-  private def migrateEvents(): Future[List[Option[models.Event]]] = {
+  /*private def migrateEvents(): Future[List[Option[models.Event]]] = {
     EventRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       EventRepository.update(e.uuid, e.transform())
     }))
-  }
+  }*/
   private def migrateSessions(): Future[List[Option[models.Session]]] = {
     SessionRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       SessionRepository.update(e.uuid, e.transform())
@@ -42,7 +42,7 @@ object Application extends Controller {
     ExponentRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       ExponentRepository.update(e.uuid, e.transform())
     }))
-  }*/
+  }
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(

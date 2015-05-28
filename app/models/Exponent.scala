@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class Exponent(
+case class OldExponent(
   uuid: String,
   eventId: String,
   name: String,
@@ -16,6 +16,30 @@ case class Exponent(
   landingUrl: String, // landscape img for event (in info screen) (~ 400x150)
   siteUrl: String,
   place: Option[Place], // where to find this exponent
+  team: List[Person], // people being part of this exponent
+  level: Option[Int], // level of exponent (sponsoring) : lower is better
+  sponsor: Boolean, // to show it on info tab
+  tags: List[String],
+  images: List[String],
+  source: Option[DataSource], // where the exponent were fetched (if applies)
+  created: DateTime,
+  updated: DateTime) {
+  def transform(): Exponent = Exponent(this.uuid, this.eventId, this.name, this.description, this.logoUrl, this.landingUrl, this.siteUrl, this.place.map(_.name), this.team, this.level,
+    this.sponsor, this.tags, this.images, this.source, this.created, this.updated)
+}
+object OldExponent {
+  implicit val format = Json.format[OldExponent]
+}
+
+case class Exponent(
+  uuid: String,
+  eventId: String,
+  name: String,
+  description: String,
+  logoUrl: String, // squared logo of event (~ 100x100)
+  landingUrl: String, // landscape img for event (in info screen) (~ 400x150)
+  siteUrl: String,
+  place: Option[String], // where to find this exponent
   team: List[Person], // people being part of this exponent
   level: Option[Int], // level of exponent (sponsoring) : lower is better
   sponsor: Boolean, // to show it on info tab
@@ -38,7 +62,7 @@ object Exponent {
         d.get("logoUrl").getOrElse(""),
         d.get("landingUrl").getOrElse(""),
         d.get("siteUrl").getOrElse(""),
-        d.get("place.name").map { name => Place(d.get("place.ref").getOrElse(""), name) },
+        d.get("place"),
         d.get("team").flatMap(json => Json.parse(json).asOpt[List[Person]]).getOrElse(List()),
         d.get("level").map(_.toInt),
         d.get("sponsor").map(_.toBoolean).getOrElse(false),
@@ -58,8 +82,7 @@ object Exponent {
     "logoUrl" -> e.logoUrl,
     "landingUrl" -> e.landingUrl,
     "siteUrl" -> e.siteUrl,
-    "place.ref" -> e.place.map(_.ref).getOrElse(""),
-    "place.name" -> e.place.map(_.name).getOrElse(""),
+    "place" -> e.place.getOrElse(""),
     "team" -> Json.stringify(Json.toJson(e.team)),
     "level" -> e.level.map(_.toString).getOrElse(""),
     "sponsor" -> e.sponsor.toString,
@@ -80,7 +103,7 @@ case class ExponentUI(
   logoUrl: String,
   landingUrl: String,
   siteUrl: String,
-  place: Option[Place],
+  place: Option[String],
   team: List[Person],
   level: Option[Int],
   sponsor: Boolean,
@@ -104,7 +127,7 @@ case class ExponentData(
   logoUrl: String,
   landingUrl: String,
   siteUrl: String,
-  place: Option[Place],
+  place: Option[String],
   team: List[Person],
   level: Option[Int],
   sponsor: Boolean,
@@ -119,7 +142,7 @@ object ExponentData {
     "logoUrl" -> text,
     "landingUrl" -> text,
     "siteUrl" -> text,
-    "place" -> optional(Place.fields),
+    "place" -> optional(text),
     "team" -> list(Person.fields),
     "level" -> optional(number),
     "sponsor" -> boolean,

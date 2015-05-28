@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class Session(
+case class OldSession(
   uuid: String,
   eventId: String,
   name: String,
@@ -15,6 +15,27 @@ case class Session(
   format: String,
   category: String,
   place: Place, // where to find this exponent
+  start: Option[DateTime],
+  end: Option[DateTime],
+  speakers: List[Person],
+  tags: List[String],
+  source: Option[DataSource], // where the session were fetched (if applies)
+  created: DateTime,
+  updated: DateTime) {
+  def transform(): Session = Session(this.uuid, this.eventId, this.name, this.description, this.format, this.category, this.place.name, this.start, this.end, this.speakers, this.tags, this.source, this.created, this.updated)
+}
+object OldSession {
+  implicit val format = Json.format[OldSession]
+}
+
+case class Session(
+  uuid: String,
+  eventId: String,
+  name: String,
+  description: String,
+  format: String,
+  category: String,
+  place: String, // where to find this exponent
   start: Option[DateTime],
   end: Option[DateTime],
   speakers: List[Person],
@@ -35,9 +56,7 @@ object Session {
         d.get("description").getOrElse(""),
         d.get("format").getOrElse(""),
         d.get("category").getOrElse(""),
-        Place(
-          d.get("place.ref").getOrElse(""),
-          d.get("place.name").getOrElse("")),
+        d.get("place").getOrElse(""),
         d.get("start").map(d => DateTime.parse(d, FileImporter.dateFormat)),
         d.get("end").map(d => DateTime.parse(d, FileImporter.dateFormat)),
         d.get("speakers").flatMap(json => Json.parse(json).asOpt[List[Person]]).getOrElse(List()),
@@ -55,8 +74,7 @@ object Session {
     "description" -> e.description,
     "format" -> e.format,
     "category" -> e.category,
-    "place.ref" -> e.place.ref,
-    "place.name" -> e.place.name,
+    "place" -> e.place,
     "start" -> e.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "end" -> e.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "speakers" -> Json.stringify(Json.toJson(e.speakers)),
@@ -74,7 +92,7 @@ case class SessionUI(
   description: String,
   format: String,
   category: String,
-  place: Place,
+  place: String,
   start: Option[DateTime],
   end: Option[DateTime],
   speakers: List[Person],
@@ -96,7 +114,7 @@ case class SessionData(
   description: String,
   format: String,
   category: String,
-  place: Place,
+  place: String,
   start: Option[DateTime],
   end: Option[DateTime],
   speakers: List[Person],
@@ -109,7 +127,7 @@ object SessionData {
     "description" -> text,
     "format" -> text,
     "category" -> text,
-    "place" -> Place.fields,
+    "place" -> text,
     "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "speakers" -> list(Person.fields),

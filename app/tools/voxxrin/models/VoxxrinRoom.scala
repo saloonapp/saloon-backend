@@ -8,7 +8,7 @@ case class VoxxrinRoom(
   name: String,
   uri: String,
   lastmodified: Option[Long]) {
-  def toPlace(): Place = Place(this.id, this.name)
+  def toPlace(): String = this.name
 }
 object VoxxrinRoom {
   implicit val format = Json.format[VoxxrinRoom]

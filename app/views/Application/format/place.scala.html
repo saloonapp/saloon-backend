@@ -1,8 +1,0 @@
-@(place: Place)
-
-@(place.ref.isEmpty && place.name.isEmpty) match {
-	case true => { @placeOpt(None) }
-	case false => {
-		<span class="place" @if(!place.ref.isEmpty){ title="Ref: @place.ref" }>@{if(place.name.isEmpty){ place.ref } else { place.name }}</span>
-	}
-}

@@ -11,7 +11,7 @@
 		<h4 class="media-heading"><a href="@exponent.siteUrl" target="_blank">@exponent.name</a></h4>
 		<p class="well">@textMultiline(exponent.description)</p>
 		<p class="text-muted">
-			@placeOpt(exponent.place) |
+			@exponent.place |
 			niveau: @exponent.level.map(_.toString).getOrElse("") @if(exponent.sponsor){ + sponsor } |
 			@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }
 		</p>
