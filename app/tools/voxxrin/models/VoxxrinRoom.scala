@@ -1,6 +1,5 @@
 package tools.voxxrin.models
 
-import models.Place
 import play.api.libs.json.Json
 
 case class VoxxrinRoom(
