@@ -7,46 +7,6 @@ import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class OldAddress(name: String)
-object OldAddress {
-  implicit val format = Json.format[OldAddress]
-}
-case class OldEvent(
-  uuid: String,
-  image: String,
-  name: String,
-  description: String,
-  start: Option[DateTime],
-  end: Option[DateTime],
-  address: Option[OldAddress],
-  twitterHashtag: Option[String],
-  published: Boolean,
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Event = Event(
-    this.uuid,
-    this.name,
-    this.description,
-    this.image,
-    this.image,
-    "",
-    this.start,
-    this.end,
-    this.address.map(a => Address("", a.name, "", "")).getOrElse(Address("", "", "", "")),
-    "",
-    "",
-    this.twitterHashtag,
-    None,
-    List(),
-    this.published,
-    None,
-    this.created,
-    this.updated)
-}
-object OldEvent {
-  implicit val format = Json.format[OldEvent]
-}
-
 case class Event(
   uuid: String,
   name: String,

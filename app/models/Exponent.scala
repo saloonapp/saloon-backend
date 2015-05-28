@@ -7,42 +7,6 @@ import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class OldExponent(
-  uuid: String,
-  eventId: String,
-  image: String,
-  name: String,
-  description: String,
-  company: String,
-  place: Place,
-  siteUrl: Option[String],
-  siteName: Option[String],
-  images: Option[List[String]],
-  tags: List[String],
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Exponent = Exponent(
-    this.uuid,
-    this.eventId,
-    this.name,
-    this.description,
-    this.image,
-    this.image,
-    this.siteUrl.getOrElse(""),
-    Some(this.place),
-    List(),
-    None,
-    false,
-    this.tags,
-    this.images.getOrElse(List()),
-    None,
-    this.created,
-    this.updated)
-}
-object OldExponent {
-  implicit val format = Json.format[OldExponent]
-}
-
 case class Exponent(
   uuid: String,
   eventId: String,

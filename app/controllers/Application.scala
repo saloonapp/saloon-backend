@@ -18,8 +18,8 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  //def migrate = TODO
-  def migrate = Action.async {
+  def migrate = TODO
+  /*def migrate = Action.async {
     for {
       m1 <- migrateEvents()
       m2 <- migrateSessions()
@@ -42,7 +42,7 @@ object Application extends Controller {
     ExponentRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       ExponentRepository.update(e.uuid, e.transform())
     }))
-  }
+  }*/
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(
