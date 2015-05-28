@@ -4,7 +4,6 @@ import common.models.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
 import models.Session
-import models.OldSession
 import models.SessionUI
 import scala.concurrent.Future
 import play.api.Play.current
@@ -21,7 +20,7 @@ trait MongoDbSessionRepository extends Repository[Session] {
 
   private val crud = MongoDbCrudUtils(collection, Session.format, List("name", "description", "format", "category", "place.ref", "place.name", "speakers.name", "speakers.description", "speakers.company", "tags"), "uuid")
 
-  def findAllOld(): Future[List[OldSession]] = collection.find(Json.obj()).cursor[OldSession].collect[List]()
+  //def findAllOld(): Future[List[OldSession]] = collection.find(Json.obj()).cursor[OldSession].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Session]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Session]] = crud.findPage(query, page, pageSize, sort, filter)
   override def getByUuid(uuid: String): Future[Option[Session]] = crud.getByUuid(uuid)

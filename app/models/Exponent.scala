@@ -7,30 +7,6 @@ import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class OldExponent(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  logoUrl: String, // squared logo of event (~ 100x100)
-  landingUrl: String, // landscape img for event (in info screen) (~ 400x150)
-  siteUrl: String,
-  place: Option[Place], // where to find this exponent
-  team: List[Person], // people being part of this exponent
-  level: Option[Int], // level of exponent (sponsoring) : lower is better
-  sponsor: Boolean, // to show it on info tab
-  tags: List[String],
-  images: List[String],
-  source: Option[DataSource], // where the exponent were fetched (if applies)
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Exponent = Exponent(this.uuid, this.eventId, this.name, this.description, this.logoUrl, this.landingUrl, this.siteUrl, this.place.map(_.name), this.team, this.level,
-    this.sponsor, this.tags, this.images, this.source, this.created, this.updated)
-}
-object OldExponent {
-  implicit val format = Json.format[OldExponent]
-}
-
 case class Exponent(
   uuid: String,
   eventId: String,

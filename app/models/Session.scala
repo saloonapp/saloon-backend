@@ -7,27 +7,6 @@ import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class OldSession(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  format: String,
-  category: String,
-  place: Place, // where to find this exponent
-  start: Option[DateTime],
-  end: Option[DateTime],
-  speakers: List[Person],
-  tags: List[String],
-  source: Option[DataSource], // where the session were fetched (if applies)
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Session = Session(this.uuid, this.eventId, this.name, this.description, this.format, this.category, this.place.name, this.start, this.end, this.speakers, this.tags, this.source, this.created, this.updated)
-}
-object OldSession {
-  implicit val format = Json.format[OldSession]
-}
-
 case class Session(
   uuid: String,
   eventId: String,
