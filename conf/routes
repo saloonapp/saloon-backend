@@ -101,6 +101,8 @@ POST      /api/v1/tools/crashs/batch                                            
 GET       /api/v1/tools/crashs/:crashId                                           controllers.tools.Crashs.get(crashId: String)
 DELETE    /api/v1/tools/crashs/:crashId                                           controllers.tools.Crashs.delete(crashId: String)
 
+POST      /api/v1/tools/events/batch                                              controllers.tools.Crashs.tmpReveiceEvents()
+
 # Allow cross-origin for API
 OPTIONS   /api/v1/*all                                                            controllers.Application.corsPreflight(all: String)
 

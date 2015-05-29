@@ -38,6 +38,12 @@ object Crashs extends Controller {
     }.getOrElse(Future(BadRequest))
   }
 
+  def tmpReveiceEvents() = Action(parse.json) { implicit req =>
+    req.body.asOpt[List[JsValue]].map { batch =>
+      Ok(Json.obj("inserted" -> batch.length))
+    }.getOrElse(BadRequest)
+  }
+
   def delete(crashId: String) = Action.async { implicit req =>
     CrashRepository.delete(crashId).map { err =>
       if (err.ok) NoContent else InternalServerError
