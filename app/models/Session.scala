@@ -26,6 +26,7 @@ case class Session(
 }
 object Session {
   implicit val format = Json.format[Session]
+  private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
     if (d.get("name").isDefined) {
       Some(Session(
@@ -36,13 +37,13 @@ object Session {
         d.get("format").getOrElse(""),
         d.get("category").getOrElse(""),
         d.get("place").getOrElse(""),
-        d.get("start").map(d => DateTime.parse(d, FileImporter.dateFormat)),
-        d.get("end").map(d => DateTime.parse(d, FileImporter.dateFormat)),
+        d.get("start").flatMap(d => parseDate(d)),
+        d.get("end").flatMap(d => parseDate(d)),
         d.get("speakers").flatMap(json => Json.parse(json).asOpt[List[Person]]).getOrElse(List()),
         Utils.toList(d.get("tags").getOrElse("")),
         d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
-        d.get("created").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime()),
-        d.get("updated").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime())))
+        d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
+        d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
     } else {
       None
     }

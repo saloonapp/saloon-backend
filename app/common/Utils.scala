@@ -1,5 +1,8 @@
 package common
 
+import services.FileImporter
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormatter
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play
@@ -15,6 +18,7 @@ object Utils {
   def fromList(tags: List[String]): String = tags.mkString(", ")
   def toTwitterHashtag(str: String): String = if (str.startsWith("#")) str.substring(1) else str
   def toTwitterAccount(str: String): String = if (str.startsWith("@")) str.substring(1) else str
+  def parseDate(format: DateTimeFormatter)(date: String): Option[DateTime] = if (date.isEmpty()) None else Some(DateTime.parse(date, FileImporter.dateFormat))
 
   def htmlToText(html: String): String = Jsoup.parse(html.replaceAll("\\n", "\\\\n")).text().replaceAll("\\\\n", "\n")
   /*

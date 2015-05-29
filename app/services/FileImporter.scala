@@ -36,6 +36,7 @@ object FileImporter {
     val errors = lines.map { line => formatData(line).map(_ => None).getOrElse(Some(line)) }.flatten
 
     (if (cfg.shouldClean) { deleteOld() } else { Future(true) }).flatMap { _ =>
+      // TODO : perform bulk upsert !!!
       bulkInsert(elts).map { inserted => (inserted, errors) }
     }
   }

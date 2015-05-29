@@ -30,6 +30,7 @@ case class Event(
 }
 object Event {
   implicit val format = Json.format[Event]
+  private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(d: Map[String, String]): Option[Event] =
     if (d.get("name").isDefined) {
       Some(Event(
@@ -39,8 +40,8 @@ object Event {
         d.get("logoUrl").getOrElse(""),
         d.get("landingUrl").getOrElse(""),
         d.get("siteUrl").getOrElse(""),
-        d.get("start").map(d => DateTime.parse(d, FileImporter.dateFormat)),
-        d.get("end").map(d => DateTime.parse(d, FileImporter.dateFormat)),
+        d.get("start").flatMap(d => parseDate(d)),
+        d.get("end").flatMap(d => parseDate(d)),
         Address(
           d.get("address.name").getOrElse(""),
           d.get("address.street").getOrElse(""),
@@ -53,8 +54,8 @@ object Event {
         Utils.toList(d.get("tags").getOrElse("")),
         d.get("published").map(_.toBoolean).getOrElse(false),
         d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
-        d.get("created").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime()),
-        d.get("updated").map(d => DateTime.parse(d, FileImporter.dateFormat)).getOrElse(new DateTime())))
+        d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
+        d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
     } else {
       None
     }
