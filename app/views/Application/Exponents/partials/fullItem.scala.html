@@ -5,7 +5,7 @@
 
 <div class="media">
 	<div class="media-left">
-		<img class="media-object" src="@exponent.logoUrl" style="max-height: 100px;">
+		<img class="media-object" src="@exponent.logoUrl">
 	</div>
 	<div class="media-body">
 		<h4 class="media-heading"><a href="@exponent.siteUrl" target="_blank">@exponent.name</a></h4>
@@ -15,21 +15,11 @@
 			niveau: @exponent.level.map(_.toString).getOrElse("") @if(exponent.sponsor){ + sponsor } |
 			@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }
 		</p>
-		@exponent.team.map { person =>
-			<div class="media">
-				<div class="media-left">
-					<img class="media-object" src="@person.avatar" style="max-height: 50px;">
-				</div>
-				<div class="media-body">
-					<h4 class="media-heading">@person.name</h4>
-					@person.description
-				</div>
-			</div>
-		}
-		<img src="@exponent.landingUrl" style="max-height: 150px;">
+		@exponent.team.map { person => @views.html.Application.partials.personListItem(person) }
+		<img src="@exponent.landingUrl">
 		@if(exponent.images.length > 0){ <h4>Autres images :</h4> }
 		@exponent.images.map { img =>
-			<img src="@img" style="max-height: 150px;">
+			<img src="@img">
 		}
 	</div>
 </div>

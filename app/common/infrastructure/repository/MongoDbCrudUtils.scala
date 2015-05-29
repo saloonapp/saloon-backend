@@ -27,7 +27,7 @@ case class MongoDbCrudUtils[T](
   fieldUuid: String) {
   implicit val r: Reads[T] = format
   implicit val w: Writes[T] = format
-  def find(filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.find(collection, filter)
+  def find(filter: JsObject = Json.obj(), sort: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.find(collection, filter, sort)
   def get(filter: JsObject = Json.obj()): Future[Option[T]] = MongoDbCrudUtils.get(collection, filter)
   def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(collection, elt)
   def update(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
@@ -50,8 +50,8 @@ case class MongoDbCrudUtils[T](
   def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
 object MongoDbCrudUtils {
-  def find[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[List[T]] = {
-    collection.find(filter).cursor[T].collect[List]()
+  def find[T](collection: JSONCollection, filter: JsObject = Json.obj(), sort: JsObject = Json.obj())(implicit r: Reads[T]): Future[List[T]] = {
+    collection.find(filter).sort(sort).cursor[T].collect[List]()
   }
 
   def get[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = {

@@ -16,7 +16,9 @@
 @fieldHorizontal(exponentForm("landingUrl"), 'label -> "Image paysage"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/wp-content/themes/soat/images/logo.svg")}
 @fieldHorizontal(exponentForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
 @fieldHorizontal(exponentForm("place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
-@* team *@
+@helper.repeat(exponentForm("team"), min = 1) { personField =>
+	@fieldHorizontal(personField, 'label -> "Equipe"){ field =>@views.html.Application.partials.personForm(field) }
+}
 @fieldHorizontal(exponentForm("level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
 @fieldHorizontal(exponentForm("sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}
 @fieldHorizontal(exponentForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: Java-JEE, Microsoft, Front-end, Mobile, méthodes agiles")}

@@ -1,4 +1,17 @@
 @*@(personForm: Form[Person])*@
 @(personForm: Field)
 
-Yo !
+@import helpers.forms._
+
+@fieldHorizontal(personForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Loïc Knuchel")}
+@fieldHorizontal(personForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'placeholder -> "ex: Développeur web")}
+@fieldHorizontal(personForm("company"), 'label -> "Société"){field => @inputText(field, 'placeholder -> "ex: Freelance")}
+@fieldHorizontal(personForm("avatar"), 'label -> "Avatar"){field => @inputText(field, 'placeholder -> "ex: http://loic.knuchel.org/images/person.png")}
+@fieldHorizontal(personForm("profilUrl"), 'label -> "Profil"){field => @inputText(field, 'placeholder -> "ex: http://loic.knuchel.org/")}
+<div class="form-inline">
+	@inputText(personForm("social.siteUrl"), 'placeholder -> "site")
+	@inputText(personForm("social.facebookUrl"), 'placeholder -> "facebook")
+	@inputText(personForm("social.twitterUrl"), 'placeholder -> "twitter")
+	@inputText(personForm("social.linkedinUrl"), 'placeholder -> "linkedin")
+	@inputText(personForm("social.githubUrl"), 'placeholder -> "github")
+</div>

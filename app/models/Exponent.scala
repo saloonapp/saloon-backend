@@ -126,7 +126,7 @@ object ExponentData {
     "tags" -> text,
     "images" -> text)(ExponentData.apply)(ExponentData.unapply)
 
-  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, Utils.toList(d.tags), Utils.toList(d.images), None, new DateTime(), new DateTime())
+  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team.filter(!_.name.isEmpty), d.level, d.sponsor, Utils.toList(d.tags), Utils.toList(d.images), None, new DateTime(), new DateTime())
   def fromModel(d: Exponent): ExponentData = ExponentData(d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, Utils.fromList(d.tags), Utils.fromList(d.images))
-  def merge(m: Exponent, d: ExponentData): Exponent = toModel(d).copy(uuid = m.uuid, team = m.team, source = m.source, created = m.created) // TODO  don't update speakers until form is ready
+  def merge(m: Exponent, d: ExponentData): Exponent = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
 }
