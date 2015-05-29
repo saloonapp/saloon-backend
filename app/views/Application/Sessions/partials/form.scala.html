@@ -18,4 +18,7 @@
 @fieldHorizontal(sessionForm("start"), 'label -> "Début"){field => @inputDatetime(field)}
 @fieldHorizontal(sessionForm("end"), 'label -> "Fin"){field => @inputDatetime(field)}
 @* speakers *@
+@*@helper.repeat(sessionForm("speakers"), min = 1) { speakerField =>
+	@views.html.Application.partials.personForm(speakerField)
+}*@
 @fieldHorizontal(sessionForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: RxJS, ES6, functionnal programming, événementiel, React, Angular")}
