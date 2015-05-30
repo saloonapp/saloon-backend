@@ -66,7 +66,12 @@ object Events extends Controller {
   def details(uuid: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
-        EventSrv.addMetadata(elt).map { eltUI => Ok(viewDetails(eltUI)) }
+        for {
+          stats <- EventSrv.getStatistics(uuid)
+          eltUI <- EventSrv.addMetadata(elt)
+        } yield {
+          Ok(viewDetails(eltUI, stats))
+        }
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }

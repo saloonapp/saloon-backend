@@ -1,4 +1,4 @@
-@(event: EventUI)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(event: EventUI, stats: List[(EventItem, Map[String, Int])])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout(event.name) {
 	<div class="row">
@@ -14,6 +14,28 @@
 				</div>
 				<div class="widget-body">
 					@partials.fullItem(event)
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">Statistiques</div>
+				<div class="widget-body">
+					<ul>
+						@stats.map { stat =>
+							<li>
+								@stat._1 match {
+									case models.Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
+									case models.Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
+									case models.Event(uuid,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
+									case unknown => { Inconnu @unknown }
+								}
+								@stat._2.map(s => s._2+" "+s._1).mkString(", ")
+							</li>
+						}
+					<ul>
 				</div>
 			</div>
 		</div>
