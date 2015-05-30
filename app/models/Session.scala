@@ -29,6 +29,9 @@ object Session {
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
     if (d.get("name").isDefined) {
+      play.Logger.info("uuid: " + d.get("uuid").getOrElse(""))
+      play.Logger.info("name: " + d.get("name").getOrElse(""))
+      play.Logger.info("speakers: " + d.get("speakers").getOrElse("") + "\n\n\n\n")
       Some(Session(
         d.get("uuid").getOrElse(Repository.generateUuid()),
         eventId,
@@ -39,7 +42,7 @@ object Session {
         d.get("place").getOrElse(""),
         d.get("start").flatMap(d => parseDate(d)),
         d.get("end").flatMap(d => parseDate(d)),
-        d.get("speakers").flatMap(json => Json.parse(json).asOpt[List[Person]]).getOrElse(List()),
+        d.get("speakers").flatMap(json => Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
         Utils.toList(d.get("tags").getOrElse("")),
         d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
         d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
@@ -57,16 +60,12 @@ object Session {
     "place" -> e.place,
     "start" -> e.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "end" -> e.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
-    "speakers" -> Json.stringify(Json.toJson(e.speakers.map(escape))),
+    "speakers" -> Json.stringify(Json.toJson(e.speakers)),
     "tags" -> Utils.fromList(e.tags),
     "source.ref" -> e.source.map(_.ref).getOrElse(""),
     "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))
-
-  private def escape(p: Person): Person = {
-    p.copy(description = p.description.replace("\r", "\\r").replace("\n", "\\n"))
-  }
 }
 
 case class SessionUI(
