@@ -23,8 +23,13 @@ trait MongoDbUserRepository extends Repository[User] {
   override def getByUuid(uuid: String): Future[Option[User]] = crud.getByUuid(uuid)
   override def insert(elt: User): Future[Option[User]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
   override def update(uuid: String, elt: User): Future[Option[User]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
-  override def delete(uuid: String): Future[Option[User]] = crud.delete(uuid).map(err => None) // TODO : return deleted elt !
-  
+  override def delete(uuid: String): Future[Option[User]] = {
+    crud.delete(uuid).map { err =>
+      UserActionRepository.deleteByUser(uuid)
+      None
+    } // TODO : return deleted elt !
+  }
+
   def getByDevice(deviceId: String): Future[Option[User]] = crud.getBy("device.uuid", deviceId)
 }
 object UserRepository extends MongoDbUserRepository
