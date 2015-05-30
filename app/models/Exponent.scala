@@ -40,7 +40,7 @@ object Exponent {
         d.get("landingUrl").getOrElse(""),
         d.get("siteUrl").getOrElse(""),
         d.get("place"),
-        d.get("team").flatMap(json => Json.parse(json).asOpt[List[Person]]).getOrElse(List()),
+        d.get("team").flatMap(json => Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
         d.get("level").map(_.toInt),
         d.get("sponsor").map(_.toBoolean).getOrElse(false),
         Utils.toList(d.get("tags").getOrElse("")),

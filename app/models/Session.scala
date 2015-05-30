@@ -29,9 +29,6 @@ object Session {
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
     if (d.get("name").isDefined) {
-      play.Logger.info("uuid: " + d.get("uuid").getOrElse(""))
-      play.Logger.info("name: " + d.get("name").getOrElse(""))
-      play.Logger.info("speakers: " + d.get("speakers").getOrElse("") + "\n\n\n\n")
       Some(Session(
         d.get("uuid").getOrElse(Repository.generateUuid()),
         eventId,
