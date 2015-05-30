@@ -57,12 +57,16 @@ object Session {
     "place" -> e.place,
     "start" -> e.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "end" -> e.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
-    "speakers" -> Json.stringify(Json.toJson(e.speakers)),
+    "speakers" -> Json.stringify(Json.toJson(e.speakers.map(escape))),
     "tags" -> Utils.fromList(e.tags),
     "source.ref" -> e.source.map(_.ref).getOrElse(""),
     "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))
+
+  private def escape(p: Person): Person = {
+    p.copy(description = p.description.replace("\r", "\\r").replace("\n", "\\n"))
+  }
 }
 
 case class SessionUI(
