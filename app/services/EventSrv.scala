@@ -35,7 +35,7 @@ object EventSrv {
           case (actionName, actions) => (actionName, actions.length)
         })
       }
-      fetchItems(actionStats).map(_.sortBy(e => coundAction(e._2)))
+      fetchItems(actionStats).map(_.sortBy(e => -coundAction(e._2)))
     }
   }
   private def fetchItems[A](actions: Map[(String, String), A]): Future[List[(EventItem, A)]] = {
