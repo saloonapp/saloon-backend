@@ -159,7 +159,7 @@ object Events extends Controller {
                       }
                     }
                   }
-              }.getOrElse(Future(Redirect(mainRoute.operations()).flashing("error" -> "Not found !!!")))
+              }.getOrElse(Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>$eventId</b> n'existe pas sur <b>$remoteHost</b>")))))
             }
           }
           case _ => Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'url <b>${formData.url}</b> ne correspond pas au format attendu..."))))
