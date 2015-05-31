@@ -96,6 +96,8 @@ GET       /api/v1/tools/import/voxxrin/events/:eventId/saveInDb/:saloonId       
 GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId                 controllers.tools.Voxxrin.getEventDay(eventId: String, dayId: String)
 GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId        controllers.tools.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
 
+GET       /api/v1/tools/scrapers/metas                                            controllers.tools.Scrapers.getMetas(url: String)
+
 GET       /api/v1/tools/crashs                                                    controllers.tools.Crashs.getAll()
 POST      /api/v1/tools/crashs                                                    controllers.tools.Crashs.receive()
 POST      /api/v1/tools/crashs/batch                                              controllers.tools.Crashs.receiveBatch()
