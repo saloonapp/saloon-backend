@@ -1,4 +1,4 @@
-package tools.scrapers.models
+package tools.scrapers.meta.models
 
 import play.api.libs.json.Json
 

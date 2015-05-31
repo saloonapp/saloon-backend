@@ -18,7 +18,7 @@ object Utils {
   def fromList(tags: List[String]): String = tags.mkString(", ")
   def toTwitterHashtag(str: String): String = if (str.startsWith("#")) str.substring(1) else str
   def toTwitterAccount(str: String): String = if (str.startsWith("@")) str.substring(1) else str
-  def parseDate(format: DateTimeFormatter)(date: String): Option[DateTime] = if (date.isEmpty()) None else Some(DateTime.parse(date, FileImporter.dateFormat))
+  def parseDate(format: DateTimeFormatter)(date: String): Option[DateTime] = if (date.isEmpty()) None else Some(DateTime.parse(date, format))
 
   def htmlToText(html: String): String = Jsoup.parse(html.replaceAll("\\n", "\\\\n")).text().replaceAll("\\\\n", "\n")
   /*

@@ -1,6 +1,6 @@
-package tools.scrapers
+package tools.scrapers.meta
 
-import tools.scrapers.models.SiteMetas
+import tools.scrapers.meta.models.SiteMetas
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current

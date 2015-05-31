@@ -1,6 +1,6 @@
 package controllers.tools
 
-import tools.scrapers.MetaScraper
+import tools.scrapers.meta.MetaScraper
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

@@ -97,6 +97,8 @@ GET       /api/v1/tools/import/voxxrin/events/:eventId/day/:dayId               
 GET       /api/v1/tools/import/voxxrin/events/:eventId/speakers/:speakerId        controllers.tools.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
 
 GET       /api/v1/tools/scrapers/metas                                            controllers.tools.Scrapers.getMetas(url: String)
+GET       /api/v1/tools/scrapers/lanyrd/places/:place                             controllers.tools.Lanyrd.getPlaceEvents(place: String, page: Int ?= 1, maxPages: Int ?= 1)
+GET       /api/v1/tools/scrapers/lanyrd/events/:year/:id                          controllers.tools.Lanyrd.getEvent(year: String, id: String)
 
 GET       /api/v1/tools/crashs                                                    controllers.tools.Crashs.getAll()
 POST      /api/v1/tools/crashs                                                    controllers.tools.Crashs.receive()
