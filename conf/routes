@@ -12,6 +12,7 @@ GET       /events/create                                                        
 POST      /events                                                                 controllers.Events.doCreate
 GET       /events/operations                                                      controllers.Events.operations
 POST      /events/fileImport                                                      controllers.Events.fileImport
+POST      /events/urlImport                                                       controllers.Events.urlImport
 POST      /events/fileExport                                                      controllers.Events.fileExport
 GET       /events/:eventId                                                        controllers.Events.details(eventId: String)
 GET       /events/:eventId/edit                                                   controllers.Events.update(eventId: String)

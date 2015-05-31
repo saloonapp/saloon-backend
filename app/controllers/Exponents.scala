@@ -4,7 +4,7 @@ import common.FileBodyParser
 import common.models.Page
 import models.Exponent
 import models.ExponentData
-import models.ImportConfig
+import models.FileImportConfig
 import services.FileImporter
 import services.FileExporter
 import common.infrastructure.repository.Repository
@@ -18,7 +18,7 @@ import play.api.data.Form
 
 object Exponents extends Controller {
   val form: Form[ExponentData] = Form(ExponentData.fields)
-  val importForm = Form(ImportConfig.fields)
+  val fileImportForm = Form(FileImportConfig.fields)
   val repository: Repository[Exponent] = ExponentRepository
   val mainRoute = routes.Exponents
   val viewList = views.html.Application.Exponents.list
@@ -128,7 +128,7 @@ object Exponents extends Controller {
   def operations(eventId: String) = Action.async { implicit req =>
     EventRepository.getByUuid(eventId).map { eventOpt =>
       eventOpt
-        .map { event => Ok(viewOps(importForm, event)) }
+        .map { event => Ok(viewOps(fileImportForm.fill(FileImportConfig(true)), event)) }
         .getOrElse(NotFound(views.html.error404()))
     }
   }
@@ -136,7 +136,7 @@ object Exponents extends Controller {
   def fileImport(eventId: String) = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
-        importForm.bindFromRequest.fold(
+        fileImportForm.bindFromRequest.fold(
           formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
           formData => {
             req.body.file("importedFile").map { filePart =>
@@ -148,7 +148,7 @@ object Exponents extends Controller {
                       "success" -> successImportFlash(nbInserted),
                       "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
               }
-            }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData), event)).flashing("error" -> "You must import a file !")))
+            }.getOrElse(Future(BadRequest(viewOps(fileImportForm.fill(formData), event)).flashing("error" -> "You must import a file !")))
           })
       }.getOrElse(Future(NotFound(views.html.error404())))
     }

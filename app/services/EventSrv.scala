@@ -1,12 +1,18 @@
 package services
 
 import models._
+import common.infrastructure.repository.Repository
+import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.UserActionRepository
 import infrastructure.repository.EventItemRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.Play.current
+import play.api.libs.ws._
+import play.api.mvc.RequestHeader
+import reactivemongo.core.commands.LastError
 
 object EventSrv {
   def addMetadata(event: Event): Future[EventUI] = {
@@ -59,6 +65,36 @@ object EventSrv {
       case CommentUserAction(text, comment) => CommentUserAction.className
       case SubscribeUserAction(email, filter, subscribe) => SubscribeUserAction.className
       case _ => "unknown"
+    }
+  }
+
+  def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
+    val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
+    val remoteUrl = localUrl.replace(req.host, remoteHost)
+    WS.url(remoteUrl).get().map { response =>
+      response.json.asOpt[Event].map { event =>
+        val sessions = (response.json \ "sessions").as[List[Session]]
+        val exponents = (response.json \ "exponents").as[List[Exponent]]
+
+        if (generateIds) {
+          val newEventId = Repository.generateUuid()
+          (event.copy(uuid = newEventId),
+            sessions.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)),
+            exponents.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)))
+        } else {
+          (event, sessions, exponents)
+        }
+      }
+    }
+  }
+
+  def insertAll(event: Event, sessions: List[Session], exponents: List[Exponent]): Future[Option[Event]] = {
+    EventRepository.insert(event).map { insertedOpt =>
+      if (insertedOpt.isDefined) {
+        SessionRepository.bulkInsert(sessions)
+        ExponentRepository.bulkInsert(exponents)
+      }
+      insertedOpt
     }
   }
 }

@@ -1,4 +1,4 @@
-@(importForm: Form[ImportConfig])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(fileImportForm: Form[FileImportConfig], urlImportForm: Form[UrlImportConfig])(implicit flash: Flash)
 
 @import helpers.forms._
 @import services.FileImporter
@@ -13,8 +13,8 @@
 				</div>
 				<div class="widget-body">
 					<form method="POST" action="@routes.Events.fileImport" enctype="multipart/form-data">
-						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")
-						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
+						@fieldCheckbox(fileImportForm("shouldClean"), 'label -> "Supprimer les éléments existants")
+						@fieldVertical(fileImportForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
 							<p class="help-block">
 								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
@@ -31,10 +31,27 @@
 		</div>
 		<div class="col-md-6">
 			<div class="widget">
-				<div class="widget-header">Exporter les événements</div>
+				<div class="widget-header">Exporter tous les événements</div>
 				<div class="widget-body">
 					<form method="POST" action="@routes.Events.fileExport">
-						<button type="submit" class="btn btn-success">Exporter</button>
+						<button type="submit" class="btn btn-success">Exporter (génère un .csv)</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Importer un événement complet</div>
+				<div class="widget-body">
+					Importer un événement complet depuis son url.<br>
+					<br>
+					<form method="POST" action="@routes.Events.urlImport">
+						@fieldVertical(urlImportForm("url"), 'label -> "Url"){field => @inputText(field, 'placeholder -> "ex: https://saloonapp.herokuapp.com/events/d670f172-ce20-45dc-8822-6b854dd77a06")}
+						@fieldCheckbox(urlImportForm("replaceIds"), 'label -> "Supprimer l'événément existant avec le même id (s'il existe)")
+						@fieldCheckbox(urlImportForm("newIds"), 'label -> "Créer de nouveaux ids pour l'événement et ses éléments (sessions & exposants)")
+						<button type="submit" class="btn btn-success">Importer</button>
 					</form>
 				</div>
 			</div>

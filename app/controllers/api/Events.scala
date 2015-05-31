@@ -52,7 +52,7 @@ object Events extends Controller {
             "sessions" -> sessions.map(e => SessionUI.fromModel(e)),
             "exponents" -> exponents.map(e => ExponentUI.fromModel(e))))
         }
-      }.getOrElse(Future(NotFound))
+      }.getOrElse(Future(NotFound(Json.obj("message" -> s"Event $uuid not found !"))))
     }
   }
 }

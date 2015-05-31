@@ -5,7 +5,8 @@ import common.models.Page
 import models.Event
 import models.EventUI
 import models.EventData
-import models.ImportConfig
+import models.FileImportConfig
+import models.UrlImportConfig
 import services.FileImporter
 import services.FileExporter
 import services.EventSrv
@@ -21,7 +22,8 @@ import play.api.data.Form
 
 object Events extends Controller {
   val form: Form[EventData] = Form(EventData.fields)
-  val importForm = Form(ImportConfig.fields)
+  val fileImportForm = Form(FileImportConfig.fields)
+  val urlImportForm = Form(UrlImportConfig.fields)
   val repository: Repository[Event] = EventRepository
   val mainRoute = routes.Events
   val viewList = views.html.Application.Events.list
@@ -108,12 +110,12 @@ object Events extends Controller {
   }
 
   def operations = Action { implicit req =>
-    Ok(viewOps(importForm))
+    Ok(viewOps(fileImportForm, urlImportForm.fill(UrlImportConfig("", true, false))))
   }
 
   def fileImport = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
-    importForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewOps(formWithErrors))),
+    fileImportForm.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(viewOps(formWithErrors, urlImportForm))),
       formData => {
         req.body.file("importedFile").map { filePart =>
           val reader = new java.io.StringReader(new String(filePart.ref))
@@ -124,7 +126,44 @@ object Events extends Controller {
                   "success" -> successImportFlash(nbInserted),
                   "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
           }
-        }.getOrElse(Future(BadRequest(viewOps(importForm.fill(formData))).flashing("error" -> "You must import a file !")))
+        }.getOrElse(Future(BadRequest(viewOps(fileImportForm.fill(formData), urlImportForm)).flashing("error" -> "You must import a file !")))
+      })
+  }
+
+  val urlParser = """https?://(.+\.herokuapp.com)/events/([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})""".r
+  def urlImport = Action.async { implicit req =>
+    urlImportForm.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(viewOps(fileImportForm, formWithErrors))),
+      formData => {
+        formData.url match {
+          case urlParser(remoteHost, eventId) => {
+            EventSrv.fetchEvent(remoteHost, eventId, formData.newIds).flatMap {
+              _.map {
+                case (event, sessions, exponents) =>
+                  EventRepository.getByUuid(event.uuid).flatMap { oldEventOpt =>
+                    if (oldEventOpt.isDefined) {
+                      if (formData.replaceIds) {
+                        EventRepository.delete(event.uuid).flatMap { opt =>
+                          EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
+                            if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien mis à jour") }
+                            else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la mise à jour de ${event.name} (id: ${event.uuid})"))) }
+                          }
+                        }
+                      } else {
+                        Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>${event.uuid}</b> existe déjà. Créez de nouveaux ids ou permettez de supprimer l'événement existant."))))
+                      }
+                    } else {
+                      EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
+                        if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien créé") }
+                        else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la création de ${event.name} (id: ${event.uuid})"))) }
+                      }
+                    }
+                  }
+              }.getOrElse(Future(Redirect(mainRoute.operations()).flashing("error" -> "Not found !!!")))
+            }
+          }
+          case _ => Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'url <b>${formData.url}</b> ne correspond pas au format attendu..."))))
+        }
       })
   }
 
