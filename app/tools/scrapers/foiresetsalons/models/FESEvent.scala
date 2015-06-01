@@ -31,6 +31,7 @@ case class FESEvent(
       "venues" -> this.stats.venues.toString,
       "certified" -> this.stats.certified,
       "orga.name" -> this.orga.name,
+      "orga.sigle" -> this.orga.sigle,
       "orga.address" -> this.orga.address,
       "orga.phone" -> this.orga.phone,
       "orga.site" -> this.orga.site)

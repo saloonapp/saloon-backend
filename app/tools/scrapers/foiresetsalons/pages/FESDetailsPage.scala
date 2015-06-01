@@ -31,7 +31,8 @@ object FESDetailsPage {
       namedValues.get("Produits et services présentés (\"nomenclature\")").getOrElse("").split(", ").toList,
       parseStats(data.html),
       FESOrga(
-        namedValues.get("Raison sociale ou nom et prénom").getOrElse(""),
+        namedValues.get("Raison sociale ou nom et prénom").getOrElse("").split("<br>")(0).trim,
+        parseSigle(namedValues.get("Raison sociale ou nom et prénom").getOrElse("")),
         namedValues.get("Adresse").getOrElse("").replace("<br>", " ").trim,
         namedValues.get("Téléphone").getOrElse("").split("<br>")(0),
         fixUrl(namedValues.get("Adresse du site internet").getOrElse(""))))
@@ -51,10 +52,16 @@ object FESDetailsPage {
     case err => (err, err)
   }
 
-  val statsParser = "(?is)(?:.*)\nSurface nette: ([0-9]+) mÂ² <br> Nombre de visites: ([0-9]+)<br> Nombre d'exposants : ([0-9]+)<br> Nombre de visiteurs : ([0-9]+)<br>(?: <br>Dénomination de l'organisme de certification : ([^\n]+))?\n(?:.*)".r
+  val statsParser = "(?is)(?:.*)\nSurface nette: ([0-9]+) m² <br> Nombre de visites: ([0-9]+)<br> Nombre d'exposants : ([0-9]+)<br> Nombre de visiteurs : ([0-9]+)<br>(?: <br>Dénomination de l'organisme de certification : ([^\n]+))?\n(?:.*)".r
   private def parseStats(html: String): FESStats = html match {
     case statsParser(area, venues, exponents, visitors, certified) => FESStats(area.toInt, exponents.toInt, visitors.toInt, venues.toInt, certified)
     case err => FESStats(0, 0, 0, 0, err)
+  }
+
+  val sigleParser = "(?:.*?)Sigle : (.*)".r
+  private def parseSigle(str: String): String = str match {
+    case sigleParser(res) => res
+    case err => ""
   }
 
   private def fixUrl(url: String): String = if (url.startsWith("http") || url.isEmpty()) url else "http://" + url

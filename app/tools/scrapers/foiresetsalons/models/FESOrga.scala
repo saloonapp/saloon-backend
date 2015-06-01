@@ -4,6 +4,7 @@ import play.api.libs.json.Json
 
 case class FESOrga(
   name: String,
+  sigle: String,
   address: String,
   phone: String,
   site: String)

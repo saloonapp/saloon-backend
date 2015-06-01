@@ -13,7 +13,7 @@ object FoiresEtSalons extends Controller {
 
   def getEvent(url: String) = Action.async { implicit req =>
     FESScraper.getEvent(url).map {
-      res => Ok(Json.toJson(res))
+      _.map { res => Ok(Json.toJson(res)) }.getOrElse(NotFound)
     }
   }
 

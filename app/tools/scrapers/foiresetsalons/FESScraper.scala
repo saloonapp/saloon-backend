@@ -8,6 +8,8 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
 import play.api.libs.ws._
+import scala.concurrent.duration._
+import scala.concurrent.Await
 
 object FESScraper {
   val baseUrl = "https://www.foiresetsalons.entreprises.gouv.fr"
@@ -15,20 +17,28 @@ object FESScraper {
 
   def getEvents(url: String, page: String): Future[List[FESEventItem]] = {
     WS.url(url).get().map { response =>
-      FESListPage.extract(response.body, page)
+      FESListPage.extract(fixEncodage(response.body), page)
     }
   }
 
   def getEventsFull(url: String, page: String, offset: Int, size: Int): Future[List[FESEvent]] = {
-    WS.url(url).get().flatMap { response =>
-      val listFuture = FESListPage.extract(response.body, page).map(_.url).drop(offset).take(size).map(url => getEvent(url))
-      Future.sequence(listFuture)
+    WS.url(url).get().map { response =>
+      /*val listFuture = FESListPage.extract(fixEncodage(response.body), page).map(_.url).drop(offset).take(size).map(url => getEvent(url))
+      Future.sequence(listFuture).map(_.flatten)*/
+      FESListPage.extract(response.body, page).map(_.url).drop(offset).take(size).map(url => Await.result(getEvent(url), 10 seconds)).flatten
     }
   }
 
-  def getEvent(url: String): Future[FESEvent] = {
+  def getEvent(url: String): Future[Option[FESEvent]] = {
     WS.url(url).get().map { response =>
-      FESDetailsPage.extract(response.body, url)
+      Some(FESDetailsPage.extract(fixEncodage(response.body), url))
+    }.recover {
+      case _ => {
+        play.Logger.info("error for url: " + url)
+        None
+      }
     }
   }
+
+  private def fixEncodage(str: String): String = new String(str.getBytes("iso-8859-1"), "utf8")
 }
