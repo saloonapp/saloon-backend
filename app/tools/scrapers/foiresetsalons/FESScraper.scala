@@ -22,9 +22,11 @@ object FESScraper {
   }
 
   def getEventsFull(url: String, page: String, offset: Int, size: Int): Future[List[FESEvent]] = {
+    /*WS.url(url).get().flatMap { response =>
+      val listFuture = FESListPage.extract(fixEncodage(response.body), page).map(_.url).drop(offset).take(size).map(url => getEvent(url))
+      Future.sequence(listFuture).map(_.flatten)
+    }*/
     WS.url(url).get().map { response =>
-      /*val listFuture = FESListPage.extract(fixEncodage(response.body), page).map(_.url).drop(offset).take(size).map(url => getEvent(url))
-      Future.sequence(listFuture).map(_.flatten)*/
       FESListPage.extract(response.body, page).map(_.url).drop(offset).take(size).map(url => Await.result(getEvent(url), 10 seconds)).flatten
     }
   }
@@ -33,8 +35,8 @@ object FESScraper {
     WS.url(url).get().map { response =>
       Some(FESDetailsPage.extract(fixEncodage(response.body), url))
     }.recover {
-      case _ => {
-        play.Logger.info("error for url: " + url)
+      case e => {
+        play.Logger.info("error for url: " + url, e)
         None
       }
     }

@@ -28,13 +28,13 @@ object FESDetailsPage {
       start,
       end,
       namedValues.get("Secteur d'activité").getOrElse("").split(" - ").toList,
-      namedValues.get("Produits et services présentés (\"nomenclature\")").getOrElse("").split(", ").toList,
+      namedValues.get("Produits et services présentés (\"nomenclature\")").getOrElse("").split(", ").toList.map(_.trim).filter(_ != ""),
       parseStats(data.html),
       FESOrga(
-        namedValues.get("Raison sociale ou nom et prénom").getOrElse("").split("<br>")(0).trim,
+        parseFirstLine(namedValues.get("Raison sociale ou nom et prénom").getOrElse("")),
         parseSigle(namedValues.get("Raison sociale ou nom et prénom").getOrElse("")),
         namedValues.get("Adresse").getOrElse("").replace("<br>", " ").trim,
-        namedValues.get("Téléphone").getOrElse("").split("<br>")(0),
+        parseFirstLine(namedValues.get("Téléphone").getOrElse("")),
         fixUrl(namedValues.get("Adresse du site internet").getOrElse(""))))
   }
 
@@ -52,16 +52,26 @@ object FESDetailsPage {
     case err => (err, err)
   }
 
-  val statsParser = "(?is)(?:.*)\nSurface nette: ([0-9]+) m² <br> Nombre de visites: ([0-9]+)<br> Nombre d'exposants : ([0-9]+)<br> Nombre de visiteurs : ([0-9]+)<br>(?: <br>Dénomination de l'organisme de certification : ([^\n]+))?\n(?:.*)".r
+  val statsParser = "(?is)(?:.*)\nSurface nette: ([0-9]*) ?m² <br> Nombre de visites: ([0-9]*)<br> Nombre d'exposants : ([0-9]*)<br> Nombre de visiteurs : ([0-9]*)<br>(?: <br>Dénomination de l'organisme de certification : ([^\n]+))?\n(?:.*)".r
   private def parseStats(html: String): FESStats = html match {
-    case statsParser(area, venues, exponents, visitors, certified) => FESStats(area.toInt, exponents.toInt, visitors.toInt, venues.toInt, certified)
+    case statsParser(area, venues, exponents, visitors, certified) => FESStats(toIntSafe(area), toIntSafe(exponents), toIntSafe(visitors), toIntSafe(venues), certified)
     case err => FESStats(0, 0, 0, 0, err)
+  }
+  private def toIntSafe(str: String): Int = {
+    if (str.isEmpty()) 0
+    else str.toInt
   }
 
   val sigleParser = "(?:.*?)Sigle : (.*)".r
   private def parseSigle(str: String): String = str match {
     case sigleParser(res) => res
     case err => ""
+  }
+
+  private def parseFirstLine(str: String): String = {
+    val arr = str.split("<br>")
+    if (arr.length > 0) { arr(0).trim }
+    else { "" }
   }
 
   private def fixUrl(url: String): String = if (url.startsWith("http") || url.isEmpty()) url else "http://" + url
