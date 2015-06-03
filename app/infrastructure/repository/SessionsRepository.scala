@@ -33,6 +33,7 @@ trait MongoDbSessionRepository extends Repository[Session] {
     } // TODO : return deleted elt !
   }
 
+  def findByUuids(uuids: List[String]): Future[List[Session]] = crud.findByUuids(uuids)
   def findByEvent(eventId: String, query: String = "", sort: String = ""): Future[List[Session]] = crud.findAll(query, sort, Json.obj("eventId" -> eventId))
   def findPageByEvent(eventId: String, query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = ""): Future[Page[Session]] = crud.findPage(query, page, pageSize, sort, Json.obj("eventId" -> eventId))
   def countForEvent(eventId: String): Future[Int] = crud.countFor("eventId", eventId)

@@ -33,6 +33,7 @@ trait MongoDbEventRepository extends Repository[Event] {
     } // TODO : return deleted elt !
   }
 
+  def findByUuids(uuids: List[String]): Future[List[Event]] = crud.findByUuids(uuids)
   def bulkInsert(elts: List[Event]): Future[Int] = crud.bulkInsert(elts)
   def drop(): Future[Boolean] = crud.drop()
 }

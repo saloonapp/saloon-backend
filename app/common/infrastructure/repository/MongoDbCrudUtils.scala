@@ -114,8 +114,12 @@ object MongoDbCrudUtils {
   }
 
   def findByList[T](uuids: Seq[String], collection: JSONCollection, fieldUuid: String = "uuid")(implicit r: Reads[T]): Future[List[T]] = {
-    val mongoFilter = Json.obj("$or" -> uuids.map(uuid => Json.obj(fieldUuid -> uuid)))
-    collection.find(mongoFilter).cursor[T].collect[List]()
+    if (uuids.length > 0) {
+      val mongoFilter = Json.obj(fieldUuid -> Json.obj("$in" -> uuids))
+      collection.find(mongoFilter).cursor[T].collect[List]()
+    } else {
+      Future(List())
+    }
   }
 
   def countForList[T](values: Seq[String], collection: JSONCollection, fieldName: String = "uuid"): Future[Map[String, Int]] = {

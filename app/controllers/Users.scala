@@ -7,6 +7,7 @@ import infrastructure.repository.UserActionRepository
 import models.User
 import models.UserData
 import models.UserAction
+import services.UserSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -58,10 +59,10 @@ object Users extends Controller {
   def details(uuid: String) = Action.async { implicit req =>
     for {
       userOpt <- repository.getByUuid(uuid)
-      actions <- UserActionRepository.findByUser(uuid)
+      actions <- UserSrv.getUserActions(uuid)
     } yield {
       userOpt.map { elt =>
-        Ok(viewDetails(elt, actions.groupBy(_.eventId.getOrElse("unknown"))))
+        Ok(viewDetails(elt, actions))
       }.getOrElse(NotFound(views.html.error404()))
     }
   }

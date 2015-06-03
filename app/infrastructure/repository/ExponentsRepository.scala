@@ -33,6 +33,7 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
     } // TODO : return deleted elt !
   }
 
+  def findByUuids(uuids: List[String]): Future[List[Exponent]] = crud.findByUuids(uuids)
   def findByEvent(eventId: String, query: String = "", sort: String = ""): Future[List[Exponent]] = crud.findAll(query, sort, Json.obj("eventId" -> eventId))
   def findPageByEvent(eventId: String, query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = ""): Future[Page[Exponent]] = crud.findPage(query, page, pageSize, sort, Json.obj("eventId" -> eventId))
   def countForEvent(eventId: String): Future[Int] = crud.countFor("eventId", eventId)
