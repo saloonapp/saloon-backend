@@ -1,4 +1,4 @@
-@(event: EventUI, stats: List[(EventItem, Map[String, Int])])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(event: EventUI, stats: List[(EventItem, Map[String, Int])], users: List[(User, Map[String, Int])])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout(event.name) {
 	<div class="row">
@@ -19,11 +19,11 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<div class="widget">
 				<div class="widget-header">Statistiques</div>
 				<div class="widget-body">
-					<ul>
+					<ol>
 						@stats.map { stat =>
 							<li>
 								@stat._1 match {
@@ -35,7 +35,22 @@
 								@stat._2.map(s => s._2+" "+s._1).mkString(", ")
 							</li>
 						}
-					<ul>
+					<ol>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Utilisateurs</div>
+				<div class="widget-body">
+					<ol>
+						@users.map { case (user, stats) =>
+							<li>
+								User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
+								@stats.map(s => s._2+" "+s._1).mkString(", ")
+							</li>
+						}
+					<ol>
 				</div>
 			</div>
 		</div>

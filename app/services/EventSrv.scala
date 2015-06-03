@@ -5,8 +5,9 @@ import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
-import infrastructure.repository.UserActionRepository
 import infrastructure.repository.EventItemRepository
+import infrastructure.repository.UserActionRepository
+import infrastructure.repository.UserRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
@@ -44,8 +45,23 @@ object EventSrv {
       fetchItems(actionStats).map(_.sortBy(e => -coundAction(e._2)))
     }
   }
+
+  def getUsers(eventId: String): Future[List[(User, Map[String, Int])]] = {
+    UserActionRepository.findByEvent(eventId).flatMap { actions =>
+      val userActions = groupByUser(actions).map {
+        case (userId, actions) => (userId, groupByActionName(actions).map {
+          case (actionName, actions) => (actionName, actions.length)
+        })
+      }
+      fetchUsers(userActions).map(_.sortBy(e => -coundAction(e._2)))
+    }
+  }
   private def fetchItems[A](actions: Map[(String, String), A]): Future[List[(EventItem, A)]] = {
     val listFuture = actions.toList.map { case (item, data) => EventItemRepository.getByUuid(item._1, item._2).map(_.map(i => (i, data))) }
+    Future.sequence(listFuture).map(_.flatten)
+  }
+  private def fetchUsers[A](actions: Map[String, A]): Future[List[(User, A)]] = {
+    val listFuture = actions.toList.map { case (userId, data) => UserRepository.getByUuid(userId).map(_.map(i => (i, data))) }
     Future.sequence(listFuture).map(_.flatten)
   }
   private def groupByActionName(actions: List[UserAction]): Map[String, List[UserAction]] = {
@@ -53,6 +69,9 @@ object EventSrv {
   }
   private def groupByItem(actions: List[UserAction]): Map[(String, String), List[UserAction]] = {
     actions.groupBy(a => (a.itemType, a.itemId))
+  }
+  private def groupByUser(actions: List[UserAction]): Map[String, List[UserAction]] = {
+    actions.groupBy(_.userId)
   }
   private def coundAction(actions: Map[String, Int]): Int = {
     actions.map(_._2).foldLeft(0)(_ + _)

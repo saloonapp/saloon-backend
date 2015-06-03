@@ -70,9 +70,10 @@ object Events extends Controller {
       _.map { elt =>
         for {
           stats <- EventSrv.getStatistics(uuid)
+          users <- EventSrv.getUsers(uuid)
           eltUI <- EventSrv.addMetadata(elt)
         } yield {
-          Ok(viewDetails(eltUI, stats))
+          Ok(viewDetails(eltUI, stats, users))
         }
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
