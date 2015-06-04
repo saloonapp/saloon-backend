@@ -1,0 +1,14 @@
+@(field: Field, args: (Symbol, String)*)
+
+@import views.helpers._
+
+<div class="cloudinary-upload">
+	<button class="btn btn-default" type="button"
+		@Helpers.toHtmlArgs(args)>Upload image</button>
+	<img src="@field.value" style="display: block;">
+	<input
+	  type="hidden"
+	  name="@field.name"
+	  id="@field.id"
+	  value="@field.value">
+</div>

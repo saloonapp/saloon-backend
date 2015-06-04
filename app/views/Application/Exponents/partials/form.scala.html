@@ -12,8 +12,8 @@
 
 @fieldHorizontal(exponentForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Soat")}
 @fieldHorizontal(exponentForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Société d'expertise et de conseil en informatique")}
-@fieldHorizontal(exponentForm("logoUrl"), 'label -> "Logo"){field => @inputText(field, 'placeholder -> "ex: http://www.top50-ssii.com/img/logos/4633_so@t%20150px%20baseline.jpg")}
-@fieldHorizontal(exponentForm("landingUrl"), 'label -> "Image paysage"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/wp-content/themes/soat/images/logo.svg")}
+@fieldHorizontal(exponentForm("logoUrl"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
+@fieldHorizontal(exponentForm("landingUrl"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "1.77", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
 @fieldHorizontal(exponentForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
 @fieldHorizontal(exponentForm("place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
 @helper.repeat(exponentForm("team"), min = 1) { personField =>

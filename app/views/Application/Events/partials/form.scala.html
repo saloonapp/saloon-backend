@@ -4,8 +4,8 @@
 
 @fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Best Of Web 2015")}
 @fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: 8 meetups web parisiens se réunissent pour vous proposer un Best Of de leurs talks de l'année, ainsi que quelques talks inédits.")}
-@fieldHorizontal(eventForm("logoUrl"), 'label -> "Logo"){field => @inputText(field, 'placeholder -> "ex: https://pbs.twimg.com/profile_images/570392376288350208/eQU-GIa9.png") <p class="help-block info">Image carrée, environ 100x100</p>}
-@fieldHorizontal(eventForm("landingUrl"), 'label -> "Image paysage"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/images/header_big.jpg") <p class="help-block info">Image paysage, environ 400x150</p>}
+@fieldHorizontal(eventForm("logoUrl"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
+@fieldHorizontal(eventForm("landingUrl"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "1.77", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
 @fieldHorizontal(eventForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/")}
 @fieldHorizontal(eventForm("start"), 'label -> "Début"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 08:00")}
 @fieldHorizontal(eventForm("end"), 'label -> "Fin"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 18:00")}
