@@ -1,4 +1,4 @@
-package tools.voxxrin.models
+package tools.scrapers.voxxrin.models
 
 import play.api.libs.json.Json
 

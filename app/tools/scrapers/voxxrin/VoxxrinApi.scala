@@ -1,17 +1,14 @@
-package tools.voxxrin
+package tools.scrapers.voxxrin
 
 import common.Utils
-import tools.voxxrin.models.VoxxrinEvent
-import tools.voxxrin.models.VoxxrinDay
-import tools.voxxrin.models.VoxxrinSession
-import tools.voxxrin.models.VoxxrinSpeaker
+import tools.scrapers.voxxrin.models._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
 import play.api.libs.ws._
 
 object VoxxrinApi {
-  var baseUrl = "http://app.voxxr.in/r"
+  val baseUrl = "http://app.voxxr.in/r"
   def eventsUrl(): String = baseUrl + "/events"
   def eventUrl(eventId: String): String = baseUrl + "/events/" + eventId
   def eventDayUrl(eventId: String, dayId: String): String = baseUrl + "/events/" + eventId + "/day/" + dayId

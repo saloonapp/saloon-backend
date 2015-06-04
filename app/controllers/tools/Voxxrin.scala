@@ -1,6 +1,6 @@
 package controllers.tools
 
-import tools.voxxrin.VoxxrinApi
+import tools.scrapers.voxxrin.VoxxrinApi
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import scala.concurrent.Future

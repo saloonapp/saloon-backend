@@ -1,11 +1,11 @@
-package tools.voxxrin.models
+package tools.scrapers.voxxrin.models
 
 import common.infrastructure.repository.Repository
 import models.Event
 import models.Session
 import models.Address
 import models.DataSource
-import tools.voxxrin.VoxxrinApi
+import tools.scrapers.voxxrin.VoxxrinApi
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 

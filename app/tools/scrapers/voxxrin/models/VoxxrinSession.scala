@@ -1,10 +1,10 @@
-package tools.voxxrin.models
+package tools.scrapers.voxxrin.models
 
 import common.Utils
 import common.infrastructure.repository.Repository
 import models.Session
 import models.DataSource
-import tools.voxxrin.VoxxrinApi
+import tools.scrapers.voxxrin.VoxxrinApi
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTimeZone

@@ -102,6 +102,7 @@ GET       /api/v1/tools/scrapers/lanyrd/events/:year/:id                        
 GET       /api/v1/tools/scrapers/foiresetsalons/details                           controllers.tools.FoiresEtSalons.getEvent(url: String)
 GET       /api/v1/tools/scrapers/foiresetsalons/:page                             controllers.tools.FoiresEtSalons.getEvents(page: String, format: String ?= "csv")
 GET       /api/v1/tools/scrapers/foiresetsalons/:page/full                        controllers.tools.FoiresEtSalons.getEventsFull(page: String, offset: Int ?= 0, size: Int ?= 5, format: String ?= "csv")
+GET       /api/v1/tools/scrapers/rivieradev                                       controllers.tools.RivieraDev.loadRivieraDev()
 
 GET       /api/v1/tools/crashs                                                    controllers.tools.Crashs.getAll()
 POST      /api/v1/tools/crashs                                                    controllers.tools.Crashs.receive()

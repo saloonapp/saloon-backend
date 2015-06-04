@@ -1,9 +1,9 @@
-package tools.voxxrin.models
+package tools.scrapers.voxxrin.models
 
 import common.Utils
 import models.Person
 import models.PersonSocial
-import tools.voxxrin.VoxxrinApi
+import tools.scrapers.voxxrin.VoxxrinApi
 import play.api.libs.json._
 
 case class VoxxrinSpeaker(
