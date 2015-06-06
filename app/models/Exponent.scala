@@ -32,7 +32,7 @@ object Exponent {
   def fromMap(eventId: String)(d: Map[String, String]): Option[Exponent] =
     if (d.get("name").isDefined) {
       Some(Exponent(
-        d.get("uuid").getOrElse(Repository.generateUuid()),
+        d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
         eventId,
         d.get("name").get,
         d.get("description").getOrElse(""),
@@ -41,8 +41,8 @@ object Exponent {
         d.get("siteUrl").getOrElse(""),
         d.get("place"),
         d.get("team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
-        d.get("level").flatMap(l => if(l.isEmpty) None else Some(l.toInt)),
-        d.get("sponsor").flatMap(s => if(s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
+        d.get("level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
+        d.get("sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
         Utils.toList(d.get("tags").getOrElse("")),
         Utils.toList(d.get("images").getOrElse("")),
         d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),

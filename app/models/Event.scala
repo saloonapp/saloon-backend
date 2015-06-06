@@ -34,7 +34,7 @@ object Event {
   def fromMap(d: Map[String, String]): Option[Event] =
     if (d.get("name").isDefined) {
       Some(Event(
-        d.get("uuid").getOrElse(Repository.generateUuid()),
+        d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
         d.get("name").get,
         d.get("description").getOrElse(""),
         d.get("logoUrl").getOrElse(""),
@@ -52,7 +52,7 @@ object Event {
         d.get("twitterHashtag"),
         d.get("twitterAccount"),
         Utils.toList(d.get("tags").getOrElse("")),
-        d.get("published").map(_.toBoolean).getOrElse(false),
+        d.get("published").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
         d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
         d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))

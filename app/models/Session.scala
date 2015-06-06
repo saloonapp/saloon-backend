@@ -30,7 +30,7 @@ object Session {
   def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
     if (d.get("name").isDefined) {
       Some(Session(
-        d.get("uuid").getOrElse(Repository.generateUuid()),
+        d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
         eventId,
         d.get("name").get,
         d.get("description").getOrElse(""),
@@ -39,7 +39,7 @@ object Session {
         d.get("place").getOrElse(""),
         d.get("start").flatMap(d => parseDate(d)),
         d.get("end").flatMap(d => parseDate(d)),
-        d.get("speakers").flatMap(json => Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
+        d.get("speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
         Utils.toList(d.get("tags").getOrElse("")),
         d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
         d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
