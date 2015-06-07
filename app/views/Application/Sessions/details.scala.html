@@ -9,7 +9,7 @@
 					@session.name
 					<div class="pull-right">
 						<a href="@routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info">Modifier</a>
-						<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger">Supprimer</button></form>
+						<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
 					</div>
 				</div>
 				<div class="widget-body">

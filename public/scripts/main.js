@@ -1,6 +1,11 @@
 $(function() {
 	$('[data-toggle="tooltip"]').tooltip();
 	$('.datetimepicker').datetimepicker();
+	$('.confirm').click(function(e){
+		if(!confirm('Sure ?')){
+			e.preventDefault();
+		}
+	});
 
 	// http://cloudinary.com/documentation/upload_widget#upload_widget_options
 	$('.cloudinary-upload button').click(function(e) {

@@ -14,6 +14,6 @@
 	<td>
 		<a href="@routes.Sessions.details(event.uuid, session.uuid)" class="btn btn-default">Détails</a>
 		<a href="@routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
-		<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger"><i class="fa fa-trash-o"></i></button></form>
+		<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm"><i class="fa fa-trash-o"></i></button></form>
 	</td>
 </tr>
