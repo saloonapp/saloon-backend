@@ -34,9 +34,7 @@
 									case models.Event(uuid,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
 									case unknown => { Inconnu @unknown }
 								}
-								@UserActionSrv.byAction(itemActions).map { case (action, list) =>
-									@list.length @UserActionSrv.toActionName(action)
-								}.mkString(", ")
+								@UserActionSrv.byActionName(itemActions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")
 							</li>
 						}
 					</ol>

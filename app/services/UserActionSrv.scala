@@ -11,6 +11,10 @@ object UserActionSrv {
     actions.groupBy(_.action).toList
   }
 
+  def byActionName(actions: List[UserActionFull]): List[(String, List[UserActionFull])] = {
+    actions.groupBy(a => toActionName(a.action)).toList
+  }
+
   def toActionName(a: UserActionConent): String = {
     a match {
       case FavoriteUserAction(favorite) => FavoriteUserAction.className
