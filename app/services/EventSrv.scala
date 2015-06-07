@@ -43,7 +43,7 @@ object EventSrv {
         items: Map[(String, String), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
       } yield {
         actions.map { a =>
-          for{
+          for {
             event <- a.eventId.flatMap(id => events.get(id))
             user <- users.get(a.userId)
             item <- items.get((a.itemType, a.itemId))
@@ -71,6 +71,17 @@ object EventSrv {
         } else {
           (event, sessions, exponents)
         }
+      }
+    }
+  }
+
+  def fetchFullEvent(url: String)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
+    val realUrl = if (url.startsWith("http")) url else "http://" + req.host + url
+    WS.url(realUrl).get().map { response =>
+      response.json.asOpt[Event].map { event =>
+        val sessions = (response.json \ "sessions").as[List[Session]]
+        val exponents = (response.json \ "exponents").as[List[Exponent]]
+        (event, sessions, exponents)
       }
     }
   }

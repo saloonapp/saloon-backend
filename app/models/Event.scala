@@ -10,6 +10,7 @@ import play.api.libs.json.Json
 
 case class Event(
   uuid: String,
+  refreshUrl: Option[String], // a get on this url will scrape original data of this event (used to update program)
   name: String,
   description: String,
   logoUrl: String, // squared logo of event (~ 100x100)
@@ -28,6 +29,31 @@ case class Event(
   created: DateTime,
   updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Event.toMap(this)
+  def merge(e: Event): Event = Event(
+    this.uuid,
+    merge(this.refreshUrl, e.refreshUrl),
+    merge(this.name, e.name),
+    merge(this.description, e.description),
+    merge(this.logoUrl, e.logoUrl),
+    merge(this.landingUrl, e.landingUrl),
+    merge(this.siteUrl, e.siteUrl),
+    merge(this.start, e.start),
+    merge(this.end, e.end),
+    merge(this.address, e.address),
+    merge(this.price, e.price),
+    merge(this.priceUrl, e.priceUrl),
+    merge(this.twitterHashtag, e.twitterHashtag),
+    merge(this.twitterAccount, e.twitterAccount),
+    merge(this.tags, e.tags),
+    merge(this.published, e.published),
+    merge(this.source, e.source),
+    this.created,
+    e.updated)
+  private def merge(s1: String, s2: String): String = if (s2.isEmpty) s1 else s2
+  private def merge(b1: Boolean, b2: Boolean): Boolean = b1 || b2
+  private def merge[A](d1: Option[A], d2: Option[A]): Option[A] = if (d2.isEmpty) d1 else d2
+  private def merge[A](l1: List[A], l2: List[A]): List[A] = if (l2.isEmpty) l1 else l2
+  private def merge(a1: Address, a2: Address): Address = if (a2.name.isEmpty && a2.street.isEmpty && a2.zipCode.isEmpty && a2.city.isEmpty) a1 else a2
 }
 object Event {
   implicit val format = Json.format[Event]
@@ -35,6 +61,7 @@ object Event {
   def fromMap(d: Map[String, String]): Try[Event] =
     Try(Event(
       d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
+      d.get("refreshUrl"),
       d.get("name").get,
       d.get("description").getOrElse(""),
       d.get("logoUrl").getOrElse(""),
@@ -59,6 +86,7 @@ object Event {
 
   def toMap(e: Event): Map[String, String] = Map(
     "uuid" -> e.uuid,
+    "refreshUrl" -> e.refreshUrl.getOrElse(""),
     "name" -> e.name,
     "description" -> e.description,
     "logoUrl" -> e.logoUrl,
@@ -85,6 +113,7 @@ object Event {
 // model sent to client : no field source / add field className, sessionCount & exponentCount
 case class EventUI(
   uuid: String,
+  refreshUrl: Option[String],
   name: String,
   description: String,
   logoUrl: String,
@@ -107,12 +136,12 @@ case class EventUI(
 object EventUI {
   val className = "events"
   implicit val format = Json.format[EventUI]
-  // def toModel(d: EventUI): Event = Event(d.uuid, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag, d.twitterAccount, d.tags, d.published, None, d.created, d.updated)
-  def fromModel(d: Event, sessionCount: Int, exponentCount: Int): EventUI = EventUI(d.uuid, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag, d.twitterAccount, d.tags, d.published, d.created, d.updated, sessionCount, exponentCount)
+  def fromModel(d: Event, sessionCount: Int, exponentCount: Int): EventUI = EventUI(d.uuid, d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag, d.twitterAccount, d.tags, d.published, d.created, d.updated, sessionCount, exponentCount)
 }
 
 // mapping object for Event Form
 case class EventData(
+  refreshUrl: Option[String],
   name: String,
   description: String,
   logoUrl: String,
@@ -130,6 +159,7 @@ case class EventData(
 object EventData {
   implicit val format = Json.format[EventData]
   val fields = mapping(
+    "refreshUrl" -> optional(text),
     "name" -> nonEmptyText,
     "description" -> text,
     "logoUrl" -> text,
@@ -145,7 +175,7 @@ object EventData {
     "tags" -> text,
     "published" -> boolean)(EventData.apply)(EventData.unapply)
 
-  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), Utils.toList(d.tags), d.published, None, new DateTime(), new DateTime())
-  def fromModel(d: Event): EventData = EventData(d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), Utils.fromList(d.tags), d.published)
+  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), Utils.toList(d.tags), d.published, None, new DateTime(), new DateTime())
+  def fromModel(d: Event): EventData = EventData(d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), Utils.fromList(d.tags), d.published)
   def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
 }

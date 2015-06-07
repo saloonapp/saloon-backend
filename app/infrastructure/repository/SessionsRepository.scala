@@ -40,6 +40,9 @@ trait MongoDbSessionRepository extends Repository[Session] {
   def countForEvents(eventIds: Seq[String]): Future[Map[String, Int]] = crud.countFor("eventId", eventIds)
   def deleteByEvent(eventId: String): Future[LastError] = crud.deleteBy("eventId", eventId)
   def bulkInsert(elts: List[Session]): Future[Int] = crud.bulkInsert(elts)
+  def bulkUpdate(elts: List[(String, Session)]): Future[Int] = crud.bulkUpdate(elts)
+  def bulkUpsert(elts: List[(String, Session)]): Future[Int] = crud.bulkUpsert(elts)
+  def bulkDelete(uuids: List[String]): Future[LastError] = crud.bulkDelete(uuids)
   def drop(): Future[Boolean] = crud.drop()
 }
 object SessionRepository extends MongoDbSessionRepository

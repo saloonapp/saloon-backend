@@ -26,6 +26,27 @@ case class Exponent(
   created: DateTime,
   updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Exponent.toMap(this)
+  def merge(e: Exponent): Exponent = Exponent(
+    this.uuid,
+    this.eventId,
+    merge(this.name, e.name),
+    merge(this.description, e.description),
+    merge(this.logoUrl, e.logoUrl),
+    merge(this.landingUrl, e.landingUrl),
+    merge(this.siteUrl, e.siteUrl),
+    merge(this.place, e.place),
+    merge(this.team, e.team),
+    merge(this.level, e.level),
+    merge(this.sponsor, e.sponsor),
+    merge(this.tags, e.tags),
+    merge(this.images, e.images),
+    merge(this.source, e.source),
+    this.created,
+    e.updated)
+  private def merge(s1: String, s2: String): String = if (s2.isEmpty) s1 else s2
+  private def merge(b1: Boolean, b2: Boolean): Boolean = b1 || b2
+  private def merge[A](d1: Option[A], d2: Option[A]): Option[A] = if (d2.isEmpty) d1 else d2
+  private def merge[A](l1: List[A], l2: List[A]): List[A] = if (l2.isEmpty) l1 else l2
 }
 object Exponent {
   implicit val format = Json.format[Exponent]

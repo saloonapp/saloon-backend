@@ -3,11 +3,12 @@ package controllers.tools
 import tools.scrapers.voxxrin.VoxxrinApi
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
+import models._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 object Voxxrin extends Controller {
 
@@ -26,6 +27,15 @@ object Voxxrin extends Controller {
   def getFullEvent(eventId: String) = Action.async {
     VoxxrinApi.getFullEvent(eventId).map { res =>
       Ok(Json.toJson(res))
+    }
+  }
+
+  def getFullEventFormated(eventId: String) = Action.async {
+    VoxxrinApi.getFullEvent(eventId).map { res =>
+      val (event, sessions) = res.toEvent()
+      Ok(Json.toJson(event).as[JsObject] ++ Json.obj(
+        "sessions" -> sessions,
+        "exponents" -> Json.arr()))
     }
   }
 

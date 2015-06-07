@@ -10,6 +10,7 @@
 					<a href="@routes.Events.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Evénements</a>
 					@event.name
 					<div class="pull-right">
+						@if(event.refreshUrl.isDefined){ <form method="POST" action="@routes.Events.refresh(event.uuid)" class="form-button"><button type="submit" class="btn btn-default confirm"><i class="fa fa-refresh"></i></button></form> }
 						<a href="@routes.Events.update(event.uuid)" class="btn btn-info">Modifier</a>
 						<form method="POST" action="@routes.Events.delete(event.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
 					</div>
@@ -20,47 +21,47 @@
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-6">
-			<div class="widget">
-				<div class="widget-header">
-					Statistiques
-					<form class="pull-right" method="POST" action="@routes.Events.stats(event.uuid)">
-						<button type="submit" class="btn btn-success"><i class="fa fa-download"></i></button>
-					</form>
+	@if(actions.length > 0){
+		<div class="row">
+			<div class="col-md-6">
+				<div class="widget">
+					<div class="widget-header">
+						Statistiques
+						<form class="pull-right" method="POST" action="@routes.Events.stats(event.uuid)"><button type="submit" class="btn btn-success"><i class="fa fa-download"></i></button></form>
+					</div>
+					<div class="widget-body">
+						<p>@UserActionSrv.byActionName(actions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")</p>
+						<ol>
+							@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
+								<li>
+									@item match {
+										case models.Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
+										case models.Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
+										case models.Event(uuid,_,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
+										case unknown => { Inconnu @unknown }
+									}
+									@UserActionSrv.byActionName(itemActions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")
+								</li>
+							}
+						</ol>
+					</div>
 				</div>
-				<div class="widget-body">
-					<p>@UserActionSrv.byActionName(actions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")</p>
-					<ol>
-						@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
-							<li>
-								@item match {
-									case models.Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
-									case models.Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
-									case models.Event(uuid,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
-									case unknown => { Inconnu @unknown }
-								}
-								@UserActionSrv.byActionName(itemActions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")
-							</li>
-						}
-					</ol>
+			</div>
+			<div class="col-md-6">
+				<div class="widget">
+					<div class="widget-header">Utilisateurs</div>
+					<div class="widget-body">
+						<ol>
+							@UserActionSrv.byUser(actions).map { case (user, userActions) =>
+								<li>
+									User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
+									@UserActionSrv.byActionName(userActions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")
+								</li>
+							}
+						</ol>
+					</div>
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
-			<div class="widget">
-				<div class="widget-header">Utilisateurs</div>
-				<div class="widget-body">
-					<ol>
-						@UserActionSrv.byUser(actions).map { case (user, userActions) =>
-							<li>
-								User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
-								@UserActionSrv.byActionName(userActions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")
-							</li>
-						}
-					</ol>
-				</div>
-			</div>
-		</div>
-	</div>
+	}
 }

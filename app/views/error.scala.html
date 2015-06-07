@@ -1,8 +1,8 @@
 @(message: String = "")(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout("Erreur 404") {
+@layout("Erreur") {
   <div class="jumbotron">
-    <h1>Erreur 404</h1>
+    <h1>Erreur</h1>
     <p>@message</p>
   </div>
 }

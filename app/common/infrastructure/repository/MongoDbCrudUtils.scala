@@ -47,6 +47,9 @@ case class MongoDbCrudUtils[T](
   def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
   def deleteBy(fieldName: String, fieldValue: String): Future[LastError] = MongoDbCrudUtils.deleteBy(fieldValue, collection, fieldName)
   def bulkInsert(elts: List[T]): Future[Int] = MongoDbCrudUtils.bulkInsert(elts, collection)
+  def bulkUpdate(elts: List[(String, T)]): Future[Int] = MongoDbCrudUtils.bulkUpdate(elts, collection)
+  def bulkUpsert(elts: List[(String, T)]): Future[Int] = MongoDbCrudUtils.bulkUpsert(elts, collection)
+  def bulkDelete(uuids: List[String]): Future[LastError] = MongoDbCrudUtils.bulkDelete(uuids, collection)
   def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
 object MongoDbCrudUtils {
@@ -144,12 +147,36 @@ object MongoDbCrudUtils {
     collection.update(Json.obj(fieldUuid -> uuid), elt)
   }
 
+  def upsert[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[LastError] = {
+    collection.update(Json.obj(fieldUuid -> uuid), elt, upsert = true)
+  }
+
   def deleteBy(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
     collection.remove(Json.obj(fieldUuid -> uuid))
   }
 
   def bulkInsert[T](elts: List[T], collection: JSONCollection)(implicit w: Writes[T]): Future[Int] = {
     collection.bulkInsert(Enumerator.enumerate(elts))
+  }
+
+  // TODO : make a real bulk update !!!
+  def bulkUpdate[T](elts: List[(String, T)], collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[Int] = {
+    val futureList = elts.map { elt => update(elt._1, elt._2, collection, fieldUuid) }
+    Future.sequence(futureList).map { list =>
+      list.filter(_.ok).length
+    }
+  }
+
+  // TODO : make a real bulk upsert !!!
+  def bulkUpsert[T](elts: List[(String, T)], collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[Int] = {
+    val futureList = elts.map { elt => upsert(elt._1, elt._2, collection, fieldUuid) }
+    Future.sequence(futureList).map { list =>
+      list.filter(_.ok).length
+    }
+  }
+
+  def bulkDelete(uuids: List[String], collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
+    collection.remove(Json.obj(fieldUuid -> Json.obj("$in" -> uuids)))
   }
 
   def drop(collection: JSONCollection): Future[Boolean] = {

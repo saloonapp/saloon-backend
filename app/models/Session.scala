@@ -24,6 +24,25 @@ case class Session(
   created: DateTime,
   updated: DateTime) extends EventItem {
   def toMap(): Map[String, String] = Session.toMap(this)
+  def merge(s: Session): Session = Session(
+    this.uuid,
+    this.eventId,
+    merge(this.name, s.name),
+    merge(this.description, s.description),
+    merge(this.format, s.format),
+    merge(this.category, s.category),
+    merge(this.place, s.place),
+    merge(this.start, s.start),
+    merge(this.end, s.end),
+    merge(this.speakers, s.speakers),
+    merge(this.tags, s.tags),
+    merge(this.source, s.source),
+    this.created,
+    s.updated)
+  private def merge(s1: String, s2: String): String = if (s2.isEmpty) s1 else s2
+  private def merge(b1: Boolean, b2: Boolean): Boolean = b1 || b2
+  private def merge[A](d1: Option[A], d2: Option[A]): Option[A] = if (d2.isEmpty) d1 else d2
+  private def merge[A](l1: List[A], l2: List[A]): List[A] = if (l2.isEmpty) l1 else l2
 }
 object Session {
   implicit val format = Json.format[Session]

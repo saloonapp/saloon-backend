@@ -40,6 +40,9 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
   def countForEvents(eventIds: Seq[String]): Future[Map[String, Int]] = crud.countFor("eventId", eventIds)
   def deleteByEvent(eventId: String): Future[LastError] = crud.deleteBy("eventId", eventId)
   def bulkInsert(elts: List[Exponent]): Future[Int] = crud.bulkInsert(elts)
+  def bulkUpdate(elts: List[(String, Exponent)]): Future[Int] = crud.bulkUpdate(elts)
+  def bulkUpsert(elts: List[(String, Exponent)]): Future[Int] = crud.bulkUpsert(elts)
+  def bulkDelete(uuids: List[String]): Future[LastError] = crud.bulkDelete(uuids)
   def drop(): Future[Boolean] = crud.drop()
 }
 object ExponentRepository extends MongoDbExponentRepository

@@ -2,6 +2,7 @@
 
 @import helpers.forms._
 
+@fieldHorizontal(eventForm("refreshUrl"), 'label -> "Refresh Url"){field => @inputText(field, 'placeholder -> "ex: /api/v1/tools/scrapers/events/voxxrin/bzh15/formated") <p class="help-block info">Url qui retourne toutes les données de l'événement pour le mettre à jour</p>}
 @fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Best Of Web 2015")}
 @fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: 8 meetups web parisiens se réunissent pour vous proposer un Best Of de leurs talks de l'année, ainsi que quelques talks inédits.")}
 @fieldHorizontal(eventForm("logoUrl"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}

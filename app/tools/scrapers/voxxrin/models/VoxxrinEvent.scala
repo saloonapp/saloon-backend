@@ -36,6 +36,7 @@ case class VoxxrinEvent(
   def toEvent(eventId: String = Repository.generateUuid()): (Event, List[Session]) = {
     val event = Event(
       eventId,
+      Some("/api/v1/tools/scrapers/events/voxxrin/" + this.id + "/formated"),
       this.title,
       this.description.getOrElse(""),
       "",

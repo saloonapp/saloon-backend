@@ -2,11 +2,7 @@ package controllers
 
 import common.FileBodyParser
 import common.models.Page
-import models.Event
-import models.EventUI
-import models.EventData
-import models.FileImportConfig
-import models.UrlImportConfig
+import models._
 import services.FileImporter
 import services.FileExporter
 import services.EventSrv
@@ -19,6 +15,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
+import play.api.libs.json._
 
 object Events extends Controller {
   val form: Form[EventData] = Form(EventData.fields)
@@ -94,6 +91,57 @@ object Events extends Controller {
         Ok(viewUpdate(form.fill(toData(elt)), elt))
       }.getOrElse(NotFound(views.html.error404()))
     }
+  }
+
+  def refresh(uuid: String) = Action.async { implicit req =>
+    repository.getByUuid(uuid).flatMap { eltOpt =>
+      eltOpt.map {
+        _.refreshUrl.map { url =>
+          val getData = for {
+            remoteSourceOpt <- EventSrv.fetchFullEvent(url)
+            localEventOpt <- EventRepository.getByUuid(uuid)
+            localSessions <- SessionRepository.findByEvent(uuid)
+            localExponents <- ExponentRepository.findByEvent(uuid)
+          } yield (remoteSourceOpt, localEventOpt, localSessions, localExponents)
+
+          getData.flatMap {
+            case (remoteSourceOpt, localEventOpt, localSessions, localExponents) =>
+              (for {
+                (remoteEvent, remoteSessions, remoteExponents) <- remoteSourceOpt
+                localEvent <- localEventOpt
+              } yield {
+                val updatedEvent = localEvent.merge(remoteEvent)
+                val (createdSessions, updatedSessions, deletedSessions) = diff(localSessions, remoteSessions, (s: models.Session) => s.source.map(_.ref).getOrElse(""), (os: models.Session, ns: models.Session) => os.merge(ns))
+                val (createdExponents, updatedExponents, deletedExponents) = diff(localExponents, remoteExponents, (e: Exponent) => e.source.map(_.ref).getOrElse(""), (oe: Exponent, ne: Exponent) => oe.merge(ne))
+
+                for {
+                  eventUpdated <- EventRepository.update(uuid, updatedEvent)
+                  sessionsCreated <- SessionRepository.bulkInsert(createdSessions.map(_.copy(eventId = uuid)))
+                  sessionsUpdated <- SessionRepository.bulkUpdate(updatedSessions.map(s => (s.uuid, s)))
+                  sessionsDeleted <- SessionRepository.bulkDelete(deletedSessions.map(_.uuid))
+                  exponentsCreated <- ExponentRepository.bulkInsert(createdExponents.map(_.copy(eventId = uuid)))
+                  exponentsUpdated <- ExponentRepository.bulkUpdate(updatedExponents.map(e => (e.uuid, e)))
+                  exponentsDeleted <- ExponentRepository.bulkDelete(deletedExponents.map(_.uuid))
+                } yield {
+                  Redirect(mainRoute.details(uuid)).flashing("success" ->
+                    (s"${localEvent.name} updated :" +
+                      s"<br>- $sessionsCreated sessions created<br>- $sessionsUpdated sessions updated<br>- ${deletedSessions.length} sessions deleted" +
+                      s"<br>- $exponentsCreated exponents created<br>- $exponentsUpdated exponents updated<br>- ${deletedExponents.length} exponents deleted"))
+                }
+              }).getOrElse(Future(Ok(s"Result of url $url is incorrect !")))
+          }
+        }.getOrElse(Future(BadRequest(views.html.error(s"Event $uuid doesn't have a refreshUrl !"))))
+      }.getOrElse(Future(NotFound(views.html.error404(s"Unable to find event $uuid !"))))
+    }
+  }
+
+  private def diff[A](oldElts: List[A], newElts: List[A], getRef: A => String, merge: (A, A) => A): (List[A], List[A], List[A]) = {
+    val createdElts = newElts.filter(ne => oldElts.find(oe => getRef(oe) == getRef(ne)).isEmpty)
+    val deletedElts = oldElts.filter(oe => newElts.find(ne => getRef(oe) == getRef(ne)).isEmpty)
+    val updatedElts = oldElts
+      .map(oe => newElts.find(ne => getRef(oe) == getRef(ne)).map(ne => (oe, ne))).flatten
+      .map { case (oe, ne) => merge(oe, ne) }
+    (createdElts, updatedElts, deletedElts)
   }
 
   def doUpdate(uuid: String) = Action.async { implicit req =>
