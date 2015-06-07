@@ -28,7 +28,7 @@ object RivieraDev extends Controller {
     def toSession(eventId: String): models.Session = models.Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), "", this.category.getOrElse(""), "", this.start, this.end, this.speakers.map(_.toPerson()), List(), None, new DateTime(), new DateTime())
   }
   case class RivieraDevExponent(name: String, description: String, logoUrl: String, siteUrl: String, sponsor: Boolean) {
-    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, this.logoUrl, "", this.siteUrl: String, None, List(), None, this.sponsor, List(), List(), None, new DateTime(), new DateTime())
+    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, "", this.logoUrl, this.siteUrl: String, None, List(), None, this.sponsor, List(), List(), None, new DateTime(), new DateTime())
   }
   implicit val formatRivieraDevEvent = Json.format[RivieraDevEvent]
   implicit val formatRivieraDevPerson = Json.format[RivieraDevPerson]
