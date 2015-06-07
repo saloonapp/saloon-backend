@@ -6,7 +6,11 @@ object UserActionSrv {
   def byItem(actions: List[UserActionFull]): List[(EventItem, List[UserActionFull])] = {
     actions.groupBy(_.item).toList.sortBy(e => -e._2.length)
   }
-
+  
+  def byUser(actions: List[UserActionFull]): List[(User, List[UserActionFull])] = {
+    actions.groupBy(_.user).toList.sortBy(e => -e._2.length)
+  }
+  
   def byAction(actions: List[UserActionFull]): List[(UserActionConent, List[UserActionFull])] = {
     actions.groupBy(_.action).toList
   }

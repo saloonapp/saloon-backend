@@ -25,6 +25,7 @@
 			<div class="widget">
 				<div class="widget-header">Statistiques</div>
 				<div class="widget-body">
+					<p>@UserActionSrv.byActionName(actions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")</p>
 					<ol>
 						@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
 							<li>
@@ -50,7 +51,7 @@
 								@stat._2.map(s => s._2+" "+s._1).mkString(", ")
 							</li>
 						}
-					<ol>
+					</ol>
 				</div>
 			</div>
 		</div>
@@ -59,13 +60,21 @@
 				<div class="widget-header">Utilisateurs</div>
 				<div class="widget-body">
 					<ol>
+						@UserActionSrv.byUser(actions).map { case (user, userActions) =>
+							<li>
+								User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
+								@UserActionSrv.byActionName(userActions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")
+							</li>
+						}
+					</ol>
+					<ol>
 						@users.map { case (user, stats) =>
 							<li>
 								User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
 								@stats.map(s => s._2+" "+s._1).mkString(", ")
 							</li>
 						}
-					<ol>
+					</ol>
 				</div>
 			</div>
 		</div>
