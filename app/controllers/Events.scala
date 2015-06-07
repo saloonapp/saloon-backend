@@ -188,39 +188,33 @@ object Events extends Controller {
       })
   }
 
-  val urlParser = """https?://(.+\.herokuapp.com)/events/([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})""".r
   def urlImport = Action.async { implicit req =>
     urlImportForm.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(viewOps(fileImportForm, formWithErrors))),
       formData => {
-        formData.url match {
-          case urlParser(remoteHost, eventId) => {
-            EventSrv.fetchEvent(remoteHost, eventId, formData.newIds).flatMap {
-              _.map {
-                case (event, sessions, exponents) =>
-                  EventRepository.getByUuid(event.uuid).flatMap { oldEventOpt =>
-                    if (oldEventOpt.isDefined) {
-                      if (formData.replaceIds) {
-                        EventRepository.delete(event.uuid).flatMap { opt =>
-                          EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
-                            if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien mis à jour") }
-                            else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la mise à jour de ${event.name} (id: ${event.uuid})"))) }
-                          }
-                        }
-                      } else {
-                        Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>${event.uuid}</b> existe déjà. Créez de nouveaux ids ou permettez de supprimer l'événement existant."))))
-                      }
-                    } else {
+        EventSrv.fetchFullEvent(formData.url).flatMap {
+          _.map {
+            case (event, sessions, exponents) =>
+              EventRepository.getByUuid(event.uuid).flatMap { oldEventOpt =>
+                if (oldEventOpt.isDefined) {
+                  if (formData.replaceIds) {
+                    EventRepository.delete(event.uuid).flatMap { opt =>
                       EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
-                        if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien créé") }
-                        else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la création de ${event.name} (id: ${event.uuid})"))) }
+                        if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien mis à jour") }
+                        else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la mise à jour de ${event.name} (id: ${event.uuid})"))) }
                       }
                     }
+                  } else {
+                    Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>${event.uuid}</b> existe déjà. Créez de nouveaux ids ou permettez de supprimer l'événement existant."))))
                   }
-              }.getOrElse(Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>$eventId</b> n'existe pas sur <b>$remoteHost</b>")))))
-            }
-          }
-          case _ => Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'url <b>${formData.url}</b> ne correspond pas au format attendu..."))))
+                } else {
+                  EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
+                    if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien créé") }
+                    else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la création de ${event.name} (id: ${event.uuid})"))) }
+                  }
+                }
+              }
+          }.getOrElse(Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Result of url <b>${formData.url}</b> is incorrect !")))))
         }
       })
   }
