@@ -55,58 +55,6 @@ object EventSrv {
     }
   }
 
-  def getStatistics(eventId: String): Future[List[(EventItem, Map[String, Int])]] = {
-    UserActionRepository.findByEvent(eventId).flatMap { actions =>
-      val actionStats = groupByItem(actions).map {
-        case (item, actions) => (item, groupByActionName(actions).map {
-          case (actionName, actions) => (actionName, actions.length)
-        })
-      }
-      fetchItems(actionStats).map(_.sortBy(e => -coundAction(e._2)))
-    }
-  }
-
-  def getUsers(eventId: String): Future[List[(User, Map[String, Int])]] = {
-    UserActionRepository.findByEvent(eventId).flatMap { actions =>
-      val userActions = groupByUser(actions).map {
-        case (userId, actions) => (userId, groupByActionName(actions).map {
-          case (actionName, actions) => (actionName, actions.length)
-        })
-      }
-      fetchUsers(userActions).map(_.sortBy(e => -coundAction(e._2)))
-    }
-  }
-  private def fetchItems[A](actions: Map[(String, String), A]): Future[List[(EventItem, A)]] = {
-    val listFuture = actions.toList.map { case (item, data) => EventItemRepository.getByUuid(item._1, item._2).map(_.map(i => (i, data))) }
-    Future.sequence(listFuture).map(_.flatten)
-  }
-  private def fetchUsers[A](actions: Map[String, A]): Future[List[(User, A)]] = {
-    val listFuture = actions.toList.map { case (userId, data) => UserRepository.getByUuid(userId).map(_.map(i => (i, data))) }
-    Future.sequence(listFuture).map(_.flatten)
-  }
-  private def groupByActionName(actions: List[UserAction]): Map[String, List[UserAction]] = {
-    actions.groupBy(toActionName)
-  }
-  private def groupByItem(actions: List[UserAction]): Map[(String, String), List[UserAction]] = {
-    actions.groupBy(a => (a.itemType, a.itemId))
-  }
-  private def groupByUser(actions: List[UserAction]): Map[String, List[UserAction]] = {
-    actions.groupBy(_.userId)
-  }
-  private def coundAction(actions: Map[String, Int]): Int = {
-    actions.map(_._2).foldLeft(0)(_ + _)
-  }
-  private def toActionName(a: UserAction): String = {
-    a.action match {
-      case FavoriteUserAction(favorite) => FavoriteUserAction.className
-      case DoneUserAction(done) => DoneUserAction.className
-      case MoodUserAction(rating, mood) => MoodUserAction.className
-      case CommentUserAction(text, comment) => CommentUserAction.className
-      case SubscribeUserAction(email, filter, subscribe) => SubscribeUserAction.className
-      case _ => "unknown"
-    }
-  }
-
   def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
     val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
     val remoteUrl = localUrl.replace(req.host, remoteHost)

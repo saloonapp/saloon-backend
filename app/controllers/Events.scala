@@ -69,14 +69,22 @@ object Events extends Controller {
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
-          stats <- EventSrv.getStatistics(uuid)
-          users <- EventSrv.getUsers(uuid)
           actions <- EventSrv.getActions(uuid)
           eltUI <- EventSrv.addMetadata(elt)
         } yield {
-          Ok(viewDetails(eltUI, actions, stats, users))
+          Ok(viewDetails(eltUI, actions))
         }
       }.getOrElse(Future(NotFound(views.html.error404())))
+    }
+  }
+
+  def stats(uuid: String) = Action.async { implicit req =>
+    EventSrv.getActions(uuid).map { actions =>
+      val filename = actions.head.event.name + "_stats.csv"
+      val content = FileExporter.makeCsv(actions.map(_.toMap))
+      Ok(content)
+        .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+        .as("text/csv")
     }
   }
 

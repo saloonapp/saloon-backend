@@ -19,6 +19,13 @@ case class UserAction(
   created: DateTime,
   updated: DateTime) {
   def withContent(c: UserActionConent, time: Option[DateTime] = None): UserAction = this.copy(action = c, updated = time.getOrElse(new DateTime()))
+  def toMap(): Map[String, String] = {
+    Map(
+      "eventId" -> this.eventId.getOrElse(""),
+      "userId" -> this.user.uuid,
+      "itemType" -> this.itemType,
+      "itemId" -> this.itemId) ++ this.action.toMap()
+  }
 }
 object UserAction {
   def favorite(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, FavoriteUserAction(), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
@@ -48,9 +55,30 @@ object UserAction {
   implicit val format = Json.format[UserAction]
 }
 
-case class UserActionFull(event: Event, user: User, action: UserActionConent, item: EventItem)
+case class UserActionFull(event: Event, user: User, action: UserActionConent, item: EventItem) {
+  def toMap(): Map[String, String] = {
+    Map(
+      "eventId" -> this.event.uuid,
+      "eventName" -> this.event.name,
+      "userId" -> this.user.uuid,
+      "itemType" -> this.item.getType(),
+      "itemId" -> this.item.uuid,
+      "itemName" -> this.item.name) ++ this.action.toMap()
+  }
+}
 
-sealed trait UserActionConent
+sealed trait UserActionConent {
+  def toMap(): Map[String, String] = {
+    this match {
+      case FavoriteUserAction(favorite) => Map("actionType" -> FavoriteUserAction.className)
+      case DoneUserAction(done) => Map("actionType" -> DoneUserAction.className)
+      case MoodUserAction(rating, mood) => Map("actionType" -> MoodUserAction.className, "rating" -> rating)
+      case CommentUserAction(text, comment) => Map("actionType" -> CommentUserAction.className, "text" -> text)
+      case SubscribeUserAction(email, filter, subscribe) => Map("actionType" -> SubscribeUserAction.className, "email" -> email, "filter" -> filter)
+      case _ => Map("actionType" -> "Unknown")
+    }
+  }
+}
 case class FavoriteUserAction(favorite: Boolean = true) extends UserActionConent
 object FavoriteUserAction {
   val className = "favorite"
