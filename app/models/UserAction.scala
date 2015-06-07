@@ -70,12 +70,12 @@ case class UserActionFull(event: Event, user: User, action: UserActionConent, it
 sealed trait UserActionConent {
   def toMap(): Map[String, String] = {
     this match {
-      case FavoriteUserAction(favorite) => Map("actionType" -> FavoriteUserAction.className)
-      case DoneUserAction(done) => Map("actionType" -> DoneUserAction.className)
-      case MoodUserAction(rating, mood) => Map("actionType" -> MoodUserAction.className, "rating" -> rating)
-      case CommentUserAction(text, comment) => Map("actionType" -> CommentUserAction.className, "text" -> text)
-      case SubscribeUserAction(email, filter, subscribe) => Map("actionType" -> SubscribeUserAction.className, "email" -> email, "filter" -> filter)
-      case _ => Map("actionType" -> "Unknown")
+      case FavoriteUserAction(favorite) => Map("actionType" -> FavoriteUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
+      case DoneUserAction(done) => Map("actionType" -> DoneUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
+      case MoodUserAction(rating, mood) => Map("actionType" -> MoodUserAction.className, "rating" -> rating, "text" -> "", "email" -> "", "filter" -> "")
+      case CommentUserAction(text, comment) => Map("actionType" -> CommentUserAction.className, "rating" -> "", "text" -> text, "email" -> "", "filter" -> "")
+      case SubscribeUserAction(email, filter, subscribe) => Map("actionType" -> SubscribeUserAction.className, "rating" -> "", "text" -> "", "email" -> email, "filter" -> filter)
+      case _ => Map("actionType" -> "Unknown", "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
     }
   }
 }
