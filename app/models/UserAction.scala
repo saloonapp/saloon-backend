@@ -22,7 +22,7 @@ case class UserAction(
   def toMap(): Map[String, String] = {
     Map(
       "eventId" -> this.eventId.getOrElse(""),
-      "userId" -> this.user.uuid,
+      "userId" -> this.userId,
       "itemType" -> this.itemType,
       "itemId" -> this.itemId) ++ this.action.toMap()
   }
