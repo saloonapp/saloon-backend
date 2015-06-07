@@ -1,4 +1,6 @@
-@(event: EventUI, stats: List[(EventItem, Map[String, Int])], users: List[(User, Map[String, Int])])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(event: EventUI, actions: List[UserActionFull], stats: List[(EventItem, Map[String, Int])], users: List[(User, Map[String, Int])])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@import services.UserActionSrv
 
 @layout(event.name) {
 	<div class="row">
@@ -23,6 +25,21 @@
 			<div class="widget">
 				<div class="widget-header">Statistiques</div>
 				<div class="widget-body">
+					<ol>
+						@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
+							<li>
+								@item match {
+									case models.Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
+									case models.Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
+									case models.Event(uuid,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
+									case unknown => { Inconnu @unknown }
+								}
+								@UserActionSrv.byAction(itemActions).map { case (action, list) =>
+									@list.length @UserActionSrv.toActionName(action)
+								}.mkString(", ")
+							</li>
+						}
+					</ol>
 					<ol>
 						@stats.map { stat =>
 							<li>

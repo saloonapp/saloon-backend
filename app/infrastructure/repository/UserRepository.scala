@@ -30,6 +30,7 @@ trait MongoDbUserRepository extends Repository[User] {
     } // TODO : return deleted elt !
   }
 
+  def findByUuids(uuids: List[String]): Future[List[User]] = crud.findByUuids(uuids)
   def getByDevice(deviceId: String): Future[Option[User]] = crud.getBy("device.uuid", deviceId)
 }
 object UserRepository extends MongoDbUserRepository

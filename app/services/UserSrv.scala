@@ -17,7 +17,7 @@ object UserSrv {
       val mapFuture = groupedActions.map {
         case (eventId, actions) => for {
           event <- EventRepository.getByUuid(eventId)
-          items <- EventItemRepository.getByUuids(actions.map(a => (a.itemType, a.itemId)))
+          items <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)))
         } yield {
           (event, actions.map(a => (items.get((a.itemType, a.itemId)), a)))
         }

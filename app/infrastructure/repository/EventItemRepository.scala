@@ -16,11 +16,11 @@ object EventItemRepository {
     else Future(None)
   }
 
-  def getByUuids(uuids: List[(String, String)]): Future[Map[(String, String), EventItem]] = {
+  def findByUuids(uuids: List[(String, String)]): Future[Map[(String, String), EventItem]] = {
     for {
-      events <- EventRepository.findByUuids(uuids.filter(_._1 == EventUI.className).map(_._2))
-      sessions <- SessionRepository.findByUuids(uuids.filter(_._1 == SessionUI.className).map(_._2))
-      exponents <- ExponentRepository.findByUuids(uuids.filter(_._1 == ExponentUI.className).map(_._2))
+      events <- EventRepository.findByUuids(uuids.filter(_._1 == EventUI.className).map(_._2).distinct)
+      sessions <- SessionRepository.findByUuids(uuids.filter(_._1 == SessionUI.className).map(_._2).distinct)
+      exponents <- ExponentRepository.findByUuids(uuids.filter(_._1 == ExponentUI.className).map(_._2).distinct)
     } yield {
       events.map(e => ((EventUI.className, e.uuid), e)).toMap ++
         sessions.map(e => ((SessionUI.className, e.uuid), e)).toMap ++

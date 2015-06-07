@@ -48,6 +48,8 @@ object UserAction {
   implicit val format = Json.format[UserAction]
 }
 
+case class UserActionFull(event: Event, user: User, action: UserActionConent, item: EventItem)
+
 sealed trait UserActionConent
 case class FavoriteUserAction(favorite: Boolean = true) extends UserActionConent
 object FavoriteUserAction {
