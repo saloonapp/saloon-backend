@@ -4,6 +4,7 @@ import common.Utils
 import common.infrastructure.repository.Repository
 import services.FileImporter
 import org.joda.time.DateTime
+import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
@@ -27,26 +28,23 @@ case class Session(
 object Session {
   implicit val format = Json.format[Session]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
-  def fromMap(eventId: String)(d: Map[String, String]): Option[Session] =
-    if (d.get("name").isDefined) {
-      Some(Session(
-        d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
-        eventId,
-        d.get("name").get,
-        d.get("description").getOrElse(""),
-        d.get("format").getOrElse(""),
-        d.get("category").getOrElse(""),
-        d.get("place").getOrElse(""),
-        d.get("start").flatMap(d => parseDate(d)),
-        d.get("end").flatMap(d => parseDate(d)),
-        d.get("speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
-        Utils.toList(d.get("tags").getOrElse("")),
-        d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
-        d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
-        d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
-    } else {
-      None
-    }
+  def fromMap(eventId: String)(d: Map[String, String]): Try[Session] =
+    Try(Session(
+      d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
+      eventId,
+      d.get("name").get,
+      d.get("description").getOrElse(""),
+      d.get("format").getOrElse(""),
+      d.get("category").getOrElse(""),
+      d.get("place").getOrElse(""),
+      d.get("start").flatMap(d => parseDate(d)),
+      d.get("end").flatMap(d => parseDate(d)),
+      d.get("speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
+      Utils.toList(d.get("tags").getOrElse("")),
+      d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
+      d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
+      d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
+
   def toMap(e: Session): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "eventId" -> e.eventId,

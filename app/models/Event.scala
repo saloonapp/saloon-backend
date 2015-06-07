@@ -4,6 +4,7 @@ import common.Utils
 import common.infrastructure.repository.Repository
 import services.FileImporter
 import org.joda.time.DateTime
+import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
@@ -31,34 +32,31 @@ case class Event(
 object Event {
   implicit val format = Json.format[Event]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
-  def fromMap(d: Map[String, String]): Option[Event] =
-    if (d.get("name").isDefined) {
-      Some(Event(
-        d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
-        d.get("name").get,
-        d.get("description").getOrElse(""),
-        d.get("logoUrl").getOrElse(""),
-        d.get("landingUrl").getOrElse(""),
-        d.get("siteUrl").getOrElse(""),
-        d.get("start").flatMap(d => parseDate(d)),
-        d.get("end").flatMap(d => parseDate(d)),
-        Address(
-          d.get("address.name").getOrElse(""),
-          d.get("address.street").getOrElse(""),
-          d.get("address.zipCode").getOrElse(""),
-          d.get("address.city").getOrElse("")),
-        d.get("price").getOrElse(""),
-        d.get("priceUrl").getOrElse(""),
-        d.get("twitterHashtag"),
-        d.get("twitterAccount"),
-        Utils.toList(d.get("tags").getOrElse("")),
-        d.get("published").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
-        d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
-        d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
-        d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
-    } else {
-      None
-    }
+  def fromMap(d: Map[String, String]): Try[Event] =
+    Try(Event(
+      d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
+      d.get("name").get,
+      d.get("description").getOrElse(""),
+      d.get("logoUrl").getOrElse(""),
+      d.get("landingUrl").getOrElse(""),
+      d.get("siteUrl").getOrElse(""),
+      d.get("start").flatMap(d => parseDate(d)),
+      d.get("end").flatMap(d => parseDate(d)),
+      Address(
+        d.get("address.name").getOrElse(""),
+        d.get("address.street").getOrElse(""),
+        d.get("address.zipCode").getOrElse(""),
+        d.get("address.city").getOrElse("")),
+      d.get("price").getOrElse(""),
+      d.get("priceUrl").getOrElse(""),
+      d.get("twitterHashtag"),
+      d.get("twitterAccount"),
+      Utils.toList(d.get("tags").getOrElse("")),
+      d.get("published").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
+      d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
+      d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
+      d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
+
   def toMap(e: Event): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "name" -> e.name,

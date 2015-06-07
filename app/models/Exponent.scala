@@ -4,6 +4,7 @@ import common.Utils
 import common.infrastructure.repository.Repository
 import services.FileImporter
 import org.joda.time.DateTime
+import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
@@ -29,28 +30,25 @@ case class Exponent(
 object Exponent {
   implicit val format = Json.format[Exponent]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
-  def fromMap(eventId: String)(d: Map[String, String]): Option[Exponent] =
-    if (d.get("name").isDefined) {
-      Some(Exponent(
-        d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
-        eventId,
-        d.get("name").get,
-        d.get("description").getOrElse(""),
-        d.get("logoUrl").getOrElse(""),
-        d.get("landingUrl").getOrElse(""),
-        d.get("siteUrl").getOrElse(""),
-        d.get("place"),
-        d.get("team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
-        d.get("level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
-        d.get("sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
-        Utils.toList(d.get("tags").getOrElse("")),
-        Utils.toList(d.get("images").getOrElse("")),
-        d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
-        d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
-        d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
-    } else {
-      None
-    }
+  def fromMap(eventId: String)(d: Map[String, String]): Try[Exponent] =
+    Try(Exponent(
+      d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
+      eventId,
+      d.get("name").get,
+      d.get("description").getOrElse(""),
+      d.get("logoUrl").getOrElse(""),
+      d.get("landingUrl").getOrElse(""),
+      d.get("siteUrl").getOrElse(""),
+      d.get("place"),
+      d.get("team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
+      d.get("level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
+      d.get("sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
+      Utils.toList(d.get("tags").getOrElse("")),
+      Utils.toList(d.get("images").getOrElse("")),
+      d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
+      d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
+      d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
+
   def toMap(e: Exponent): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "eventId" -> e.eventId,
