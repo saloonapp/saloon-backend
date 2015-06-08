@@ -55,6 +55,34 @@ object EventSrv {
     }
   }
 
+  def fetchFullEvent(url: String)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
+    val realUrl = if (url.startsWith("http")) url else "http://" + req.host + url
+    WS.url(realUrl).get().map { response =>
+      response.json.asOpt[Event].map { event =>
+        val sessions = (response.json \ "sessions").as[List[Session]]
+        val exponents = (response.json \ "exponents").as[List[Exponent]]
+        (event, sessions, exponents)
+      }
+    }
+  }
+
+  def sessionDiff(oldElts: List[Session], newElts: List[Session]): (List[Session], List[Session], List[Session]) = {
+    diff(oldElts, newElts, (s: Session) => s.source.map(_.ref).getOrElse(""), (os: Session, ns: Session) => os.merge(ns))
+  }
+
+  def exponentDiff(oldElts: List[Exponent], newElts: List[Exponent]): (List[Exponent], List[Exponent], List[Exponent]) = {
+    diff(oldElts, newElts, (e: Exponent) => e.source.map(_.ref).getOrElse(""), (oe: Exponent, ne: Exponent) => oe.merge(ne))
+  }
+
+  private def diff[A](oldElts: List[A], newElts: List[A], getRef: A => String, merge: (A, A) => A): (List[A], List[A], List[A]) = {
+    val createdElts = newElts.filter(ne => oldElts.find(oe => getRef(oe) == getRef(ne)).isEmpty)
+    val deletedElts = oldElts.filter(oe => newElts.find(ne => getRef(oe) == getRef(ne)).isEmpty)
+    val updatedElts = oldElts
+      .map(oe => newElts.find(ne => getRef(oe) == getRef(ne)).map(ne => (oe, ne))).flatten
+      .map { case (oe, ne) => merge(oe, ne) }
+    (createdElts, updatedElts, deletedElts)
+  }
+
   def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
     val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
     val remoteUrl = localUrl.replace(req.host, remoteHost)
@@ -71,17 +99,6 @@ object EventSrv {
         } else {
           (event, sessions, exponents)
         }
-      }
-    }
-  }
-
-  def fetchFullEvent(url: String)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
-    val realUrl = if (url.startsWith("http")) url else "http://" + req.host + url
-    WS.url(realUrl).get().map { response =>
-      response.json.asOpt[Event].map { event =>
-        val sessions = (response.json \ "sessions").as[List[Session]]
-        val exponents = (response.json \ "exponents").as[List[Exponent]]
-        (event, sessions, exponents)
       }
     }
   }
