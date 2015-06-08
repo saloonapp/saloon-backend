@@ -20,6 +20,7 @@ GET       /events/:eventId/edit                                                 
 POST      /events/:eventId/refresh                                                controllers.Events.refresh(eventId: String)
 POST      /events/:eventId                                                        controllers.Events.doUpdate(eventId: String)
 POST      /events/:eventId/delete                                                 controllers.Events.delete(eventId: String)
+GET       /events/:eventId/report/:userId                                         controllers.Events.report(eventId: String, userId: String)
 
 GET       /events/:eventId/exponents                                              controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/:eventId/exponents/create                                       controllers.Exponents.create(eventId: String)

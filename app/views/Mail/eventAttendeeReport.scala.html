@@ -1,0 +1,33 @@
+@(event: Event, sessions: List[models.Session], exponents: List[Exponent], actions: List[UserAction])
+
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="viewport" content="width=device-width"/>
+		<style>
+			body {
+				margin: 0px;
+			}
+			.container {
+				max-width: 1200px;
+				margin: auto;
+			}
+			.header .caption {
+				display: block;
+				margin: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<img class="caption" src="@event.landingUrl">
+			</div>
+			<div class="heading">
+				Salut,<br>
+				Félicitations pour avoir participé à <b>@event.name</b>
+			</div>
+		</div>
+	</body>
+</html>

@@ -3,6 +3,7 @@ package controllers
 import common.FileBodyParser
 import common.models.Page
 import models._
+import models.UserAction._
 import services.FileImporter
 import services.FileExporter
 import services.EventSrv
@@ -10,6 +11,7 @@ import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
+import infrastructure.repository.UserActionRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -72,6 +74,28 @@ object Events extends Controller {
           Ok(viewDetails(eltUI, actions))
         }
       }.getOrElse(Future(NotFound(views.html.error404())))
+    }
+  }
+
+  def report(eventId: String, userId: String) = Action.async { implicit req =>
+    UserActionRepository.findByUserEvent(userId, eventId).flatMap { actions =>
+      val subscribeOpt = actions.find(_.action.isSubscribe())
+      subscribeOpt.map {
+        _.action match {
+          case subscribe: SubscribeUserAction => {
+            val favoriteSessionUuids = actions.filter(a => a.action.isFavorite() && a.itemType == SessionUI.className).map(_.itemId)
+            val favoriteExponentUuids = actions.filter(a => a.action.isFavorite() && a.itemType == ExponentUI.className).map(_.itemId)
+            for {
+              event <- EventRepository.getByUuid(eventId)
+              sessions <- if (subscribe.filter == "favorite") SessionRepository.findByUuids(favoriteSessionUuids) else SessionRepository.findByEvent(eventId)
+              exponents <- if (subscribe.filter == "favorite") ExponentRepository.findByUuids(favoriteExponentUuids) else ExponentRepository.findByEvent(eventId)
+            } yield {
+              Ok(views.html.Mail.eventAttendeeReport(event.get, sessions, exponents, actions))
+            }
+          }
+          case _ => Future(NotFound(views.html.error(s"User $userId didn't subscribe to event $eventId")))
+        }
+      }.getOrElse(Future(NotFound(views.html.error(s"User $userId didn't subscribe to event $eventId"))))
     }
   }
 

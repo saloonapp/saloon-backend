@@ -34,11 +34,11 @@ object UserAction {
   def comment(userId: String, itemType: String, itemId: String, text: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
   def subscribe(userId: String, itemType: String, itemId: String, email: String, filter: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, SubscribeUserAction(email, filter), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
 
-  implicit val formatFavoriteUserAction = Json.format[FavoriteUserAction]
-  implicit val formatDoneUserAction = Json.format[DoneUserAction]
-  implicit val formatMoodUserAction = Json.format[MoodUserAction]
-  implicit val formatCommentUserAction = Json.format[CommentUserAction]
-  implicit val formatSubscribeUserAction = Json.format[SubscribeUserAction]
+  private implicit val formatFavoriteUserAction = Json.format[FavoriteUserAction]
+  private implicit val formatDoneUserAction = Json.format[DoneUserAction]
+  private implicit val formatMoodUserAction = Json.format[MoodUserAction]
+  private implicit val formatCommentUserAction = Json.format[CommentUserAction]
+  private implicit val formatSubscribeUserAction = Json.format[SubscribeUserAction]
   implicit val formatUserActionConent = Format(
     __.read[FavoriteUserAction].map(x => x: UserActionConent)
       .orElse(__.read[DoneUserAction].map(x => x: UserActionConent))
@@ -68,15 +68,24 @@ case class UserActionFull(event: Event, user: User, action: UserActionConent, it
 }
 
 sealed trait UserActionConent {
-  def toMap(): Map[String, String] = {
-    this match {
-      case FavoriteUserAction(favorite) => Map("actionType" -> FavoriteUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
-      case DoneUserAction(done) => Map("actionType" -> DoneUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
-      case MoodUserAction(rating, mood) => Map("actionType" -> MoodUserAction.className, "rating" -> rating, "text" -> "", "email" -> "", "filter" -> "")
-      case CommentUserAction(text, comment) => Map("actionType" -> CommentUserAction.className, "rating" -> "", "text" -> text, "email" -> "", "filter" -> "")
-      case SubscribeUserAction(email, filter, subscribe) => Map("actionType" -> SubscribeUserAction.className, "rating" -> "", "text" -> "", "email" -> email, "filter" -> filter)
-      case _ => Map("actionType" -> "Unknown", "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
-    }
+  def toMap(): Map[String, String] = this match {
+    case FavoriteUserAction(favorite) => Map("actionType" -> FavoriteUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
+    case DoneUserAction(done) => Map("actionType" -> DoneUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
+    case MoodUserAction(rating, mood) => Map("actionType" -> MoodUserAction.className, "rating" -> rating, "text" -> "", "email" -> "", "filter" -> "")
+    case CommentUserAction(text, comment) => Map("actionType" -> CommentUserAction.className, "rating" -> "", "text" -> text, "email" -> "", "filter" -> "")
+    case SubscribeUserAction(email, filter, subscribe) => Map("actionType" -> SubscribeUserAction.className, "rating" -> "", "text" -> "", "email" -> email, "filter" -> filter)
+    case _ => Map("actionType" -> "Unknown", "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
+  }
+
+  def isFavorite(): Boolean = isType(FavoriteUserAction.className)
+  def isSubscribe(): Boolean = isType(SubscribeUserAction.className)
+  def isType(actionType: String): Boolean = this match {
+    case _: FavoriteUserAction => actionType == FavoriteUserAction.className
+    case _: DoneUserAction => actionType == DoneUserAction.className
+    case _: MoodUserAction => actionType == MoodUserAction.className
+    case _: CommentUserAction => actionType == CommentUserAction.className
+    case _: SubscribeUserAction => actionType == SubscribeUserAction.className
+    case _ => false
   }
 }
 case class FavoriteUserAction(favorite: Boolean = true) extends UserActionConent
