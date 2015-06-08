@@ -41,6 +41,8 @@ case class VoxxrinSession(
       VoxxrinSession.parseDate(this.toTime),
       this.speakers.map(_.map(_.toSpeaker())).getOrElse(List()),
       this.tags.getOrElse(List()),
+      None,
+      None,
       Some(DataSource(this.id, VoxxrinApi.baseUrl + this.uri)),
       new DateTime(),
       new DateTime())

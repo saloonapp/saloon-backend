@@ -21,3 +21,5 @@
 	@fieldHorizontal(speakerField, 'label -> "Speaker"){ field => @views.html.Application.partials.personForm(field) }
 }
 @fieldHorizontal(sessionForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: RxJS, ES6, functionnal programming, événementiel, React, Angular")}
+@fieldHorizontal(sessionForm("slides"), 'label -> "Slides"){field => @inputText(field, 'placeholder -> "ex: http://fr.slideshare.net/loicknuchel/ionic-humantalks-11032015")}
+@fieldHorizontal(sessionForm("video"), 'label -> "Vidéo"){field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/watch?v=EB2CZndGU9A")}

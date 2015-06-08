@@ -26,6 +26,7 @@ case class VoxxrinSpeaker(
     this.bio.orElse(this.__description).map(html => Utils.htmlToText(html)).getOrElse(""),
     this.__company.getOrElse(""),
     this.pictureURI.orElse(this.__pictureUrl).map(VoxxrinApi.baseUrl + _).getOrElse(""),
+    None,
     "",
     PersonSocial(
       None,

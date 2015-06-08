@@ -9,6 +9,11 @@
 		<p>@datetimeOpt(session.start) - @datetimeOpt(session.end)</p>
 		<p class="well">@textMultiline(session.description)</p>
 		@session.speakers.map { speaker => @views.html.Application.partials.personListItem(speaker) }
-		<p class="text-muted">@session.place @session.tags.map { tag => <span class="label label-primary">@tag</span> }</p>
+		<p class="text-muted">
+			@session.place
+			@session.tags.map { tag => <span class="label label-primary">@tag</span> }
+			@session.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i></a> }
+			@session.video.map { link => <a href="@link" target="_blank"><i class="fa fa-youtube"></i></a> }
+		</p>
 	</div>
 </div>

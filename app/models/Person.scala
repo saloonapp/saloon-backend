@@ -24,6 +24,7 @@ case class Person(
   description: String,
   company: String,
   avatar: String,
+  email: Option[String],
   profilUrl: String,
   social: PersonSocial)
 object Person {
@@ -33,6 +34,7 @@ object Person {
     "description" -> text,
     "company" -> text,
     "avatar" -> text,
+    "email" -> optional(text),
     "profilUrl" -> text,
     "social" -> PersonSocial.fields)(Person.apply)(Person.unapply)
 }

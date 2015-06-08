@@ -12,6 +12,7 @@
 		</h4>
 		@person.description
 		<p>
+			@person.email.map { email => <a href="mailto:@email" target="_blank">@email</a> }.getOrElse("")
 			@person.social.siteUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
 			@person.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
 			@person.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")

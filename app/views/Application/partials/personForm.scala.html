@@ -7,6 +7,7 @@
 @fieldHorizontal(personForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'placeholder -> "ex: Développeur web")}
 @fieldHorizontal(personForm("company"), 'label -> "Société"){field => @inputText(field, 'placeholder -> "ex: Freelance")}
 @fieldHorizontal(personForm("avatar"), 'label -> "Avatar"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
+@fieldHorizontal(personForm("email"), 'label -> "Email"){field => @inputText(field, 'placeholder -> "ex: loic@saloonapp.co")}
 @fieldHorizontal(personForm("profilUrl"), 'label -> "Profil"){field => @inputText(field, 'placeholder -> "ex: http://loic.knuchel.org/")}
 <div class="form-inline">
 	@inputText(personForm("social.siteUrl"), 'placeholder -> "site")

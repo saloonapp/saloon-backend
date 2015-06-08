@@ -20,6 +20,8 @@ case class Session(
   end: Option[DateTime],
   speakers: List[Person],
   tags: List[String],
+  slides: Option[String],
+  video: Option[String],
   source: Option[DataSource], // where the session were fetched (if applies)
   created: DateTime,
   updated: DateTime) extends EventItem {
@@ -36,6 +38,8 @@ case class Session(
     merge(this.end, s.end),
     merge(this.speakers, s.speakers),
     merge(this.tags, s.tags),
+    merge(this.slides, s.slides),
+    merge(this.video, s.video),
     merge(this.source, s.source),
     this.created,
     s.updated)
@@ -60,6 +64,8 @@ object Session {
       d.get("end").flatMap(d => parseDate(d)),
       d.get("speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
       Utils.toList(d.get("tags").getOrElse("")),
+      d.get("slides"),
+      d.get("video"),
       d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
       d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
       d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
@@ -76,6 +82,8 @@ object Session {
     "end" -> e.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "speakers" -> Json.stringify(Json.toJson(e.speakers)),
     "tags" -> Utils.fromList(e.tags),
+    "slides" -> e.slides.getOrElse(""),
+    "video" -> e.video.getOrElse(""),
     "source.ref" -> e.source.map(_.ref).getOrElse(""),
     "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
@@ -94,14 +102,15 @@ case class SessionUI(
   end: Option[DateTime],
   speakers: List[Person],
   tags: List[String],
+  slides: Option[String],
+  video: Option[String],
   created: DateTime,
   updated: DateTime,
   className: String = SessionUI.className)
 object SessionUI {
   val className = "sessions"
   implicit val format = Json.format[SessionUI]
-  // def toModel(d: SessionUI): Session = Session(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.created, d.updated)
-  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.created, d.updated)
+  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.slides, d.video, d.created, d.updated)
 }
 
 // mapping object for Session Form
@@ -115,7 +124,9 @@ case class SessionData(
   start: Option[DateTime],
   end: Option[DateTime],
   speakers: List[Person],
-  tags: String)
+  tags: String,
+  slides: Option[String],
+  video: Option[String])
 object SessionData {
   implicit val format = Json.format[SessionData]
   val fields = mapping(
@@ -128,9 +139,11 @@ object SessionData {
     "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "speakers" -> list(Person.fields),
-    "tags" -> text)(SessionData.apply)(SessionData.unapply)
+    "tags" -> text,
+    "slides" -> optional(text),
+    "video" -> optional(text))(SessionData.apply)(SessionData.unapply)
 
-  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers.filter(!_.name.isEmpty), Utils.toList(d.tags), None, new DateTime(), new DateTime())
-  def fromModel(d: Session): SessionData = SessionData(d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, Utils.fromList(d.tags))
+  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers.filter(!_.name.isEmpty), Utils.toList(d.tags), d.slides, d.video, None, new DateTime(), new DateTime())
+  def fromModel(d: Session): SessionData = SessionData(d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, Utils.fromList(d.tags), d.slides, d.video)
   def merge(m: Session, d: SessionData): Session = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
 }

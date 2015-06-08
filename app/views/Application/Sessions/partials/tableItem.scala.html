@@ -12,6 +12,10 @@
 	<td>@session.description</td>
 	<td>@session.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
 	<td>
+		@session.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i></a> }
+		@session.video.map { link => <a href="@link" target="_blank"><i class="fa fa-youtube"></i></a> }
+	</td>
+	<td>
 		<a href="@routes.Sessions.details(event.uuid, session.uuid)" class="btn btn-default">Détails</a>
 		<a href="@routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
 		<form method="POST" action="@routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm"><i class="fa fa-trash-o"></i></button></form>
