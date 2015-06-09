@@ -31,7 +31,16 @@
 						<form class="pull-right" method="POST" action="@routes.Events.stats(event.uuid)"><button type="submit" class="btn btn-success"><i class="fa fa-download"></i></button></form>
 					</div>
 					<div class="widget-body">
-						<p>@UserActionSrv.byActionName(actions).map { case (actionName, list) => @list.length @actionName}.mkString(", ")</p>
+						<p>
+							@UserActionSrv.byActionName(actions).map { case (actionName, list) =>
+								@actionName match {
+									case "mood" => {
+										@UserActionSrv.byMood(list).map { case (rating, moodList) => @moodList.length @mood(rating) }.mkString(", ")
+									}
+									case actionName => { @list.length @actionName }
+								}
+							}.mkString(", ")
+						</p>
 						<ol>
 							@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
 								<li>
@@ -65,6 +74,9 @@
 									User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
 									@UserActionSrv.byActionName(userActions).map { case (actionName, list) =>
 										@actionName match {
+											case "mood" => {
+												@UserActionSrv.byMood(list).map { case (rating, moodList) => @moodList.length @mood(rating) }.mkString(", ")
+											}
 											case "subscribe" => { <a href="@routes.Events.report(event.uuid, list.head.user.uuid)">@list.length subscribe</a> }
 											case actionName => { @list.length @actionName }
 										}
