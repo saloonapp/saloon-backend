@@ -23,8 +23,8 @@ object RivieraDev extends Controller {
   case class RivieraDevPerson(name: String, description: String, company: Option[String], avatar: String, profilUrl: Option[String], social: Option[PersonSocial]) {
     def toPerson(): Person = Person(this.name, this.description, this.company.getOrElse(""), this.avatar, None, this.profilUrl.getOrElse(""), this.social.getOrElse(PersonSocial(None, None, None, None, None)))
   }
-  case class RivieraDevSession(name: String, description: Option[String], start: Option[DateTime], end: Option[DateTime], category: Option[String], speakers: List[RivieraDevPerson]) {
-    def toSession(eventId: String): models.Session = models.Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), "", this.category.getOrElse(""), "", this.start, this.end, this.speakers.map(_.toPerson()), List(), None, None, Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime())
+  case class RivieraDevSession(name: String, description: Option[String], start: Option[DateTime], end: Option[DateTime], category: Option[String], place: Option[String], speakers: List[RivieraDevPerson]) {
+    def toSession(eventId: String): models.Session = models.Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), "", this.category.getOrElse(""), this.place.getOrElse(""), this.start, this.end, this.speakers.map(_.toPerson()), List(), None, None, Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime())
   }
   case class RivieraDevExponent(name: String, description: String, logoUrl: String, siteUrl: String, sponsor: Boolean) {
     def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, this.logoUrl, this.logoUrl, this.siteUrl: String, None, List(), None, this.sponsor, List(), List(), Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime())
