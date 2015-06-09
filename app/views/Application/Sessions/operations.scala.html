@@ -19,6 +19,7 @@
 							<p class="form-control-static">@event.name</p>
 						</div>
 						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")
+						@fieldVertical(importForm("encoding"), 'label -> "Encodage"){ field => @inputSelect(field, FileImportConfig.encodings) }
 						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
 							<p class="help-block">

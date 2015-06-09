@@ -27,7 +27,7 @@ object RivieraDev extends Controller {
     def toSession(eventId: String): models.Session = models.Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), "", this.category.getOrElse(""), "", this.start, this.end, this.speakers.map(_.toPerson()), List(), None, None, Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime())
   }
   case class RivieraDevExponent(name: String, description: String, logoUrl: String, siteUrl: String, sponsor: Boolean) {
-    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, "", this.logoUrl, this.siteUrl: String, None, List(), None, this.sponsor, List(), List(), Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime())
+    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, this.logoUrl, this.logoUrl, this.siteUrl: String, None, List(), None, this.sponsor, List(), List(), Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime())
   }
   implicit val formatRivieraDevEvent = Json.format[RivieraDevEvent]
   implicit val formatRivieraDevPerson = Json.format[RivieraDevPerson]

@@ -191,7 +191,7 @@ object Events extends Controller {
       formWithErrors => Future(BadRequest(viewOps(formWithErrors, urlImportForm))),
       formData => {
         req.body.file("importedFile").map { filePart =>
-          val reader = new java.io.StringReader(new String(filePart.ref))
+          val reader = new java.io.StringReader(new String(filePart.ref, formData.encoding))
           FileImporter.importEvents(reader, formData).map {
             case (nbInserted, errors) =>
               Redirect(mainRoute.list())

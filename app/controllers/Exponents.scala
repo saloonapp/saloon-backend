@@ -128,7 +128,7 @@ object Exponents extends Controller {
   def operations(eventId: String) = Action.async { implicit req =>
     EventRepository.getByUuid(eventId).map { eventOpt =>
       eventOpt
-        .map { event => Ok(viewOps(fileImportForm.fill(FileImportConfig(true)), event)) }
+        .map { event => Ok(viewOps(fileImportForm.fill(FileImportConfig()), event)) }
         .getOrElse(NotFound(views.html.error404()))
     }
   }
@@ -140,7 +140,7 @@ object Exponents extends Controller {
           formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
           formData => {
             req.body.file("importedFile").map { filePart =>
-              val reader = new java.io.StringReader(new String(filePart.ref))
+              val reader = new java.io.StringReader(new String(filePart.ref, formData.encoding))
               FileImporter.importExponents(reader, formData, eventId).map {
                 case (nbInserted, errors) =>
                   Redirect(mainRoute.list(eventId))

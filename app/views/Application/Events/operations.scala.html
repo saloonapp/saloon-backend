@@ -14,6 +14,7 @@
 				<div class="widget-body">
 					<form method="POST" action="@routes.Events.fileImport" enctype="multipart/form-data">
 						@fieldCheckbox(fileImportForm("shouldClean"), 'label -> "Supprimer les éléments existants")
+						@fieldVertical(fileImportForm("encoding"), 'label -> "Encodage"){ field => @inputSelect(field, FileImportConfig.encodings) }
 						@fieldVertical(fileImportForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
 							<p class="help-block">
