@@ -1,0 +1,23 @@
+@(exponent: Exponent, moodOpt: Option[String], comments: List[String])
+
+<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<div class="media">
+				<div class="media-left"><img class="media-object img-circle" src="@exponent.logoUrl" style="max-height: 80px;"></div>
+				<div class="media-body">
+					<h4 class="media-heading">@exponent.name</h4>
+				</div>
+			</div>
+		</div>
+		<div class="item item-body panel-body">
+			@comments.map { comment => <blockquote>@comment</blockquote> }
+			@if(comments.length == 0 && exponent.description.length > 0){ <blockquote>@exponent.description</blockquote> }
+		</div>
+		@moodOpt.map { rating =>
+			<div class="panel-footer">
+				Votre appréciation : @Mail.partials.mood(rating)
+			</div>
+		}
+	</div>
+</div>

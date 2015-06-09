@@ -78,6 +78,9 @@ sealed trait UserActionConent {
   }
 
   def isFavorite(): Boolean = isType(FavoriteUserAction.className)
+  def isDone(): Boolean = isType(DoneUserAction.className)
+  def isMood(): Boolean = isType(MoodUserAction.className)
+  def isComment(): Boolean = isType(CommentUserAction.className)
   def isSubscribe(): Boolean = isType(SubscribeUserAction.className)
   def isType(actionType: String): Boolean = this match {
     case _: FavoriteUserAction => actionType == FavoriteUserAction.className

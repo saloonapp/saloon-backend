@@ -1,22 +1,22 @@
-@(event: Event, sessions: List[models.Session], exponents: List[Exponent], actions: List[UserAction])
+@(event: Event, sessions: List[models.Session], exponents: List[Exponent], actions: List[UserAction], filter: String)
+
+@import services.UserActionSrv
 
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<meta name="viewport" content="width=device-width"/>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 		<style>
-			body {
-				margin: 0px;
-			}
-			.container {
-				max-width: 1200px;
-				margin: auto;
-			}
 			.header .caption {
 				display: block;
 				margin: auto;
 			}
+			.mood .good { color: #5cb85c; }
+			.mood .reserved { color: #f0ad4e; }
+			.mood .bad { color: #d9534f; }
 		</style>
 	</head>
 	<body>
@@ -27,8 +27,33 @@
 			</div>
 			<div class="heading">
 				Salut,<br>
-				Félicitations pour avoir participé à <b>@event.name</b>
+				Félicitations pour avoir participé à <b>@event.name</b>.
+				@if(filter == "all"){ Voici le compte rendu complet de l'événement. }
+				@if(filter == "favorite"){ Voici le compte rendu de ton événement. }
 			</div>
+			@UserActionSrv.seenExponentsOpt(actions, exponents).map { exponents =>
+				<div>
+					<h3>Les exposants auxquels tu as rendu visite</h3>
+					<div class="row">
+						@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+					</div>
+				</div>
+			}
+			@UserActionSrv.favoriteSessionsOpt(actions, sessions).map { sessions =>
+				<div>
+					<h3>Voici tes sessions favorites</h3>
+					<div class="row">
+						@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
+					</div>
+				</div>
+			}
+			@if(filter == "all"){
+				<h3>Les autres sessions</h3>
+				<h3>Les autres exposants</h3>
+			}
+			@if(filter == "favorite"){
+				<h3>Les autres exposants en favoris</h3>
+			}
 		</div>
 	</body>
 </html>

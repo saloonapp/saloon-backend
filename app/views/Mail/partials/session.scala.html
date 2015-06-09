@@ -1,0 +1,37 @@
+@(session: models.Session, moodOpt: Option[String], comments: List[String])
+
+<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<div class="media">
+				@session.speakers.headOption.map { mainSpeaker =>
+					<div class="media-left"><img class="media-object img-circle" src="@mainSpeaker.avatar" style="max-height: 80px;"></div>
+				}
+				<div class="media-body">
+					<h4 class="media-heading">@session.name</h4>
+					@session.speakers.map { speaker =>
+						<p>
+							@speaker.name
+							<span>
+								@speaker.social.siteUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
+								@speaker.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
+								@speaker.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
+								@speaker.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")
+								@speaker.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-github"></i></a> }.getOrElse("")
+							</span>
+						</p>
+					}
+				</div>
+			</div>
+		</div>
+		<div class="item item-body panel-body">
+			@comments.map { comment => <blockquote>@comment</blockquote> }
+			@if(comments.length == 0 && session.description.length > 0){ <blockquote>@session.description</blockquote> }
+		</div>
+		<div class="panel-footer">
+			@moodOpt.map { rating => Votre appréciation : @Mail.partials.mood(rating)<br> }
+			@session.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i> Voir les slides</a> }.getOrElse { <i class="fa fa-slideshare"></i> Slides pas encore disponibles }<br>
+			@session.video.map { link => <a href="@link" target="_blank"><i class="fa fa-file-video-o"></i> Voir la vidéo</a> }.getOrElse { <i class="fa fa-file-video-o"></i> Vidéo pas encore disponible }<br>
+		</div>
+	</div>
+</div>

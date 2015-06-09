@@ -90,7 +90,7 @@ object Events extends Controller {
               sessions <- if (subscribe.filter == "favorite") SessionRepository.findByUuids(favoriteSessionUuids) else SessionRepository.findByEvent(eventId)
               exponents <- if (subscribe.filter == "favorite") ExponentRepository.findByUuids(favoriteExponentUuids) else ExponentRepository.findByEvent(eventId)
             } yield {
-              Ok(views.html.Mail.eventAttendeeReport(event.get, sessions, exponents, actions))
+              Ok(views.html.Mail.eventAttendeeReport(event.get, sessions, exponents, actions, subscribe.filter))
             }
           }
           case _ => Future(NotFound(views.html.error(s"User $userId didn't subscribe to event $eventId")))
