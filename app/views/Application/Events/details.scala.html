@@ -1,5 +1,6 @@
 @(event: EventUI, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
+@import views.html.Application.format._
 @import services.UserActionSrv
 
 @layout(event.name) {
@@ -42,6 +43,9 @@
 									}
 									@UserActionSrv.byActionName(itemActions).map { case (actionName, list) =>
 										@actionName match {
+											case "mood" => {
+												@UserActionSrv.byMood(list).map { case (rating, moodList) => @moodList.length @mood(rating) }.mkString(", ")
+											}
 											case actionName => { @list.length @actionName }
 										}
 									}.mkString(", ")

@@ -19,6 +19,13 @@ object UserActionSrv {
     actions.groupBy(a => toActionName(a.action)).toList
   }
 
+  def byMood(actions: List[UserActionFull]): List[(String, List[UserActionFull])] = {
+    actions.filter(_.action.isMood()).groupBy(_.action match {
+      case MoodUserAction(rating, mood) => rating
+      case _ => "unknown"
+    }).toList
+  }
+
   def toActionName(a: UserActionConent): String = {
     a match {
       case FavoriteUserAction(favorite) => FavoriteUserAction.className

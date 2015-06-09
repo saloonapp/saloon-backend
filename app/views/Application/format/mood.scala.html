@@ -1,0 +1,10 @@
+@(rating: String)
+
+@rating
+@*
+<span class="mood">
+	@if(rating == "ok"){<i class="fa fa-smile-o good"></i>}
+	@if(rating == "bof"){<i class="fa fa-meh-o reserved"></i>}
+	@if(rating == "ko"){<i class="fa fa-frown-o bad"></i>}
+</span>
+*@
