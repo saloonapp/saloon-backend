@@ -59,7 +59,7 @@ POST      /api/v1/users                                                         
 GET       /api/v1/users/:userId                                                   controllers.api.Users.details(userId: String)
 GET       /api/v1/users/:userId/actions                                           controllers.api.Users.actions(userId: String)
 GET       /api/v1/users/:userId/actions/:eventId                                  controllers.api.Users.eventActions(userId: String, eventId: String)
-GET       /api/v1/users/:userId/actions/:eventId/sync                             controllers.api.UserActions.syncEventActions(userId: String, eventId: String)
+POST      /api/v1/users/:userId/actions/:eventId/sync                             controllers.api.UserActions.syncEventActions(userId: String, eventId: String)
 
 GET       /api/v1/events                                                          controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /api/v1/events/all                                                      controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
