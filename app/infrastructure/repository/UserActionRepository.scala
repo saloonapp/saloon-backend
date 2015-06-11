@@ -27,7 +27,7 @@ trait MongoDbUserActionRepository {
 
   def findByUser(userId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId))
   def findByEvent(eventId: String): Future[List[UserAction]] = crud.find(Json.obj("eventId" -> eventId))
-  def findByUserEvent(userId: String, eventId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId, "eventId" -> eventId))
+  def findByUserEvent(userId: String, eventId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId, "eventId" -> eventId), Json.obj("created" -> 1))
 
   def getFavorite(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = getAction(FavoriteUserAction.className)(userId, itemType, itemId)
   def insertFavorite(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.favorite(userId, itemType, itemId, eventId, time))
