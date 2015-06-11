@@ -31,6 +31,7 @@
 				@if(filter == "all"){ Voici le compte rendu complet de l'événement. }
 				@if(filter == "favorite"){ Voici le compte rendu de ton événement. }
 			</div>
+
 			@UserActionSrv.seenExponentsOpt(actions, exponents).map { exponents =>
 				<div>
 					<h3>Les exposants auxquels tu as rendu visite</h3>
@@ -38,7 +39,10 @@
 						@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
 					</div>
 				</div>
+			}.getOrElse {
+				Tu n'as rendu visite à aucune exposant.
 			}
+
 			@UserActionSrv.favoriteSessionsOpt(actions, sessions).map { sessions =>
 				<div>
 					<h3>Voici tes sessions favorites</h3>
@@ -46,14 +50,19 @@
 						@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
 					</div>
 				</div>
+			}.getOrElse {
+				Tu n'as mis aucune session en favoris.
 			}
+
 			@if(filter == "all"){
-				<h3>Les autres sessions</h3>
-				<h3>Les autres exposants</h3>
+				<h3>Toutes les sessions</h3>
+				<h3>Tous les exposants</h3>
 			}
 			@if(filter == "favorite"){
 				<h3>Les autres exposants en favoris</h3>
 			}
+
+			PS: n'hésites pas à nous faire un feedback sur ce mail, l'application ou SalooN de manière générale.
 		</div>
 	</body>
 </html>

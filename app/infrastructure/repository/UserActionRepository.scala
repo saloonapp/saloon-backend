@@ -59,9 +59,12 @@ trait MongoDbUserActionRepository {
   }
   def deleteSubscribe(userId: String, itemType: String, itemId: String): Future[LastError] = deleteAction(SubscribeUserAction.className)(userId, itemType, itemId)
 
+  def bulkInsert(elts: List[UserAction]): Future[Int] = crud.bulkInsert(elts)
+  def deleteByEventUser(eventId: String, userId: String): Future[LastError] = collection.remove(Json.obj("eventId" -> eventId, "userId" -> userId))
+
   def deleteByEvent(eventId: String): Future[LastError] = crud.deleteBy("eventId", eventId)
   def deleteByItem(itemType: String, itemId: String): Future[LastError] = collection.remove(Json.obj("itemType" -> itemType, "itemId" -> itemId))
-  def deleteByUser(userId: String): Future[LastError] = collection.remove(Json.obj("userId" -> userId))
+  def deleteByUser(userId: String): Future[LastError] = crud.deleteBy("userId", userId)
 
   private def getAction(actionType: String)(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId))
   private def insertAction(action: UserAction): Future[Option[UserAction]] = crud.insert(action).map { err => if (err.ok) Some(action) else None }

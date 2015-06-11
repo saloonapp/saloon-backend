@@ -91,6 +91,16 @@ object UserActions extends Controller {
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteSubscribe)
   }
 
+  def syncEventActions(userId: String, eventId: String) = Action.async(parse.json) { implicit req =>
+    (req.body \ "actions").asOpt[List[UserAction]].map { actions =>
+      UserActionRepository.deleteByEventUser(eventId, userId).flatMap { err =>
+        UserActionRepository.bulkInsert(actions).map { count =>
+          Ok(Json.obj("message" -> "UserActions sync with client !"))
+        }
+      }
+    }.getOrElse(BadRequest(Json.obj("message" -> "Sync endpoint expects the complete List[UserAction] in field 'actions' of request body !")))
+  }
+
   /*
    * There must be a max of one action for (itemType, itemId)
    */
