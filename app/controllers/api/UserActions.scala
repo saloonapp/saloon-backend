@@ -98,7 +98,7 @@ object UserActions extends Controller {
           Ok(Json.obj("message" -> "UserActions sync with client !"))
         }
       }
-    }.getOrElse(BadRequest(Json.obj("message" -> "Sync endpoint expects the complete List[UserAction] in field 'actions' of request body !")))
+    }.getOrElse(Future(BadRequest(Json.obj("message" -> "Sync endpoint expects the complete List[UserAction] in field 'actions' of request body !"))))
   }
 
   /*
