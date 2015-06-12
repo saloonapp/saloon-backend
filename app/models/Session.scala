@@ -104,13 +104,14 @@ case class SessionUI(
   tags: List[String],
   slides: Option[String],
   video: Option[String],
+  source: Option[DataSource],
   created: DateTime,
   updated: DateTime,
   className: String = SessionUI.className)
 object SessionUI {
   val className = "sessions"
   implicit val format = Json.format[SessionUI]
-  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.slides, d.video, d.created, d.updated)
+  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.slides, d.video, d.source, d.created, d.updated)
 }
 
 // mapping object for Session Form

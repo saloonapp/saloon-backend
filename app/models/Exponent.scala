@@ -105,14 +105,14 @@ case class ExponentUI(
   sponsor: Boolean,
   tags: List[String],
   images: List[String],
+  source: Option[DataSource],
   created: DateTime,
   updated: DateTime,
   className: String = ExponentUI.className)
 object ExponentUI {
   val className = "exponents"
   implicit val format = Json.format[ExponentUI]
-  // def toModel(d: ExponentUI): Exponent = Exponent(d.uuid, d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, d.tags, d.images, None, d.created, d.updated)
-  def fromModel(d: Exponent): ExponentUI = ExponentUI(d.uuid, d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, d.tags, d.images, d.created, d.updated)
+  def fromModel(d: Exponent): ExponentUI = ExponentUI(d.uuid, d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, d.tags, d.images, d.source, d.created, d.updated)
 }
 
 // mapping object for Exponent Form

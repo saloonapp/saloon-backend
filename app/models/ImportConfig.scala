@@ -14,12 +14,8 @@ object FileImportConfig {
 }
 
 case class UrlImportConfig(
-  url: String,
-  replaceIds: Boolean,
-  newIds: Boolean)
+  url: String = "")
 object UrlImportConfig {
   val fields = mapping(
-    "url" -> nonEmptyText,
-    "replaceIds" -> boolean,
-    "newIds" -> boolean)(UrlImportConfig.apply)(UrlImportConfig.unapply)
+    "url" -> nonEmptyText)(UrlImportConfig.apply)(UrlImportConfig.unapply)
 }

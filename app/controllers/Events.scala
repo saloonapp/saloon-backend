@@ -132,6 +132,70 @@ object Events extends Controller {
     }
   }
 
+  def delete(uuid: String) = Action.async { implicit req =>
+    repository.getByUuid(uuid).map {
+      _.map { elt =>
+        repository.delete(uuid)
+        Redirect(mainRoute.list()).flashing("success" -> successDeleteFlash(elt))
+      }.getOrElse(NotFound(views.html.error404()))
+    }
+  }
+
+  def operations = Action { implicit req =>
+    Ok(viewOps(fileImportForm, urlImportForm.fill(UrlImportConfig())))
+  }
+
+  def fileImport = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
+    fileImportForm.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(viewOps(formWithErrors, urlImportForm))),
+      formData => {
+        req.body.file("importedFile").map { filePart =>
+          val reader = new java.io.StringReader(new String(filePart.ref, formData.encoding))
+          FileImporter.importEvents(reader, formData).map {
+            case (nbInserted, errors) =>
+              Redirect(mainRoute.list())
+                .flashing(
+                  "success" -> successImportFlash(nbInserted),
+                  "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
+          }
+        }.getOrElse(Future(BadRequest(viewOps(fileImportForm.fill(formData), urlImportForm)).flashing("error" -> "You must import a file !")))
+      })
+  }
+
+  def urlImport = Action.async { implicit req =>
+    urlImportForm.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(viewOps(fileImportForm, formWithErrors))),
+      formData => {
+        val eventUrl = EventSrv.formatUrl(formData.url)
+        EventSrv.fetchFullEvent(eventUrl).flatMap {
+          _.map {
+            case (remoteEvent, remoteSessions, remoteExponents) =>
+              val getData = for {
+                localEventOpt <- EventRepository.getByUuid(remoteEvent.uuid)
+                localSessions <- SessionRepository.findByEvent(remoteEvent.uuid)
+                localExponents <- ExponentRepository.findByEvent(remoteEvent.uuid)
+              } yield (localEventOpt, localSessions, localExponents)
+
+              getData.flatMap {
+                case (localEventOpt, localSessions, localExponents) =>
+                  localEventOpt.map { localEvent =>
+                    val remoteSource = Json.obj("event" -> remoteEvent, "sessions" -> remoteSessions, "exponents" -> remoteExponents)
+                    val updatedEvent = localEvent.merge(remoteEvent)
+                    val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
+                    val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
+                    Future(Ok(views.html.Application.Events.refresh(localEvent, updatedEvent, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource)))
+                  }.getOrElse {
+                    EventSrv.insertAll(remoteEvent, remoteSessions, remoteExponents).map { insertedOpt =>
+                      if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${remoteEvent.name}</b> bien créé") }
+                      else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la création de ${remoteEvent.name} (id: ${remoteEvent.uuid})"))) }
+                    }
+                  }
+              }
+          }.getOrElse(Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Aucun événement ne correspond à l'url <b>$eventUrl</b>")))))
+        }
+      })
+  }
+
   def refresh(uuid: String) = Action.async { implicit req =>
     EventRepository.getByUuid(uuid).flatMap { eventOpt =>
       eventOpt.map { localEvent =>
@@ -177,11 +241,11 @@ object Events extends Controller {
               val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
 
               for {
-                eventUpdated <- EventRepository.update(uuid, updatedEvent)
-                sessionsCreated <- SessionRepository.bulkInsert(createdSessions.map(_.copy(eventId = uuid)))
+                eventUpdated <- EventRepository.update(localEvent.uuid, updatedEvent)
+                sessionsCreated <- SessionRepository.bulkInsert(createdSessions.map(_.copy(eventId = localEvent.uuid)))
                 sessionsDeleted <- SessionRepository.bulkDelete(deletedSessions.map(_.uuid))
                 sessionsUpdated <- SessionRepository.bulkUpdate(updatedSessions.map(s => (s._2.uuid, s._2)))
-                exponentsCreated <- ExponentRepository.bulkInsert(createdExponents.map(_.copy(eventId = uuid)))
+                exponentsCreated <- ExponentRepository.bulkInsert(createdExponents.map(_.copy(eventId = localEvent.uuid)))
                 exponentsDeleted <- ExponentRepository.bulkDelete(deletedExponents.map(_.uuid))
                 exponentsUpdated <- ExponentRepository.bulkUpdate(updatedExponents.map(e => (e._2.uuid, e._2)))
               } yield {
@@ -194,73 +258,6 @@ object Events extends Controller {
         }
       }).getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Les données de l'attribut 'data' du body ne sont pas correctes (JSON: {event: {}, sessions: [], exponents: []})!")))
     }.getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Le body doit contenir les données dans un attribut 'data' !")))
-  }
-
-  def delete(uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).map {
-      _.map { elt =>
-        repository.delete(uuid)
-        Redirect(mainRoute.list()).flashing("success" -> successDeleteFlash(elt))
-      }.getOrElse(NotFound(views.html.error404()))
-    }
-  }
-
-  def operations = Action { implicit req =>
-    Ok(viewOps(fileImportForm, urlImportForm.fill(UrlImportConfig("", true, false))))
-  }
-
-  def fileImport = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
-    fileImportForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewOps(formWithErrors, urlImportForm))),
-      formData => {
-        req.body.file("importedFile").map { filePart =>
-          val reader = new java.io.StringReader(new String(filePart.ref, formData.encoding))
-          FileImporter.importEvents(reader, formData).map {
-            case (nbInserted, errors) =>
-              Redirect(mainRoute.list())
-                .flashing(
-                  "success" -> successImportFlash(nbInserted),
-                  "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
-          }
-        }.getOrElse(Future(BadRequest(viewOps(fileImportForm.fill(formData), urlImportForm)).flashing("error" -> "You must import a file !")))
-      })
-  }
-
-  val urlParser = """https?://(.+\.herokuapp.com)/events/([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})""".r
-  def urlImport = Action.async { implicit req =>
-    urlImportForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewOps(fileImportForm, formWithErrors))),
-      formData => {
-        formData.url match {
-          case urlParser(remoteHost, eventId) => {
-            EventSrv.fetchEvent(remoteHost, eventId, formData.newIds).flatMap {
-              _.map {
-                case (event, sessions, exponents) =>
-                  EventRepository.getByUuid(event.uuid).flatMap { oldEventOpt =>
-                    if (oldEventOpt.isDefined) {
-                      if (formData.replaceIds) {
-                        EventRepository.delete(event.uuid).flatMap { opt =>
-                          EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
-                            if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien mis à jour") }
-                            else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la mise à jour de ${event.name} (id: ${event.uuid})"))) }
-                          }
-                        }
-                      } else {
-                        Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>${event.uuid}</b> existe déjà. Créez de nouveaux ids ou permettez de supprimer l'événement existant."))))
-                      }
-                    } else {
-                      EventSrv.insertAll(event, sessions, exponents).map { insertedOpt =>
-                        if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${event.name}</b> bien créé") }
-                        else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la création de ${event.name} (id: ${event.uuid})"))) }
-                      }
-                    }
-                  }
-              }.getOrElse(Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'événement <b>$eventId</b> n'existe pas sur <b>$remoteHost</b>")))))
-            }
-          }
-          case _ => Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"L'url <b>${formData.url}</b> ne correspond pas au format attendu..."))))
-        }
-      })
   }
 
   def fileExport = Action.async { implicit req =>

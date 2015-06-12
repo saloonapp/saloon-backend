@@ -85,6 +85,17 @@ object EventSrv {
     (createdElts, deletedElts, updatedElts)
   }
 
+  private val eventUrlMatcher = """https?://(.+\.herokuapp.com)/events/([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})""".r
+  def formatUrl(url: String)(implicit req: RequestHeader): String = {
+    url match {
+      case eventUrlMatcher(remoteHost, eventId) => {
+        val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
+        localUrl.replace(req.host, remoteHost)
+      }
+      case _ => url
+    }
+  }
+
   def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
     val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
     val remoteUrl = localUrl.replace(req.host, remoteHost)
