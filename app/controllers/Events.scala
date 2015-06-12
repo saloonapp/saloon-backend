@@ -141,37 +141,35 @@ object Events extends Controller {
     }
   }
 
-  def operations = Action { implicit req =>
-    Ok(viewOps(fileImportForm, urlImportForm.fill(UrlImportConfig())))
+  def operations(uuid: String) = Action.async { implicit req =>
+    repository.getByUuid(uuid).map {
+      _.map { event =>
+        Ok(viewOps(event, urlImportForm, fileImportForm.fill(FileImportConfig())))
+      }.getOrElse(Redirect(mainRoute.list()).flashing("error" -> s"Event $uuid not found..."))
+    }
   }
 
-  def fileImport = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
-    fileImportForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewOps(formWithErrors, urlImportForm))),
-      formData => {
-        req.body.file("importedFile").map { filePart =>
-          val reader = new java.io.StringReader(new String(filePart.ref, formData.encoding))
-          FileImporter.importEvents(reader, formData).map {
-            case (nbInserted, errors) =>
-              Redirect(mainRoute.list())
-                .flashing(
-                  "success" -> successImportFlash(nbInserted),
-                  "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
-          }
-        }.getOrElse(Future(BadRequest(viewOps(fileImportForm.fill(formData), urlImportForm)).flashing("error" -> "You must import a file !")))
-      })
-  }
-
-  def urlImport = Action.async { implicit req =>
+  def urlImport(uuid: String) = Action.async { implicit req =>
     urlImportForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewOps(fileImportForm, formWithErrors))),
+      formWithErrors => repository.getByUuid(uuid).map {
+        _.map { event =>
+          BadRequest(viewOps(event, formWithErrors, fileImportForm))
+        }.getOrElse(Redirect(mainRoute.list()).flashing("error" -> s"Event $uuid not found..."))
+      },
       formData => {
         val eventUrl = EventSrv.formatUrl(formData.url)
-        EventSrv.fetchFullEvent(eventUrl).flatMap {
-          _.map {
-            case (remoteEvent, remoteSessions, remoteExponents) =>
+        val getData = for {
+          fullEventOpt <- EventSrv.fetchFullEvent(eventUrl)
+          localEventOpt <- EventRepository.getByUuid(uuid)
+        } yield (fullEventOpt, localEventOpt)
+
+        getData.flatMap {
+          case (fullEventOpt, localEventOpt) =>
+            (for {
+              (remoteEvent, remoteSessions, remoteExponents) <- fullEventOpt
+              localEvent <- localEventOpt
+            } yield {
               val getData = for {
-                localEventOpt <- EventRepository.getByUuid(remoteEvent.uuid)
                 localSessions <- SessionRepository.findByEvent(remoteEvent.uuid)
                 localExponents <- ExponentRepository.findByEvent(remoteEvent.uuid)
               } yield (localEventOpt, localSessions, localExponents)
@@ -187,11 +185,11 @@ object Events extends Controller {
                   }.getOrElse {
                     EventSrv.insertAll(remoteEvent, remoteSessions, remoteExponents).map { insertedOpt =>
                       if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${remoteEvent.name}</b> bien créé") }
-                      else { InternalServerError(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Erreur pendant la création de ${remoteEvent.name} (id: ${remoteEvent.uuid})"))) }
+                      else { InternalServerError(viewOps(localEvent, urlImportForm.fill(formData), fileImportForm)(req.flash + ("error" -> s"Erreur pendant la création de ${remoteEvent.name} (id: ${remoteEvent.uuid})"))) }
                     }
                   }
               }
-          }.getOrElse(Future(BadRequest(viewOps(fileImportForm, urlImportForm.fill(formData))(req.flash + ("error" -> s"Aucun événement ne correspond à l'url <b>$eventUrl</b>")))))
+            }).getOrElse(Future(Redirect(mainRoute.list()).flashing("error" -> s"Event $uuid not found...")))
         }
       })
   }
@@ -258,15 +256,5 @@ object Events extends Controller {
         }
       }).getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Les données de l'attribut 'data' du body ne sont pas correctes (JSON: {event: {}, sessions: [], exponents: []})!")))
     }.getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Le body doit contenir les données dans un attribut 'data' !")))
-  }
-
-  def fileExport = Action.async { implicit req =>
-    EventRepository.findAll().map { elts =>
-      val filename = "events.csv"
-      val content = FileExporter.makeCsv(elts.map(_.toMap))
-      Ok(content)
-        .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
-        .as("text/csv")
-    }
   }
 }

@@ -11,7 +11,7 @@
 				<div class="widget-header">
 					Liste des modifications pour @updatedEvent.name
 					<div class="pull-right">
-						<a href="@routes.Events.details(updatedEvent.uuid)" class="btn btn-default">Annuler</a>
+						<a href="@routes.Events.operations(updatedEvent.uuid)" class="btn btn-default">Annuler</a>
 						<form method="POST" action="@routes.Events.doRefresh(updatedEvent.uuid)" class="form-button">
 							<input type="hidden" name="data" value="@Json.toJson(remoteSource)">
 							<button type="submit" class="btn btn-success confirm">Mettre à jour</button>

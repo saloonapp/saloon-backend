@@ -19,10 +19,6 @@ object FileImporter {
   val datePattern = "dd/MM/yyyy HH:mm"
   val dateFormat = DateTimeFormat.forPattern(datePattern)
 
-  def importEvents(importedFile: Reader, cfg: FileImportConfig): Future[(Int, List[String])] = {
-    importData(Event.fromMap, EventRepository.drop, EventRepository.bulkInsert)(importedFile, cfg)
-  }
-
   def importExponents(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
     importData(Exponent.fromMap(eventId), () => ExponentRepository.deleteByEvent(eventId).map(_.ok), ExponentRepository.bulkInsert)(importedFile, cfg)
   }

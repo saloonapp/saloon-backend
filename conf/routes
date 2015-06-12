@@ -10,11 +10,9 @@ GET       /migrate                                                              
 GET       /events                                                                 controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/create                                                          controllers.Events.create
 POST      /events                                                                 controllers.Events.doCreate
-GET       /events/operations                                                      controllers.Events.operations
-POST      /events/fileImport                                                      controllers.Events.fileImport
-POST      /events/urlImport                                                       controllers.Events.urlImport
-POST      /events/fileExport                                                      controllers.Events.fileExport
 GET       /events/:eventId                                                        controllers.Events.details(eventId: String)
+GET       /events/:eventId/operations                                             controllers.Events.operations(eventId: String)
+POST      /events/:eventId/urlImport                                              controllers.Events.urlImport(eventId: String)
 POST      /events/:eventId/stats                                                  controllers.Events.stats(eventId: String)
 GET       /events/:eventId/edit                                                   controllers.Events.update(eventId: String)
 POST      /events/:eventId                                                        controllers.Events.doUpdate(eventId: String)
@@ -26,7 +24,6 @@ GET       /events/:eventId/report/:userId                                       
 GET       /events/:eventId/exponents                                              controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/:eventId/exponents/create                                       controllers.Exponents.create(eventId: String)
 POST      /events/:eventId/exponents                                              controllers.Exponents.doCreate(eventId: String)
-GET       /events/:eventId/exponents/operations                                   controllers.Exponents.operations(eventId: String)
 POST      /events/:eventId/exponents/fileImport                                   controllers.Exponents.fileImport(eventId: String)
 POST      /events/:eventId/exponents/fileExport                                   controllers.Exponents.fileExport(eventId: String)
 GET       /events/:eventId/exponents/:sessionId                                   controllers.Exponents.details(eventId: String, sessionId: String)
@@ -37,7 +34,6 @@ POST      /events/:eventId/exponents/:sessionId/delete                          
 GET       /events/:eventId/sessions                                               controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/:eventId/sessions/create                                        controllers.Sessions.create(eventId: String)
 POST      /events/:eventId/sessions                                               controllers.Sessions.doCreate(eventId: String)
-GET       /events/:eventId/sessions/operations                                    controllers.Sessions.operations(eventId: String)
 POST      /events/:eventId/sessions/fileImport                                    controllers.Sessions.fileImport(eventId: String)
 POST      /events/:eventId/sessions/fileExport                                    controllers.Sessions.fileExport(eventId: String)
 GET       /events/:eventId/sessions/:exponentId                                   controllers.Sessions.details(eventId: String, exponentId: String)

@@ -25,7 +25,6 @@ object Exponents extends Controller {
   val viewDetails = views.html.Application.Exponents.details
   val viewCreate = views.html.Application.Exponents.create
   val viewUpdate = views.html.Application.Exponents.update
-  val viewOps = views.html.Application.Exponents.operations
   def createElt(data: ExponentData): Exponent = ExponentData.toModel(data)
   def toData(elt: Exponent): ExponentData = ExponentData.fromModel(elt)
   def updateElt(elt: Exponent, data: ExponentData): Exponent = ExponentData.merge(elt, data)
@@ -125,30 +124,23 @@ object Exponents extends Controller {
     }
   }
 
-  def operations(eventId: String) = Action.async { implicit req =>
-    EventRepository.getByUuid(eventId).map { eventOpt =>
-      eventOpt
-        .map { event => Ok(viewOps(fileImportForm.fill(FileImportConfig()), event)) }
-        .getOrElse(NotFound(views.html.error404()))
-    }
-  }
-
+  // TODO : add preview of updates
   def fileImport(eventId: String) = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         fileImportForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(viewOps(formWithErrors, event))),
+          formWithErrors => Future(Redirect(routes.Events.operations(eventId)).flashing("error" -> "Form error...")),
           formData => {
             req.body.file("importedFile").map { filePart =>
               val reader = new java.io.StringReader(new String(filePart.ref, formData.encoding))
               FileImporter.importExponents(reader, formData, eventId).map {
                 case (nbInserted, errors) =>
-                  Redirect(mainRoute.list(eventId))
+                  Redirect(routes.Events.details(eventId))
                     .flashing(
                       "success" -> successImportFlash(nbInserted),
                       "error" -> (if (errors.isEmpty) { "" } else { "Errors: <br>" + errors.map("- " + _.toString).mkString("<br>") }))
               }
-            }.getOrElse(Future(BadRequest(viewOps(fileImportForm.fill(formData), event)).flashing("error" -> "You must import a file !")))
+            }.getOrElse(Future(Redirect(routes.Events.operations(eventId)).flashing("error" -> "You must import a file !")))
           })
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
