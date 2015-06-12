@@ -12,6 +12,7 @@ import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.UserActionRepository
+import scala.util.Try
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -117,48 +118,6 @@ object Events extends Controller {
     }
   }
 
-  def refresh(uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).flatMap { eltOpt =>
-      eltOpt.map {
-        _.refreshUrl.map { url =>
-          val getData = for {
-            remoteSourceOpt <- EventSrv.fetchFullEvent(url)
-            localEventOpt <- EventRepository.getByUuid(uuid)
-            localSessions <- SessionRepository.findByEvent(uuid)
-            localExponents <- ExponentRepository.findByEvent(uuid)
-          } yield (remoteSourceOpt, localEventOpt, localSessions, localExponents)
-
-          getData.flatMap {
-            case (remoteSourceOpt, localEventOpt, localSessions, localExponents) =>
-              (for {
-                (remoteEvent, remoteSessions, remoteExponents) <- remoteSourceOpt
-                localEvent <- localEventOpt
-              } yield {
-                val updatedEvent = localEvent.merge(remoteEvent)
-                val (createdSessions, updatedSessions, deletedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
-                val (createdExponents, updatedExponents, deletedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
-
-                for {
-                  eventUpdated <- EventRepository.update(uuid, updatedEvent)
-                  sessionsCreated <- SessionRepository.bulkInsert(createdSessions.map(_.copy(eventId = uuid)))
-                  sessionsUpdated <- SessionRepository.bulkUpdate(updatedSessions.map(s => (s.uuid, s)))
-                  sessionsDeleted <- SessionRepository.bulkDelete(deletedSessions.map(_.uuid))
-                  exponentsCreated <- ExponentRepository.bulkInsert(createdExponents.map(_.copy(eventId = uuid)))
-                  exponentsUpdated <- ExponentRepository.bulkUpdate(updatedExponents.map(e => (e.uuid, e)))
-                  exponentsDeleted <- ExponentRepository.bulkDelete(deletedExponents.map(_.uuid))
-                } yield {
-                  Redirect(mainRoute.details(uuid)).flashing("success" ->
-                    (s"${localEvent.name} updated :" +
-                      s"<br>- $sessionsCreated sessions created<br>- $sessionsUpdated sessions updated<br>- ${deletedSessions.length} sessions deleted" +
-                      s"<br>- $exponentsCreated exponents created<br>- $exponentsUpdated exponents updated<br>- ${deletedExponents.length} exponents deleted"))
-                }
-              }).getOrElse(Future(Ok(s"Result of url $url is incorrect !")))
-          }
-        }.getOrElse(Future(BadRequest(views.html.error(s"Event $uuid doesn't have a refreshUrl !"))))
-      }.getOrElse(Future(NotFound(views.html.error404(s"Unable to find event $uuid !"))))
-    }
-  }
-
   def doUpdate(uuid: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
@@ -171,6 +130,70 @@ object Events extends Controller {
           })
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
+  }
+
+  def refresh(uuid: String) = Action.async { implicit req =>
+    EventRepository.getByUuid(uuid).flatMap { eventOpt =>
+      eventOpt.map { localEvent =>
+        localEvent.refreshUrl.map { url =>
+          for {
+            remoteSourceOpt <- EventSrv.fetchFullEvent(url)
+            localSessions <- SessionRepository.findByEvent(uuid)
+            localExponents <- ExponentRepository.findByEvent(uuid)
+          } yield {
+            remoteSourceOpt.map {
+              case (remoteEvent, remoteSessions, remoteExponents) =>
+                val remoteSource = Json.obj("event" -> remoteEvent, "sessions" -> remoteSessions, "exponents" -> remoteExponents)
+                val updatedEvent = localEvent.merge(remoteEvent)
+                val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
+                val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
+                Ok(views.html.Application.Events.refresh(localEvent, updatedEvent, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource))
+            }.getOrElse(Ok(s"Result of url $url is incorrect !"))
+          }
+        }.getOrElse(Future(BadRequest(views.html.error(s"Event $uuid doesn't have a refreshUrl !"))))
+      }.getOrElse(Future(NotFound(views.html.error404(s"Unable to find event $uuid !"))))
+    }
+  }
+
+  def doRefresh(uuid: String) = Action.async { implicit req =>
+    req.body.asFormUrlEncoded.flatMap(_.get("data").flatMap(_.headOption)).map { data =>
+      val jsonTry: Try[JsValue] = Try(Json.parse(data))
+      (for {
+        remoteEvent <- jsonTry.map(json => (json \ "event").asOpt[Event]).getOrElse(None)
+        remoteSessions <- jsonTry.map(json => (json \ "sessions").asOpt[List[models.Session]]).getOrElse(None)
+        remoteExponents <- jsonTry.map(json => (json \ "exponents").asOpt[List[Exponent]]).getOrElse(None)
+      } yield {
+        val getData = for {
+          localEventOpt <- EventRepository.getByUuid(uuid)
+          localSessions <- SessionRepository.findByEvent(uuid)
+          localExponents <- ExponentRepository.findByEvent(uuid)
+        } yield (localEventOpt, localSessions, localExponents)
+
+        getData.flatMap {
+          case (localEventOpt, localSessions, localExponents) =>
+            localEventOpt.map { localEvent =>
+              val updatedEvent = localEvent.merge(remoteEvent)
+              val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
+              val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
+
+              for {
+                eventUpdated <- EventRepository.update(uuid, updatedEvent)
+                sessionsCreated <- SessionRepository.bulkInsert(createdSessions.map(_.copy(eventId = uuid)))
+                sessionsDeleted <- SessionRepository.bulkDelete(deletedSessions.map(_.uuid))
+                sessionsUpdated <- SessionRepository.bulkUpdate(updatedSessions.map(s => (s._2.uuid, s._2)))
+                exponentsCreated <- ExponentRepository.bulkInsert(createdExponents.map(_.copy(eventId = uuid)))
+                exponentsDeleted <- ExponentRepository.bulkDelete(deletedExponents.map(_.uuid))
+                exponentsUpdated <- ExponentRepository.bulkUpdate(updatedExponents.map(e => (e._2.uuid, e._2)))
+              } yield {
+                Redirect(mainRoute.details(uuid)).flashing("success" ->
+                  (s"${localEvent.name} updated :" +
+                    s"<br>- $sessionsCreated sessions created<br>- $sessionsUpdated sessions updated<br>- ${deletedSessions.length} sessions deleted" +
+                    s"<br>- $exponentsCreated exponents created<br>- $exponentsUpdated exponents updated<br>- ${deletedExponents.length} exponents deleted"))
+              }
+            }.getOrElse(Future(Redirect(mainRoute.list()).flashing("error" -> s"L'événement $uuid est introuvable ! Impossible de le mettre à jour...")))
+        }
+      }).getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Les données de l'attribut 'data' du body ne sont pas correctes (JSON: {event: {}, sessions: [], exponents: []})!")))
+    }.getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Le body doit contenir les données dans un attribut 'data' !")))
   }
 
   def delete(uuid: String) = Action.async { implicit req =>

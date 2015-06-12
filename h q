@@ -1,0 +1,133 @@
+* [31m4316462[m -[33m (HEAD, tag: v1.0.3, heroku-prod/master, heroku-dev/master, master)[m fix [32m(il y a 14 minutes) [1;34m<Loïc Knuchel>[m
+* [31m8df1ef7[m -[33m[m fix [32m(il y a 32 minutes) [1;34m<Loïc Knuchel>[m
+* [31m8d46f7f[m -[33m[m fix [32m(il y a 36 minutes) [1;34m<Loïc Knuchel>[m
+* [31me2ba42b[m -[33m (origin/master)[m allow to sync UserActions with client [32m(il y a 50 minutes) [1;34m<Loïc Knuchel>[m
+* [31m5c851a4[m -[33m[m show mood ratings [32m(il y a 2 jours) [1;34m<Loïc Knuchel>[m
+* [31meec49ee[m -[33m[m show ratings [32m(il y a 2 jours) [1;34m<Loïc Knuchel>[m
+* [31m41fb015[m -[33m[m implement cr [32m(il y a 2 jours) [1;34m<Loïc Knuchel>[m
+* [31mbc10dd0[m -[33m[m adjust RivieraDev integration [32m(il y a 2 jours) [1;34m<Loïc Knuchel>[m
+* [31m0362235[m -[33m[m improve line-break [32m(il y a 2 jours) [1;34m<Loïc Knuchel>[m
+* [31m779518c[m -[33m[m fix encoding problems [32m(il y a 2 jours) [1;34m<Loïc Knuchel>[m
+* [31ma55154d[m -[33m[m starting to integrate attendee report [32m(il y a 3 jours) [1;34m<Loïc Knuchel>[m
+* [31m0d7a50b[m -[33m[m add email for Person & slides/video for Session [32m(il y a 3 jours) [1;34m<Loïc Knuchel>[m
+* [31maba85ed[m -[33m[m fix [32m(il y a 3 jours) [1;34m<Loïc Knuchel>[m
+* [31m8ff8442[m -[33m[m import event for anywhere [32m(il y a 3 jours) [1;34m<Loïc Knuchel>[m
+* [31m8160b57[m -[33m[m easily refresh event data [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m602ad63[m -[33m[m add confirm on delete [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31mab4b3c9[m -[33m[m fix UserActions export [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m77532ce[m -[33m[m fix [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m42f9beb[m -[33m[m allow to download UserActions for event [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m5bb0b9d[m -[33m[m refactor Event stats [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m70f3e85[m -[33m[m refactor Event stats [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m65f0b8e[m -[33m[m refactor Event stats [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m91e9f1a[m -[33m[m improve riviera dev integration [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31mde15fb6[m -[33m[m improve riviera dev integration [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m91eb9ba[m -[33m[m collect errors and show them on import [32m(il y a 4 jours) [1;34m<Loïc Knuchel>[m
+* [31m9d9d08c[m -[33m[m fix imports [32m(il y a 5 jours) [1;34m<Loïc Knuchel>[m
+* [31mfad0fa0[m -[33m[m fix exponent import [32m(il y a 5 jours) [1;34m<Loïc Knuchel>[m
+* [31m923c1f0[m -[33m[m import RivieraDev [32m(il y a 6 jours) [1;34m<Loïc Knuchel>[m
+* [31mdd19d42[m -[33m[m integrate cloudinary widget [32m(il y a 7 jours) [1;34m<Loïc Knuchel>[m
+* [31m165310d[m -[33m[m show events & items on user details [32m(il y a 8 jours) [1;34m<Loïc Knuchel>[m
+* [31mec7356a[m -[33m[m show engaged users in event details [32m(il y a 8 jours) [1;34m<Loïc Knuchel>[m
+* [31mffb6cb3[m -[33m[m fix scraper [32m(il y a 10 jours) [1;34m<Loïc Knuchel>[m
+* [31m4b31463[m -[33m[m fix encoding & make requests sync to slow them [32m(il y a 10 jours) [1;34m<Loïc Knuchel>[m
+* [31m6c2cc04[m -[33m[m create scraper for DGE [32m(il y a 10 jours) [1;34m<Loïc Knuchel>[m
+* [31m5d4d30c[m -[33m[m create basic scraper for lanyrd [32m(il y a 10 jours) [1;34m<Loïc Knuchel>[m
+* [31m8b4b424[m -[33m[m add scraper for site meta [32m(il y a 11 jours) [1;34m<Loïc Knuchel>[m
+* [31m341e4ce[m -[33m (tag: v1.0.0)[m improve error messages [32m(il y a 11 jours) [1;34m<Loïc Knuchel>[m
+* [31md63d79e[m -[33m[m import an event with its url :) [32m(il y a 11 jours) [1;34m<Loïc Knuchel>[m
+* [31m82413d6[m -[33m[m fix import [32m(il y a 11 jours) [1;34m<Loïc Knuchel>[m
+* [31m7355c13[m -[33m[m test [32m(il y a 11 jours) [1;34m<Loïc Knuchel>[m
+* [31m4751205[m -[33m[m test [32m(il y a 11 jours) [1;34m<Loïc Knuchel>[m
+* [31mf170daf[m -[33m[m remove user actions when user is removed [32m(il y a 12 jours) [1;34m<Loïc Knuchel>[m
+* [31m0d54fc6[m -[33m[m reverse order for stats [32m(il y a 12 jours) [1;34m<Loïc Knuchel>[m
+* [31m4b2eab9[m -[33m[m show stats on event details [32m(il y a 12 jours) [1;34m<Loïc Knuchel>[m
+* [31mbd1d845[m -[33m[m add speaker & team form [32m(il y a 12 jours) [1;34m<Loïc Knuchel>[m
+* [31m9e4bbbe[m -[33m[m add mock to reveive batch events [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31mef31756[m -[33m[m evo [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31mf01f64c[m -[33m[m add crash management [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31m661d028[m -[33m[m fix importer [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31m1de782a[m -[33m[m fix [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31m74f3820[m -[33m[m fix [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31m7fd964c[m -[33m[m remove migrate code [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31m28c9f4b[m -[33m[m migration: replace Place by a String [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31mfbe82c7[m -[33m[m adjust forms in backend [32m(il y a 13 jours) [1;34m<Loïc Knuchel>[m
+* [31m583bb32[m -[33m[m remove migration code [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31m38093e9[m -[33m[m refactor Event, Session & Exponent data [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31m9ae7f99[m -[33m[m allow to override subscriptions [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31mc7eba9c[m -[33m[m bugfix subscribe actions & show them on user details (backend) [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma801cbf[m -[33m[m refactor UserActions api controller [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31m4acd2b8[m -[33m[m add subscribe action [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31m37650d2[m -[33m[m show done actions in user details [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31m7c9b067[m -[33m[m add done api actions [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31meb074f5[m -[33m[m add new UserAction : done [32m(il y a 2 semaines) [1;34m<Loïc Knuchel>[m
+* [31mf568e75[m -[33m[m clean up [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m770f5cd[m -[33m[m define timezone globally [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m8b983a4[m -[33m[m migrate breizcamp dates [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31mb72bca6[m -[33m[m test date conversion [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m7b52729[m -[33m[m test date conversion [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m9644177[m -[33m[m test date conversion [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma61a942[m -[33m[m test date conversion [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31mba51349[m -[33m[m revert controller name change [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m521e685[m -[33m[m test date conversion with locale [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m4ad2b78[m -[33m[m remove migration code [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m9cddd17[m -[33m[m transform html from voxxrin in simple text [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma706153[m -[33m[m show user action in details & allow to delete them [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m6341174[m -[33m[m bugfix images in exponents [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m81c3c43[m -[33m[m update Voxxrin session [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m7a03a0a[m -[33m[m return only published events through API [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m2601e61[m -[33m[m allow to save voxxrin events in db [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m33a17a7[m -[33m[m connect to Voxxrin API to get Breizhcamp program [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m9a53baf[m -[33m[m return not found if comment to delete doesn't exist [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m1b4a74c[m -[33m[m fix [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m0bef3ce[m -[33m[m allow timestamp header in CORS [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m02a7db4[m -[33m[m allow to force time for UserActions [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m76505fb[m -[33m[m remove migration code [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma77cc3e[m -[33m[m migrate UserActions [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31mf911407[m -[33m[m transform user action in object [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31mbf697bb[m -[33m[m fix [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m1ff9104[m -[33m[m add field className in events, sessions & exponents [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m441e586[m -[33m[m clean migration code [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31m15c0873[m -[33m[m add migration scripts [32m(il y a 3 semaines) [1;34m<Loïc Knuchel>[m
+* [31mfcf6eb5[m -[33m[m add mood API for sessions & exponents [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31mfa1cda8[m -[33m[m add image & images to exponent export [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31me9331b3[m -[33m[m change page size with parameter pageSize in url [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31m3daf21a[m -[33m[m add image & images in exposants [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31m3b286ac[m -[33m[m allow userId header in CORS [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31mad75659[m -[33m[m add favs & comments to sessions [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31mb9a181f[m -[33m[m refactor user actions [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31mfdc8f28[m -[33m[m replace UserFav with UserAction for a more generic interaction [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31mc9cb1dd[m -[33m[m add api for exponent favs [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31m98f5daf[m -[33m[m add siteUrl & siteName in exponent import help [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31mbf7e0d1[m -[33m[m add error reporting on imports & improve FileImporter [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31m1d20ca5[m -[33m[m change csv delimiter to ';' [32m(il y a 4 semaines) [1;34m<Loïc Knuchel>[m
+* [31md420629[m -[33m[m fix clean old entries & cascade delete on Exponents & Sessions when delete Event [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31md552d58[m -[33m[m fix csv export [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m7c82995[m -[33m[m add import/export for events & sessions [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m2e4e0e3[m -[33m[m cleanup [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m5c07f8f[m -[33m[m process imported file in-memory [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m4343aa6[m -[33m[m add import/export for exponents [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mbc703e0[m -[33m[m add pushId to user [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mee3968a[m -[33m[m add user management [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31me1209a7[m -[33m[m correct markdown in README [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mcb4dd3a[m -[33m[m do not nest event in api when request a full event [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mca02e84[m -[33m[m correct markdown in README [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+*   [31m936e077[m -[33m[m Merge branch 'readme_install' into 'master' [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+[32m|[m[33m\[m  
+[32m|[m * [31mc72ba4e[m -[33m[m Add OSX Installation [32m(il y a 5 semaines) [1;34m<Quentin Valmori>[m
+[32m|[m[32m/[m  
+* [31m2bda871[m -[33m[m rename Page function mapSeq to batchMap [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mdc4478a[m -[33m[m add REST APIS for User [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma7269a2[m -[33m[m add CORS for API [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m602a1ac[m -[33m[m add api for event data [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma448570[m -[33m[m change color & title depending on environment [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mdab82cb[m -[33m[m fix profile [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m4ebf5eb[m -[33m[m fix profile [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31md46950d[m -[33m[m fix profile [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31ma5035fb[m -[33m[m add heroku procfile [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31me615f4a[m -[33m[m add crud for sessions [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31mfa4322a[m -[33m[m add crud for exponents [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m604ad34[m -[33m[m add crud for events [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m3095179[m -[33m[m add HTML dashboard layout [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m489441b[m -[33m[m create models [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m
+* [31m9fe300d[m -[33m[m first commit [32m(il y a 5 semaines) [1;34m<Loïc Knuchel>[m

@@ -11,7 +11,7 @@
 					<a href="@routes.Events.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Evénements</a>
 					@event.name
 					<div class="pull-right">
-						@if(event.refreshUrl.isDefined){ <form method="POST" action="@routes.Events.refresh(event.uuid)" class="form-button"><button type="submit" class="btn btn-default confirm"><i class="fa fa-refresh"></i></button></form> }
+						@if(event.refreshUrl.isDefined){ <a href="@routes.Events.refresh(event.uuid)" class="btn btn-default"><i class="fa fa-refresh"></i></a> }
 						<a href="@routes.Events.update(event.uuid)" class="btn btn-info">Modifier</a>
 						<form method="POST" action="@routes.Events.delete(event.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
 					</div>

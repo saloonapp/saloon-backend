@@ -14,6 +14,7 @@ import play.api.Play.current
 import play.api.libs.ws._
 import play.api.mvc.RequestHeader
 import reactivemongo.core.commands.LastError
+import org.joda.time.DateTime
 
 object EventSrv {
   def addMetadata(event: Event): Future[EventUI] = {
@@ -66,21 +67,22 @@ object EventSrv {
     }
   }
 
-  def sessionDiff(oldElts: List[Session], newElts: List[Session]): (List[Session], List[Session], List[Session]) = {
-    diff(oldElts, newElts, (s: Session) => s.source.map(_.ref).getOrElse(""), (os: Session, ns: Session) => os.merge(ns))
+  def sessionDiff(oldElts: List[Session], newElts: List[Session]): (List[Session], List[Session], List[(Session, Session)]) = {
+    diff(oldElts, newElts, (s: Session) => s.source.map(_.ref).getOrElse(""), (os: Session, ns: Session) => os.merge(ns), (os: Session, ns: Session) => os.copy(updated = new DateTime(0)) == ns.copy(updated = new DateTime(0)))
   }
 
-  def exponentDiff(oldElts: List[Exponent], newElts: List[Exponent]): (List[Exponent], List[Exponent], List[Exponent]) = {
-    diff(oldElts, newElts, (e: Exponent) => e.source.map(_.ref).getOrElse(""), (oe: Exponent, ne: Exponent) => oe.merge(ne))
+  def exponentDiff(oldElts: List[Exponent], newElts: List[Exponent]): (List[Exponent], List[Exponent], List[(Exponent, Exponent)]) = {
+    diff(oldElts, newElts, (e: Exponent) => e.source.map(_.ref).getOrElse(""), (oe: Exponent, ne: Exponent) => oe.merge(ne), (oe: Exponent, ne: Exponent) => oe.copy(updated = new DateTime(0)) == ne.copy(updated = new DateTime(0)))
   }
 
-  private def diff[A](oldElts: List[A], newElts: List[A], getRef: A => String, merge: (A, A) => A): (List[A], List[A], List[A]) = {
+  private def diff[A](oldElts: List[A], newElts: List[A], getRef: A => String, merge: (A, A) => A, equals: (A, A) => Boolean): (List[A], List[A], List[(A, A)]) = {
     val createdElts = newElts.filter(ne => oldElts.find(oe => getRef(oe) == getRef(ne)).isEmpty)
     val deletedElts = oldElts.filter(oe => newElts.find(ne => getRef(oe) == getRef(ne)).isEmpty)
     val updatedElts = oldElts
       .map(oe => newElts.find(ne => getRef(oe) == getRef(ne)).map(ne => (oe, ne))).flatten
-      .map { case (oe, ne) => merge(oe, ne) }
-    (createdElts, updatedElts, deletedElts)
+      .map { case (oe, ne) => (oe, merge(oe, ne)) }
+      .filter { case (oe, ne) => !equals(oe, ne) }
+    (createdElts, deletedElts, updatedElts)
   }
 
   def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {

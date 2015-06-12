@@ -1,0 +1,17 @@
+@import play.api.libs.json.JsValue
+@import play.api.libs.json.Json
+@import views.helpers._
+@(source: JsValue, destination: JsValue)
+
+<div class="row">
+	<div class="col-md-6">
+		<h4>Ancien :</h4>
+		@*<pre>@Json.prettyPrint(destination)</pre>*@
+		<pre>@Format.jsonDiff(source, destination)</pre>
+	</div>
+	<div class="col-md-6">
+		<h4>Nouveau :</h4>
+		@*<pre>@Json.prettyPrint(destination)</pre>*@
+		<pre>@Format.jsonDiff(destination, source)</pre>
+	</div>
+</div>

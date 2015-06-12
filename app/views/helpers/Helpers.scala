@@ -4,6 +4,9 @@ import common.Utils
 import play.api.data.Field
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
+import play.api.libs.json.JsValue
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 
 object Helpers {
   def isActive(call: play.api.mvc.Call)(implicit req: RequestHeader): Boolean = req.path == call.toString
@@ -47,5 +50,48 @@ object repeatWithIndex {
     }
 
     indexes.map(i => fieldRenderer(i, field("[" + i + "]")))
+  }
+}
+
+object Format {
+  def jsonDiff(source: JsValue, destination: JsValue): Html = {
+    val sourceLines: List[String] = Json.prettyPrint(source).split("\n").toList
+    val destinationLines: List[String] = Json.prettyPrint(destination).split("\n").toList
+
+    var offset = 0
+    val resultLines = sourceLines.zipWithIndex.map {
+      case (line, i) =>
+        if (i + offset < destinationLines.length && line == destinationLines(i + offset)) {
+          line
+        } else if (i + offset < destinationLines.length && getKey(line) == getKey(destinationLines(i + offset))) {
+          "<span style='font-weight: bold;'>" + line + "</span>"
+        } else if (i + offset + 1 < destinationLines.length && getKey(line) == getKey(destinationLines(i + offset + 1))) {
+          offset = offset + 1
+          line
+        } else {
+          offset = offset - 1
+          "<span style='color: green; font-weight: bold;'>" + line + "</span>"
+        }
+    }
+
+    Html(resultLines.mkString("\n"))
+  }
+  val keyMatcher = " *\"([^\"]+)\" : .*".r
+  private def getKey(line: String): String = {
+    line match {
+      case keyMatcher(key) => key
+      case _ => ""
+    }
+  }
+
+  def jsonDiff2(source: JsValue, destination: JsValue): Html = {
+    val sourceLines: List[String] = Json.prettyPrint(source).split("\n").toList
+    val destinationLines: List[String] = Json.prettyPrint(destination).split("\n").toList
+    val resultLines = sourceLines.zip(destinationLines).map {
+      case (src, dest) =>
+        if (src == dest) src
+        else "<b>" + src + "</b>"
+    }
+    Html(resultLines.mkString("\n"))
   }
 }

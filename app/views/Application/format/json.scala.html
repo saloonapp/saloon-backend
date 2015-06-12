@@ -1,0 +1,5 @@
+@import play.api.libs.json.JsValue
+@import play.api.libs.json.Json
+@(json: JsValue)
+
+<pre>@Json.prettyPrint(json)</pre>

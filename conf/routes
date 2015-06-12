@@ -17,8 +17,9 @@ POST      /events/fileExport                                                    
 GET       /events/:eventId                                                        controllers.Events.details(eventId: String)
 POST      /events/:eventId/stats                                                  controllers.Events.stats(eventId: String)
 GET       /events/:eventId/edit                                                   controllers.Events.update(eventId: String)
-POST      /events/:eventId/refresh                                                controllers.Events.refresh(eventId: String)
 POST      /events/:eventId                                                        controllers.Events.doUpdate(eventId: String)
+GET       /events/:eventId/refresh                                                controllers.Events.refresh(eventId: String)
+POST      /events/:eventId/refresh                                                controllers.Events.doRefresh(eventId: String)
 POST      /events/:eventId/delete                                                 controllers.Events.delete(eventId: String)
 GET       /events/:eventId/report/:userId                                         controllers.Events.report(eventId: String, userId: String)
 
