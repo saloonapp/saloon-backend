@@ -13,7 +13,7 @@ import play.api.Play.current
 object Crashs extends Controller {
 
   def list = Action.async { implicit req =>
-    CrashRepository.find().map { crashJsons =>
+    CrashRepository.find(Json.obj("solved" -> Json.obj("$exists" -> false))).map { crashJsons =>
       val crashs = crashJsons.map(_.asOpt[Crash]).flatten
       val malformedCrashs = crashJsons.map(json => if (json.asOpt[Crash].isEmpty) Some(json) else None).flatten
       Ok(views.html.Application.Crashs.list(crashs, malformedCrashs))
@@ -30,6 +30,17 @@ object Crashs extends Controller {
           Ok(views.html.Application.Crashs.details(crash, previousCrashs, similarCrashs))
         }
       }.getOrElse(Future(NotFound(views.html.error404())))
+    }
+  }
+
+  def solved(uuid: String) = Action.async { implicit req =>
+    CrashRepository.get(uuid).flatMap { crashOpt =>
+      crashOpt.map { crash =>
+        CrashRepository.markAsSolved(Json.obj("error" -> crash \ "error")).map { err =>
+          if (err.ok) Redirect(routes.Crashs.list()).flashing("success" -> s"Crashs marked as solved !")
+          else Redirect(routes.Crashs.details(uuid)).flashing("error" -> err.errMsg.getOrElse(err.message))
+        }
+      }.getOrElse(Future(Redirect(routes.Crashs.list()).flashing("error" -> s"Unable to find crash $uuid")))
     }
   }
 

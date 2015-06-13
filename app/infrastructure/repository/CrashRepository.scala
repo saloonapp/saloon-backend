@@ -21,6 +21,7 @@ trait MongoDbCrashRepository {
   def get(filter: JsValue): Future[Option[JsValue]] = collection.find(filter).one[JsValue].map(_.map(removeOid))
   def insert(elt: JsValue): Future[LastError] = collection.save(addMeta(elt))
   def bulkInsert(elts: List[JsValue]): Future[Int] = collection.bulkInsert(Enumerator.enumerate(elts.map(addMeta)))
+  def markAsSolved(filter: JsValue): Future[LastError] = collection.update(filter, Json.obj("$set" -> Json.obj("solved" -> true)), multi = true)
   def delete(uuid: String): Future[LastError] = collection.remove(Json.obj("uuid" -> uuid))
 
   private def addMeta(elt: JsValue): JsValue = elt.as[JsObject] ++ Json.obj("uuid" -> Repository.generateUuid(), "created" -> new DateTime())

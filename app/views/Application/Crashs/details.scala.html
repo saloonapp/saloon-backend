@@ -9,6 +9,9 @@
 				<div class="widget-header">
 					<a href="@routes.Crashs.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Crashs</a>
 					@crash.error.message
+					<form method="POST" action="@routes.Crashs.solved(crash.uuid)" class="form-button pull-right">
+						<button type="submit" class="btn btn-success confirm"><i class="fa fa-check"></i> Mark as solved</button>
+					</form>
 				</div>
 				<div class="widget-body">
 					<h1>@crash.error.message <small>(@datetime(crash.time, "dd/MM/yyyy HH:mm:ss"))</small></h1>

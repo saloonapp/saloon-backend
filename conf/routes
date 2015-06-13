@@ -52,6 +52,7 @@ POST      /users/:userId/actions/:itemType/:itemId/:actionType/:actionId/delete 
 
 GET       /crashs                                                                 controllers.Crashs.list
 GET       /crashs/:crashId                                                        controllers.Crashs.details(crashId: String)
+POST      /crashs/:crashId/solved                                                 controllers.Crashs.solved(crashId: String)
 
 # Api
 GET       /api/v1/users/find                                                      controllers.api.Users.find(deviceId: String)

@@ -55,6 +55,7 @@ case class Crash(
   application: Option[CrashApplication],
   navigator: Option[CrashNavigator],
   url: String,
+  solved: Option[Boolean],
   time: DateTime,
   created: DateTime)
 object Crash {
