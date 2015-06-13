@@ -29,29 +29,25 @@
 				Salut,<br>
 				Félicitations pour avoir participé à <b>@event.name</b>.
 				@if(filter == "all"){ Voici le compte rendu complet de l'événement. }
-				@if(filter == "favorite"){ Voici le compte rendu de ton événement. }
+				@if(filter == "favorites"){ Voici le compte rendu de ton événement. }
 			</div>
 
 			@UserActionSrv.listOpt(UserActionSrv.seenExponents(actions, exponents)).map { exponents =>
-				<div class="container-fluid">
+				<div>
 					<h3>Les exposants auxquels tu as rendu visite</h3>
 					<div class="row">
 						@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
 					</div>
 				</div>
-			}.getOrElse {
-				<div>Tu n'as rendu visite à aucune exposant.</div>
 			}
 
 			@UserActionSrv.listOpt(UserActionSrv.favoriteSessions(actions, sessions)).map { sessions =>
-				<div class="container-fluid">
+				<div>
 					<h3>Voici tes sessions favorites</h3>
 					<div class="row">
 						@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
 					</div>
 				</div>
-			}.getOrElse {
-				<div>Tu n'as mis aucune session en favoris.</div>
 			}
 
 			@if(filter == "all"){
@@ -72,7 +68,7 @@
 					</div>
 				}
 			}
-			@if(filter == "favorite"){
+			@if(filter == "favorites"){
 				@UserActionSrv.listOpt(UserActionSrv.favoriteNotSeenExponents(actions, exponents)).map { exponents =>
 					<div>
 						<h3>Les autres exposants en favoris</h3>

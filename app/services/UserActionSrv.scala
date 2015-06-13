@@ -41,6 +41,7 @@ object UserActionSrv {
     actions.filter(a => a.action.isFavorite() && a.itemType == SessionUI.className).map { a =>
       sessions.find(_.uuid == a.itemId)
     }.flatten
+      .filter(_.format != "break")
       .map { s => (s, moodFor(actions, SessionUI.className, s.uuid), commentsFor(actions, SessionUI.className, s.uuid)) }
       .sortBy(r => -moodSort(r._2))
   }
