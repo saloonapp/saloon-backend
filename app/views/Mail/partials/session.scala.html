@@ -24,12 +24,13 @@
 				</div>
 			</div>
 		</div>
-		<div class="item item-body panel-body">
-			@comments.map { comment => <blockquote>@comment</blockquote> }
-			@if(comments.length == 0 && session.description.length > 0){ <blockquote>@session.description</blockquote> }
-		</div>
+		@if(comments.length > 0){
+			<div class="item item-body panel-body">
+				@comments.map { comment => <blockquote>@comment</blockquote> }
+			</div>
+		}
 		<div class="panel-footer">
-			@moodOpt.map { rating => Votre appréciation : @Mail.partials.mood(rating)<br> }
+			@moodOpt.map { rating => Ton avis : @Mail.partials.mood(rating)<br> }
 			@session.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i> Voir les slides</a> }.getOrElse { <i class="fa fa-slideshare"></i> Slides pas encore disponibles }<br>
 			@session.video.map { link => <a href="@link" target="_blank"><i class="fa fa-file-video-o"></i> Voir la vidéo</a> }.getOrElse { <i class="fa fa-file-video-o"></i> Vidéo pas encore disponible }<br>
 		</div>
