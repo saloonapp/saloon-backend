@@ -50,6 +50,9 @@ POST      /users/:userId                                                        
 POST      /users/:userId/delete                                                   controllers.Users.delete(userId: String)
 POST      /users/:userId/actions/:itemType/:itemId/:actionType/:actionId/delete   controllers.Users.deleteAction(userId: String, itemType: String, itemId: String, actionType: String, actionId: String)
 
+GET       /crashs                                                                 controllers.Crashs.list
+GET       /crashs/:crashId                                                        controllers.Crashs.details(crashId: String)
+
 # Api
 GET       /api/v1/users/find                                                      controllers.api.Users.find(deviceId: String)
 POST      /api/v1/users                                                           controllers.api.Users.create

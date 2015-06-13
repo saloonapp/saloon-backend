@@ -18,6 +18,7 @@ trait MongoDbCrashRepository {
 
   def find(filter: JsValue = Json.obj()): Future[List[JsValue]] = collection.find(filter).sort(Json.obj("created" -> -1)).cursor[JsValue].collect[List]().map(_.map(removeOid))
   def get(uuid: String): Future[Option[JsValue]] = collection.find(Json.obj("uuid" -> uuid)).one[JsValue].map(_.map(removeOid))
+  def get(filter: JsValue): Future[Option[JsValue]] = collection.find(filter).one[JsValue].map(_.map(removeOid))
   def insert(elt: JsValue): Future[LastError] = collection.save(addMeta(elt))
   def bulkInsert(elts: List[JsValue]): Future[Int] = collection.bulkInsert(Enumerator.enumerate(elts.map(addMeta)))
   def delete(uuid: String): Future[LastError] = collection.remove(Json.obj("uuid" -> uuid))

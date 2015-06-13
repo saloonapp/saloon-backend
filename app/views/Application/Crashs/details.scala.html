@@ -1,0 +1,86 @@
+@import play.api.libs.json.Json
+@import helpers.format._
+@(crash: Crash, previousCrashs: List[Crash], similarCrashs: List[Crash])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Crash"){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@routes.Crashs.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Crashs</a>
+					@crash.error.message
+				</div>
+				<div class="widget-body">
+					<h1>@crash.error.message <small>(@datetime(crash.time, "dd/MM/yyyy HH:mm:ss"))</small></h1>
+					@crash.error.stack.map{ s => <pre>@s</pre> }
+					<div class="panel-group" id="accordion-crash-details">
+						<div class="panel panel-default">
+							<div class="panel-heading" role="tab">
+								<h4 class="panel-title">
+									<a data-toggle="collapse" data-parent="#accordion-crash-details" href="#crash-details">Détails complets :</a>
+								</h4>
+							</div>
+							<div id="crash-details" class="panel-collapse collapse">
+								<div class="panel-body">
+									<pre>@Json.prettyPrint(Json.toJson(crash))</pre>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div>
+						@crash.userId.map { userId => <a href="@routes.Users.details(userId)"><i class="fa fa-user"></i></a> }
+					</div>
+				</div>
+			</div>
+			@if(previousCrashs.length > 0){
+				<div class="widget">
+					<div class="widget-header">@previousCrashs.length crashs précédents</div>
+					<div class="widget-body no-padding">
+						<div class="table-responsive">
+							<table class="table table-striped table-hover">
+								<tbody>
+									@previousCrashs.map { c =>
+										<tr>
+											<td>
+												<h3>@c.error.message <small>(@datetime(c.time, "dd/MM/yyyy HH:mm:ss.SSS"))</small></h3>
+												@c.error.stack.map{ s => <pre>@s</pre> }
+											</td>
+											<td>
+												<a href="@routes.Crashs.details(c.uuid)" class="btn btn-default"><i class="fa fa-search"></i></a>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			}
+			@if(similarCrashs.length > 0){
+				<div class="widget">
+					<div class="widget-header">@similarCrashs.length crashs similaires</div>
+					<div class="widget-body no-padding">
+						<div class="table-responsive">
+							<table class="table table-striped table-hover">
+								<tbody>
+									@similarCrashs.map { c =>
+										<tr>
+											<td>
+												le @datetime(c.time, "dd/MM/yyyy HH:mm:ss")<br>
+												@c.application.map{ a => App version : @a.appVersion<br> }
+												@c.device.map{ d => Model : @d.platform / @d.model<br> }
+											</td>
+											<td>
+												<a href="@routes.Crashs.details(c.uuid)" class="btn btn-default"><i class="fa fa-search"></i></a>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}
