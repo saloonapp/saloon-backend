@@ -4,10 +4,13 @@ import common.Utils
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
+import services.MailSrv
+import services.MandrillSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
+import play.api.libs.json.Json
 
 object Application extends Controller {
 
@@ -16,6 +19,20 @@ object Application extends Controller {
   }
   def sample = Action { implicit req =>
     Ok(views.html.Application.sample())
+  }
+
+  def testReport = Action.async { implicit req =>
+    val formData = req.body.asFormUrlEncoded
+    val eventId = formData.get.get("eventId").get.head
+    val userId = formData.get.get("userId").get.head
+    val email = formData.get.get("email").get.head
+    MailSrv.generateEventReport(eventId, userId).flatMap {
+      _.map { emailData =>
+        MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
+          Redirect(routes.Application.home).flashing("success" -> s"Done !<br>${Json.stringify(res)}")
+        }
+      }.getOrElse(Future(Redirect(routes.Application.home).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+    }
   }
 
   def migrate = TODO
