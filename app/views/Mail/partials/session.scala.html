@@ -1,23 +1,25 @@
 @(session: models.Session, moodOpt: Option[String], comments: List[String])
 
-<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
-	<div class="panel panel-default">
-		<div class="panel-heading">
+<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4" style="width: 375px; max-width: 100%; float: left; box-sizing: border-box; padding-right: 15px;">
+	<div class="panel panel-default" style="border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.05); overflow: hidden;">
+		<div class="panel-heading" style="box-sizing: border-box; padding: 10px 15px; background-color: #f5f5f5; border-bottom: 1px solid #ddd; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 			<div class="media">
 				@session.speakers.headOption.map { mainSpeaker =>
-					<div class="media-left"><img class="media-object img-circle" src="@mainSpeaker.avatar" style="max-height: 70px;"></div>
+					<div class="media-left" style="display: table-cell; padding-right: 10px;">
+						<img src="@mainSpeaker.avatar" class="media-object img-circle" style="max-height: 70px; border-radius: 50%;">
+					</div>
 				}
-				<div class="media-body">
-					<h4 class="media-heading">@session.name</h4>
+				<div class="media-body" style="display: table-cell; vertical-align: top;">
+					<h4 class="media-heading" style="margin-top: 0; margin-bottom: 5px; font-size: 18px; font-weight: 500; line-height: 1.1;">@session.name</h4>
 					@session.speakers.map { speaker =>
-						<p>
+						<p style="margin: 0 0 10px;">
 							@speaker.name
 							<span>
-								@speaker.social.siteUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
-								@speaker.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
-								@speaker.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
-								@speaker.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")
-								@speaker.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-github"></i></a> }.getOrElse("")
+								@speaker.social.siteUrl.map { url => <a href="@url" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/site-link.png" alt="site"/></a> }.getOrElse("")
+								@speaker.social.facebookUrl.map { url => <a href="@url" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282643/icon/facebook-link.png" alt="facebook"/></a> }.getOrElse("")
+								@speaker.social.twitterUrl.map { url => <a href="@url" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/twitter-link.png" alt="twitter"/></a> }.getOrElse("")
+								@speaker.social.linkedinUrl.map { url => <a href="@url" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282643/icon/linkedin-link.png" alt="linkedin"/></a> }.getOrElse("")
+								@speaker.social.githubUrl.map { url => <a href="@url" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/github-link.png" alt="github"/></a> }.getOrElse("")
 							</span>
 						</p>
 					}
@@ -25,14 +27,24 @@
 			</div>
 		</div>
 		@if(comments.length > 0){
-			<div class="item item-body panel-body">
-				@comments.map { comment => <blockquote>@comment</blockquote> }
+			<div class="panel-body" style="box-sizing: border-box; padding: 15px;">
+				@comments.map { comment => <blockquote style="box-sizing: border-box; padding: 10px 20px; margin: 0 0 20px; font-size: 17.5px; border-left: 5px solid #eee;">@comment</blockquote> }
 			</div>
 		}
-		<div class="panel-footer">
+		<div class="panel-footer" style="box-sizing: border-box; padding: 10px 15px; background-color: #f5f5f5; border-top: 1px solid #ddd; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 			@moodOpt.map { rating => Ton avis : @Mail.partials.mood(rating)<br> }
-			@session.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i> Voir les slides</a> }.getOrElse { <i class="fa fa-slideshare"></i> Slides pas encore disponibles }<br>
-			@session.video.map { link => <a href="@link" target="_blank"><i class="fa fa-file-video-o"></i> Voir la vidéo</a> }.getOrElse { <i class="fa fa-file-video-o"></i> Vidéo pas encore disponible }<br>
+
+			@session.slides.map { link =>
+				<a href="@link" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/slideshare-link.png"/> Voir les slides</a>
+			}.getOrElse {
+				<img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/slideshare.png"/> Slides pas encore disponibles
+			}<br>
+
+			@session.video.map { link =>
+				<a href="@link" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/video-link.png"/> Voir la vidéo</a>
+			}.getOrElse {
+				<img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/video.png"/> Vidéo pas encore disponible
+			}<br>
 		</div>
 	</div>
 </div>

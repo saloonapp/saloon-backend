@@ -5,45 +5,33 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<meta name="viewport" content="width=device-width"/>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-		<style>
-			.header .caption {
-				display: block;
-				margin: auto;
-			}
-			.mood .good { color: #5cb85c; }
-			.mood .reserved { color: #f0ad4e; }
-			.mood .bad { color: #d9534f; }
-		</style>
 	</head>
-	<body>
-		<!-- http://www.saloonapp.co/exemples/cr.html -->
-		<div class="container">
-			<div class="header">
-				<img class="caption" src="@event.landingUrl">
-			</div>
-			<div class="heading">
+	<body style="margin: 0; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 14px; line-height: 1.42857143; color: #333; background-color: #fff;">
+		<div class="container" style="box-sizing: border-box; max-width: 1170px; padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto;">
+			<img src="@event.landingUrl" style="display: block; margin: auto;">
+			<div>
 				Salut,<br>
-				Félicitations pour avoir participé à <b>@event.name</b>.
-				@if(filter == "all"){ Voici le compte rendu complet de l'événement. }
-				@if(filter == "favorites"){ Voici le compte rendu de ton événement. }
+				Merci d'avoir participé à <b>@event.name</b> et utilisé SalooN.<br>
+				@if(filter == "all"){ Voici le compte rendu complet de l'événement : }
+				@if(filter == "favorites"){ Voici le compte rendu de ton événement : }
 			</div>
 
 			@UserActionSrv.listOpt(UserActionSrv.seenExponents(actions, exponents)).map { exponents =>
 				<div>
-					<h3>Les exposants auxquels tu as rendu visite</h3>
+					<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les exposants que tu as vu</h3>
 					<div class="row">
 						@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+						<div class="clearfix" style="clear: both;"></div>
 					</div>
 				</div>
 			}
 
 			@UserActionSrv.listOpt(UserActionSrv.favoriteSessions(actions, sessions)).map { sessions =>
 				<div>
-					<h3>Voici tes sessions favorites</h3>
+					<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Tes sessions en favoris</h3>
 					<div class="row">
 						@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
+						<div class="clearfix" style="clear: both;"></div>
 					</div>
 				</div>
 			}
@@ -51,17 +39,19 @@
 			@if(filter == "all"){
 				@UserActionSrv.listOpt(UserActionSrv.notFavoriteSessions(actions, sessions)).map { sessions =>
 					<div>
-						<h3>Toutes les sessions</h3>
+						<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les sessions hors favoris</h3>
 						<div class="row">
 							@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
+							<div class="clearfix" style="clear: both;"></div>
 						</div>
 					</div>
 				}
 				@UserActionSrv.listOpt(UserActionSrv.notSeenExponents(actions, exponents)).map { exponents =>
 					<div>
-						<h3>Tous les exposants</h3>
+						<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les exposants non vus</h3>
 						<div class="row">
 							@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+							<div class="clearfix" style="clear: both;"></div>
 						</div>
 					</div>
 				}
@@ -69,17 +59,18 @@
 			@if(filter == "favorites"){
 				@UserActionSrv.listOpt(UserActionSrv.favoriteNotSeenExponents(actions, exponents)).map { exponents =>
 					<div>
-						<h3>Les autres exposants en favoris</h3>
+						<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les exposants non vus mais en favoris</h3>
 						<div class="row">
 							@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+							<div class="clearfix" style="clear: both;"></div>
 						</div>
 					</div>
 				}
 			}
 
-			PS: n'hésites pas à nous faire un feedback sur ce mail, l'application ou SalooN de manière générale.<br>
+			PS: n'hésite pas à nous faire un feedback sur ce mail, l'application ou SalooN de manière générale.<br>
 			<br>
-			Bonne continuation,<br>
+			A bientôt,<br>
 			L'équipe SalooN !<br>
 			<br>
 		</div>
