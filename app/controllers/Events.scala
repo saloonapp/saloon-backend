@@ -8,6 +8,7 @@ import services.FileImporter
 import services.FileExporter
 import services.EventSrv
 import services.MailSrv
+import services.MandrillSrv
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
@@ -84,6 +85,37 @@ object Events extends Controller {
       _.map { email =>
         Ok(play.twirl.api.Html(email.html))
       }.getOrElse(NotFound(views.html.error(s"User $userId didn't subscribe to event $eventId")))
+    }
+  }
+
+  def reportsPreview(eventId: String) = Action.async { implicit req =>
+    UserActionRepository.findSubscribes(EventUI.className, eventId).map { subscribes =>
+      var users = subscribes.map(s => s.action match {
+        case sub: SubscribeUserAction => Some((s.userId, sub))
+        case _ => None
+      }).flatten
+      Ok(views.html.Application.Events.reportsPreview(eventId, users))
+    }
+  }
+
+  def sendReports(eventId: String) = Action.async { implicit req =>
+    UserActionRepository.findSubscribes(EventUI.className, eventId).flatMap { subscribes =>
+      var users = subscribes.map(s => s.action match {
+        case sub: SubscribeUserAction => Some((s.userId, sub))
+        case _ => None
+      }).flatten
+
+      val listFutures = users.map {
+        case (userId, sub) =>
+          MailSrv.generateEventReport(eventId, userId).flatMap {
+            _.map { emailData => MandrillSrv.sendEmail(emailData.copy(to = sub.email)) }.getOrElse(Future(Json.obj("message" -> s"error for ${sub.email}")))
+          }
+      }
+
+      Future.sequence(listFutures).map { results =>
+        val message = "Emails envoyés :<br>" + results.map(r => s" - ${Json.stringify(r)}<br>").mkString("")
+        Redirect(mainRoute.operations(eventId)).flashing("success" -> message)
+      }
     }
   }
 

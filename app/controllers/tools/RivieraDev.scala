@@ -18,7 +18,7 @@ import org.joda.time.DateTime
 object RivieraDev extends Controller {
 
   case class RivieraDevEvent(name: String, description: String, logoUrl: String, siteUrl: String, start: Option[DateTime], end: Option[DateTime], address: Address, price: String, priceUrl: String, twitterAccount: Option[String], tags: List[String]) {
-    def toEvent(): Event = Event(Repository.generateUuid(), Some("/api/v1/tools/scrapers/events/rivieradev/formated"), this.name, this.description, this.logoUrl, "", this.siteUrl, this.start, this.end, this.address, this.price, this.priceUrl, None, this.twitterAccount, this.tags, true, Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/general")), new DateTime(), new DateTime())
+    def toEvent(): Event = Event(Repository.generateUuid(), Some("/api/v1/tools/scrapers/events/rivieradev/formated"), this.name, this.description, this.logoUrl, "", this.siteUrl, this.start, this.end, this.address, this.price, this.priceUrl, None, this.twitterAccount, None, this.tags, true, Some(DataSource(this.name, "http://www.rivieradev.fr/apiv1/general")), new DateTime(), new DateTime())
   }
   case class RivieraDevPerson(name: String, description: String, company: Option[String], avatar: String, profilUrl: Option[String], social: Option[PersonSocial]) {
     def toPerson(): Person = Person(this.name, this.description, this.company.getOrElse(""), this.avatar, None, this.profilUrl.getOrElse(""), this.social.getOrElse(PersonSocial(None, None, None, None, None)))

@@ -12,8 +12,8 @@
 			<div>
 				Salut,<br>
 				Merci d'avoir participé à <b>@event.name</b> et utilisé SalooN.<br>
-				@if(filter == "all"){ Voici le compte rendu complet de l'événement : }
-				@if(filter == "favorites"){ Voici le compte rendu de ton événement : }
+				@if(filter == "all"){ Voici le bilan complet de l'événement : }
+				@if(filter == "favorites"){ Voici le bilan de ton événement : }
 			</div>
 
 			@UserActionSrv.listOpt(UserActionSrv.seenExponents(actions, exponents)).map { exponents =>
@@ -68,10 +68,13 @@
 				}
 			}
 
+			@event.reportEmailMessageHtml.map { message => <div>@Html(message)</div> }
+
+			<br><br>
 			PS: n'hésite pas à nous faire un feedback sur ce mail, l'application ou SalooN de manière générale.<br>
 			<br>
 			A bientôt,<br>
-			L'équipe SalooN !<br>
+			Bob de SalooN<br>
 			<br>
 		</div>
 	</body>

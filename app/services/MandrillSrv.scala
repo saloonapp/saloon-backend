@@ -9,8 +9,8 @@ import play.api.Play.current
 object MandrillSrv {
   val baseUrl = "https://mandrillapp.com/api/1.0"
   val key = "md9UcB8wRMp480u9VfGIpw"
-  val senderEmail = "loic@saloonapp.co"
-  val senderName = "Loïc de SalooN"
+  val senderEmail = "bob@saloonapp.co"
+  val senderName = "Bob de SalooN"
 
   def sendEmail(data: EmailData): Future[JsValue] = {
     WS.url(baseUrl + "/messages/send.json").post(Json.obj(

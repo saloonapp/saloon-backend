@@ -11,7 +11,7 @@
 					<a href="@routes.Events.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Evénements</a>
 					@event.name
 					<div class="pull-right">
-						<a class="btn btn-success" href="@routes.Events.operations(event.uuid)"><i class="fa fa-upload"></i> <i class="fa fa-download"></i></a>
+						<a class="btn btn-success" href="@routes.Events.operations(event.uuid)"><i class="fa fa-cogs"></i></a>
 						<a href="@routes.Events.update(event.uuid)" class="btn btn-info">Modifier</a>
 						<form method="POST" action="@routes.Events.delete(event.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
 					</div>
@@ -45,7 +45,7 @@
 							@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
 								<li>
 									@item match {
-										case models.Event(uuid,_,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
+										case models.Event(uuid,_,name,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
 										case models.Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
 										case models.Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
 										case unknown => { Inconnu @unknown }

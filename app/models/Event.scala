@@ -23,6 +23,7 @@ case class Event(
   priceUrl: String, // where to buy tickets
   twitterHashtag: Option[String],
   twitterAccount: Option[String],
+  reportEmailMessageHtml: Option[String],
   tags: List[String],
   published: Boolean,
   source: Option[DataSource], // where the event were fetched (if applies)
@@ -44,6 +45,7 @@ case class Event(
     merge(this.priceUrl, e.priceUrl),
     merge(this.twitterHashtag, e.twitterHashtag),
     merge(this.twitterAccount, e.twitterAccount),
+    merge(this.reportEmailMessageHtml, e.reportEmailMessageHtml),
     merge(this.tags, e.tags),
     merge(this.published, e.published),
     merge(this.source, e.source),
@@ -78,6 +80,7 @@ object Event {
       d.get("priceUrl").getOrElse(""),
       d.get("twitterHashtag"),
       d.get("twitterAccount"),
+      d.get("reportEmailMessageHtml"),
       Utils.toList(d.get("tags").getOrElse("")),
       d.get("published").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
       d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
@@ -102,6 +105,7 @@ object Event {
     "priceUrl" -> e.priceUrl,
     "twitterHashtag" -> e.twitterHashtag.getOrElse(""),
     "twitterAccount" -> e.twitterAccount.getOrElse(""),
+    "reportEmailMessageHtml" -> e.reportEmailMessageHtml.getOrElse(""),
     "tags" -> Utils.fromList(e.tags),
     "published" -> e.published.toString,
     "source.ref" -> e.source.map(_.ref).getOrElse(""),
@@ -126,6 +130,7 @@ case class EventUI(
   priceUrl: String,
   twitterHashtag: Option[String],
   twitterAccount: Option[String],
+  // reportEmailMessageHtml: Option[String],
   tags: List[String],
   published: Boolean,
   created: DateTime,
@@ -154,6 +159,7 @@ case class EventData(
   priceUrl: String,
   twitterHashtag: Option[String],
   twitterAccount: Option[String],
+  reportEmailMessageHtml: Option[String],
   tags: String,
   published: Boolean)
 object EventData {
@@ -172,10 +178,11 @@ object EventData {
     "priceUrl" -> text,
     "twitterHashtag" -> optional(text),
     "twitterAccount" -> optional(text),
+    "reportEmailMessageHtml" -> optional(text),
     "tags" -> text,
     "published" -> boolean)(EventData.apply)(EventData.unapply)
 
-  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), Utils.toList(d.tags), d.published, None, new DateTime(), new DateTime())
-  def fromModel(d: Event): EventData = EventData(d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), Utils.fromList(d.tags), d.published)
+  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), d.reportEmailMessageHtml, Utils.toList(d.tags), d.published, None, new DateTime(), new DateTime())
+  def fromModel(d: Event): EventData = EventData(d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag.map(Utils.toTwitterHashtag), d.twitterAccount.map(Utils.toTwitterAccount), d.reportEmailMessageHtml, Utils.fromList(d.tags), d.published)
   def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
 }

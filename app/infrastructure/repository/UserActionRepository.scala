@@ -53,6 +53,7 @@ trait MongoDbUserActionRepository {
   def deleteComment(userId: String, itemType: String, itemId: String, uuid: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> uuid))
 
   def getSubscribe(userId: String, itemType: String, itemId: String): Future[Option[UserAction]] = getAction(SubscribeUserAction.className)(userId, itemType, itemId)
+  def findSubscribes(itemType: String, itemId: String): Future[List[UserAction]] = crud.find(Json.obj("action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId))
   def setSubscribe(email: String, filter: String)(userId: String, itemType: String, itemId: String, eventId: String, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
     val elt = oldElt.map(e => e.withContent(SubscribeUserAction(email, filter), time)).getOrElse(UserAction.subscribe(userId, itemType, itemId, email, filter, eventId, time))
     crud.upsert(Json.obj("userId" -> userId, "action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }

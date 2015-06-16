@@ -49,6 +49,7 @@ case class VoxxrinEvent(
       "",
       None,
       None,
+      None,
       List(),
       false,
       Some(DataSource(this.id, VoxxrinApi.eventUrl(this.id))),

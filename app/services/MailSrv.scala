@@ -24,12 +24,12 @@ object MailSrv {
             val favoriteExponentUuids = actions.filter(a => a.action.isFavorite() && a.itemType == ExponentUI.className).map(_.itemId)
             for {
               eventOpt <- EventRepository.getByUuid(eventId)
-              sessions <- if (subscribe.filter == "favorite") SessionRepository.findByUuids(favoriteSessionUuids) else SessionRepository.findByEvent(eventId)
-              exponents <- if (subscribe.filter == "favorite") ExponentRepository.findByUuids(favoriteExponentUuids) else ExponentRepository.findByEvent(eventId)
+              sessions <- if (subscribe.filter == "favorites") SessionRepository.findByUuids(favoriteSessionUuids) else SessionRepository.findByEvent(eventId)
+              exponents <- if (subscribe.filter == "favorites") ExponentRepository.findByUuids(favoriteExponentUuids) else ExponentRepository.findByEvent(eventId)
             } yield {
               val html = views.html.Mail.eventAttendeeReport(eventOpt.get, sessions, exponents, actions, subscribe.filter).toString
               val text = Jsoup.parse(html).text()
-              Some(EmailData(subscribe.email, s"Compte rendu ${eventOpt.get.name} by SalooN", html, text))
+              Some(EmailData(subscribe.email, s"Bilan ${eventOpt.get.name} by SalooN", html, text))
             }
           }
           case _ => Future(None) // not subscribed

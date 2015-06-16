@@ -25,6 +25,12 @@
 				</div>
 			</div>
 			<div class="widget">
+				<div class="widget-header">Envoi du bilan</div>
+				<div class="widget-body">
+					<a href="@routes.Events.reportsPreview(event.uuid)" class="btn btn-success">Prévisualiser les bilans</a>
+				</div>
+			</div>
+			<div class="widget">
 				<div class="widget-header">Exporter les données</div>
 				<div class="widget-body">
 					<form method="POST" action="@routes.Sessions.fileExport(event.uuid)">
