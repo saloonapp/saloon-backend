@@ -6,7 +6,6 @@
 GET       /                                                                       controllers.Application.home
 GET       /sample                                                                 controllers.Application.sample
 GET       /migrate                                                                controllers.Application.migrate
-POST      /testReport                                                             controllers.Application.testReport
 
 GET       /events                                                                 controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/create                                                          controllers.Events.create
@@ -23,6 +22,7 @@ POST      /events/:eventId/delete                                               
 GET       /events/:eventId/reports                                                controllers.Events.reportsPreview(eventId: String)
 GET       /events/:eventId/reports/:userId                                        controllers.Events.report(eventId: String, userId: String)
 POST      /events/:eventId/reports                                                controllers.Events.sendReports(eventId: String)
+POST      /events/:eventId/reports/:userId                                        controllers.Events.sendReport(eventId: String, userId: String)
 
 
 GET       /events/:eventId/exponents                                              controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)

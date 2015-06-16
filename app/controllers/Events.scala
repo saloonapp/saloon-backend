@@ -119,6 +119,25 @@ object Events extends Controller {
     }
   }
 
+  def sendReport(eventId: String, userId: String) = Action.async { implicit req =>
+    UserActionRepository.getSubscribe(userId, EventUI.className, eventId).flatMap {
+      _.map {
+        _.action match {
+          case SubscribeUserAction(email, filter, subscribe) => {
+            MailSrv.generateEventReport(eventId, userId).flatMap {
+              _.map { emailData =>
+                MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
+                  Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
+                }
+              }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+            }
+          }
+          case _ => Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId"))
+        }
+      }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+    }
+  }
+
   def stats(uuid: String) = Action.async { implicit req =>
     EventSrv.getActions(uuid).map { actions =>
       val filename = actions.head.event.name + "_stats.csv"
