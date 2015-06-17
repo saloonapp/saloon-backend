@@ -74,6 +74,7 @@ object UserActionSrv {
       .map { e => (e, moodFor(actions, ExponentUI.className, e.uuid), commentsFor(actions, ExponentUI.className, e.uuid)) }
       .sortBy(r => -moodSort(r._2))
   }
+  def hasFavorites(actions: List[UserAction]): Boolean = actions.filter(_.action.isFavorite()).length > 0
 
   def listOpt[A](list: List[A]): Option[List[A]] = if (list.length > 0) Some(list) else None
 

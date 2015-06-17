@@ -66,6 +66,12 @@
 						</div>
 					</div>
 				}
+				@if(!UserActionSrv.hasFavorites(actions)){
+					<div>
+						Tu n'as rien mis en favoris.<br>
+						Pour la prochaine fois, penses à ajouter ce qui t'intéresses en favoris afin d'avoir les informations dessus après le salon.
+					</div>
+				}
 			}
 
 			@event.reportEmailMessageHtml.map { message => <div>@Html(message)</div> }
