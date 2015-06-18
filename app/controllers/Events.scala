@@ -236,8 +236,9 @@ object Events extends Controller {
     EventRepository.getByUuid(uuid).flatMap { eventOpt =>
       eventOpt.map { localEvent =>
         localEvent.refreshUrl.map { url =>
+          val eventUrl = EventSrv.formatUrl(url)
           for {
-            remoteSourceOpt <- EventSrv.fetchFullEvent(url)
+            remoteSourceOpt <- EventSrv.fetchFullEvent(eventUrl)
             localSessions <- SessionRepository.findByEvent(uuid)
             localExponents <- ExponentRepository.findByEvent(uuid)
           } yield {

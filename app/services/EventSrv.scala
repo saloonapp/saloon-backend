@@ -68,21 +68,27 @@ object EventSrv {
   }
 
   def sessionDiff(oldElts: List[Session], newElts: List[Session]): (List[Session], List[Session], List[(Session, Session)]) = {
-    diff(oldElts, newElts, (s: Session) => s.source.map(_.ref).getOrElse(""), (os: Session, ns: Session) => os.merge(ns), (os: Session, ns: Session) => os.copy(updated = new DateTime(0)) == ns.copy(updated = new DateTime(0)))
+    diff(oldElts, newElts, (s: Session) => s.name, (s: Session) => s.source.map(_.ref), (os: Session, ns: Session) => os.merge(ns), (os: Session, ns: Session) => os.copy(updated = new DateTime(0)) == ns.copy(updated = new DateTime(0)))
   }
 
   def exponentDiff(oldElts: List[Exponent], newElts: List[Exponent]): (List[Exponent], List[Exponent], List[(Exponent, Exponent)]) = {
-    diff(oldElts, newElts, (e: Exponent) => e.source.map(_.ref).getOrElse(""), (oe: Exponent, ne: Exponent) => oe.merge(ne), (oe: Exponent, ne: Exponent) => oe.copy(updated = new DateTime(0)) == ne.copy(updated = new DateTime(0)))
+    diff(oldElts, newElts, (e: Exponent) => e.name, (e: Exponent) => e.source.map(_.ref), (oe: Exponent, ne: Exponent) => oe.merge(ne), (oe: Exponent, ne: Exponent) => oe.copy(updated = new DateTime(0)) == ne.copy(updated = new DateTime(0)))
   }
 
-  private def diff[A](oldElts: List[A], newElts: List[A], getRef: A => String, merge: (A, A) => A, equals: (A, A) => Boolean): (List[A], List[A], List[(A, A)]) = {
-    val createdElts = newElts.filter(ne => oldElts.find(oe => getRef(oe) == getRef(ne)).isEmpty)
-    val deletedElts = oldElts.filter(oe => newElts.find(ne => getRef(oe) == getRef(ne)).isEmpty)
+  private def diff[A](oldElts: List[A], newElts: List[A], getName: A => String, getRef: A => Option[String], merge: (A, A) => A, equals: (A, A) => Boolean): (List[A], List[A], List[(A, A)]) = {
+    val createdElts = newElts.filter(ne => oldElts.find(oe => eqOpt(getRef(oe), getRef(ne)) || getName(oe) == getName(ne)).isEmpty)
+    val deletedElts = oldElts.filter(oe => newElts.find(ne => eqOpt(getRef(oe), getRef(ne)) || getName(oe) == getName(ne)).isEmpty)
     val updatedElts = oldElts
-      .map(oe => newElts.find(ne => getRef(oe) == getRef(ne)).map(ne => (oe, ne))).flatten
+      .map(oe => newElts.find(ne => eqOpt(getRef(oe), getRef(ne)) || getName(oe) == getName(ne)).map(ne => (oe, ne))).flatten
       .map { case (oe, ne) => (oe, merge(oe, ne)) }
       .filter { case (oe, ne) => !equals(oe, ne) }
     (createdElts, deletedElts, updatedElts)
+  }
+
+  private def eqOpt[A](opt1: Option[A], opt2: Option[A]): Boolean = {
+    opt1.map { value1 =>
+      opt2.map { _ == value1 }.getOrElse(false)
+    }.getOrElse(false)
   }
 
   private val eventUrlMatcher = """https?://(.+\.herokuapp.com)/events/([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})""".r

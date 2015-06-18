@@ -107,7 +107,7 @@ object Exponents extends Controller {
             formWithErrors => Future(BadRequest(viewUpdate(formWithErrors, elt, event))),
             formData => repository.update(uuid, updateElt(elt, formData)).map {
               _.map { updatedElt =>
-                Redirect(mainRoute.details(eventId, uuid)).flashing("success" -> successUpdateFlash(updatedElt))
+                Redirect(mainRoute.list(eventId)).flashing("success" -> successUpdateFlash(updatedElt))
               }.getOrElse(InternalServerError(viewUpdate(form.fill(formData), elt, event)).flashing("error" -> errorUpdateFlash(elt)))
             })
         }
