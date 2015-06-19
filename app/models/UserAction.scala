@@ -12,13 +12,13 @@ import play.api.libs.json._
 case class UserAction(
   uuid: String,
   userId: String,
-  action: UserActionConent,
+  action: UserActionContent,
   itemType: String,
   itemId: String,
   eventId: Option[String],
   created: DateTime,
   updated: DateTime) {
-  def withContent(c: UserActionConent, time: Option[DateTime] = None): UserAction = this.copy(action = c, updated = time.getOrElse(new DateTime()))
+  def withContent(c: UserActionContent, time: Option[DateTime] = None): UserAction = this.copy(action = c, updated = time.getOrElse(new DateTime()))
   def toMap(): Map[String, String] = {
     Map(
       "eventId" -> this.eventId.getOrElse(""),
@@ -39,13 +39,13 @@ object UserAction {
   private implicit val formatMoodUserAction = Json.format[MoodUserAction]
   private implicit val formatCommentUserAction = Json.format[CommentUserAction]
   private implicit val formatSubscribeUserAction = Json.format[SubscribeUserAction]
-  implicit val formatUserActionConent = Format(
-    __.read[FavoriteUserAction].map(x => x: UserActionConent)
-      .orElse(__.read[DoneUserAction].map(x => x: UserActionConent))
-      .orElse(__.read[MoodUserAction].map(x => x: UserActionConent))
-      .orElse(__.read[CommentUserAction].map(x => x: UserActionConent))
-      .orElse(__.read[SubscribeUserAction].map(x => x: UserActionConent)),
-    Writes[UserActionConent] {
+  implicit val formatUserActionContent = Format(
+    __.read[FavoriteUserAction].map(x => x: UserActionContent)
+      .orElse(__.read[DoneUserAction].map(x => x: UserActionContent))
+      .orElse(__.read[MoodUserAction].map(x => x: UserActionContent))
+      .orElse(__.read[CommentUserAction].map(x => x: UserActionContent))
+      .orElse(__.read[SubscribeUserAction].map(x => x: UserActionContent)),
+    Writes[UserActionContent] {
       case favorite: FavoriteUserAction => Json.toJson(favorite)(formatFavoriteUserAction)
       case done: DoneUserAction => Json.toJson(done)(formatDoneUserAction)
       case mood: MoodUserAction => Json.toJson(mood)(formatMoodUserAction)
@@ -55,7 +55,7 @@ object UserAction {
   implicit val format = Json.format[UserAction]
 }
 
-case class UserActionFull(event: Event, user: User, action: UserActionConent, item: EventItem) {
+case class UserActionFull(event: Event, user: User, action: UserActionContent, item: EventItem) {
   def toMap(): Map[String, String] = {
     Map(
       "eventId" -> this.event.uuid,
@@ -67,7 +67,7 @@ case class UserActionFull(event: Event, user: User, action: UserActionConent, it
   }
 }
 
-sealed trait UserActionConent {
+sealed trait UserActionContent {
   def toMap(): Map[String, String] = this match {
     case FavoriteUserAction(favorite) => Map("actionType" -> FavoriteUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
     case DoneUserAction(done) => Map("actionType" -> DoneUserAction.className, "rating" -> "", "text" -> "", "email" -> "", "filter" -> "")
@@ -91,24 +91,24 @@ sealed trait UserActionConent {
     case _ => false
   }
 }
-case class FavoriteUserAction(favorite: Boolean = true) extends UserActionConent
+case class FavoriteUserAction(favorite: Boolean = true) extends UserActionContent
 object FavoriteUserAction {
   val className = "favorite"
 }
-case class DoneUserAction(done: Boolean = true) extends UserActionConent
+case class DoneUserAction(done: Boolean = true) extends UserActionContent
 object DoneUserAction {
   val className = "done"
 }
-case class MoodUserAction(rating: String, mood: Boolean = true) extends UserActionConent // TODO => feedback
+case class MoodUserAction(rating: String, mood: Boolean = true) extends UserActionContent // TODO => feedback
 object MoodUserAction {
   val className = "mood"
 }
-case class CommentUserAction(text: String, comment: Boolean = true) extends UserActionConent // TODO => personal notes (memo)
+case class CommentUserAction(text: String, comment: Boolean = true) extends UserActionContent // TODO => personal notes (memo)
 object CommentUserAction {
   val className = "comment"
 }
 // TODO add public comment
-case class SubscribeUserAction(email: String, filter: String, subscribe: Boolean = true) extends UserActionConent
+case class SubscribeUserAction(email: String, filter: String, subscribe: Boolean = true) extends UserActionContent
 object SubscribeUserAction {
   val className = "subscribe"
 }

@@ -5,7 +5,7 @@ import models.Session
 import models.Exponent
 import models.User
 import models.UserAction
-import models.UserActionConent
+import models.UserActionContent
 import models.FavoriteUserAction
 import models.DoneUserAction
 import models.MoodUserAction
@@ -22,7 +22,7 @@ object UserActionSrv {
     actions.groupBy(_.user).toList.sortBy(e => -e._2.length)
   }
 
-  def byAction(actions: List[UserActionFull]): List[(UserActionConent, List[UserActionFull])] = {
+  def byAction(actions: List[UserActionFull]): List[(UserActionContent, List[UserActionFull])] = {
     actions.groupBy(_.action).toList
   }
 
@@ -37,7 +37,7 @@ object UserActionSrv {
     }).toList
   }
 
-  def toActionName(a: UserActionConent): String = {
+  def toActionName(a: UserActionContent): String = {
     a match {
       case FavoriteUserAction(favorite) => FavoriteUserAction.className
       case DoneUserAction(done) => DoneUserAction.className
