@@ -99,14 +99,15 @@ case class DoneUserAction(done: Boolean = true) extends UserActionConent
 object DoneUserAction {
   val className = "done"
 }
-case class MoodUserAction(rating: String, mood: Boolean = true) extends UserActionConent
+case class MoodUserAction(rating: String, mood: Boolean = true) extends UserActionConent // TODO => feedback
 object MoodUserAction {
   val className = "mood"
 }
-case class CommentUserAction(text: String, comment: Boolean = true) extends UserActionConent
+case class CommentUserAction(text: String, comment: Boolean = true) extends UserActionConent // TODO => personal notes (memo)
 object CommentUserAction {
   val className = "comment"
 }
+// TODO add public comment
 case class SubscribeUserAction(email: String, filter: String, subscribe: Boolean = true) extends UserActionConent
 object SubscribeUserAction {
   val className = "subscribe"
