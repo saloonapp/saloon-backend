@@ -1,4 +1,4 @@
-@(eventPage: common.models.Page[EventUI])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(eventPage: common.models.Page[(Event, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Evénements"){
 	<div class="row">
@@ -25,8 +25,8 @@
 								<tr><th>Nom</th><th>Publié</th><th>Début</th><th>Adresse</th><th>Hashtag</th><th></th><th></th><th></th></tr>
 							</thead>
 							<tbody>
-								@eventPage.items.map { event =>
-									@partials.tableItem(event)
+								@eventPage.items.map { case (event, sessionCount, exponentCount) =>
+									@partials.tableItem(event, sessionCount, exponentCount)
 								}
 							</tbody>
 						</table>

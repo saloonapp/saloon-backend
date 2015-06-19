@@ -1,4 +1,4 @@
-@(event: EventUI)
+@(event: Event, sessionCount: Int, exponentCount: Int)
 
 @import helpers.format._
 @import views.html.Application.format._
@@ -9,8 +9,8 @@
 	<td>@datetimeOpt(event.start)</td>
 	<td>@address(event.address)</td>
 	<td>@twitterHashtagOpt(event.twitterHashtag)</td>
-	<td><a href="@routes.Sessions.list(event.uuid)">@event.sessionCount sessions</a></td>
-	<td><a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a></td>
+	<td><a href="@routes.Sessions.list(event.uuid)">@sessionCount sessions</a></td>
+	<td><a href="@routes.Exponents.list(event.uuid)">@exponentCount exposants</a></td>
 	<td>
 		<a href="@routes.Events.details(event.uuid)" class="btn btn-default">Détails</a>
 		<a href="@routes.Events.update(event.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>

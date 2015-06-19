@@ -72,9 +72,9 @@ object Events extends Controller {
       _.map { elt =>
         for {
           actions <- EventSrv.getActions(uuid)
-          eltUI <- EventSrv.addMetadata(elt)
+          (elt, sessionCount, exponentCount) <- EventSrv.addMetadata(elt)
         } yield {
-          Ok(viewDetails(eltUI, actions))
+          Ok(viewDetails(elt, sessionCount, exponentCount, actions))
         }
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
@@ -89,7 +89,7 @@ object Events extends Controller {
   }
 
   def reportsPreview(eventId: String) = Action.async { implicit req =>
-    UserActionRepository.findSubscribes(EventUI.className, eventId).map { subscribes =>
+    UserActionRepository.findSubscribes(Event.className, eventId).map { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
         case _ => None
@@ -99,7 +99,7 @@ object Events extends Controller {
   }
 
   def sendReports(eventId: String) = Action.async { implicit req =>
-    UserActionRepository.findSubscribes(EventUI.className, eventId).flatMap { subscribes =>
+    UserActionRepository.findSubscribes(Event.className, eventId).flatMap { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
         case _ => None
@@ -120,7 +120,7 @@ object Events extends Controller {
   }
 
   def sendReport(eventId: String, userId: String) = Action.async { implicit req =>
-    UserActionRepository.getSubscribe(userId, EventUI.className, eventId).flatMap {
+    UserActionRepository.getSubscribe(userId, Event.className, eventId).flatMap {
       _.map {
         _.action match {
           case SubscribeUserAction(email, filter, subscribe) => {

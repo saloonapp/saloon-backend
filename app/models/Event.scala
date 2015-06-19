@@ -58,6 +58,7 @@ case class Event(
   private def merge(a1: Address, a2: Address): Address = if (a2.name.isEmpty && a2.street.isEmpty && a2.zipCode.isEmpty && a2.city.isEmpty) a1 else a2
 }
 object Event {
+  val className = "events"
   implicit val format = Json.format[Event]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(d: Map[String, String]): Try[Event] =
@@ -115,7 +116,7 @@ object Event {
 }
 
 // model sent to client : no field source / add field className, sessionCount & exponentCount
-case class EventUI(
+/*case class EventUI(
   uuid: String,
   refreshUrl: Option[String],
   name: String,
@@ -142,7 +143,7 @@ object EventUI {
   val className = "events"
   implicit val format = Json.format[EventUI]
   def fromModel(d: Event, sessionCount: Int, exponentCount: Int): EventUI = EventUI(d.uuid, d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag, d.twitterAccount, d.tags, d.published, d.created, d.updated, sessionCount, exponentCount)
-}
+}*/
 
 // mapping object for Event Form
 case class EventData(

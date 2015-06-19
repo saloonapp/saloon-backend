@@ -6,7 +6,6 @@ import infrastructure.repository.EventItemRepository
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
 import models.Event
-import models.EventUI
 import models.EventItem
 import models.User
 import models.UserAction
@@ -79,14 +78,14 @@ object UserActions extends Controller {
     }
   }
 
-  def subscribe(eventId: String): Action[JsValue] = subscribe(eventId, EventUI.className, eventId)
+  def subscribe(eventId: String): Action[JsValue] = subscribe(eventId, Event.className, eventId)
   def subscribe(eventId: String, itemType: String, itemId: String) = Action.async(parse.json) { implicit req =>
     bodyWith("email", "filter") { (email, filter) =>
       setActionUnique(eventId, itemType, itemId)(UserActionRepository.getSubscribe, UserActionRepository.setSubscribe(email, filter))
     }
   }
 
-  def unsubscribe(eventId: String): Action[AnyContent] = unsubscribe(eventId, EventUI.className, eventId)
+  def unsubscribe(eventId: String): Action[AnyContent] = unsubscribe(eventId, Event.className, eventId)
   def unsubscribe(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteSubscribe)
   }

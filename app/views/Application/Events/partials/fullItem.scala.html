@@ -1,4 +1,4 @@
-@(event: EventUI)
+@(event: Event, sessionCount: Int, exponentCount: Int)
 
 @import helpers.format._
 @import views.html.Application.format._
@@ -13,8 +13,8 @@
 		<p class="text-muted">@datetimeOpt(event.start) - @datetimeOpt(event.end) | @address(event.address) | @twitterHashtagOpt(event.twitterHashtag) @twitterAccountOpt(event.twitterAccount)</p>
 		<p class="text-muted">@event.tags.map { tag => <span class="label label-primary">@tag</span> }</p>
 		<p>
-			<a href="@routes.Sessions.list(event.uuid)">@event.sessionCount sessions</a>,
-			<a href="@routes.Exponents.list(event.uuid)">@event.exponentCount exposants</a>
+			<a href="@routes.Sessions.list(event.uuid)">@sessionCount sessions</a>,
+			<a href="@routes.Exponents.list(event.uuid)">@exponentCount exposants</a>
 		</p>
 		<img src="@event.landingUrl">
 	</div>

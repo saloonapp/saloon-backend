@@ -1,4 +1,4 @@
-@(event: EventUI, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(event: Event, sessionCount: Int, exponentCount: Int, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @import views.html.Application.format._
 @import services.UserActionSrv
@@ -17,7 +17,7 @@
 					</div>
 				</div>
 				<div class="widget-body">
-					@partials.fullItem(event)
+					@partials.fullItem(event, sessionCount, exponentCount)
 				</div>
 			</div>
 		</div>
