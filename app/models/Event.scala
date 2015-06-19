@@ -115,36 +115,6 @@ object Event {
     "updated" -> e.updated.toString(FileImporter.dateFormat))
 }
 
-// model sent to client : no field source / add field className, sessionCount & exponentCount
-/*case class EventUI(
-  uuid: String,
-  refreshUrl: Option[String],
-  name: String,
-  description: String,
-  logoUrl: String,
-  landingUrl: String,
-  siteUrl: String,
-  start: Option[DateTime],
-  end: Option[DateTime],
-  address: Address,
-  price: String,
-  priceUrl: String,
-  twitterHashtag: Option[String],
-  twitterAccount: Option[String],
-  // reportEmailMessageHtml: Option[String],
-  tags: List[String],
-  published: Boolean,
-  created: DateTime,
-  updated: DateTime,
-  sessionCount: Int,
-  exponentCount: Int,
-  className: String = EventUI.className)
-object EventUI {
-  val className = "events"
-  implicit val format = Json.format[EventUI]
-  def fromModel(d: Event, sessionCount: Int, exponentCount: Int): EventUI = EventUI(d.uuid, d.refreshUrl, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.start, d.end, d.address, d.price, d.priceUrl, d.twitterHashtag, d.twitterAccount, d.tags, d.published, d.created, d.updated, sessionCount, exponentCount)
-}*/
-
 // mapping object for Event Form
 case class EventData(
   refreshUrl: Option[String],

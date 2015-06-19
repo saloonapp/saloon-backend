@@ -6,9 +6,10 @@ import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import models.Event
-import models.SessionUI
-import models.ExponentUI
+import models.Session
+import models.Exponent
 import services.EventSrv
+import controllers.api.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -19,26 +20,24 @@ import play.api.libs.json._
 object Events extends Controller {
   val repository: Repository[Event] = EventRepository
 
-  private def write(data: (Event, Int, Int)): JsObject = Json.toJson(data._1).as[JsObject] ++ Json.obj("sessionCount" -> data._2, "exponentCount" -> data._3)
-
   def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start"), Json.obj("published" -> true)).flatMap { eltPage =>
       eltPage
         .batchMapAsync(EventSrv.addMetadata _)
-        .map { page => Ok(Json.toJson(page.map(write))) }
+        .map { page => Ok(Json.toJson(page.map(Writer.write))) }
     }
   }
 
   def listAll(query: Option[String], sort: Option[String]) = Action.async { implicit req =>
     repository.findAll(query.getOrElse(""), sort.getOrElse("-start"), Json.obj("published" -> true)).flatMap { elts =>
-      EventSrv.addMetadata(elts).map { list => Ok(Json.toJson(list.map(write))) }
+      EventSrv.addMetadata(elts).map { list => Ok(Json.toJson(list.map(Writer.write))) }
     }
   }
 
   def details(uuid: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
-        EventSrv.addMetadata(elt).map { eltUI => Ok(Json.toJson(write(eltUI))) }
+        EventSrv.addMetadata(elt).map { eltUI => Ok(Writer.write(eltUI)) }
       }.getOrElse(Future(NotFound))
     }
   }
@@ -50,10 +49,9 @@ object Events extends Controller {
           sessions <- SessionRepository.findByEvent(elt.uuid)
           exponents <- ExponentRepository.findByEvent(elt.uuid)
         } yield {
-          Ok(Json.toJson(elt).as[JsObject] ++ Json.obj(
-            "className" -> Event.className,
-            "sessions" -> sessions.map(e => SessionUI.fromModel(e)),
-            "exponents" -> exponents.map(e => ExponentUI.fromModel(e))))
+          Ok(Writer.write(elt) ++ Json.obj(
+            "sessions" -> sessions.map(Writer.write),
+            "exponents" -> exponents.map(Writer.write)))
         }
       }.getOrElse(Future(NotFound(Json.obj("message" -> s"Event $uuid not found !"))))
     }

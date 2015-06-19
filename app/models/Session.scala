@@ -49,6 +49,7 @@ case class Session(
   private def merge[A](l1: List[A], l2: List[A]): List[A] = if (l2.isEmpty) l1 else l2
 }
 object Session {
+  val className = "sessions"
   implicit val format = Json.format[Session]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(eventId: String)(d: Map[String, String]): Try[Session] =
@@ -88,30 +89,6 @@ object Session {
     "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))
-}
-
-case class SessionUI(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  format: String,
-  category: String,
-  place: String,
-  start: Option[DateTime],
-  end: Option[DateTime],
-  speakers: List[Person],
-  tags: List[String],
-  slides: Option[String],
-  video: Option[String],
-  source: Option[DataSource],
-  created: DateTime,
-  updated: DateTime,
-  className: String = SessionUI.className)
-object SessionUI {
-  val className = "sessions"
-  implicit val format = Json.format[SessionUI]
-  def fromModel(d: Session): SessionUI = SessionUI(d.uuid, d.eventId, d.name, d.description, d.format, d.category, d.place, d.start, d.end, d.speakers, d.tags, d.slides, d.video, d.source, d.created, d.updated)
 }
 
 // mapping object for Session Form

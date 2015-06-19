@@ -4,7 +4,6 @@ import common.models.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
 import models.Session
-import models.SessionUI
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -28,7 +27,7 @@ trait MongoDbSessionRepository extends Repository[Session] {
   override def update(uuid: String, elt: Session): Future[Option[Session]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(uuid: String): Future[Option[Session]] = {
     crud.delete(uuid).map { err =>
-      UserActionRepository.deleteByItem(SessionUI.className, uuid)
+      UserActionRepository.deleteByItem(Session.className, uuid)
       None
     } // TODO : return deleted elt !
   }

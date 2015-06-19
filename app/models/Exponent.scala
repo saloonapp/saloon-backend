@@ -49,6 +49,7 @@ case class Exponent(
   private def merge[A](l1: List[A], l2: List[A]): List[A] = if (l2.isEmpty) l1 else l2
 }
 object Exponent {
+  val className = "exponents"
   implicit val format = Json.format[Exponent]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
   def fromMap(eventId: String)(d: Map[String, String]): Try[Exponent] =
@@ -88,31 +89,6 @@ object Exponent {
     "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))
-}
-
-// model sent to client : no field source / add field className
-case class ExponentUI(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  logoUrl: String,
-  landingUrl: String,
-  siteUrl: String,
-  place: Option[String],
-  team: List[Person],
-  level: Option[Int],
-  sponsor: Boolean,
-  tags: List[String],
-  images: List[String],
-  source: Option[DataSource],
-  created: DateTime,
-  updated: DateTime,
-  className: String = ExponentUI.className)
-object ExponentUI {
-  val className = "exponents"
-  implicit val format = Json.format[ExponentUI]
-  def fromModel(d: Exponent): ExponentUI = ExponentUI(d.uuid, d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, d.tags, d.images, d.source, d.created, d.updated)
 }
 
 // mapping object for Exponent Form

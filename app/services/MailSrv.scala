@@ -1,7 +1,8 @@
 package services
 
-import models._
-import models.UserAction._
+import models.Session
+import models.Exponent
+import models.SubscribeUserAction
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
@@ -20,8 +21,8 @@ object MailSrv {
       subscribeOpt.map {
         _.action match {
           case subscribe: SubscribeUserAction => {
-            val favoriteSessionUuids = actions.filter(a => a.action.isFavorite() && a.itemType == SessionUI.className).map(_.itemId)
-            val favoriteExponentUuids = actions.filter(a => a.action.isFavorite() && a.itemType == ExponentUI.className).map(_.itemId)
+            val favoriteSessionUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Session.className).map(_.itemId)
+            val favoriteExponentUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Exponent.className).map(_.itemId)
             for {
               eventOpt <- EventRepository.getByUuid(eventId)
               sessions <- if (subscribe.filter == "favorites") SessionRepository.findByUuids(favoriteSessionUuids) else SessionRepository.findByEvent(eventId)

@@ -4,7 +4,6 @@ import common.models.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
 import models.Exponent
-import models.ExponentUI
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -28,7 +27,7 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
   override def update(uuid: String, elt: Exponent): Future[Option[Exponent]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(uuid: String): Future[Option[Exponent]] = {
     crud.delete(uuid).map { err =>
-      UserActionRepository.deleteByItem(ExponentUI.className, uuid)
+      UserActionRepository.deleteByItem(Exponent.className, uuid)
       None
     } // TODO : return deleted elt !
   }
