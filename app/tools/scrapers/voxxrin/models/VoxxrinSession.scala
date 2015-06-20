@@ -43,7 +43,7 @@ case class VoxxrinSession(
       this.tags.getOrElse(List()),
       None,
       None,
-      Some(DataSource(this.id, VoxxrinApi.baseUrl + this.uri)),
+      Some(DataSource(this.id, Some("Voxxrin API"), VoxxrinApi.baseUrl + this.uri)),
       new DateTime(),
       new DateTime())
   }

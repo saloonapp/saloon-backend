@@ -235,7 +235,7 @@ object Events extends Controller {
   def refresh(uuid: String) = Action.async { implicit req =>
     EventRepository.getByUuid(uuid).flatMap { eventOpt =>
       eventOpt.map { localEvent =>
-        localEvent.refreshUrl.map { url =>
+        localEvent.meta.refreshUrl.map { url =>
           val eventUrl = EventSrv.formatUrl(url)
           for {
             remoteSourceOpt <- EventSrv.fetchFullEvent(eventUrl)

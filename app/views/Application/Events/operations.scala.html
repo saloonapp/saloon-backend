@@ -12,9 +12,9 @@
 					Mettre à jour l'événement complet
 				</div>
 				<div class="widget-body">
-					@if(event.refreshUrl.isDefined){
+					@if(event.meta.refreshUrl.isDefined){
 						<label>Depuis la référence :</label><br>
-						<a href="@event.refreshUrl" target="_blank">@event.refreshUrl</a><br>
+						<a href="@event.meta.refreshUrl.get" target="_blank">@event.meta.refreshUrl.get</a><br>
 						<a href="@routes.Events.refresh(event.uuid)" class="btn btn-success">Mettre à jour</a><br>
 						<br>
 					}

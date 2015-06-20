@@ -67,7 +67,7 @@ object Session {
       Utils.toList(d.get("tags").getOrElse("")),
       d.get("slides"),
       d.get("video"),
-      d.get("source.url").map(url => DataSource(d.get("source.ref").getOrElse(""), url)),
+      d.get("source.ref").map { ref => DataSource(ref, d.get("source.name"), d.get("source.url").getOrElse("")) },
       d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
       d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
 
@@ -86,6 +86,7 @@ object Session {
     "slides" -> e.slides.getOrElse(""),
     "video" -> e.video.getOrElse(""),
     "source.ref" -> e.source.map(_.ref).getOrElse(""),
+    "source.name" -> e.source.flatMap(_.name).getOrElse(""),
     "source.url" -> e.source.map(_.url).getOrElse(""),
     "created" -> e.created.toString(FileImporter.dateFormat),
     "updated" -> e.updated.toString(FileImporter.dateFormat))

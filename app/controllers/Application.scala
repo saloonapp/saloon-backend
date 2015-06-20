@@ -21,12 +21,12 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  def migrate = TODO
-  /*def migrate = Action.async {
+  //def migrate = TODO
+  def migrate = Action.async {
     for {
       m1 <- migrateEvents()
-      m2 <- migrateSessions()
-      m3 <- migrateExponents()
+      //m2 <- migrateSessions()
+      //m3 <- migrateExponents()
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
@@ -36,7 +36,7 @@ object Application extends Controller {
       EventRepository.update(e.uuid, e.transform())
     }))
   }
-  private def migrateSessions(): Future[List[Option[models.Session]]] = {
+  /*private def migrateSessions(): Future[List[Option[models.Session]]] = {
     SessionRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       SessionRepository.update(e.uuid, e.transform())
     }))

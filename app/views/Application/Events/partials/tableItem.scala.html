@@ -4,11 +4,11 @@
 @import views.html.Application.format._
 
 <tr>
-	<td><img src="@event.logoUrl" style="max-height: 32px;"> @event.name</td>
-	<td>@event.published</td>
-	<td>@datetimeOpt(event.start)</td>
-	<td>@address(event.address)</td>
-	<td>@twitterHashtagOpt(event.twitterHashtag)</td>
+	<td><img src="@event.images.logo" style="max-height: 32px;"> @event.name</td>
+	<td>@event.config.published</td>
+	<td>@datetimeOpt(event.info.start)</td>
+	<td>@address(event.info.address)</td>
+	<td>@twitterHashtagOpt(event.info.social.twitter.hashtag)</td>
 	<td><a href="@routes.Sessions.list(event.uuid)">@sessionCount sessions</a></td>
 	<td><a href="@routes.Exponents.list(event.uuid)">@exponentCount exposants</a></td>
 	<td>
