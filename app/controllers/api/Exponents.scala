@@ -3,7 +3,7 @@ package controllers.api
 import common.models.Page
 import common.infrastructure.repository.Repository
 import infrastructure.repository.ExponentRepository
-import models.Exponent
+import models.event.Exponent
 import controllers.api.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

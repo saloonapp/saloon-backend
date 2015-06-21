@@ -1,8 +1,8 @@
 package services
 
-import models.Session
-import models.Exponent
-import models.SubscribeUserAction
+import models.event.Session
+import models.event.Exponent
+import models.user.SubscribeUserAction
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository

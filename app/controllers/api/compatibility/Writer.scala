@@ -1,6 +1,8 @@
 package controllers.api.compatibility
 
-import models._
+import models.event.Event
+import models.event.Session
+import models.event.Exponent
 import play.api.libs.json._
 
 object Writer {

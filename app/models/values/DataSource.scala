@@ -1,4 +1,4 @@
-package models
+package models.values
 
 import play.api.data.Forms._
 import play.api.libs.json.Json

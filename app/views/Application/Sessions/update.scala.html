@@ -1,4 +1,7 @@
-@(sessionForm: Form[SessionData], session: models.Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import models.event.Event
+@import models.event.Session
+@import models.event.SessionData
+@(sessionForm: Form[SessionData], session: Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Modifier "+session.name){
 	<div class="row">

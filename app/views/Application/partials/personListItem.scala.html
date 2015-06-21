@@ -1,23 +1,24 @@
-@(person: models.Person)
+@import models.event.Attendee
+@(attendee: Attendee)
 
 <div class="media">
 	<div class="media-left">
-		<img class="media-object" src="@person.avatar">
+		<img class="media-object" src="@attendee.avatar">
 	</div>
 	<div class="media-body">
 		<h4 class="media-heading">
-			@if(person.profilUrl.isEmpty){ @person.name }
-			@if(!person.profilUrl.isEmpty){ <a href="@person.profilUrl" target="_blank">@person.name</a> }
-			@if(!person.company.isEmpty){ (@person.company) }
+			@if(attendee.profilUrl.isEmpty){ @attendee.name }
+			@if(!attendee.profilUrl.isEmpty){ <a href="@attendee.profilUrl" target="_blank">@attendee.name</a> }
+			@if(!attendee.company.isEmpty){ (@attendee.company) }
 		</h4>
-		@person.description
+		@attendee.description
 		<p>
-			@person.email.map { email => <a href="mailto:@email" target="_blank">@email</a> }.getOrElse("")
-			@person.social.siteUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
-			@person.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
-			@person.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
-			@person.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")
-			@person.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-github"></i></a> }.getOrElse("")
+			@attendee.email.map { email => <a href="mailto:@email" target="_blank">@email</a> }.getOrElse("")
+			@attendee.social.siteUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
+			@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
+			@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
+			@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")
+			@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-github"></i></a> }.getOrElse("")
 		</p>
 	</div>
 </div>

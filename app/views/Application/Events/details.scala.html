@@ -1,7 +1,11 @@
+@import models.event.Event
+@import models.event.Session
+@import models.event.Exponent
+@import models.user.UserActionFull
+@import services.UserActionSrv
+@import views.html.Application.format._
 @(event: Event, sessionCount: Int, exponentCount: Int, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@import views.html.Application.format._
-@import services.UserActionSrv
 
 @layout(event.name) {
 	<div class="row">
@@ -45,9 +49,9 @@
 							@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
 								<li>
 									@item match {
-										case models.Event(uuid,name,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
-										case models.Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
-										case models.Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
+										case Event(uuid,name,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
+										case Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
+										case Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
 										case unknown => { Inconnu @unknown }
 									}
 									@UserActionSrv.byActionName(itemActions).map { case (actionName, list) =>

@@ -1,34 +1,34 @@
-package models
+package models.event
 
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class PersonSocial(
+case class AttendeeSocial(
   siteUrl: Option[String],
   facebookUrl: Option[String],
   twitterUrl: Option[String],
   linkedinUrl: Option[String],
   githubUrl: Option[String])
-object PersonSocial {
-  implicit val format = Json.format[PersonSocial]
+object AttendeeSocial {
+  implicit val format = Json.format[AttendeeSocial]
   val fields = mapping(
     "siteUrl" -> optional(text),
     "facebookUrl" -> optional(text),
     "twitterUrl" -> optional(text),
     "linkedinUrl" -> optional(text),
-    "githubUrl" -> optional(text))(PersonSocial.apply)(PersonSocial.unapply)
+    "githubUrl" -> optional(text))(AttendeeSocial.apply)(AttendeeSocial.unapply)
 }
 
-case class Person(
+case class Attendee(
   name: String,
   description: String,
   company: String,
   avatar: String,
   email: Option[String],
   profilUrl: String,
-  social: PersonSocial)
-object Person {
-  implicit val format = Json.format[Person]
+  social: AttendeeSocial)
+object Attendee {
+  implicit val format = Json.format[Attendee]
   val fields = mapping(
     "name" -> text,
     "description" -> text,
@@ -36,5 +36,5 @@ object Person {
     "avatar" -> text,
     "email" -> optional(text),
     "profilUrl" -> text,
-    "social" -> PersonSocial.fields)(Person.apply)(Person.unapply)
+    "social" -> AttendeeSocial.fields)(Attendee.apply)(Attendee.unapply)
 }

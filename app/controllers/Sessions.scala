@@ -2,9 +2,9 @@ package controllers
 
 import common.FileBodyParser
 import common.models.Page
-import models.Session
-import models.SessionData
 import models.FileImportConfig
+import models.event.Session
+import models.event.SessionData
 import services.FileImporter
 import services.FileExporter
 import common.infrastructure.repository.Repository

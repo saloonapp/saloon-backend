@@ -1,7 +1,7 @@
-@(event: Event, sessionCount: Int, exponentCount: Int)
-
+@import models.event.Event
 @import helpers.format._
 @import views.html.Application.format._
+@(event: Event, sessionCount: Int, exponentCount: Int)
 
 <tr>
 	<td><img src="@event.images.logo" style="max-height: 32px;"> @event.name</td>

@@ -3,7 +3,7 @@ package controllers.api
 import common.models.Page
 import common.infrastructure.repository.Repository
 import infrastructure.repository.SessionRepository
-import models.Session
+import models.event.Session
 import controllers.api.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

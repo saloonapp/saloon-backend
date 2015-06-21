@@ -1,4 +1,4 @@
-package models
+package models.user
 
 import org.joda.time.DateTime
 import play.api.libs.json.Json
@@ -61,4 +61,3 @@ case class Crash(
 object Crash {
   implicit val format = Json.format[Crash]
 }
-    

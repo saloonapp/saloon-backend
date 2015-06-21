@@ -2,8 +2,13 @@ package controllers
 
 import common.FileBodyParser
 import common.models.Page
-import models._
-import models.UserAction._
+import models.FileImportConfig
+import models.UrlImportConfig
+import models.event.Event
+import models.event.EventData
+import models.event.Session
+import models.event.Exponent
+import models.user.SubscribeUserAction
 import services.FileImporter
 import services.FileExporter
 import services.EventSrv
@@ -261,7 +266,7 @@ object Events extends Controller {
       val jsonTry: Try[JsValue] = Try(Json.parse(data))
       (for {
         remoteEvent <- jsonTry.map(json => (json \ "event").asOpt[Event]).getOrElse(None)
-        remoteSessions <- jsonTry.map(json => (json \ "sessions").asOpt[List[models.Session]]).getOrElse(None)
+        remoteSessions <- jsonTry.map(json => (json \ "sessions").asOpt[List[Session]]).getOrElse(None)
         remoteExponents <- jsonTry.map(json => (json \ "exponents").asOpt[List[Exponent]]).getOrElse(None)
       } yield {
         val getData = for {

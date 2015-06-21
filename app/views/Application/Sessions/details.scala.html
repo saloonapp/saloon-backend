@@ -1,4 +1,6 @@
-@(session: models.Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import models.event.Event
+@import models.event.Session
+@(session: Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout(session.name) {
 	<div class="row">

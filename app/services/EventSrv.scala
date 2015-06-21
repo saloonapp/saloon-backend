@@ -1,6 +1,12 @@
 package services
 
-import models._
+import models.event.Event
+import models.event.Session
+import models.event.Exponent
+import models.event.EventItem
+import models.user.User
+import models.user.UserActionFull
+import models.user.SubscribeUserAction
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository

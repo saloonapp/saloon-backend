@@ -5,9 +5,9 @@ import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
-import models.Event
-import models.Session
-import models.Exponent
+import models.event.Event
+import models.event.Session
+import models.event.Exponent
 import services.EventSrv
 import controllers.api.compatibility.Writer
 import scala.concurrent.Future

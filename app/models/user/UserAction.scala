@@ -1,6 +1,8 @@
-package models
+package models.user
 
 import common.infrastructure.repository.Repository
+import models.event.Event
+import models.event.EventItem
 import org.joda.time.DateTime
 import play.api.libs.json._
 

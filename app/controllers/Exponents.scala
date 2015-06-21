@@ -2,9 +2,9 @@ package controllers
 
 import common.FileBodyParser
 import common.models.Page
-import models.Exponent
-import models.ExponentData
 import models.FileImportConfig
+import models.event.Exponent
+import models.event.ExponentData
 import services.FileImporter
 import services.FileExporter
 import common.infrastructure.repository.Repository

@@ -3,8 +3,8 @@ package infrastructure.repository
 import common.models.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
-import models.Event
-import models.EventOld
+import models.event.Event
+import models.event.EventOld
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

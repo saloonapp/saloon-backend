@@ -1,7 +1,8 @@
-package models
+package models.event
 
 import common.Utils
 import common.infrastructure.repository.Repository
+import models.values.DataSource
 import services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
@@ -17,7 +18,7 @@ case class Exponent(
   landingUrl: String, // landscape img for event (in info screen) (~ 400x150)
   siteUrl: String,
   place: Option[String], // where to find this exponent
-  team: List[Person], // people being part of this exponent
+  team: List[Attendee], // people being part of this exponent
   level: Option[Int], // level of exponent (sponsoring) : lower is better
   sponsor: Boolean, // to show it on info tab
   tags: List[String],
@@ -62,7 +63,7 @@ object Exponent {
       d.get("landingUrl").getOrElse(""),
       d.get("siteUrl").getOrElse(""),
       d.get("place"),
-      d.get("team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
+      d.get("team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
       d.get("level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
       d.get("sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
       Utils.toList(d.get("tags").getOrElse("")),
@@ -101,7 +102,7 @@ case class ExponentData(
   landingUrl: String,
   siteUrl: String,
   place: Option[String],
-  team: List[Person],
+  team: List[Attendee],
   level: Option[Int],
   sponsor: Boolean,
   tags: String,
@@ -116,7 +117,7 @@ object ExponentData {
     "landingUrl" -> text,
     "siteUrl" -> text,
     "place" -> optional(text),
-    "team" -> list(Person.fields),
+    "team" -> list(Attendee.fields),
     "level" -> optional(number),
     "sponsor" -> boolean,
     "tags" -> text,

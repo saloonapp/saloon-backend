@@ -1,7 +1,7 @@
-@(user: User)
-
+@import models.user.User
 @import helpers.format._
 @import views.html.Application.format._
+@(user: User)
 
 <tr>
 	<td>@user.device.uuid</td>

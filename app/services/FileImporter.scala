@@ -1,9 +1,9 @@
 package services
 
 import models.FileImportConfig
-import models.Event
-import models.Session
-import models.Exponent
+import models.event.Event
+import models.event.Session
+import models.event.Exponent
 import infrastructure.repository.EventRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.SessionRepository

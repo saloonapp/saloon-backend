@@ -1,4 +1,4 @@
-package models
+package models.user
 
 import play.api.data.Forms._
 import play.api.libs.json.Json

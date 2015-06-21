@@ -1,6 +1,6 @@
-@(userForm: Form[UserData])
-
+@import models.user.UserData
 @import helpers.forms._
+@(userForm: Form[UserData])
 
 @fieldHorizontal(userForm("device.uuid"), 'label -> "Uuid"){field => @inputText(field)}
 @fieldHorizontal(userForm("saloonMemo"), 'label -> "Memo (réservé SalooN)"){field => @inputTextarea(field)}

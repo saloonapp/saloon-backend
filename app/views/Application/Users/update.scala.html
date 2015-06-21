@@ -1,3 +1,5 @@
+@import models.user.User
+@import models.user.UserData
 @(userForm: Form[UserData], user: User)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Modifier "+user.device.uuid){

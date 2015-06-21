@@ -1,4 +1,4 @@
-package models
+package models.event
 
 trait EventItem {
   val uuid: String

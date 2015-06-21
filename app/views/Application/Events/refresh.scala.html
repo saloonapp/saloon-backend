@@ -1,8 +1,11 @@
-@import views.html.Application.format._
+@import models.event.Event
+@import models.event.Session
+@import models.event.Exponent
 @import services.UserActionSrv
 @import play.api.libs.json.Json
 @import play.api.libs.json.JsObject
-@(event: Event, updatedEvent: Event, createdSessions: List[models.Session], deletedSessions: List[models.Session], updatedSessions: List[(models.Session, models.Session)], createdExponents: List[Exponent], deletedExponents: List[Exponent], updatedExponents: List[(Exponent, Exponent)], remoteSource: JsObject)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import views.html.Application.format._
+@(event: Event, updatedEvent: Event, createdSessions: List[Session], deletedSessions: List[Session], updatedSessions: List[(Session, Session)], createdExponents: List[Exponent], deletedExponents: List[Exponent], updatedExponents: List[(Exponent, Exponent)], remoteSource: JsObject)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Mettre à jour : "+updatedEvent.name) {
 	<div class="row">

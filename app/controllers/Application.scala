@@ -1,6 +1,7 @@
 package controllers
 
 import common.Utils
+import models.event.Event
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
@@ -31,7 +32,7 @@ object Application extends Controller {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
   }
-  private def migrateEvents(): Future[List[Option[models.Event]]] = {
+  private def migrateEvents(): Future[List[Option[Event]]] = {
     EventRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       EventRepository.update(e.uuid, e.transform())
     }))

@@ -1,7 +1,7 @@
 package controllers
 
 import infrastructure.repository.CrashRepository
-import models.Crash
+import models.user.Crash
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

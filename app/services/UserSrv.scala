@@ -1,8 +1,8 @@
 package services
 
-import models.UserAction
-import models.Event
-import models.EventItem
+import models.event.Event
+import models.event.EventItem
+import models.user.UserAction
 import infrastructure.repository.UserActionRepository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.EventItemRepository

@@ -1,3 +1,6 @@
+@import models.event.Event
+@import models.event.Exponent
+@import models.event.ExponentData
 @(exponentForm: Form[ExponentData], exponent: Exponent, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Modifier "+exponent.name){

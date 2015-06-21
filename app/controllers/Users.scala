@@ -2,11 +2,11 @@ package controllers
 
 import common.infrastructure.repository.Repository
 import common.models.Page
+import models.user.User
+import models.user.UserData
+import models.user.UserAction
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
-import models.User
-import models.UserData
-import models.UserAction
 import services.UserSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

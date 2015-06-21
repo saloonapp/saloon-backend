@@ -1,7 +1,8 @@
-package models
+package models.event
 
 import common.Utils
 import common.infrastructure.repository.Repository
+import models.values.DataSource
 import services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
@@ -18,7 +19,7 @@ case class Session(
   place: String, // where to find this exponent
   start: Option[DateTime],
   end: Option[DateTime],
-  speakers: List[Person],
+  speakers: List[Attendee],
   tags: List[String],
   slides: Option[String],
   video: Option[String],
@@ -63,7 +64,7 @@ object Session {
       d.get("place").getOrElse(""),
       d.get("start").flatMap(d => parseDate(d)),
       d.get("end").flatMap(d => parseDate(d)),
-      d.get("speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
+      d.get("speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
       Utils.toList(d.get("tags").getOrElse("")),
       d.get("slides"),
       d.get("video"),
@@ -102,7 +103,7 @@ case class SessionData(
   place: String,
   start: Option[DateTime],
   end: Option[DateTime],
-  speakers: List[Person],
+  speakers: List[Attendee],
   tags: String,
   slides: Option[String],
   video: Option[String])
@@ -117,7 +118,7 @@ object SessionData {
     "place" -> text,
     "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-    "speakers" -> list(Person.fields),
+    "speakers" -> list(Attendee.fields),
     "tags" -> text,
     "slides" -> optional(text),
     "video" -> optional(text))(SessionData.apply)(SessionData.unapply)

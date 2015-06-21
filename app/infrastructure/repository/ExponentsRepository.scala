@@ -3,7 +3,7 @@ package infrastructure.repository
 import common.models.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
-import models.Exponent
+import models.event.Exponent
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

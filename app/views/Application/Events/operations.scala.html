@@ -1,7 +1,7 @@
-@(event: Event, urlImportForm: Form[UrlImportConfig], importForm: Form[FileImportConfig])(implicit flash: Flash)
-
+@import models.event.Event
 @import helpers.forms._
 @import services.FileImporter
+@(event: Event, urlImportForm: Form[UrlImportConfig], importForm: Form[FileImportConfig])(implicit flash: Flash)
 
 @layout("Operations pour "+event.name){
 	<div class="row">

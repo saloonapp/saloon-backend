@@ -2,8 +2,8 @@ package tools.scrapers.voxxrin.models
 
 import common.Utils
 import common.infrastructure.repository.Repository
-import models.Session
-import models.DataSource
+import models.values.DataSource
+import models.event.Session
 import tools.scrapers.voxxrin.VoxxrinApi
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat

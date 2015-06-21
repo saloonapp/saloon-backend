@@ -1,4 +1,4 @@
-package models
+package models.user
 
 import common.infrastructure.repository.Repository
 import org.joda.time.DateTime

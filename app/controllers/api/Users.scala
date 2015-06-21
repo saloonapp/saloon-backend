@@ -3,8 +3,8 @@ package controllers.api
 import common.infrastructure.repository.Repository
 import infrastructure.repository.UserRepository
 import infrastructure.repository.UserActionRepository
-import models.User
-import models.Device
+import models.user.User
+import models.user.Device
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
