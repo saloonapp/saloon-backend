@@ -1,7 +1,7 @@
 @import models.event.Event
 @import helpers.format._
 @import views.html.Application.format._
-@(event: Event, sessionCount: Int, exponentCount: Int)
+@(event: Event, sessionCount: Int, exponentCount: Int, actionCount: Int)
 
 <div class="media">
 	<div class="media-left">
@@ -14,7 +14,8 @@
 		<p class="text-muted">@event.meta.categories.map { category => <span class="label label-primary">@category</span> }</p>
 		<p>
 			<a href="@routes.Sessions.list(event.uuid)">@sessionCount sessions</a>,
-			<a href="@routes.Exponents.list(event.uuid)">@exponentCount exposants</a>
+			<a href="@routes.Exponents.list(event.uuid)">@exponentCount exposants</a>,
+			@actionCount actions
 		</p>
 		<img src="@event.images.landing">
 	</div>

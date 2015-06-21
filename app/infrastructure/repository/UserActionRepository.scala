@@ -60,6 +60,8 @@ trait MongoDbUserActionRepository {
   }
   def deleteSubscribe(userId: String, itemType: String, itemId: String): Future[LastError] = deleteAction(SubscribeUserAction.className)(userId, itemType, itemId)
 
+  def countForEvent(eventId: String): Future[Int] = crud.countFor("eventId", eventId)
+  def countForEvents(eventIds: Seq[String]): Future[Map[String, Int]] = crud.countFor("eventId", eventIds)
   def bulkInsert(elts: List[UserAction]): Future[Int] = crud.bulkInsert(elts)
   def deleteByEventUser(eventId: String, userId: String): Future[LastError] = collection.remove(Json.obj("eventId" -> eventId, "userId" -> userId))
 

@@ -38,7 +38,7 @@
 </fieldset>
 <fieldset>
 	<legend>Meta :</legend>
-	@fieldHorizontal(eventForm("meta.categories"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: angularjs, emberjs, web, nodejs, cordova, meetup, paris, d3js, backbonejs, css, javascript")}
+	@fieldHorizontal(eventForm("meta.categories"), 'label -> "Catégorie"){field => @inputText(field, 'placeholder -> "ex: emploi, tech, business") <p class="help-block info">Seule la 1ère catégorie sera affichée dans l'application</p>}
 	@fieldHorizontal(eventForm("meta.refreshUrl"), 'label -> "Refresh Url"){field => @inputText(field, 'placeholder -> "ex: /api/v1/tools/scrapers/events/voxxrin/bzh15/formated") <p class="help-block info">Url qui retourne toutes les données de l'événement pour le mettre à jour</p>}
 	@* no meta.source yet *@
 </fieldset>

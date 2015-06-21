@@ -75,5 +75,5 @@ object Writer {
     "created" -> data.meta.created,
     "updated" -> data.meta.updated)
 
-  def write(data: (Event, Int, Int)): JsObject = write(data._1) ++ Json.obj("sessionCount" -> data._2, "exponentCount" -> data._3)
+  def write(data: (Event, Int, Int, Int)): JsObject = write(data._1) ++ Json.obj("sessionCount" -> data._2, "exponentCount" -> data._3, "actionCount" -> data._4)
 }

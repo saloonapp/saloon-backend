@@ -23,21 +23,23 @@ import reactivemongo.core.commands.LastError
 import org.joda.time.DateTime
 
 object EventSrv {
-  def addMetadata(event: Event): Future[(Event, Int, Int)] = {
+  def addMetadata(event: Event): Future[(Event, Int, Int, Int)] = {
     for {
       sessionCount <- SessionRepository.countForEvent(event.uuid)
       exponentCount <- ExponentRepository.countForEvent(event.uuid)
-    } yield (event, sessionCount, exponentCount)
+      actionCount <- UserActionRepository.countForEvent(event.uuid)
+    } yield (event, sessionCount, exponentCount, actionCount)
   }
 
-  def addMetadata(events: Seq[Event]): Future[Seq[(Event, Int, Int)]] = {
+  def addMetadata(events: Seq[Event]): Future[Seq[(Event, Int, Int, Int)]] = {
     val uuids = events.map(_.uuid)
     for {
       sessionCounts <- SessionRepository.countForEvents(uuids)
       exponentCounts <- ExponentRepository.countForEvents(uuids)
+      actionCounts <- UserActionRepository.countForEvents(uuids)
     } yield {
       events.map { event =>
-        (event, sessionCounts.get(event.uuid).getOrElse(0), exponentCounts.get(event.uuid).getOrElse(0))
+        (event, sessionCounts.get(event.uuid).getOrElse(0), exponentCounts.get(event.uuid).getOrElse(0), actionCounts.get(event.uuid).getOrElse(0))
       }
     }
   }
