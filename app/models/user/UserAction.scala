@@ -6,11 +6,6 @@ import models.event.EventItem
 import org.joda.time.DateTime
 import play.api.libs.json._
 
-/*
- * Actions possibles :
- * 	- mise en favoris
- *  - commentaire
- */
 case class UserAction(
   uuid: String,
   userId: String,
@@ -57,7 +52,7 @@ object UserAction {
   implicit val format = Json.format[UserAction]
 }
 
-case class UserActionFull(event: Event, user: User, action: UserActionContent, item: EventItem) {
+case class UserActionFull(event: Event, user: Device, action: UserActionContent, item: EventItem) {
   def toMap(): Map[String, String] = {
     Map(
       "eventId" -> this.event.uuid,

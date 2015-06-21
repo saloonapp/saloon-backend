@@ -18,7 +18,7 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.EXPONENTS)
 
-  private val crud = MongoDbCrudUtils(collection, Exponent.format, List("name", "description", "place.ref", "place.name", "team.name", "team.description", "team.company", "tags"), "uuid")
+  private val crud = MongoDbCrudUtils(collection, Exponent.format, List("name", "description", "info.place", "info.team.name", "info.team.description", "info.team.company"), "uuid")
 
   def findAllOld(): Future[List[ExponentOld]] = collection.find(Json.obj()).cursor[ExponentOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Exponent]] = crud.findAll(query, sort, filter)

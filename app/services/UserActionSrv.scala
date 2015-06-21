@@ -3,7 +3,7 @@ package services
 import models.event.EventItem
 import models.event.Session
 import models.event.Exponent
-import models.user.User
+import models.user.Device
 import models.user.UserAction
 import models.user.UserActionContent
 import models.user.FavoriteUserAction
@@ -18,7 +18,7 @@ object UserActionSrv {
     actions.groupBy(_.item).toList.sortBy(e => -e._2.length)
   }
 
-  def byUser(actions: List[UserActionFull]): List[(User, List[UserActionFull])] = {
+  def byUser(actions: List[UserActionFull]): List[(Device, List[UserActionFull])] = {
     actions.groupBy(_.user).toList.sortBy(e => -e._2.length)
   }
 

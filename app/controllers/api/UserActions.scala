@@ -3,11 +3,11 @@ package controllers.api
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.EventItemRepository
-import infrastructure.repository.UserRepository
+import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
 import models.event.Event
 import models.event.EventItem
-import models.user.User
+import models.user.Device
 import models.user.UserAction
 import org.joda.time.DateTime
 import scala.concurrent.Future
@@ -160,10 +160,10 @@ object UserActions extends Controller {
     }).getOrElse(Future(BadRequest(Json.obj("message" -> s"Your request body should have a JSON object with fields '$field1' & '$field2' !"))))
   }
 
-  private def withUser()(exec: (User) => Future[Result])(implicit req: Request[Any]) = {
+  private def withUser()(exec: (Device) => Future[Result])(implicit req: Request[Any]) = {
     req.headers.get("userId").map { userId =>
-      UserRepository.getByUuid(userId).flatMap {
-        _.map { user => exec(user) }.getOrElse(Future(NotFound(Json.obj("message" -> s"User <$userId> not found !"))))
+      DeviceRepository.getByUuid(userId).flatMap {
+        _.map { device => exec(device) }.getOrElse(Future(NotFound(Json.obj("message" -> s"Device <$userId> not found !"))))
       }
     }.getOrElse(Future(BadRequest(Json.obj("message" -> "You should set 'userId' header !"))))
   }

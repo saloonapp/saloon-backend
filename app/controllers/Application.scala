@@ -4,9 +4,11 @@ import common.Utils
 import models.event.Event
 import models.event.Session
 import models.event.Exponent
+import models.user.Device
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
+import infrastructure.repository.DeviceRepository
 import services.MailSrv
 import services.MandrillSrv
 import scala.concurrent.Future
@@ -30,6 +32,7 @@ object Application extends Controller {
       m1 <- migrateEvents()
       m2 <- migrateSessions()
       m3 <- migrateExponents()
+      m4 <- migrateDevices()
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
@@ -48,6 +51,13 @@ object Application extends Controller {
     ExponentRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       ExponentRepository.update(e.uuid, e.transform())
     }))
+  }
+  private def migrateDevices(): Future[Int] = {
+    DeviceRepository.findAllUserOld().flatMap { list =>
+      DeviceRepository.bulkInsert(list.map(_.transform())).flatMap { inserted =>
+        DeviceRepository.dropUserOld().map { done => inserted }
+      }
+    }
   }
 
   def corsPreflight(all: String) = Action {

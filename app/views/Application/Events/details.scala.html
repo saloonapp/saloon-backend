@@ -75,7 +75,7 @@
 						<ol>
 							@UserActionSrv.byUser(actions).map { case (user, userActions) =>
 								<li>
-									User <a href="@routes.Users.details(user.uuid)">@user.saloonMemo @user.uuid</a>
+									Device <a href="@routes.Devices.details(user.uuid)">@user.saloonMemo @user.info.uuid</a>
 									@UserActionSrv.byActionName(userActions).map { case (actionName, list) =>
 										@actionName match {
 											case "mood" => {

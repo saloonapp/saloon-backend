@@ -1,12 +1,12 @@
-@import models.user.User
-@(userPage: common.models.Page[User])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import models.user.Device
+@(devicePage: common.models.Page[Device])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout("Utilisateurs"){
+@layout("Appareils"){
 	<div class="row">
 		<div class="col-md-12">
 			<div class="widget">
 				<div class="widget-header">
-					Utilisateurs
+					Appareils
 					<div class="pull-right">
 						<form class="form-inline inline">
 							<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search" class="form-control">
@@ -14,7 +14,7 @@
 							@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
 						</form>
 						<form class="form-inline inline">
-							<a class="btn btn-sm btn-success" href="@routes.Users.create()"><i class="fa fa-plus"></i> Créer un utilisateur</a>
+							<a class="btn btn-sm btn-success" href="@routes.Devices.create()"><i class="fa fa-plus"></i> Créer un appareil</a>
 						</form>
 					</div>
 					<div class="clearfix"></div>
@@ -26,14 +26,14 @@
 								<tr><th>Uuid</th><th>Platform</th><th>Manufacturer</th><th>Model</th><th>Version</th><th>Cordova</th><th>Push</th><th>Memo</th><th>Créé</th><th></th></tr>
 							</thead>
 							<tbody>
-								@userPage.items.map { user =>
-									@partials.tableItem(user)
+								@devicePage.items.map { device =>
+									@partials.tableItem(device)
 								}
 							</tbody>
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(userPage, (p: Int) => routes.Users.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+						@helpers.pagination(devicePage, (p: Int) => routes.Devices.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

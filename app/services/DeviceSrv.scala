@@ -9,7 +9,7 @@ import infrastructure.repository.EventItemRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-object UserSrv {
+object DeviceSrv {
 
   def getUserActions(userId: String): Future[Map[Option[Event], List[(Option[EventItem], UserAction)]]] = {
     UserActionRepository.findByUser(userId).flatMap { actions =>

@@ -4,7 +4,7 @@ import models.event.Event
 import models.event.Session
 import models.event.Exponent
 import models.event.EventItem
-import models.user.User
+import models.user.Device
 import models.user.UserActionFull
 import models.user.SubscribeUserAction
 import common.infrastructure.repository.Repository
@@ -13,7 +13,7 @@ import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.EventItemRepository
 import infrastructure.repository.UserActionRepository
-import infrastructure.repository.UserRepository
+import infrastructure.repository.DeviceRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
@@ -46,16 +46,16 @@ object EventSrv {
     UserActionRepository.findByEvent(eventId).flatMap { actions =>
       for {
         events: Map[String, Event] <- EventRepository.findByUuids(actions.map(_.eventId).flatten.distinct).map(_.map(u => (u.uuid, u)).toMap)
-        users: Map[String, User] <- UserRepository.findByUuids(actions.map(_.userId).distinct).map(_.map(u => (u.uuid, u)).toMap)
+        devices: Map[String, Device] <- DeviceRepository.findByUuids(actions.map(_.userId).distinct).map(_.map(u => (u.uuid, u)).toMap)
         items: Map[(String, String), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
       } yield {
         actions.map { a =>
           for {
             event <- a.eventId.flatMap(id => events.get(id))
-            user <- users.get(a.userId)
+            device <- devices.get(a.userId)
             item <- items.get((a.itemType, a.itemId))
           } yield {
-            UserActionFull(event, user, a.action, item)
+            UserActionFull(event, device, a.action, item)
           }
         }.flatten
       }

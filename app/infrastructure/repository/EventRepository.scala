@@ -17,7 +17,7 @@ trait MongoDbEventRepository extends Repository[Event] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.EVENTS)
 
-  private val crud = MongoDbCrudUtils(collection, Event.format, List("name", "description", "address.name", "address.street", "address.zipCode", "address.city", "twitterHashtag", "twitterAccount", "tags"), "uuid")
+  private val crud = MongoDbCrudUtils(collection, Event.format, List("name", "description", "info.address.name", "info.address.street", "info.address.zipCode", "info.address.city", "info.social.twitter.hashtag", "info.social.twitter.account", "meta.categories"), "uuid")
 
   def findAllOld(): Future[List[EventOld]] = collection.find(Json.obj()).cursor[EventOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Event]] = crud.findAll(query, sort, filter)

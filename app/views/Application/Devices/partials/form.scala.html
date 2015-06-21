@@ -1,0 +1,12 @@
+@import models.user.DeviceData
+@import helpers.forms._
+@(deviceForm: Form[DeviceData])
+
+@fieldHorizontal(deviceForm("saloonMemo"), 'label -> "Memo (réservé SalooN)"){field => @inputTextarea(field)}
+@fieldHorizontal(deviceForm("info.uuid"), 'label -> "Uuid"){field => @inputText(field)}
+@fieldHorizontal(deviceForm("info.platform"), 'label -> "Platform"){field => @inputText(field)}
+@fieldHorizontal(deviceForm("info.manufacturer"), 'label -> "Manufacturer"){field => @inputText(field)}
+@fieldHorizontal(deviceForm("info.model"), 'label -> "Model"){field => @inputText(field)}
+@fieldHorizontal(deviceForm("info.version"), 'label -> "Version"){field => @inputText(field)}
+@fieldHorizontal(deviceForm("info.cordova"), 'label -> "Cordova"){field => @inputText(field)}
+@fieldHorizontal(deviceForm("pushId"), 'label -> "Push id"){field => @inputText(field)}

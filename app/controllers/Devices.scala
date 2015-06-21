@@ -2,12 +2,12 @@ package controllers
 
 import common.infrastructure.repository.Repository
 import common.models.Page
-import models.user.User
-import models.user.UserData
+import models.user.Device
+import models.user.DeviceData
 import models.user.UserAction
-import infrastructure.repository.UserRepository
+import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
-import services.UserSrv
+import services.DeviceSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -15,22 +15,22 @@ import play.api.mvc._
 import play.api.data.Form
 import reactivemongo.core.commands.LastError
 
-object Users extends Controller {
-  val form: Form[UserData] = Form(UserData.fields)
-  val repository: Repository[User] = UserRepository
-  val mainRoute = routes.Users
-  val viewList = views.html.Application.Users.list
-  val viewDetails = views.html.Application.Users.details
-  val viewCreate = views.html.Application.Users.create
-  val viewUpdate = views.html.Application.Users.update
-  def createElt(data: UserData): User = UserData.toModel(data)
-  def toData(elt: User): UserData = UserData.fromModel(elt)
-  def updateElt(elt: User, data: UserData): User = UserData.merge(elt, data)
-  def successCreateFlash(elt: User) = s"User '${elt.device.uuid}' has been created"
-  def errorCreateFlash(elt: UserData) = s"User '${elt.device.uuid}' can't be created"
-  def successUpdateFlash(elt: User) = s"User '${elt.device.uuid}' has been modified"
-  def errorUpdateFlash(elt: User) = s"User '${elt.device.uuid}' can't be modified"
-  def successDeleteFlash(elt: User) = s"User '${elt.device.uuid}' has been deleted"
+object Devices extends Controller {
+  val form: Form[DeviceData] = Form(DeviceData.fields)
+  val repository: Repository[Device] = DeviceRepository
+  val mainRoute = routes.Devices
+  val viewList = views.html.Application.Devices.list
+  val viewDetails = views.html.Application.Devices.details
+  val viewCreate = views.html.Application.Devices.create
+  val viewUpdate = views.html.Application.Devices.update
+  def createElt(data: DeviceData): Device = DeviceData.toModel(data)
+  def toData(elt: Device): DeviceData = DeviceData.fromModel(elt)
+  def updateElt(elt: Device, data: DeviceData): Device = DeviceData.merge(elt, data)
+  def successCreateFlash(elt: Device) = s"Device '${elt.info.uuid}' has been created"
+  def errorCreateFlash(elt: DeviceData) = s"Device '${elt.info.uuid}' can't be created"
+  def successUpdateFlash(elt: Device) = s"Device '${elt.info.uuid}' has been modified"
+  def errorUpdateFlash(elt: Device) = s"Device '${elt.info.uuid}' can't be modified"
+  def successDeleteFlash(elt: Device) = s"Device '${elt.info.uuid}' has been deleted"
 
   def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
@@ -58,10 +58,10 @@ object Users extends Controller {
 
   def details(uuid: String) = Action.async { implicit req =>
     for {
-      userOpt <- repository.getByUuid(uuid)
-      actions <- UserSrv.getUserActions(uuid)
+      deviceOpt <- repository.getByUuid(uuid)
+      actions <- DeviceSrv.getUserActions(uuid)
     } yield {
-      userOpt.map { elt =>
+      deviceOpt.map { elt =>
         Ok(viewDetails(elt, actions))
       }.getOrElse(NotFound(views.html.error404()))
     }
@@ -98,16 +98,16 @@ object Users extends Controller {
     }
   }
 
-  def deleteAction(userId: String, itemType: String, itemId: String, actionType: String, actionId: String) = Action.async { implicit req =>
-    repository.getByUuid(userId).flatMap {
+  def deleteAction(deviceId: String, itemType: String, itemId: String, actionType: String, actionId: String) = Action.async { implicit req =>
+    repository.getByUuid(deviceId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =
-          if (actionType == "favorite") UserActionRepository.deleteFavorite(userId, itemType, itemId)
-          else if (actionType == "mood") UserActionRepository.deleteMood(userId, itemType, itemId)
-          else if (actionType == "comment") UserActionRepository.deleteComment(userId, itemType, itemId, actionId)
+          if (actionType == "favorite") UserActionRepository.deleteFavorite(deviceId, itemType, itemId)
+          else if (actionType == "mood") UserActionRepository.deleteMood(deviceId, itemType, itemId)
+          else if (actionType == "comment") UserActionRepository.deleteComment(deviceId, itemType, itemId, actionId)
           else Future.successful(LastError(false, Some("Unknown actionType <" + actionType + ">"), None, None, None, 0, false))
 
-        res.map(err => Redirect(mainRoute.details(userId)))
+        res.map(err => Redirect(mainRoute.details(deviceId)))
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }

@@ -2,29 +2,29 @@
 @import models.event.Session
 @import models.event.Exponent
 @import models.event.EventItem
-@import models.user.User
+@import models.user.Device
 @import models.user.UserAction
 @import models.user.FavoriteUserAction
 @import models.user.DoneUserAction
 @import models.user.MoodUserAction
 @import models.user.CommentUserAction
 @import models.user.SubscribeUserAction
-@(user: User, actionsByEvents: Map[Option[Event], List[(Option[EventItem], UserAction)]])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(device: Device, actionsByEvents: Map[Option[Event], List[(Option[EventItem], UserAction)]])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout(user.device.uuid) {
+@layout(device.info.uuid) {
 	<div class="row">
 		<div class="col-md-6">
 			<div class="widget">
 				<div class="widget-header">
-					<a href="@routes.Users.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Utilisateurs</a>
-					@user.device.uuid
+					<a href="@routes.Devices.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Appareils</a>
+					@device.info.uuid
 					<div class="pull-right">
-						<a href="@routes.Users.update(user.uuid)" class="btn btn-info">Modifier</a>
-						<form method="POST" action="@routes.Users.delete(user.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
+						<a href="@routes.Devices.update(device.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@routes.Devices.delete(device.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
 					</div>
 				</div>
 				<div class="widget-body">
-					@partials.fullItem(user)
+					@partials.fullItem(device)
 				</div>
 			</div>
 		</div>
@@ -50,27 +50,27 @@
 												case FavoriteUserAction(f) => {
 													<td>Fav</td>
 													<td></td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, FavoriteUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Devices.deleteAction(action.userId, action.itemType, action.itemId, FavoriteUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
 												}
 												case DoneUserAction(d) => {
 													<td>Done</td>
 													<td></td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, DoneUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Devices.deleteAction(action.userId, action.itemType, action.itemId, DoneUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
 												}
 												case MoodUserAction(rating, m) => {
 													<td>Mood</td>
 													<td>@rating</td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, MoodUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Devices.deleteAction(action.userId, action.itemType, action.itemId, MoodUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
 												}
 												case CommentUserAction(text, c) => {
 													<td>Comment</td>
 													<td>@text</td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, CommentUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Devices.deleteAction(action.userId, action.itemType, action.itemId, CommentUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
 												}
 												case SubscribeUserAction(email, filter, s) => {
 													<td>Subscribe</td>
 													<td>@email : @filter</td>
-													<td><form method="POST" action="@routes.Users.deleteAction(action.userId, action.itemType, action.itemId, SubscribeUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
+													<td><form method="POST" action="@routes.Devices.deleteAction(action.userId, action.itemType, action.itemId, SubscribeUserAction.className, action.uuid)" class="form-button"><button type="submit" class="btn btn-xs btn-danger confirm">Supprimer</button></form></td>
 												}
 											}
 										</tr>

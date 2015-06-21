@@ -1,10 +1,11 @@
 package controllers.api
 
 import common.infrastructure.repository.Repository
-import infrastructure.repository.UserRepository
+import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
-import models.user.User
 import models.user.Device
+import models.user.DeviceInfo
+import controllers.api.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -12,23 +13,23 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.libs.json._
 
-object Users extends Controller {
-  val repository: Repository[User] = UserRepository
+object Devices extends Controller {
+  val repository: Repository[Device] = DeviceRepository
 
   def find(deviceId: String) = Action.async { implicit req =>
-    UserRepository.getByDevice(deviceId).map { eltOpt =>
-      eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(NotFound)
+    DeviceRepository.getByDeviceId(deviceId).map { eltOpt =>
+      eltOpt.map(elt => Ok(Writer.write(elt))).getOrElse(NotFound)
     }
   }
 
   def create() = Action.async(parse.json) { implicit req =>
-    req.body.validate[Device].map { device =>
-      UserRepository.getByDevice(device.uuid).flatMap {
+    req.body.validate[DeviceInfo].map { info =>
+      DeviceRepository.getByDeviceId(info.uuid).flatMap {
         _.map {
-          user => Future(Ok(Json.toJson(user)))
+          device => Future(Ok(Writer.write(device)))
         }.getOrElse {
-          repository.insert(User.fromDevice(device)).map {
-            _.map { user => Created(Json.toJson(user)) }.getOrElse(InternalServerError)
+          repository.insert(Device.fromInfo(info)).map {
+            _.map { device => Created(Writer.write(device)) }.getOrElse(InternalServerError)
           }
         }
       }
@@ -37,7 +38,7 @@ object Users extends Controller {
 
   def details(uuid: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).map {
-      _.map { elt => Ok(Json.toJson(elt)) }.getOrElse(NotFound)
+      _.map { elt => Ok(Writer.write(elt)) }.getOrElse(NotFound)
     }
   }
 
