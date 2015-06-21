@@ -59,7 +59,7 @@ object Devices extends Controller {
   def details(uuid: String) = Action.async { implicit req =>
     for {
       deviceOpt <- repository.getByUuid(uuid)
-      actions <- DeviceSrv.getUserActions(uuid)
+      actions <- DeviceSrv.getActionsForUser(uuid)
     } yield {
       deviceOpt.map { elt =>
         Ok(viewDetails(elt, actions))

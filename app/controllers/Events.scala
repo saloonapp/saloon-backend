@@ -50,7 +50,7 @@ object Events extends Controller {
 
   def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
-    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-start")).flatMap { eltPage =>
+    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-info.start")).flatMap { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
         Future(Redirect(mainRoute.list(query, Some(eltPage.totalPages), pageSize, sort)))
       else

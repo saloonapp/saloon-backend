@@ -36,13 +36,13 @@ case class ExponentOld(
       this.landingUrl),
     ExponentInfo(
       this.siteUrl,
-      this.place,
+      this.place.orElse(Some("")),
       this.team,
       this.level,
       this.sponsor),
     ExponentConfig(false),
     ExponentMeta(
-      this.source,
+      this.source.map(s => s.copy(name = s.name.orElse(Some("")))),
       this.created,
       this.updated))
 }

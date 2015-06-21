@@ -59,7 +59,7 @@ case class EventOld(
     EventMeta(
       List(),
       this.refreshUrl,
-      this.source,
+      this.source.map(s => s.copy(name = s.name.orElse(Some("")))),
       this.created,
       this.updated))
 }

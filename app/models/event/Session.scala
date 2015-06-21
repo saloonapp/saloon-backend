@@ -43,7 +43,7 @@ case class SessionOld(
       this.slides,
       this.video),
     SessionMeta(
-      this.source,
+      this.source.map(s => s.copy(name = s.name.orElse(Some("")))),
       this.created,
       this.updated))
 }
