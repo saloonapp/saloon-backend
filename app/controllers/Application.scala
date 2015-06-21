@@ -26,8 +26,8 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  //def migrate = TODO
-  def migrate = Action.async {
+  def migrate = TODO
+  /*def migrate = Action.async {
     for {
       m1 <- migrateEvents()
       m2 <- migrateSessions()
@@ -58,7 +58,7 @@ object Application extends Controller {
         DeviceRepository.dropUserOld().map { done => inserted }
       }
     }
-  }
+  }*/
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(

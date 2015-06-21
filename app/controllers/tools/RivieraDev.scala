@@ -39,16 +39,16 @@ import org.joda.time.DateTime
 object RivieraDev extends Controller {
 
   case class RivieraDevEvent(name: String, description: String, logoUrl: String, siteUrl: String, start: Option[DateTime], end: Option[DateTime], address: Address, price: String, priceUrl: String, twitterAccount: Option[String], tags: List[String]) {
-    def toEvent(): Event = Event(Repository.generateUuid(), this.name, this.description, EventImages(this.logoUrl, ""), EventInfo(this.siteUrl, this.start, this.end, this.address, Link(this.price, this.priceUrl), EventInfoSocial(EventInfoSocialTwitter(None, this.twitterAccount))), EventEmail(None), EventConfig(None, true), EventMeta(List(), Some("/api/v1/tools/scrapers/events/rivieradev/formated"), Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/general")), new DateTime(), new DateTime()))
+    def toEvent(): Event = Event(Repository.generateUuid(), this.name, this.description, EventImages(this.logoUrl, ""), EventInfo(this.siteUrl, this.start, this.end, this.address, Link(this.price, this.priceUrl), EventInfoSocial(EventInfoSocialTwitter(None, this.twitterAccount))), EventEmail(None), EventConfig(None, true), EventMeta(List(), Some("/api/v1/tools/scrapers/events/rivieradev/formated"), Some(DataSource(this.name, "RivieraDev API", "http://www.rivieradev.fr/apiv1/general")), new DateTime(), new DateTime()))
   }
   case class RivieraDevPerson(name: String, description: String, company: Option[String], avatar: String, profilUrl: Option[String], social: Option[AttendeeSocial]) {
     def toPerson(): Attendee = Attendee(this.name, this.description, this.company.getOrElse(""), this.avatar, None, this.profilUrl.getOrElse(""), this.social.getOrElse(AttendeeSocial(None, None, None, None, None)))
   }
   case class RivieraDevSession(name: String, description: Option[String], start: Option[DateTime], end: Option[DateTime], category: Option[String], place: Option[String], speakers: List[RivieraDevPerson]) {
-    def toSession(eventId: String): Session = Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), SessionImages(""), SessionInfo("", this.category.getOrElse(""), this.place.getOrElse(""), this.start, this.end, this.speakers.map(_.toPerson()), None, None), SessionMeta(Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime()))
+    def toSession(eventId: String): Session = Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), SessionImages(""), SessionInfo("", this.category.getOrElse(""), this.place.getOrElse(""), this.start, this.end, this.speakers.map(_.toPerson()), None, None), SessionMeta(Some(DataSource(this.name, "RivieraDev API", "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime()))
   }
   case class RivieraDevExponent(name: String, description: String, logoUrl: String, siteUrl: String, sponsor: Boolean) {
-    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, ExponentImages(this.logoUrl, this.logoUrl), ExponentInfo(this.siteUrl, None, List(), None, this.sponsor), ExponentConfig(false), ExponentMeta(Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime()))
+    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, ExponentImages(this.logoUrl, this.logoUrl), ExponentInfo(this.siteUrl, "", List(), None, this.sponsor), ExponentConfig(false), ExponentMeta(Some(DataSource(this.name, "RivieraDev API", "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime()))
   }
   implicit val formatRivieraDevEvent = Json.format[RivieraDevEvent]
   implicit val formatRivieraDevPerson = Json.format[RivieraDevPerson]

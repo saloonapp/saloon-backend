@@ -5,12 +5,12 @@ import play.api.libs.json.Json
 
 case class DataSource(
   ref: String,
-  name: Option[String],
+  name: String,
   url: String)
 object DataSource {
   implicit val format = Json.format[DataSource]
   val fields = mapping(
     "ref" -> text,
-    "name" -> optional(text),
+    "name" -> text,
     "url" -> text)(DataSource.apply)(DataSource.unapply)
 }

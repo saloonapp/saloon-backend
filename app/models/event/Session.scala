@@ -9,48 +9,6 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class SessionOld(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  format: String,
-  category: String,
-  place: String, // where to find this exponent
-  start: Option[DateTime],
-  end: Option[DateTime],
-  speakers: List[Attendee],
-  tags: List[String],
-  slides: Option[String],
-  video: Option[String],
-  source: Option[DataSource], // where the session were fetched (if applies)
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Session = Session(
-    this.uuid,
-    this.eventId,
-    this.name,
-    this.description,
-    SessionImages(
-      ""),
-    SessionInfo(
-      this.format,
-      this.category,
-      this.place,
-      this.start,
-      this.end,
-      this.speakers,
-      this.slides,
-      this.video),
-    SessionMeta(
-      this.source.map(s => s.copy(name = s.name.orElse(Some("")))),
-      this.created,
-      this.updated))
-}
-object SessionOld {
-  implicit val format = Json.format[SessionOld]
-}
-
 case class SessionImages(
   landing: String) // landscape img (~ 400x150)
 case class SessionInfo(
@@ -103,7 +61,7 @@ object Session {
         d.get("info.slides"),
         d.get("info.video")),
       SessionMeta(
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name"), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -122,7 +80,7 @@ object Session {
     "info.slides" -> e.info.slides.getOrElse(""),
     "info.video" -> e.info.video.getOrElse(""),
     "meta.source.ref" -> e.meta.source.map(_.ref).getOrElse(""),
-    "meta.source.name" -> e.meta.source.flatMap(_.name).getOrElse(""),
+    "meta.source.name" -> e.meta.source.map(_.name).getOrElse(""),
     "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))

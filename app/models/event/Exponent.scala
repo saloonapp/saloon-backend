@@ -9,53 +9,12 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class ExponentOld(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  logoUrl: String, // squared logo of event (~ 100x100)
-  landingUrl: String, // landscape img for event (in info screen) (~ 400x150)
-  siteUrl: String,
-  place: Option[String], // where to find this exponent
-  team: List[Attendee], // people being part of this exponent
-  level: Option[Int], // level of exponent (sponsoring) : lower is better
-  sponsor: Boolean, // to show it on info tab
-  tags: List[String],
-  images: List[String],
-  source: Option[DataSource], // where the exponent were fetched (if applies)
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Exponent = Exponent(
-    this.uuid,
-    this.eventId,
-    this.name,
-    this.description,
-    ExponentImages(
-      this.logoUrl,
-      this.landingUrl),
-    ExponentInfo(
-      this.siteUrl,
-      this.place.orElse(Some("")),
-      this.team,
-      this.level,
-      this.sponsor),
-    ExponentConfig(false),
-    ExponentMeta(
-      this.source.map(s => s.copy(name = s.name.orElse(Some("")))),
-      this.created,
-      this.updated))
-}
-object ExponentOld {
-  implicit val format = Json.format[ExponentOld]
-}
-
 case class ExponentImages(
   logo: String, // squared logo (~ 100x100)
   landing: String) // landscape img (~ 400x150)
 case class ExponentInfo(
   website: String,
-  place: Option[String], // where to find this exponent
+  place: String, // where to find this exponent
   team: List[Attendee], // people being part of this exponent
   level: Option[Int], // level of exponent (sponsoring) : lower is better
   sponsor: Boolean) // to show it on info tab
@@ -97,14 +56,14 @@ object Exponent {
         d.get("images.landing").getOrElse("")),
       ExponentInfo(
         d.get("info.website").getOrElse(""),
-        d.get("info.place"),
+        d.get("info.place").getOrElse(""),
         d.get("info.team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
         d.get("info.level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
         d.get("info.sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
       ExponentConfig(
         d.get("config.scanQRCode").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
       ExponentMeta(
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name"), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -116,13 +75,13 @@ object Exponent {
     "images.logo" -> e.images.logo,
     "images.landing" -> e.images.landing,
     "info.website" -> e.info.website,
-    "info.place" -> e.info.place.getOrElse(""),
+    "info.place" -> e.info.place,
     "info.team" -> Json.stringify(Json.toJson(e.info.team)),
     "info.level" -> e.info.level.map(_.toString).getOrElse(""),
     "info.sponsor" -> e.info.sponsor.toString,
     "config.scanQRCode" -> e.config.scanQRCode.toString,
     "meta.source.ref" -> e.meta.source.map(_.ref).getOrElse(""),
-    "meta.source.name" -> e.meta.source.flatMap(_.name).getOrElse(""),
+    "meta.source.name" -> e.meta.source.map(_.name).getOrElse(""),
     "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
@@ -177,7 +136,7 @@ object ExponentData {
       "landing" -> text)(ExponentImages.apply)(ExponentImages.unapply),
     "info" -> mapping(
       "website" -> text,
-      "place" -> optional(text),
+      "place" -> text,
       "team" -> list(Attendee.fields),
       "level" -> optional(number),
       "sponsor" -> boolean)(ExponentInfo.apply)(ExponentInfo.unapply),

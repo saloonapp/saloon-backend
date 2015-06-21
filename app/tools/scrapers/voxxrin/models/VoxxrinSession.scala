@@ -48,7 +48,7 @@ case class VoxxrinSession(
         None,
         None),
       SessionMeta(
-        Some(DataSource(this.id, Some("Voxxrin API"), VoxxrinApi.baseUrl + this.uri)),
+        Some(DataSource(this.id, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
         new DateTime(),
         new DateTime()))
   }

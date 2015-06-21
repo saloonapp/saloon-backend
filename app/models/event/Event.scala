@@ -11,62 +11,6 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class EventOld(
-  uuid: String,
-  refreshUrl: Option[String], // a get on this url will scrape original data of this event (used to update program)
-  name: String,
-  description: String,
-  logoUrl: String, // squared logo of event (~ 100x100)
-  landingUrl: String, // landscape img for event (in info screen) (~ 400x150)
-  siteUrl: String, // event home page
-  start: Option[DateTime], // when event starts
-  end: Option[DateTime], // when event ends
-  address: Address,
-  price: String, // event pricing (ex: "15€ - 50€" or "inscription obligatoire")
-  priceUrl: String, // where to buy tickets
-  twitterHashtag: Option[String],
-  twitterAccount: Option[String],
-  reportEmailMessageHtml: Option[String],
-  tags: List[String],
-  published: Boolean,
-  source: Option[DataSource], // where the event were fetched (if applies)
-  created: DateTime,
-  updated: DateTime) {
-  def transform(): Event = Event(
-    this.uuid,
-    this.name,
-    this.description,
-    EventImages(
-      this.logoUrl,
-      this.landingUrl),
-    EventInfo(
-      this.siteUrl,
-      this.start,
-      this.end,
-      this.address,
-      Link(
-        this.price,
-        this.priceUrl),
-      EventInfoSocial(
-        EventInfoSocialTwitter(
-          this.twitterHashtag,
-          this.twitterAccount))),
-    EventEmail(
-      this.reportEmailMessageHtml),
-    EventConfig(
-      None,
-      this.published),
-    EventMeta(
-      List(),
-      this.refreshUrl,
-      this.source.map(s => s.copy(name = s.name.orElse(Some("")))),
-      this.created,
-      this.updated))
-}
-object EventOld {
-  implicit val format = Json.format[EventOld]
-}
-
 case class EventImages(
   logo: String, // squared logo of event (~ 100x100)
   landing: String) // landscape img for event (in info screen) (~ 400x150)
@@ -161,7 +105,7 @@ object Event {
       EventMeta(
         Utils.toList(d.get("meta.categories").getOrElse("")),
         d.get("meta.refreshUrl"),
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name"), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -191,7 +135,7 @@ object Event {
     "meta.categories" -> Utils.fromList(e.meta.categories),
     "meta.refreshUrl" -> e.meta.refreshUrl.getOrElse(""),
     "meta.source.ref" -> e.meta.source.map(_.ref).getOrElse(""),
-    "meta.source.name" -> e.meta.source.flatMap(_.name).getOrElse(""),
+    "meta.source.name" -> e.meta.source.map(_.name).getOrElse(""),
     "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))

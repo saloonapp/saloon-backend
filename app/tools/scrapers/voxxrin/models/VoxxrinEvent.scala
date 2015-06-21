@@ -59,7 +59,7 @@ case class VoxxrinEvent(
       EventMeta(
         List(),
         Some("/api/v1/tools/scrapers/events/voxxrin/" + this.id + "/formated"),
-        Some(DataSource(this.id, Some("Voxxrin API"), VoxxrinApi.eventUrl(this.id))),
+        Some(DataSource(this.id, "Voxxrin API", VoxxrinApi.eventUrl(this.id))),
         new DateTime(),
         new DateTime()))
 

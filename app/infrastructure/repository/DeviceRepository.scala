@@ -4,7 +4,6 @@ import common.models.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
 import models.user.Device
-import models.user.UserOld
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -20,8 +19,6 @@ trait MongoDbDeviceRepository extends Repository[Device] {
 
   private val crud = MongoDbCrudUtils(collection, Device.format, List("info.uuid", "info.platform", "info.manufacturer", "info.model", "info.version", "info.cordova", "pushId", "saloonMemo"), "uuid")
 
-  def findAllUserOld(): Future[List[UserOld]] = userCollection.find(Json.obj()).cursor[UserOld].collect[List]()
-  def dropUserOld(): Future[Boolean] = userCollection.drop()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Device]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Device]] = crud.findPage(query, page, pageSize, sort, filter)
   override def getByUuid(uuid: String): Future[Option[Device]] = crud.getByUuid(uuid)
