@@ -74,11 +74,11 @@ object EventSrv {
   }
 
   def sessionDiff(oldElts: List[Session], newElts: List[Session]): (List[Session], List[Session], List[(Session, Session)]) = {
-    diff(oldElts, newElts, (s: Session) => s.name, (s: Session) => s.source.map(_.ref), (os: Session, ns: Session) => os.merge(ns), (os: Session, ns: Session) => os.copy(updated = new DateTime(0)) == ns.copy(updated = new DateTime(0)))
+    diff(oldElts, newElts, (s: Session) => s.name, (s: Session) => s.meta.source.map(_.ref), (os: Session, ns: Session) => os.merge(ns), (os: Session, ns: Session) => os.copy(meta = os.meta.copy(updated = new DateTime(0))) == ns.copy(meta = ns.meta.copy(updated = new DateTime(0))))
   }
 
   def exponentDiff(oldElts: List[Exponent], newElts: List[Exponent]): (List[Exponent], List[Exponent], List[(Exponent, Exponent)]) = {
-    diff(oldElts, newElts, (e: Exponent) => e.name, (e: Exponent) => e.source.map(_.ref), (oe: Exponent, ne: Exponent) => oe.merge(ne), (oe: Exponent, ne: Exponent) => oe.copy(updated = new DateTime(0)) == ne.copy(updated = new DateTime(0)))
+    diff(oldElts, newElts, (e: Exponent) => e.name, (e: Exponent) => e.meta.source.map(_.ref), (oe: Exponent, ne: Exponent) => oe.merge(ne), (oe: Exponent, ne: Exponent) => oe.copy(meta = oe.meta.copy(updated = new DateTime(0))) == ne.copy(meta = ne.meta.copy(updated = new DateTime(0))))
   }
 
   private def diff[A](oldElts: List[A], newElts: List[A], getName: A => String, getRef: A => Option[String], merge: (A, A) => A, equals: (A, A) => Boolean): (List[A], List[A], List[(A, A)]) = {

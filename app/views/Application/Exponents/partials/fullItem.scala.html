@@ -1,26 +1,20 @@
 @import models.event.Exponent
-@(exponent: Exponent)
-
 @import helpers.format._
 @import views.html.Application.format._
+@(exponent: Exponent)
 
 <div class="media">
 	<div class="media-left">
-		<img class="media-object" src="@exponent.logoUrl">
+		<img class="media-object" src="@exponent.images.logo">
 	</div>
 	<div class="media-body">
-		<h4 class="media-heading"><a href="@exponent.siteUrl" target="_blank">@exponent.name</a></h4>
+		<h4 class="media-heading"><a href="@exponent.info.website" target="_blank">@exponent.name</a></h4>
 		<p class="well">@textMultiline(exponent.description)</p>
 		<p class="text-muted">
-			@exponent.place |
-			niveau: @exponent.level.map(_.toString).getOrElse("") @if(exponent.sponsor){ + sponsor } |
-			@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }
+			@exponent.info.place |
+			niveau: @exponent.info.level.map(_.toString).getOrElse("") @if(exponent.info.sponsor){ + sponsor } |
 		</p>
-		@exponent.team.map { person => @views.html.Application.partials.personListItem(person) }
-		<img src="@exponent.landingUrl">
-		@if(exponent.images.length > 0){ <h4>Autres images :</h4> }
-		@exponent.images.map { img =>
-			<img src="@img">
-		}
+		@exponent.info.team.map { person => @views.html.Application.partials.personListItem(person) }
+		<img src="@exponent.images.landing">
 	</div>
 </div>

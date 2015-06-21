@@ -1,27 +1,34 @@
 @import models.event.Event
 @import models.event.ExponentData
+@import helpers.forms._
 @(exponentForm: Form[ExponentData], event: Event)
 
-@import helpers.forms._
-
-<div class="form-group">
-	<label class="col-sm-2 control-label">Evénement</label>
-	<div class="col-sm-10">
-		@inputHidden(exponentForm("eventId"), 'value -> event.uuid)
-		<p class="form-control-static">@event.name</p>
-	</div>
-</div>
-
-@fieldHorizontal(exponentForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Soat")}
-@fieldHorizontal(exponentForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Société d'expertise et de conseil en informatique")}
-@fieldHorizontal(exponentForm("logoUrl"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
-@fieldHorizontal(exponentForm("landingUrl"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
-@fieldHorizontal(exponentForm("siteUrl"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
-@fieldHorizontal(exponentForm("place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
-@helper.repeat(exponentForm("team"), min = 1) { personField =>
-	@fieldHorizontal(personField, 'label -> "Equipe"){ field =>@views.html.Application.partials.personForm(field) }
-}
-@fieldHorizontal(exponentForm("level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
-@fieldHorizontal(exponentForm("sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}
-@fieldHorizontal(exponentForm("tags"), 'label -> "Tags"){field => @inputText(field, 'placeholder -> "ex: Java-JEE, Microsoft, Front-end, Mobile, méthodes agiles")}
-@fieldHorizontal(exponentForm("images"), 'label -> "Images"){field => @inputText(field)}
+<fieldset>
+	<legend>Général :</legend>
+	@fieldHorizontal(exponentForm("eventId"), 'label -> "Evénement", 'constraints -> "false"){field => @inputHidden(field, 'value -> event.uuid) <p class="form-control-static">@event.name</p>}
+	@fieldHorizontal(exponentForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Soat")}
+	@fieldHorizontal(exponentForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Société d'expertise et de conseil en informatique")}
+</fieldset>
+<fieldset>
+	<legend>Images :</legend>
+	@fieldHorizontal(exponentForm("images.logo"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
+	@fieldHorizontal(exponentForm("images.landing"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
+</fieldset>
+<fieldset>
+	<legend>Infos :</legend>
+	@fieldHorizontal(exponentForm("info.website"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
+	@fieldHorizontal(exponentForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
+	@helper.repeat(exponentForm("info.team"), min = 1) { personField =>
+		@fieldHorizontal(personField, 'label -> "Equipe"){ field =>@views.html.Application.partials.personForm(field) }
+	}
+	@fieldHorizontal(exponentForm("info.level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
+	@fieldHorizontal(exponentForm("info.sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}
+</fieldset>
+<fieldset>
+	<legend>Config :</legend>
+	@fieldHorizontal(exponentForm("config.scanQRCode"), 'label -> "scan QRCode"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant a l'option de scan de QRCode</p>}
+</fieldset>
+@*<fieldset>
+	<legend>Meta :</legend>
+	no meta.source yet
+</fieldset>*@

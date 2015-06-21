@@ -2,6 +2,8 @@ package controllers
 
 import common.Utils
 import models.event.Event
+import models.event.Session
+import models.event.Exponent
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
@@ -26,8 +28,8 @@ object Application extends Controller {
   def migrate = Action.async {
     for {
       m1 <- migrateEvents()
-      //m2 <- migrateSessions()
-      //m3 <- migrateExponents()
+      m2 <- migrateSessions()
+      m3 <- migrateExponents()
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
@@ -37,16 +39,16 @@ object Application extends Controller {
       EventRepository.update(e.uuid, e.transform())
     }))
   }
-  /*private def migrateSessions(): Future[List[Option[models.Session]]] = {
+  private def migrateSessions(): Future[List[Option[Session]]] = {
     SessionRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       SessionRepository.update(e.uuid, e.transform())
     }))
   }
-  private def migrateExponents(): Future[List[Option[models.Exponent]]] = {
+  private def migrateExponents(): Future[List[Option[Exponent]]] = {
     ExponentRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       ExponentRepository.update(e.uuid, e.transform())
     }))
-  }*/
+  }
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(

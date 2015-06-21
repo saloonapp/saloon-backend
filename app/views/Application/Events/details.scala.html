@@ -50,8 +50,8 @@
 								<li>
 									@item match {
 										case Event(uuid,name,_,_,_,_,_,_) => { Evénement <a href="@routes.Events.details(uuid)">@name</a> }
-										case Session(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
-										case Exponent(uuid,eventId,name,_,_,_,_,_,_,_,_,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
+										case Session(uuid,eventId,name,_,_,_,_) => { Session <a href="@routes.Sessions.details(eventId, uuid)">@name</a> }
+										case Exponent(uuid,eventId,name,_,_,_,_,_) => { Exposant <a href="@routes.Exponents.details(eventId, uuid)">@name</a> }
 										case unknown => { Inconnu @unknown }
 									}
 									@UserActionSrv.byActionName(itemActions).map { case (actionName, list) =>

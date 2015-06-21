@@ -12,7 +12,14 @@ import models.event.EventEmail
 import models.event.EventConfig
 import models.event.EventMeta
 import models.event.Session
+import models.event.SessionImages
+import models.event.SessionInfo
+import models.event.SessionMeta
 import models.event.Exponent
+import models.event.ExponentImages
+import models.event.ExponentInfo
+import models.event.ExponentConfig
+import models.event.ExponentMeta
 import models.event.Attendee
 import models.event.AttendeeSocial
 import tools.scrapers.meta.MetaScraper
@@ -38,10 +45,10 @@ object RivieraDev extends Controller {
     def toPerson(): Attendee = Attendee(this.name, this.description, this.company.getOrElse(""), this.avatar, None, this.profilUrl.getOrElse(""), this.social.getOrElse(AttendeeSocial(None, None, None, None, None)))
   }
   case class RivieraDevSession(name: String, description: Option[String], start: Option[DateTime], end: Option[DateTime], category: Option[String], place: Option[String], speakers: List[RivieraDevPerson]) {
-    def toSession(eventId: String): Session = Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), "", this.category.getOrElse(""), this.place.getOrElse(""), this.start, this.end, this.speakers.map(_.toPerson()), List(), None, None, Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime())
+    def toSession(eventId: String): Session = Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), SessionImages(""), SessionInfo("", this.category.getOrElse(""), this.place.getOrElse(""), this.start, this.end, this.speakers.map(_.toPerson()), None, None), SessionMeta(Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime()))
   }
   case class RivieraDevExponent(name: String, description: String, logoUrl: String, siteUrl: String, sponsor: Boolean) {
-    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, this.logoUrl, this.logoUrl, this.siteUrl: String, None, List(), None, this.sponsor, List(), List(), Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime())
+    def toExponent(eventId: String): Exponent = Exponent(Repository.generateUuid(), eventId, this.name, this.description, ExponentImages(this.logoUrl, this.logoUrl), ExponentInfo(this.siteUrl, None, List(), None, this.sponsor), ExponentConfig(false), ExponentMeta(Some(DataSource(this.name, Some("RivieraDev API"), "http://www.rivieradev.fr/apiv1/sponsors")), new DateTime(), new DateTime()))
   }
   implicit val formatRivieraDevEvent = Json.format[RivieraDevEvent]
   implicit val formatRivieraDevPerson = Json.format[RivieraDevPerson]

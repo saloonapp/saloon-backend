@@ -1,6 +1,5 @@
-@(field: Field, args: (Symbol, String)*)(input: Field => Html)
-
 @import views.helpers._
+@(field: Field, args: (Symbol, String)*)(input: Field => Html)
 
 <div class="form-group @Helpers.getArg(args, "class") @if(field.hasErrors){has-error}">
   <label for="@field.id" class="control-label col-sm-2">@Helpers.getArg(args, "label", field.name)</label>
@@ -11,7 +10,7 @@
           <p class="help-block error">Erreur: @Messages(error.message, error.args: _*)</p>
       }
     }
-    @if(!field.hasErrors && field.constraints.length > 0){
+    @if(!field.hasErrors && field.constraints.length > 0 && !Helpers.hasArg(args, "constraints", "false")){
       @for(constraint <- field.constraints) {
         <p class="help-block info">@Messages(constraint._1, constraint._2)</p>
       }

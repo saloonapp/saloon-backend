@@ -4,6 +4,9 @@ import common.Utils
 import common.infrastructure.repository.Repository
 import models.values.DataSource
 import models.event.Session
+import models.event.SessionImages
+import models.event.SessionInfo
+import models.event.SessionMeta
 import tools.scrapers.voxxrin.VoxxrinApi
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -34,18 +37,20 @@ case class VoxxrinSession(
       eventId,
       this.title,
       this.summary.map(html => Utils.htmlToText(html)).getOrElse(""),
-      this.`type`,
-      this.kind,
-      this.room.toPlace(),
-      VoxxrinSession.parseDate(this.fromTime),
-      VoxxrinSession.parseDate(this.toTime),
-      this.speakers.map(_.map(_.toSpeaker())).getOrElse(List()),
-      this.tags.getOrElse(List()),
-      None,
-      None,
-      Some(DataSource(this.id, Some("Voxxrin API"), VoxxrinApi.baseUrl + this.uri)),
-      new DateTime(),
-      new DateTime())
+      SessionImages(""),
+      SessionInfo(
+        this.`type`,
+        this.kind,
+        this.room.toPlace(),
+        VoxxrinSession.parseDate(this.fromTime),
+        VoxxrinSession.parseDate(this.toTime),
+        this.speakers.map(_.map(_.toSpeaker())).getOrElse(List()),
+        None,
+        None),
+      SessionMeta(
+        Some(DataSource(this.id, Some("Voxxrin API"), VoxxrinApi.baseUrl + this.uri)),
+        new DateTime(),
+        new DateTime()))
   }
 }
 object VoxxrinSession {

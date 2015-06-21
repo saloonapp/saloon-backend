@@ -7,6 +7,8 @@ import play.api.libs.json._
 
 object Writer {
   //def write(data: Event): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Event.className)
+  //def write(data: Session): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Session.className)
+  //def write(data: Exponent): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Exponent.className)
   def write(data: Event): JsObject = Json.obj(
     "uuid" -> data.uuid,
     "refreshUrl" -> data.meta.refreshUrl,
@@ -27,8 +29,37 @@ object Writer {
     "created" -> data.meta.created,
     "updated" -> data.meta.updated,
     "className" -> Event.className)
-  def write(data: Session): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Session.className)
-  def write(data: Exponent): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Exponent.className)
+  def write(data: Session): JsObject = Json.obj(
+    "uuid" -> data.uuid,
+    "eventId" -> data.eventId,
+    "name" -> data.name,
+    "description" -> data.description,
+    "format" -> data.info.format,
+    "category" -> data.info.category,
+    "place" -> data.info.place,
+    "start" -> data.info.start,
+    "end" -> data.info.end,
+    "speakers" -> data.info.speakers,
+    "tags" -> Json.arr(),
+    "created" -> data.meta.created,
+    "updated" -> data.meta.updated,
+    "className" -> Session.className)
+  def write(data: Exponent): JsObject = Json.obj(
+    "uuid" -> data.uuid,
+    "eventId" -> data.eventId,
+    "name" -> data.name,
+    "description" -> data.description,
+    "logoUrl" -> data.images.logo,
+    "landingUrl" -> data.images.landing,
+    "siteUrl" -> data.info.website,
+    "team" -> data.info.team,
+    "level" -> data.info.level,
+    "sponsor" -> data.info.sponsor,
+    "tags" -> Json.arr(),
+    "images" -> Json.arr(),
+    "created" -> data.meta.created,
+    "updated" -> data.meta.updated,
+    "className" -> Exponent.className)
 
   def write(data: (Event, Int, Int)): JsObject = write(data._1) ++ Json.obj("sessionCount" -> data._2, "exponentCount" -> data._3)
 }

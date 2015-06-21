@@ -52,14 +52,14 @@ object UserActionSrv {
     actions.filter(a => a.action.isFavorite() && a.itemType == Session.className).map { a =>
       sessions.find(_.uuid == a.itemId)
     }.flatten
-      .filter(_.format != "break")
+      .filter(_.info.format != "break")
       .map { s => (s, moodFor(actions, Session.className, s.uuid), commentsFor(actions, Session.className, s.uuid)) }
       .sortBy(r => -moodSort(r._2))
   }
   def notFavoriteSessions(actions: List[UserAction], sessions: List[Session]): List[(Session, Option[String], List[String])] = {
     val favoriteUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Session.className).map(_.itemId)
     sessions
-      .filter(s => !favoriteUuids.contains(s.uuid) && s.format != "break")
+      .filter(s => !favoriteUuids.contains(s.uuid) && s.info.format != "break")
       .map { s => (s, moodFor(actions, Session.className, s.uuid), commentsFor(actions, Session.className, s.uuid)) }
       .sortBy(r => -moodSort(r._2))
   }

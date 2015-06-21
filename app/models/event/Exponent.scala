@@ -9,7 +9,7 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class Exponent(
+case class ExponentOld(
   uuid: String,
   eventId: String,
   name: String,
@@ -25,105 +25,172 @@ case class Exponent(
   images: List[String],
   source: Option[DataSource], // where the exponent were fetched (if applies)
   created: DateTime,
-  updated: DateTime) extends EventItem {
-  def toMap(): Map[String, String] = Exponent.toMap(this)
-  def merge(e: Exponent): Exponent = Exponent(
+  updated: DateTime) {
+  def transform(): Exponent = Exponent(
     this.uuid,
     this.eventId,
-    merge(this.name, e.name),
-    merge(this.description, e.description),
-    merge(this.logoUrl, e.logoUrl),
-    merge(this.landingUrl, e.landingUrl),
-    merge(this.siteUrl, e.siteUrl),
-    merge(this.place, e.place),
-    merge(this.team, e.team),
-    merge(this.level, e.level),
-    merge(this.sponsor, e.sponsor),
-    merge(this.tags, e.tags),
-    merge(this.images, e.images),
-    merge(this.source, e.source),
-    this.created,
-    e.updated)
-  private def merge(s1: String, s2: String): String = if (s2.isEmpty) s1 else s2
-  private def merge(b1: Boolean, b2: Boolean): Boolean = b1 || b2
-  private def merge[A](d1: Option[A], d2: Option[A]): Option[A] = if (d2.isEmpty) d1 else d2
-  private def merge[A](l1: List[A], l2: List[A]): List[A] = if (l2.isEmpty) l1 else l2
+    this.name,
+    this.description,
+    ExponentImages(
+      this.logoUrl,
+      this.landingUrl),
+    ExponentInfo(
+      this.siteUrl,
+      this.place,
+      this.team,
+      this.level,
+      this.sponsor),
+    ExponentConfig(false),
+    ExponentMeta(
+      this.source,
+      this.created,
+      this.updated))
+}
+object ExponentOld {
+  implicit val format = Json.format[ExponentOld]
+}
+
+case class ExponentImages(
+  logo: String, // squared logo (~ 100x100)
+  landing: String) // landscape img (~ 400x150)
+case class ExponentInfo(
+  website: String,
+  place: Option[String], // where to find this exponent
+  team: List[Attendee], // people being part of this exponent
+  level: Option[Int], // level of exponent (sponsoring) : lower is better
+  sponsor: Boolean) // to show it on info tab
+case class ExponentConfig(
+  scanQRCode: Boolean)
+case class ExponentMeta(
+  source: Option[DataSource], // where the exponent were fetched (if applies)
+  created: DateTime,
+  updated: DateTime)
+case class Exponent(
+  uuid: String,
+  eventId: String,
+  name: String,
+  description: String,
+  images: ExponentImages,
+  info: ExponentInfo,
+  config: ExponentConfig,
+  meta: ExponentMeta) extends EventItem {
+  def toMap(): Map[String, String] = Exponent.toMap(this)
+  def merge(e: Exponent): Exponent = Exponent.merge(this, e)
 }
 object Exponent {
   val className = "exponents"
+  implicit val formatExponentImages = Json.format[ExponentImages]
+  implicit val formatExponentInfo = Json.format[ExponentInfo]
+  implicit val formatExponentConfig = Json.format[ExponentConfig]
+  implicit val formatExponentMeta = Json.format[ExponentMeta]
   implicit val format = Json.format[Exponent]
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
+
   def fromMap(eventId: String)(d: Map[String, String]): Try[Exponent] =
     Try(Exponent(
       d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
       eventId,
       d.get("name").get,
       d.get("description").getOrElse(""),
-      d.get("logoUrl").getOrElse(""),
-      d.get("landingUrl").getOrElse(""),
-      d.get("siteUrl").getOrElse(""),
-      d.get("place"),
-      d.get("team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
-      d.get("level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
-      d.get("sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false),
-      Utils.toList(d.get("tags").getOrElse("")),
-      Utils.toList(d.get("images").getOrElse("")),
-      d.get("source.ref").map { ref => DataSource(ref, d.get("source.name"), d.get("source.url").getOrElse("")) },
-      d.get("created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
-      d.get("updated").flatMap(d => parseDate(d)).getOrElse(new DateTime())))
+      ExponentImages(
+        d.get("images.logo").getOrElse(""),
+        d.get("images.landing").getOrElse("")),
+      ExponentInfo(
+        d.get("info.website").getOrElse(""),
+        d.get("info.place"),
+        d.get("info.team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
+        d.get("info.level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
+        d.get("info.sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
+      ExponentConfig(
+        d.get("config.scanQRCode").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
+      ExponentMeta(
+        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name"), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
+        d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
   def toMap(e: Exponent): Map[String, String] = Map(
     "uuid" -> e.uuid,
     "eventId" -> e.eventId,
     "name" -> e.name,
     "description" -> e.description,
-    "logoUrl" -> e.logoUrl,
-    "landingUrl" -> e.landingUrl,
-    "siteUrl" -> e.siteUrl,
-    "place" -> e.place.getOrElse(""),
-    "team" -> Json.stringify(Json.toJson(e.team)),
-    "level" -> e.level.map(_.toString).getOrElse(""),
-    "sponsor" -> e.sponsor.toString,
-    "tags" -> Utils.fromList(e.tags),
-    "images" -> Utils.fromList(e.images),
-    "source.ref" -> e.source.map(_.ref).getOrElse(""),
-    "source.name" -> e.source.flatMap(_.name).getOrElse(""),
-    "source.url" -> e.source.map(_.url).getOrElse(""),
-    "created" -> e.created.toString(FileImporter.dateFormat),
-    "updated" -> e.updated.toString(FileImporter.dateFormat))
+    "images.logo" -> e.images.logo,
+    "images.landing" -> e.images.landing,
+    "info.website" -> e.info.website,
+    "info.place" -> e.info.place.getOrElse(""),
+    "info.team" -> Json.stringify(Json.toJson(e.info.team)),
+    "info.level" -> e.info.level.map(_.toString).getOrElse(""),
+    "info.sponsor" -> e.info.sponsor.toString,
+    "config.scanQRCode" -> e.config.scanQRCode.toString,
+    "meta.source.ref" -> e.meta.source.map(_.ref).getOrElse(""),
+    "meta.source.name" -> e.meta.source.flatMap(_.name).getOrElse(""),
+    "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
+    "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
+    "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
+
+  def merge(e1: Exponent, e2: Exponent): Exponent = Exponent(
+    e1.uuid,
+    e1.eventId,
+    merge(e1.name, e2.name),
+    merge(e1.description, e2.description),
+    merge(e1.images, e2.images),
+    merge(e1.info, e2.info),
+    merge(e1.config, e2.config),
+    merge(e1.meta, e2.meta))
+  private def merge(e1: ExponentImages, e2: ExponentImages): ExponentImages = ExponentImages(
+    merge(e1.logo, e2.logo),
+    merge(e1.landing, e2.landing))
+  private def merge(e1: ExponentInfo, e2: ExponentInfo): ExponentInfo = ExponentInfo(
+    merge(e1.website, e2.website),
+    merge(e1.place, e2.place),
+    merge(e1.team, e2.team),
+    merge(e1.level, e2.level),
+    e2.sponsor)
+  private def merge(e1: ExponentConfig, e2: ExponentConfig): ExponentConfig = ExponentConfig(
+    e2.scanQRCode)
+  private def merge(e1: ExponentMeta, e2: ExponentMeta): ExponentMeta = ExponentMeta(
+    merge(e1.source, e2.source),
+    e1.created,
+    e2.updated)
+  private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
+  private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
+  private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
 }
 
 // mapping object for Exponent Form
+case class ExponentMetaData(
+  source: Option[DataSource])
 case class ExponentData(
   eventId: String,
   name: String,
   description: String,
-  logoUrl: String,
-  landingUrl: String,
-  siteUrl: String,
-  place: Option[String],
-  team: List[Attendee],
-  level: Option[Int],
-  sponsor: Boolean,
-  tags: String,
-  images: String)
+  images: ExponentImages,
+  info: ExponentInfo,
+  config: ExponentConfig,
+  meta: ExponentMetaData)
 object ExponentData {
-  implicit val format = Json.format[ExponentData]
   val fields = mapping(
     "eventId" -> nonEmptyText,
     "name" -> nonEmptyText,
     "description" -> text,
-    "logoUrl" -> text,
-    "landingUrl" -> text,
-    "siteUrl" -> text,
-    "place" -> optional(text),
-    "team" -> list(Attendee.fields),
-    "level" -> optional(number),
-    "sponsor" -> boolean,
-    "tags" -> text,
-    "images" -> text)(ExponentData.apply)(ExponentData.unapply)
+    "images" -> mapping(
+      "logo" -> text,
+      "landing" -> text)(ExponentImages.apply)(ExponentImages.unapply),
+    "info" -> mapping(
+      "website" -> text,
+      "place" -> optional(text),
+      "team" -> list(Attendee.fields),
+      "level" -> optional(number),
+      "sponsor" -> boolean)(ExponentInfo.apply)(ExponentInfo.unapply),
+    "config" -> mapping(
+      "scanQRCode" -> boolean)(ExponentConfig.apply)(ExponentConfig.unapply),
+    "meta" -> mapping(
+      "source" -> optional(DataSource.fields))(ExponentMetaData.apply)(ExponentMetaData.unapply))(ExponentData.apply)(ExponentData.unapply)
 
-  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team.filter(!_.name.isEmpty), d.level, d.sponsor, Utils.toList(d.tags), Utils.toList(d.images), None, new DateTime(), new DateTime())
-  def fromModel(d: Exponent): ExponentData = ExponentData(d.eventId, d.name, d.description, d.logoUrl, d.landingUrl, d.siteUrl, d.place, d.team, d.level, d.sponsor, Utils.fromList(d.tags), Utils.fromList(d.images))
-  def merge(m: Exponent, d: ExponentData): Exponent = toModel(d).copy(uuid = m.uuid, source = m.source, created = m.created)
+  def toModel(d: ExponentInfo): ExponentInfo = ExponentInfo(d.website, d.place, d.team.filter(!_.name.isEmpty), d.level, d.sponsor)
+  def toModel(d: ExponentMetaData): ExponentMeta = ExponentMeta(d.source, new DateTime(), new DateTime())
+  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.images, toModel(d.info), d.config, toModel(d.meta))
+  def fromModel(d: ExponentMeta): ExponentMetaData = ExponentMetaData(d.source)
+  def fromModel(d: Exponent): ExponentData = ExponentData(d.eventId, d.name, d.description, d.images, d.info, d.config, fromModel(d.meta))
+  def merge(m: ExponentMeta, d: ExponentMetaData): ExponentMeta = toModel(d).copy(source = m.source, created = m.created)
+  def merge(m: Exponent, d: ExponentData): Exponent = toModel(d).copy(uuid = m.uuid, meta = merge(m.meta, d.meta))
 }

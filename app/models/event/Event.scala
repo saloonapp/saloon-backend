@@ -224,7 +224,7 @@ object Event {
     merge(e1.reportMessageHtml, e2.reportMessageHtml))
   private def merge(e1: EventConfig, e2: EventConfig): EventConfig = EventConfig(
     merge(e1.branding, e2.branding),
-    merge(e1.published, e2.published))
+    e2.published)
   private def merge(e1: EventMeta, e2: EventMeta): EventMeta = EventMeta(
     merge(e1.categories, e2.categories),
     merge(e1.refreshUrl, e2.refreshUrl),
@@ -234,7 +234,6 @@ object Event {
   private def merge(e1: Link, e2: Link): Link = if (e2.label.isEmpty && e2.url.isEmpty) e1 else e2
   private def merge(e1: Address, e2: Address): Address = if (e2.name.isEmpty && e2.street.isEmpty && e2.zipCode.isEmpty && e2.city.isEmpty) e1 else e2
   private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
-  private def merge(e1: Boolean, e2: Boolean): Boolean = e1 || e2
   private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
 }

@@ -5,14 +5,14 @@
 	<div class="panel panel-default" style="border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.05); overflow: hidden;">
 		<div class="panel-heading" style="box-sizing: border-box; padding: 10px 15px; background-color: #f5f5f5; border-bottom: 1px solid #ddd; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 			<div class="media">
-				@session.speakers.headOption.map { mainSpeaker =>
+				@session.info.speakers.headOption.map { mainSpeaker =>
 					<div class="media-left" style="display: table-cell; padding-right: 10px;">
 						<img src="@mainSpeaker.avatar" class="media-object img-circle" style="max-height: 70px; border-radius: 50%;">
 					</div>
 				}
 				<div class="media-body" style="display: table-cell; vertical-align: top;">
 					<h4 class="media-heading" style="margin-top: 0; margin-bottom: 5px; font-size: 18px; font-weight: 500; line-height: 1.1;">@session.name</h4>
-					@session.speakers.map { speaker =>
+					@session.info.speakers.map { speaker =>
 						<p style="margin: 0 0 10px;">
 							@speaker.name
 							<span>
@@ -35,13 +35,13 @@
 		<div class="panel-footer" style="box-sizing: border-box; padding: 10px 15px; background-color: #f5f5f5; border-top: 1px solid #ddd; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 			@moodOpt.map { rating => Ton avis : @Mail.partials.mood(rating)<br> }
 
-			@session.slides.map { link =>
+			@session.info.slides.map { link =>
 				<a href="@link" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/slideshare-link.png"/> Voir les slides</a>
 			}.getOrElse {
 				<img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/slideshare.png"/> Slides pas encore disponibles
 			}<br>
 
-			@session.video.map { link =>
+			@session.info.video.map { link =>
 				<a href="@link" target="_blank" style="color: #337ab7; text-decoration: none;"><img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/video-link.png"/> Voir la vidéo</a>
 			}.getOrElse {
 				<img src="http://res.cloudinary.com/saloon/image/upload/c_scale,w_15/v1434282352/icon/video.png"/> Vidéo pas encore disponible

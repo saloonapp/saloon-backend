@@ -1,17 +1,15 @@
 @import models.event.Event
 @import models.event.Exponent
-@(exponent: Exponent, event: Event)
-
 @import helpers.format._
 @import views.html.Application.format._
+@(exponent: Exponent, event: Event)
 
 <tr>
-	<td><img src="@exponent.logoUrl" style="max-height: 32px;"> @exponent.name</td>
+	<td><img src="@exponent.images.logo" style="max-height: 32px;"> @exponent.name</td>
 	<td>@exponent.description</td>
-	<td>@exponent.place</td>
-	<td><a href="@exponent.siteUrl" target="_blank">@exponent.siteUrl</a></td>
-	<td>niveau: @exponent.level @if(exponent.sponsor){ + sponsor }</td>
-	<td>@exponent.tags.map { tag => <span class="label label-primary">@tag</span> }</td>
+	<td>@exponent.info.place</td>
+	<td><a href="@exponent.info.website" target="_blank">@exponent.info.website</a></td>
+	<td>niveau: @exponent.info.level @if(exponent.info.sponsor){ + sponsor }</td>
 	<td>
 		<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Détails</a>
 		<a href="@routes.Exponents.update(event.uuid, exponent.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
