@@ -15,7 +15,7 @@ object Sessions extends Controller {
   val repository: Repository[Session] = SessionRepository
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-start")).map { eltPage =>
+    SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start")).map { eltPage =>
       Ok(Json.toJson(eltPage.map(Writer.write)))
     }
   }
