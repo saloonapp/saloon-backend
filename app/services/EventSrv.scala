@@ -9,6 +9,7 @@ import models.user.UserActionFull
 import models.user.SubscribeUserAction
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.EventItemRepository
@@ -23,23 +24,25 @@ import reactivemongo.core.commands.LastError
 import org.joda.time.DateTime
 
 object EventSrv {
-  def addMetadata(event: Event): Future[(Event, Int, Int, Int)] = {
+  def addMetadata(event: Event): Future[(Event, Int, Int, Int, Int)] = {
     for {
+      attendeeCount <- AttendeeRepository.countForEvent(event.uuid)
       sessionCount <- SessionRepository.countForEvent(event.uuid)
       exponentCount <- ExponentRepository.countForEvent(event.uuid)
       actionCount <- UserActionRepository.countForEvent(event.uuid)
-    } yield (event, sessionCount, exponentCount, actionCount)
+    } yield (event, attendeeCount, sessionCount, exponentCount, actionCount)
   }
 
-  def addMetadata(events: Seq[Event]): Future[Seq[(Event, Int, Int, Int)]] = {
+  def addMetadata(events: Seq[Event]): Future[Seq[(Event, Int, Int, Int, Int)]] = {
     val uuids = events.map(_.uuid)
     for {
+      attendeeCounts <- AttendeeRepository.countForEvents(uuids)
       sessionCounts <- SessionRepository.countForEvents(uuids)
       exponentCounts <- ExponentRepository.countForEvents(uuids)
       actionCounts <- UserActionRepository.countForEvents(uuids)
     } yield {
       events.map { event =>
-        (event, sessionCounts.get(event.uuid).getOrElse(0), exponentCounts.get(event.uuid).getOrElse(0), actionCounts.get(event.uuid).getOrElse(0))
+        (event, attendeeCounts.get(event.uuid).getOrElse(0), sessionCounts.get(event.uuid).getOrElse(0), exponentCounts.get(event.uuid).getOrElse(0), actionCounts.get(event.uuid).getOrElse(0))
       }
     }
   }

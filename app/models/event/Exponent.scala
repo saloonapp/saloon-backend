@@ -15,7 +15,7 @@ case class ExponentImages(
 case class ExponentInfo(
   website: String,
   place: String, // where to find this exponent
-  team: List[Attendee], // people being part of this exponent
+  team: List[Person], // people being part of this exponent
   level: Option[Int], // level of exponent (sponsoring) : lower is better
   sponsor: Boolean) // to show it on info tab
 case class ExponentConfig(
@@ -57,7 +57,7 @@ object Exponent {
       ExponentInfo(
         d.get("info.website").getOrElse(""),
         d.get("info.place").getOrElse(""),
-        d.get("info.team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
+        d.get("info.team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
         d.get("info.level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
         d.get("info.sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
       ExponentConfig(
@@ -137,7 +137,7 @@ object ExponentData {
     "info" -> mapping(
       "website" -> text,
       "place" -> text,
-      "team" -> list(Attendee.fields),
+      "team" -> list(Person.fields),
       "level" -> optional(number),
       "sponsor" -> boolean)(ExponentInfo.apply)(ExponentInfo.unapply),
     "config" -> mapping(

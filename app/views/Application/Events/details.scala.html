@@ -4,7 +4,7 @@
 @import models.user.UserActionFull
 @import services.UserActionSrv
 @import views.html.Application.format._
-@(event: Event, sessionCount: Int, exponentCount: Int, actionCount: Int, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 
 @layout(event.name) {
@@ -21,7 +21,7 @@
 					</div>
 				</div>
 				<div class="widget-body">
-					@partials.fullItem(event, sessionCount, exponentCount, actionCount)
+					@partials.fullItem(event, attendeeCount, sessionCount, exponentCount, actionCount)
 				</div>
 			</div>
 		</div>

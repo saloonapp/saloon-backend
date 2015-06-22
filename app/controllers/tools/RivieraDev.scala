@@ -20,8 +20,8 @@ import models.event.ExponentImages
 import models.event.ExponentInfo
 import models.event.ExponentConfig
 import models.event.ExponentMeta
-import models.event.Attendee
-import models.event.AttendeeSocial
+import models.event.Person
+import models.event.PersonSocial
 import tools.scrapers.meta.MetaScraper
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
@@ -41,8 +41,8 @@ object RivieraDev extends Controller {
   case class RivieraDevEvent(name: String, description: String, logoUrl: String, siteUrl: String, start: Option[DateTime], end: Option[DateTime], address: Address, price: String, priceUrl: String, twitterAccount: Option[String], tags: List[String]) {
     def toEvent(): Event = Event(Repository.generateUuid(), this.name, this.description, EventImages(this.logoUrl, ""), EventInfo(this.siteUrl, this.start, this.end, this.address, Link(this.price, this.priceUrl), EventInfoSocial(EventInfoSocialTwitter(None, this.twitterAccount))), EventEmail(None), EventConfig(None, true), EventMeta(List(), Some("/api/v1/tools/scrapers/events/rivieradev/formated"), Some(DataSource(this.name, "RivieraDev API", "http://www.rivieradev.fr/apiv1/general")), new DateTime(), new DateTime()))
   }
-  case class RivieraDevPerson(name: String, description: String, company: Option[String], avatar: String, profilUrl: Option[String], social: Option[AttendeeSocial]) {
-    def toPerson(): Attendee = Attendee(this.name, this.description, this.company.getOrElse(""), this.avatar, None, this.profilUrl.getOrElse(""), this.social.getOrElse(AttendeeSocial(None, None, None, None, None)))
+  case class RivieraDevPerson(name: String, description: String, company: Option[String], avatar: String, profilUrl: Option[String], social: Option[PersonSocial]) {
+    def toPerson(): Person = Person(this.name, this.description, this.company.getOrElse(""), this.avatar, None, this.profilUrl.getOrElse(""), this.social.getOrElse(PersonSocial(None, None, None, None, None)))
   }
   case class RivieraDevSession(name: String, description: Option[String], start: Option[DateTime], end: Option[DateTime], category: Option[String], place: Option[String], speakers: List[RivieraDevPerson]) {
     def toSession(eventId: String): Session = Session(Repository.generateUuid(), eventId, this.name, this.description.getOrElse(""), SessionImages(""), SessionInfo("", this.category.getOrElse(""), this.place.getOrElse(""), this.start, this.end, this.speakers.map(_.toPerson()), None, None), SessionMeta(Some(DataSource(this.name, "RivieraDev API", "http://www.rivieradev.fr/apiv1/talks")), new DateTime(), new DateTime()))

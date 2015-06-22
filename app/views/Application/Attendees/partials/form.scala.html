@@ -1,0 +1,34 @@
+@import models.event.Event
+@import models.event.AttendeeData
+@import helpers.forms._
+@(attendeeForm: Form[AttendeeData], event: Event)
+
+<fieldset>
+	<legend>Général :</legend>
+	@fieldHorizontal(attendeeForm("eventId"), 'label -> "Evénement", 'constraints -> "false"){field => @inputHidden(field, 'value -> event.uuid) <p class="form-control-static">@event.name</p>}
+	@fieldHorizontal(attendeeForm("name"), 'label -> "Name"){field => @inputText(field, 'placeholder -> "ex: Loïc Knuchel")}
+	@fieldHorizontal(attendeeForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Développeur web freelance, fondateur de SalooN")}
+</fieldset>
+<fieldset>
+	<legend>Images :</legend>
+	@fieldHorizontal(attendeeForm("images.avatar"), 'label -> "Avatar"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
+</fieldset>
+<fieldset>
+	<legend>Infos :</legend>
+	@fieldHorizontal(attendeeForm("info.website"), 'label -> "Site web"){field => @inputText(field, 'placeholder -> "ex: http://loic.knuchel.org/")}
+	@fieldHorizontal(attendeeForm("info.company"), 'label -> "Société"){field => @inputText(field, 'placeholder -> "ex: SalooN")}
+	@fieldHorizontal(attendeeForm("info.job"), 'label -> "Poste"){field => @inputText(field, 'placeholder -> "ex: Développeur")}
+	@fieldHorizontal(attendeeForm("info.role"), 'label -> "Role"){field => @inputText(field, 'placeholder -> "ex: staff, exposant, speaker, participant")}
+</fieldset>
+<fieldset>
+	<legend>Social :</legend>
+	@fieldHorizontal(attendeeForm("social.blogUrl"), 'label -> "Blog"){field => @inputText(field, 'placeholder -> "ex: http://loic.knuchel.org/blog/")}
+	@fieldHorizontal(attendeeForm("social.facebookUrl"), 'label -> "Facebook"){field => @inputText(field, 'placeholder -> "ex: https://www.facebook.com/loic.knuchel")}
+	@fieldHorizontal(attendeeForm("social.twitterUrl"), 'label -> "Twitter"){field => @inputText(field, 'placeholder -> "ex: https://twitter.com/loicknuchel")}
+	@fieldHorizontal(attendeeForm("social.linkedinUrl"), 'label -> "Linkedin"){field => @inputText(field, 'placeholder -> "ex: https://www.linkedin.com/in/loicknuchel")}
+	@fieldHorizontal(attendeeForm("social.githubUrl"), 'label -> "Github"){field => @inputText(field, 'placeholder -> "ex: https://github.com/loicknuchel")}
+</fieldset>
+@*<fieldset>
+	<legend>Meta :</legend>
+	no meta.source yet
+</fieldset>*@

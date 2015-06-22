@@ -1,7 +1,7 @@
 @import models.event.Event
 @import helpers.format._
 @import views.html.Application.format._
-@(event: Event, sessionCount: Int, exponentCount: Int, actionCount: Int)
+@(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)
 
 <div class="media">
 	<div class="media-left">
@@ -13,6 +13,7 @@
 		<p class="text-muted">@datetimeOpt(event.info.start) - @datetimeOpt(event.info.end) | @address(event.info.address) | @twitterHashtagOpt(event.info.social.twitter.hashtag) @twitterAccountOpt(event.info.social.twitter.account)</p>
 		<p class="text-muted">@event.meta.categories.map { category => <span class="label label-primary">@category</span> }</p>
 		<p>
+			<a href="@routes.Attendees.list(event.uuid)">@attendeeCount participants</a>,
 			<a href="@routes.Sessions.list(event.uuid)">@sessionCount sessions</a>,
 			<a href="@routes.Exponents.list(event.uuid)">@exponentCount exposants</a>,
 			@actionCount actions

@@ -2,11 +2,13 @@ package services
 
 import models.FileImportConfig
 import models.event.Event
+import models.event.Attendee
 import models.event.Session
 import models.event.Exponent
 import infrastructure.repository.EventRepository
-import infrastructure.repository.ExponentRepository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
+import infrastructure.repository.ExponentRepository
 import org.joda.time.format.DateTimeFormat
 import scala.util.Try
 import java.io.Reader
@@ -19,12 +21,16 @@ object FileImporter {
   val datePattern = "dd/MM/yyyy HH:mm"
   val dateFormat = DateTimeFormat.forPattern(datePattern)
 
-  def importExponents(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
-    importData(Exponent.fromMap(eventId), () => ExponentRepository.deleteByEvent(eventId).map(_.ok), ExponentRepository.bulkInsert)(importedFile, cfg)
+  def importAttendees(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
+    importData(Attendee.fromMap(eventId), () => AttendeeRepository.deleteByEvent(eventId).map(_.ok), AttendeeRepository.bulkInsert)(importedFile, cfg)
   }
 
   def importSessions(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
     importData(Session.fromMap(eventId), () => SessionRepository.deleteByEvent(eventId).map(_.ok), SessionRepository.bulkInsert)(importedFile, cfg)
+  }
+
+  def importExponents(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
+    importData(Exponent.fromMap(eventId), () => ExponentRepository.deleteByEvent(eventId).map(_.ok), ExponentRepository.bulkInsert)(importedFile, cfg)
   }
 
   private def importData[T](formatData: Map[String, String] => Try[T], deleteOld: () => Future[Boolean], bulkInsert: List[T] => Future[Int])(importedFile: Reader, cfg: FileImportConfig): Future[(Int, List[String])] = {

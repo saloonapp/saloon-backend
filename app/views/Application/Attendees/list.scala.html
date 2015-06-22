@@ -1,12 +1,14 @@
 @import models.event.Event
-@(eventPage: common.models.Page[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import models.event.Attendee
+@(attendeePage: common.models.Page[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout("Evénements"){
+@layout("Participants"){
 	<div class="row">
 		<div class="col-md-12">
 			<div class="widget">
 				<div class="widget-header">
-					Evénements
+					<a href="@routes.Events.details(event.uuid)" class="back-btn"><i class="fa fa-arrow-left"></i>@event.name</a>
+					Participants
 					<div class="pull-right">
 						<form class="form-inline inline">
 							<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search" class="form-control">
@@ -14,7 +16,7 @@
 							@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
 						</form>
 						<form class="form-inline inline">
-							<a class="btn btn-sm btn-success" href="@routes.Events.create()"><i class="fa fa-plus"></i> Créer un événement</a>
+							<a class="btn btn-sm btn-success" href="@routes.Attendees.create(event.uuid)"><i class="fa fa-plus"></i> Créer un participant</a>
 						</form>
 					</div>
 					<div class="clearfix"></div>
@@ -23,17 +25,17 @@
 					<div class="table-responsive">
 						<table class="table table-striped table-hover">
 							<thead>
-								<tr><th>Nom</th><th>Publié</th><th>Début</th><th>Catégorie</th><th>Hashtag</th><th></th><th></th><th></th><th></th><th></th></tr>
+								<tr><th>Nom</th><th>Description</th><th>Role</th><th>Poste</th><th>Société</th><th>Liens</th><th></th></tr>
 							</thead>
 							<tbody>
-								@eventPage.items.map { case (event, attendeeCount, sessionCount, exponentCount, actionCount) =>
-									@partials.tableItem(event, attendeeCount, sessionCount, exponentCount, actionCount)
+								@attendeePage.items.map { attendee =>
+									@partials.tableItem(attendee, event)
 								}
 							</tbody>
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(eventPage, (p: Int) => routes.Events.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+						@helpers.pagination(attendeePage, (p: Int) => routes.Attendees.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

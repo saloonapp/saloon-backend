@@ -77,9 +77,9 @@ object Events extends Controller {
       _.map { elt =>
         for {
           actions <- EventSrv.getActions(uuid)
-          (elt, sessionCount, exponentCount, actionCount) <- EventSrv.addMetadata(elt)
+          (elt, attendeeCount, sessionCount, exponentCount, actionCount) <- EventSrv.addMetadata(elt)
         } yield {
-          Ok(viewDetails(elt, sessionCount, exponentCount, actionCount, actions))
+          Ok(viewDetails(elt, attendeeCount, sessionCount, exponentCount, actionCount, actions))
         }
       }.getOrElse(Future(NotFound(views.html.error404())))
     }

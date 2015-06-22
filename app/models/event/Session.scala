@@ -17,7 +17,7 @@ case class SessionInfo(
   place: String, // where to find this session
   start: Option[DateTime],
   end: Option[DateTime],
-  speakers: List[Attendee],
+  speakers: List[Person],
   slides: Option[String],
   video: Option[String])
 case class SessionMeta(
@@ -57,7 +57,7 @@ object Session {
         d.get("info.place").getOrElse(""),
         d.get("info.start").flatMap(d => parseDate(d)),
         d.get("info.end").flatMap(d => parseDate(d)),
-        d.get("info.speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Attendee]]).getOrElse(List()),
+        d.get("info.speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
         d.get("info.slides"),
         d.get("info.video")),
       SessionMeta(
@@ -136,7 +136,7 @@ object SessionData {
       "place" -> text,
       "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-      "speakers" -> list(Attendee.fields),
+      "speakers" -> list(Person.fields),
       "slides" -> optional(text),
       "video" -> optional(text))(SessionInfo.apply)(SessionInfo.unapply),
     "meta" -> mapping(

@@ -1,0 +1,24 @@
+@import models.event.Event
+@import models.event.AttendeeData
+@(attendeeForm: Form[AttendeeData], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Créer un participant"){
+	<div class="row">
+		<div class="col-md-8">
+			<div class="widget">
+				<div class="widget-header">Créer un participant</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@routes.Attendees.doCreate(event.uuid)">
+						@partials.form(attendeeForm, event)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@routes.Attendees.list(event.uuid)" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Créer</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}
