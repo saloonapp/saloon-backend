@@ -18,6 +18,7 @@ case class SessionInfo(
   start: Option[DateTime],
   end: Option[DateTime],
   speakers: List[Person],
+  speakers2: Option[List[String]],
   slides: Option[String],
   video: Option[String])
 case class SessionMeta(
@@ -58,6 +59,7 @@ object Session {
         d.get("info.start").flatMap(d => parseDate(d)),
         d.get("info.end").flatMap(d => parseDate(d)),
         d.get("info.speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
+        Some(List()),
         d.get("info.slides"),
         d.get("info.video")),
       SessionMeta(
@@ -102,6 +104,7 @@ object Session {
     merge(e1.start, e2.start),
     merge(e1.end, e2.end),
     merge(e1.speakers, e2.speakers),
+    merge(e1.speakers2, e2.speakers2),
     merge(e1.slides, e2.slides),
     merge(e1.video, e2.video))
   private def merge(e1: SessionMeta, e2: SessionMeta): SessionMeta = SessionMeta(
@@ -137,12 +140,13 @@ object SessionData {
       "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "speakers" -> list(Person.fields),
+      "speakers2" -> optional(list(text)),
       "slides" -> optional(text),
       "video" -> optional(text))(SessionInfo.apply)(SessionInfo.unapply),
     "meta" -> mapping(
       "source" -> optional(DataSource.fields))(SessionMetaData.apply)(SessionMetaData.unapply))(SessionData.apply)(SessionData.unapply)
 
-  def toModel(d: SessionInfo): SessionInfo = SessionInfo(d.format, d.category, d.place, d.start, d.end, d.speakers.filter(!_.name.isEmpty), d.slides, d.video)
+  def toModel(d: SessionInfo): SessionInfo = SessionInfo(d.format, d.category, d.place, d.start, d.end, d.speakers.filter(!_.name.isEmpty), Some(List()), d.slides, d.video)
   def toModel(d: SessionMetaData): SessionMeta = SessionMeta(d.source, new DateTime(), new DateTime())
   def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.images, toModel(d.info), toModel(d.meta))
   def fromModel(d: SessionMeta): SessionMetaData = SessionMetaData(d.source)

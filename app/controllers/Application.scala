@@ -2,6 +2,7 @@ package controllers
 
 import common.Utils
 import models.event.Event
+import models.event.Attendee
 import models.event.Session
 import models.event.Exponent
 import models.user.Device
@@ -26,7 +27,33 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  def migrate = TODO
+  //def migrate = TODO
+  def migrate = Action.async {
+    migrateAttendee().map { res =>
+      Ok(Json.toJson(res))
+    }
+  }
+  private def migrateAttendee() = {
+    for {
+      sessions <- SessionRepository.findAll()
+      exponents <- ExponentRepository.findAll()
+    } yield {
+      val speakers = sessions.flatMap(s => s.info.speakers.map(_.transform(s.eventId, "speaker")))
+      val exponentAttendee = exponents.flatMap(s => s.info.team.map(_.transform(s.eventId, "exposant")))
+      val uniqAttendeesByEvent: Map[String, List[Attendee]] = (speakers ++ exponentAttendee).groupBy(_.eventId).map { case (eventId, attendees) => (eventId, attendees.groupBy(_.name).map(_._2.head).toList) }
+      val sessionsWithSpeakerIds = sessions.map { e =>
+        e.copy(info = e.info.copy(speakers2 = Some(e.info.speakers.map { s =>
+          uniqAttendeesByEvent.get(e.eventId).flatMap(_.find(_.name == s.name).map(_.uuid))
+        }.flatten)))
+      }
+      val exponentsWithTeamIds = exponents.map { e =>
+        e.copy(info = e.info.copy(team2 = Some(e.info.team.map { s =>
+          uniqAttendeesByEvent.get(e.eventId).flatMap(_.find(_.name == s.name).map(_.uuid))
+        }.flatten)))
+      }
+      uniqAttendeesByEvent
+    }
+  }
   /*def migrate = Action.async {
     for {
       m1 <- migrateEvents()

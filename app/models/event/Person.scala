@@ -1,7 +1,9 @@
 package models.event
 
+import common.infrastructure.repository.Repository
 import play.api.data.Forms._
 import play.api.libs.json.Json
+import org.joda.time.DateTime
 
 case class PersonSocial(
   siteUrl: Option[String],
@@ -26,7 +28,17 @@ case class Person(
   avatar: String,
   email: Option[String],
   profilUrl: String,
-  social: PersonSocial)
+  social: PersonSocial) {
+  def transform(eventId: String, role: String): Attendee = Attendee(
+    Repository.generateUuid(),
+    eventId,
+    this.name,
+    this.description,
+    AttendeeImages(this.avatar),
+    AttendeeInfo(role, "", this.company, Some(this.profilUrl)),
+    AttendeeSocial(this.social.siteUrl, this.social.facebookUrl, this.social.twitterUrl, this.social.linkedinUrl, this.social.githubUrl),
+    AttendeeMeta(None, new DateTime(), new DateTime()))
+}
 object Person {
   implicit val format = Json.format[Person]
   val fields = mapping(
