@@ -1,8 +1,18 @@
 $(function() {
 	$('[data-toggle="tooltip"]').tooltip();
 	$('.datetimepicker').datetimepicker();
-	$('.select2').select2({
-		theme: "bootstrap"
+	$('.select2').each(function(){
+		$(this).select2({
+			theme: 'bootstrap',
+			placeholder: $(this).attr('placeholder')
+		});
+	});
+	$('.select2-tags').each(function(){
+		$(this).select2({
+			theme: 'bootstrap',
+			placeholder: $(this).attr('placeholder'),
+			tags: true
+		});
 	});
 	$('.confirm').click(function(e){
 		if(!confirm('Sure ?')){

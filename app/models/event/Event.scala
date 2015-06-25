@@ -192,7 +192,7 @@ case class EventConfigData(
   branding: Option[EventConfigBrandingData],
   published: Boolean)
 case class EventMetaData(
-  categories: String,
+  categories: List[String],
   refreshUrl: Option[String],
   source: Option[DataSource])
 case class EventData(
@@ -230,7 +230,7 @@ object EventData {
         "exponentMenu" -> text)(EventConfigBrandingData.apply)(EventConfigBrandingData.unapply)),
       "published" -> boolean)(EventConfigData.apply)(EventConfigData.unapply),
     "meta" -> mapping(
-      "categories" -> text,
+      "categories" -> list(text),
       "refreshUrl" -> optional(text),
       "source" -> optional(DataSource.fields))(EventMetaData.apply)(EventMetaData.unapply))(EventData.apply)(EventData.unapply)
 
@@ -239,11 +239,11 @@ object EventData {
   def toModel(d: EventInfo): EventInfo = d.copy(social = toModel(d.social))
   def toModel(d: EventConfigBrandingData): EventConfigBranding = EventConfigBranding(d.primaryColor, d.secondaryColor, Utils.toList(d.dailySessionMenu), Utils.toList(d.exponentMenu))
   def toModel(d: EventConfigData): EventConfig = EventConfig(d.branding.map(b => toModel(b)), d.published)
-  def toModel(d: EventMetaData): EventMeta = EventMeta(Utils.toList(d.categories), d.refreshUrl, d.source, new DateTime(), new DateTime())
+  def toModel(d: EventMetaData): EventMeta = EventMeta(d.categories, d.refreshUrl, d.source, new DateTime(), new DateTime())
   def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.name, d.description, d.images, toModel(d.info), d.email, toModel(d.config), toModel(d.meta))
   def fromModel(d: EventConfigBranding): EventConfigBrandingData = EventConfigBrandingData(d.primaryColor, d.secondaryColor, Utils.fromList(d.dailySessionMenu), Utils.fromList(d.exponentMenu))
   def fromModel(d: EventConfig): EventConfigData = EventConfigData(d.branding.map(b => fromModel(b)), d.published)
-  def fromModel(d: EventMeta): EventMetaData = EventMetaData(Utils.fromList(d.categories), d.refreshUrl, d.source)
+  def fromModel(d: EventMeta): EventMetaData = EventMetaData(d.categories, d.refreshUrl, d.source)
   def fromModel(d: Event): EventData = EventData(d.name, d.description, d.images, d.info, d.email, fromModel(d.config), fromModel(d.meta))
   def merge(m: EventMeta, d: EventMetaData): EventMeta = toModel(d).copy(source = m.source, created = m.created)
   def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, meta = merge(m.meta, d.meta))

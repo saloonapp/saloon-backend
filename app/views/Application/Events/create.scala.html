@@ -1,5 +1,5 @@
 @import models.event.EventData
-@(eventForm: Form[EventData])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(eventForm: Form[EventData], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Créer un événement"){
 	<div class="row">
@@ -8,7 +8,7 @@
 				<div class="widget-header">Créer un événement</div>
 				<div class="widget-body">
 					<form class="form-horizontal" method="POST" action="@routes.Events.doCreate()">
-						@partials.form(eventForm)
+						@partials.form(eventForm, categories)
 						<div class="form-group">
 							<div class="col-md-offset-2 col-md-10">
 								<a href="@routes.Events.list()" class="btn btn-default">Annuler</a>

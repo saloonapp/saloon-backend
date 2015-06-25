@@ -1,5 +1,5 @@
 @import models.event.EventData
-@(eventForm: Form[EventData])
+@(eventForm: Form[EventData], categories: List[String])
 
 @import helpers.forms._
 
@@ -38,7 +38,7 @@
 </fieldset>
 <fieldset>
 	<legend>Meta :</legend>
-	@fieldHorizontal(eventForm("meta.categories"), 'label -> "Catégorie"){field => @inputText(field, 'placeholder -> "ex: emploi, tech, business") <p class="help-block info">Seule la 1ère catégorie sera affichée dans l'application</p>}
+	@fieldHorizontal(eventForm("meta.categories"), 'label -> "Catégorie"){field => @inputTags(field, categories, 'placeholder -> "ex: emploi, tech, business") <p class="help-block info">Seule la 1ère catégorie sera affichée dans l'application</p>}
 	@fieldHorizontal(eventForm("meta.refreshUrl"), 'label -> "Refresh Url"){field => @inputText(field, 'placeholder -> "ex: /api/v1/tools/scrapers/events/voxxrin/bzh15/formated") <p class="help-block info">Url qui retourne toutes les données de l'événement pour le mettre à jour</p>}
 	@* no meta.source yet *@
 </fieldset>

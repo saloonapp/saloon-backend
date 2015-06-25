@@ -9,8 +9,12 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import reactivemongo.api.DB
+import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.BSONArray
+import reactivemongo.core.commands.RawCommand
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
+import play.modules.reactivemongo.json.BSONFormats
 
 trait MongoDbEventRepository extends Repository[Event] {
   val db = ReactiveMongoPlugin.db
@@ -31,6 +35,20 @@ trait MongoDbEventRepository extends Repository[Event] {
       UserActionRepository.deleteByEvent(uuid)
       None
     } // TODO : return deleted elt !
+  }
+
+  def getCategories(): Future[List[String]] = {
+    val commandDoc = BSONDocument(
+      "aggregate" -> collection.name,
+      "pipeline" -> BSONArray(
+        BSONDocument("$unwind" -> "$meta.categories"),
+        BSONDocument("$group" -> BSONFormats.BSONDocumentFormat.reads(Json.obj("_id" -> JsNull, "categories" -> Json.obj("$addToSet" -> "$meta.categories"))).get)))
+
+    collection.db.command(RawCommand(commandDoc)).map { result =>
+      import play.modules.reactivemongo.json.BSONFormats._
+      // {"result":[{"_id":null,"categories":["drupal","tech","emploi"]}],"ok":1.0}
+      ((Json.toJson(result) \ "result")(0) \ "categories").as[List[String]]
+    }
   }
 
   def findByUuids(uuids: List[String]): Future[List[Event]] = crud.findByUuids(uuids)

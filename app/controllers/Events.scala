@@ -58,17 +58,21 @@ object Events extends Controller {
     }
   }
 
-  def create = Action { implicit req =>
-    Ok(viewCreate(form))
+  def create = Action.async { implicit req =>
+    EventRepository.getCategories().map { categories =>
+      Ok(viewCreate(form, categories))
+    }
   }
 
   def doCreate = Action.async { implicit req =>
     form.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewCreate(formWithErrors))),
-      formData => repository.insert(createElt(formData)).map {
+      formWithErrors => EventRepository.getCategories().map { categories => BadRequest(viewCreate(formWithErrors, categories)) },
+      formData => repository.insert(createElt(formData)).flatMap {
         _.map { elt =>
-          Redirect(mainRoute.list()).flashing("success" -> successCreateFlash(elt))
-        }.getOrElse(InternalServerError(viewCreate(form.fill(formData))).flashing("error" -> errorCreateFlash(formData)))
+          Future(Redirect(mainRoute.list()).flashing("success" -> successCreateFlash(elt)))
+        }.getOrElse {
+          EventRepository.getCategories().map { categories => InternalServerError(viewCreate(form.fill(formData), categories)).flashing("error" -> errorCreateFlash(formData)) }
+        }
       })
   }
 
@@ -154,9 +158,12 @@ object Events extends Controller {
   }
 
   def update(uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).map {
-      _.map { elt =>
-        Ok(viewUpdate(form.fill(toData(elt)), elt))
+    for {
+      eltOpt <- repository.getByUuid(uuid)
+      categories <- EventRepository.getCategories()
+    } yield {
+      eltOpt.map { elt =>
+        Ok(viewUpdate(form.fill(toData(elt)), elt, categories))
       }.getOrElse(NotFound(views.html.error404()))
     }
   }
@@ -165,11 +172,13 @@ object Events extends Controller {
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(viewUpdate(formWithErrors, elt))),
-          formData => repository.update(uuid, updateElt(elt, formData)).map {
+          formWithErrors => EventRepository.getCategories().map { categories => BadRequest(viewUpdate(formWithErrors, elt, categories)) },
+          formData => repository.update(uuid, updateElt(elt, formData)).flatMap {
             _.map { updatedElt =>
-              Redirect(mainRoute.details(uuid)).flashing("success" -> successUpdateFlash(updatedElt))
-            }.getOrElse(InternalServerError(viewUpdate(form.fill(formData), elt)).flashing("error" -> errorUpdateFlash(elt)))
+              Future(Redirect(mainRoute.details(uuid)).flashing("success" -> successUpdateFlash(updatedElt)))
+            }.getOrElse {
+              EventRepository.getCategories().map { categories => InternalServerError(viewUpdate(form.fill(formData), elt, categories)).flashing("error" -> errorUpdateFlash(elt)) }
+            }
           })
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
