@@ -33,6 +33,10 @@
 			<div class="widget">
 				<div class="widget-header">Exporter les données</div>
 				<div class="widget-body">
+					<form method="POST" action="@routes.Attendees.fileExport(event.uuid)">
+						<button type="submit" class="btn btn-success">Exporter les participants (.csv)</button>
+					</form>
+					<br>
 					<form method="POST" action="@routes.Sessions.fileExport(event.uuid)">
 						<button type="submit" class="btn btn-success">Exporter les sessions (.csv)</button>
 					</form>
@@ -44,6 +48,26 @@
 			</div>
 		</div>
 		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Importer les participants</div>
+				<div class="widget-body">
+					<form method="POST" action="@routes.Attendees.fileImport(event.uuid)" enctype="multipart/form-data">
+						@inputHidden(importForm("eventId"), 'value -> event.uuid)
+						@fieldCheckbox(importForm("shouldClean"), 'label -> "Supprimer les éléments existants")
+						@fieldVertical(importForm("encoding"), 'label -> "Encodage"){ field => @inputSelect(field, FileImportConfig.encodings) }
+						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
+							@inputFile(field, 'required -> "true")
+							<p class="help-block">
+								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
+								Champs obligatoires : <b>name</b><br>
+								Pour les autres champs, téléchargez un export comment exemple.<br>
+								Format des dates : @FileImporter.datePattern<br>
+							</p>
+						}
+						<button type="submit" class="btn btn-success">Importer les participants</button>
+					</form>
+				</div>
+			</div>
 			<div class="widget">
 				<div class="widget-header">Importer les sessions</div>
 				<div class="widget-body">
