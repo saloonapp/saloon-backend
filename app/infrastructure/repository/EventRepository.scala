@@ -47,7 +47,7 @@ trait MongoDbEventRepository extends Repository[Event] {
     collection.db.command(RawCommand(commandDoc)).map { result =>
       import play.modules.reactivemongo.json.BSONFormats._
       // {"result":[{"_id":null,"categories":["drupal","tech","emploi"]}],"ok":1.0}
-      ((Json.toJson(result) \ "result")(0) \ "categories").as[List[String]]
+      (Json.toJson(result) \ "result").as[JsArray].value.headOption.map { res => (res \ "categories").as[List[String]] }.getOrElse(List())
     }
   }
 
