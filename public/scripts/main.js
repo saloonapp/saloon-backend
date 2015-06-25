@@ -1,6 +1,9 @@
 $(function() {
 	$('[data-toggle="tooltip"]').tooltip();
 	$('.datetimepicker').datetimepicker();
+	$('.select2').select2({
+		theme: "bootstrap"
+	});
 	$('.confirm').click(function(e){
 		if(!confirm('Sure ?')){
 			e.preventDefault();

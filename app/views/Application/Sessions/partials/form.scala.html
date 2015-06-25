@@ -21,7 +21,7 @@
 	@fieldHorizontal(sessionForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B12")}
 	@fieldHorizontal(sessionForm("info.start"), 'label -> "Début"){field => @inputDatetime(field)}
 	@fieldHorizontal(sessionForm("info.end"), 'label -> "Fin"){field => @inputDatetime(field)}
-	@fieldHorizontal(sessionForm("info.speakers"), 'label -> "Speakers"){field => @inputSelectMulti(field, allAttendees.map(a => (a.uuid, a.name)))}
+	@fieldHorizontal(sessionForm("info.speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid, a.name)))}
 	@fieldHorizontal(sessionForm("info.slides"), 'label -> "Slides"){field => @inputText(field, 'placeholder -> "ex: http://fr.slideshare.net/loicknuchel/ionic-humantalks-11032015")}
 	@fieldHorizontal(sessionForm("info.video"), 'label -> "Vidéo"){field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/watch?v=EB2CZndGU9A")}
 </fieldset>

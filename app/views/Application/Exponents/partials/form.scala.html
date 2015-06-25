@@ -19,7 +19,7 @@
 	<legend>Infos :</legend>
 	@fieldHorizontal(exponentForm("info.website"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
 	@fieldHorizontal(exponentForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
-	@fieldHorizontal(exponentForm("info.team"), 'label -> "Equipe"){field => @inputSelectMulti(field, allAttendees.map(a => (a.uuid, a.name)))}
+	@fieldHorizontal(exponentForm("info.team"), 'label -> "Equipe"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid, a.name)))}
 	@fieldHorizontal(exponentForm("info.level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
 	@fieldHorizontal(exponentForm("info.sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}
 </fieldset>
