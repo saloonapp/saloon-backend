@@ -28,44 +28,12 @@ object Application extends Controller {
     Ok(views.html.Application.sample())
   }
 
-  //def migrate = TODO
-  def migrate = Action.async {
-    migrateAttendee().map { res =>
-      Ok(Json.toJson(res))
-    }
-  }
-  private def migrateAttendee() = {
-    val futureRes = for {
-      sessions <- SessionRepository.findAllOld()
-      exponents <- ExponentRepository.findAllOld()
-    } yield (sessions, exponents)
-
-    futureRes.flatMap {
-      case (sessions, exponents) =>
-        val speakers = sessions.flatMap(s => s.info.speakers.map(_.transform(s.eventId, "speaker")))
-        val exponentAttendee = exponents.flatMap(s => s.info.team.map(_.transform(s.eventId, "exposant")))
-        val uniqAttendeesByEvent: Map[String, List[Attendee]] = (exponentAttendee ++ speakers).groupBy(_.eventId).map { case (eventId, attendees) => (eventId, attendees.groupBy(_.name).map(_._2.head).toList) }
-        val sessionsWithSpeakerIds = sessions.map { e => e.transform(uniqAttendeesByEvent.get(e.eventId).getOrElse(List())) }
-        val exponentsWithTeamIds = exponents.map { e => e.transform(uniqAttendeesByEvent.get(e.eventId).getOrElse(List())) }
-        val allAttendees = uniqAttendeesByEvent.flatMap(_._2).toList
-        for {
-          attendeeInserted <- AttendeeRepository.bulkInsert(allAttendees)
-          sessionUpdates <- SessionRepository.bulkUpdate(sessionsWithSpeakerIds.map(e => (e.uuid, e)))
-          exponentUpdates <- ExponentRepository.bulkUpdate(exponentsWithTeamIds.map(e => (e.uuid, e)))
-        } yield {
-          Json.obj(
-            "attendeeInserted" -> attendeeInserted,
-            "sessionUpdates" -> sessionUpdates,
-            "exponentUpdates" -> exponentUpdates)
-        }
-    }
-  }
+  def migrate = TODO
   /*def migrate = Action.async {
     for {
       m1 <- migrateEvents()
       m2 <- migrateSessions()
       m3 <- migrateExponents()
-      m4 <- migrateDevices()
     } yield {
       Redirect(routes.Application.home).flashing("success" -> "Migrated !")
     }
@@ -84,13 +52,6 @@ object Application extends Controller {
     ExponentRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       ExponentRepository.update(e.uuid, e.transform())
     }))
-  }
-  private def migrateDevices(): Future[Int] = {
-    DeviceRepository.findAllUserOld().flatMap { list =>
-      DeviceRepository.bulkInsert(list.map(_.transform())).flatMap { inserted =>
-        DeviceRepository.dropUserOld().map { done => inserted }
-      }
-    }
   }*/
 
   def corsPreflight(all: String) = Action {

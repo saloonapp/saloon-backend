@@ -15,7 +15,6 @@ import play.modules.reactivemongo.ReactiveMongoPlugin
 trait MongoDbDeviceRepository extends Repository[Device] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.DEVICES)
-  lazy val userCollection: JSONCollection = db[JSONCollection](CollectionReferences.USERS)
 
   private val crud = MongoDbCrudUtils(collection, Device.format, List("info.uuid", "info.platform", "info.manufacturer", "info.model", "info.version", "info.cordova", "pushId", "saloonMemo"), "uuid")
 
