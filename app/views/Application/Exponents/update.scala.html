@@ -1,7 +1,8 @@
 @import models.event.Event
+@import models.event.Attendee
 @import models.event.Exponent
 @import models.event.ExponentData
-@(exponentForm: Form[ExponentData], exponent: Exponent, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(exponentForm: Form[ExponentData], exponent: Exponent, allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Modifier "+exponent.name){
 	<div class="row">
@@ -10,7 +11,7 @@
 				<div class="widget-header">Modifier @exponent.name</div>
 				<div class="widget-body">
 					<form class="form-horizontal" method="POST" action="@routes.Exponents.doUpdate(event.uuid, exponent.uuid)">
-						@partials.form(exponentForm, event)
+						@partials.form(exponentForm, allAttendees, event)
 						<div class="form-group">
 							<div class="col-md-offset-2 col-md-10">
 								<a href="@routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>

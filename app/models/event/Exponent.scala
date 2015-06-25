@@ -9,14 +9,51 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
+case class ExponentInfoOld(
+  website: String,
+  place: String,
+  team: List[Person],
+  level: Option[Int],
+  sponsor: Boolean)
+case class ExponentOld(
+  uuid: String,
+  eventId: String,
+  name: String,
+  description: String,
+  images: ExponentImages,
+  info: ExponentInfoOld,
+  config: ExponentConfig,
+  meta: ExponentMeta) {
+  def transform(attendees: List[Attendee]): Exponent = Exponent(
+    this.uuid,
+    this.eventId,
+    this.name,
+    this.description,
+    this.images,
+    ExponentInfo(
+      this.info.website,
+      this.info.place,
+      this.info.team.map { s => attendees.find(_.name == s.name).map(_.uuid) }.flatten,
+      this.info.level,
+      this.info.sponsor),
+    this.config,
+    this.meta)
+}
+object ExponentOld {
+  implicit val formatExponentImages = Json.format[ExponentImages]
+  implicit val formatExponentInfoOld = Json.format[ExponentInfoOld]
+  implicit val formatExponentConfig = Json.format[ExponentConfig]
+  implicit val formatExponentMeta = Json.format[ExponentMeta]
+  implicit val format = Json.format[ExponentOld]
+}
+
 case class ExponentImages(
   logo: String, // squared logo (~ 100x100)
   landing: String) // landscape img (~ 400x150)
 case class ExponentInfo(
   website: String,
   place: String, // where to find this exponent
-  team: List[Person], // people being part of this exponent
-  team2: Option[List[String]],
+  team: List[String], // attendees being part of this exponent
   level: Option[Int], // level of exponent (sponsoring) : lower is better
   sponsor: Boolean) // to show it on info tab
 case class ExponentConfig(
@@ -58,8 +95,7 @@ object Exponent {
       ExponentInfo(
         d.get("info.website").getOrElse(""),
         d.get("info.place").getOrElse(""),
-        d.get("info.team").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
-        Some(List()),
+        Utils.toList(d.get("info.team").getOrElse("")),
         d.get("info.level").flatMap(l => if (l.isEmpty) None else Some(l.toInt)),
         d.get("info.sponsor").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
       ExponentConfig(
@@ -78,7 +114,7 @@ object Exponent {
     "images.landing" -> e.images.landing,
     "info.website" -> e.info.website,
     "info.place" -> e.info.place,
-    "info.team" -> Json.stringify(Json.toJson(e.info.team)),
+    "info.team" -> Utils.fromList(e.info.team),
     "info.level" -> e.info.level.map(_.toString).getOrElse(""),
     "info.sponsor" -> e.info.sponsor.toString,
     "config.scanQRCode" -> e.config.scanQRCode.toString,
@@ -104,7 +140,6 @@ object Exponent {
     merge(e1.website, e2.website),
     merge(e1.place, e2.place),
     merge(e1.team, e2.team),
-    merge(e1.team2, e2.team2),
     merge(e1.level, e2.level),
     e2.sponsor)
   private def merge(e1: ExponentConfig, e2: ExponentConfig): ExponentConfig = ExponentConfig(
@@ -140,8 +175,7 @@ object ExponentData {
     "info" -> mapping(
       "website" -> text,
       "place" -> text,
-      "team" -> list(Person.fields),
-      "team2" -> optional(list(text)),
+      "team" -> list(text),
       "level" -> optional(number),
       "sponsor" -> boolean)(ExponentInfo.apply)(ExponentInfo.unapply),
     "config" -> mapping(
@@ -149,9 +183,8 @@ object ExponentData {
     "meta" -> mapping(
       "source" -> optional(DataSource.fields))(ExponentMetaData.apply)(ExponentMetaData.unapply))(ExponentData.apply)(ExponentData.unapply)
 
-  def toModel(d: ExponentInfo): ExponentInfo = ExponentInfo(d.website, d.place, d.team.filter(!_.name.isEmpty), Some(List()), d.level, d.sponsor)
   def toModel(d: ExponentMetaData): ExponentMeta = ExponentMeta(d.source, new DateTime(), new DateTime())
-  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.images, toModel(d.info), d.config, toModel(d.meta))
+  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.images, d.info, d.config, toModel(d.meta))
   def fromModel(d: ExponentMeta): ExponentMetaData = ExponentMetaData(d.source)
   def fromModel(d: Exponent): ExponentData = ExponentData(d.eventId, d.name, d.description, d.images, d.info, d.config, fromModel(d.meta))
   def merge(m: ExponentMeta, d: ExponentMetaData): ExponentMeta = toModel(d).copy(source = m.source, created = m.created)

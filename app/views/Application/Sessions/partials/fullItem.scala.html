@@ -1,14 +1,15 @@
+@import models.event.Attendee
 @import models.event.Session
 @import helpers.format._
 @import views.html.Application.format._
-@(session: Session)
+@(session: Session, sessionSpeakers: List[Attendee])
 
 <div class="media">
 	<div class="media-body">
 		<h4 class="media-heading">[@session.info.format] @session.name (@session.info.category)</h4>
 		<p>@datetimeOpt(session.info.start) - @datetimeOpt(session.info.end)</p>
 		<p class="well">@textMultiline(session.description)</p>
-		@session.info.speakers.map { speaker => @views.html.Application.partials.personListItem(speaker) }
+		@sessionSpeakers.map { speaker => @views.html.Application.Attendees.partials.listItem(speaker) }
 		<p class="text-muted">
 			@session.info.place
 			@session.info.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i></a> }

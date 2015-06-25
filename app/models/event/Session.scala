@@ -9,6 +9,47 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
+case class SessionInfoOld(
+  format: String,
+  category: String,
+  place: String, // where to find this session
+  start: Option[DateTime],
+  end: Option[DateTime],
+  speakers: List[Person],
+  slides: Option[String],
+  video: Option[String])
+case class SessionOld(
+  uuid: String,
+  eventId: String,
+  name: String,
+  description: String,
+  images: SessionImages,
+  info: SessionInfoOld,
+  meta: SessionMeta) {
+  def transform(attendees: List[Attendee]): Session = Session(
+    this.uuid,
+    this.eventId,
+    this.name,
+    this.description,
+    this.images,
+    SessionInfo(
+      this.info.format,
+      this.info.category,
+      this.info.place,
+      this.info.start,
+      this.info.end,
+      this.info.speakers.map { s => attendees.find(_.name == s.name).map(_.uuid) }.flatten,
+      this.info.slides,
+      this.info.video),
+    this.meta)
+}
+object SessionOld {
+  implicit val formatSessionImages = Json.format[SessionImages]
+  implicit val formatSessionInfoOld = Json.format[SessionInfoOld]
+  implicit val formatSessionMeta = Json.format[SessionMeta]
+  implicit val format = Json.format[SessionOld]
+}
+
 case class SessionImages(
   landing: String) // landscape img (~ 400x150)
 case class SessionInfo(
@@ -17,8 +58,7 @@ case class SessionInfo(
   place: String, // where to find this session
   start: Option[DateTime],
   end: Option[DateTime],
-  speakers: List[Person],
-  speakers2: Option[List[String]],
+  speakers: List[String],
   slides: Option[String],
   video: Option[String])
 case class SessionMeta(
@@ -58,8 +98,7 @@ object Session {
         d.get("info.place").getOrElse(""),
         d.get("info.start").flatMap(d => parseDate(d)),
         d.get("info.end").flatMap(d => parseDate(d)),
-        d.get("info.speakers").flatMap(json => if (json.isEmpty) None else Json.parse(json.replace("\r", "\\r").replace("\n", "\\n")).asOpt[List[Person]]).getOrElse(List()),
-        Some(List()),
+        Utils.toList(d.get("info.speakers").getOrElse("")),
         d.get("info.slides"),
         d.get("info.video")),
       SessionMeta(
@@ -78,7 +117,7 @@ object Session {
     "info.place" -> e.info.place,
     "info.start" -> e.info.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "info.end" -> e.info.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
-    "info.speakers" -> Json.stringify(Json.toJson(e.info.speakers)),
+    "info.speakers" -> Utils.fromList(e.info.speakers),
     "info.slides" -> e.info.slides.getOrElse(""),
     "info.video" -> e.info.video.getOrElse(""),
     "meta.source.ref" -> e.meta.source.map(_.ref).getOrElse(""),
@@ -104,7 +143,6 @@ object Session {
     merge(e1.start, e2.start),
     merge(e1.end, e2.end),
     merge(e1.speakers, e2.speakers),
-    merge(e1.speakers2, e2.speakers2),
     merge(e1.slides, e2.slides),
     merge(e1.video, e2.video))
   private def merge(e1: SessionMeta, e2: SessionMeta): SessionMeta = SessionMeta(
@@ -139,16 +177,14 @@ object SessionData {
       "place" -> text,
       "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-      "speakers" -> list(Person.fields),
-      "speakers2" -> optional(list(text)),
+      "speakers" -> list(text),
       "slides" -> optional(text),
       "video" -> optional(text))(SessionInfo.apply)(SessionInfo.unapply),
     "meta" -> mapping(
       "source" -> optional(DataSource.fields))(SessionMetaData.apply)(SessionMetaData.unapply))(SessionData.apply)(SessionData.unapply)
 
-  def toModel(d: SessionInfo): SessionInfo = SessionInfo(d.format, d.category, d.place, d.start, d.end, d.speakers.filter(!_.name.isEmpty), Some(List()), d.slides, d.video)
   def toModel(d: SessionMetaData): SessionMeta = SessionMeta(d.source, new DateTime(), new DateTime())
-  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.images, toModel(d.info), toModel(d.meta))
+  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.images, d.info, toModel(d.meta))
   def fromModel(d: SessionMeta): SessionMetaData = SessionMetaData(d.source)
   def fromModel(d: Session): SessionData = SessionData(d.eventId, d.name, d.description, d.images, d.info, fromModel(d.meta))
   def merge(m: SessionMeta, d: SessionMetaData): SessionMeta = toModel(d).copy(source = m.source, created = m.created)

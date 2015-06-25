@@ -1,6 +1,7 @@
 @import models.event.Event
+@import models.event.Attendee
 @import models.event.Exponent
-@(exponent: Exponent, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(exponent: Exponent, exponentTeam: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout(exponent.name) {
 	<div class="row">
@@ -15,7 +16,7 @@
 					</div>
 				</div>
 				<div class="widget-body">
-					@partials.fullItem(exponent)
+					@partials.fullItem(exponent, exponentTeam)
 				</div>
 			</div>
 		</div>

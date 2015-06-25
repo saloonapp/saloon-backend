@@ -1,6 +1,8 @@
 package controllers.api.compatibility
 
 import models.event.Event
+import models.event.Attendee
+import models.event.Attendee._
 import models.event.Session
 import models.event.Exponent
 import models.user.Device
@@ -28,8 +30,16 @@ object Writer {
     "created" -> data.meta.created,
     "updated" -> data.meta.updated,
     "className" -> Event.className)
+  // def write(data: Attendee): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Attendee.className)
+  def write(data: Attendee): JsObject = Json.obj(
+    "name" -> data.name,
+    "description" -> data.description,
+    "company" -> data.info.company,
+    "avatar" -> data.images.avatar,
+    "profilUrl" -> data.info.website,
+    "social" -> Json.toJson(data.social))
   //def write(data: Session): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Session.className)
-  def write(data: Session): JsObject = Json.obj(
+  def write(data: Session, speakers: List[Attendee]): JsObject = Json.obj(
     "uuid" -> data.uuid,
     "eventId" -> data.eventId,
     "name" -> data.name,
@@ -39,13 +49,13 @@ object Writer {
     "place" -> data.info.place,
     "start" -> data.info.start,
     "end" -> data.info.end,
-    "speakers" -> data.info.speakers,
+    "speakers" -> speakers.map(write),
     "tags" -> Json.arr(),
     "created" -> data.meta.created,
     "updated" -> data.meta.updated,
     "className" -> Session.className)
   //def write(data: Exponent): JsObject = Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Exponent.className)
-  def write(data: Exponent): JsObject = Json.obj(
+  def write(data: Exponent, team: List[Attendee]): JsObject = Json.obj(
     "uuid" -> data.uuid,
     "eventId" -> data.eventId,
     "name" -> data.name,
@@ -53,7 +63,7 @@ object Writer {
     "logoUrl" -> data.images.logo,
     "landingUrl" -> data.images.landing,
     "siteUrl" -> data.info.website,
-    "team" -> data.info.team,
+    "team" -> team.map(write),
     "level" -> data.info.level,
     "sponsor" -> data.info.sponsor,
     "tags" -> Json.arr(),

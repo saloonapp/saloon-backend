@@ -1,9 +1,10 @@
 @import models.event.Event
+@import models.event.Attendee
 @import models.event.Session
 @import models.event.Exponent
 @import models.user.UserAction
 @import services.UserActionSrv
-@(event: Event, sessions: List[Session], exponents: List[Exponent], actions: List[UserAction], filter: String)
+@(event: Event, sessions: List[(Session, List[Attendee])], exponents: List[(Exponent, List[Attendee])], actions: List[UserAction], filter: String)
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
@@ -24,7 +25,7 @@
 				<div>
 					<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les exposants que tu as vu</h3>
 					<div class="row">
-						@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+						@exponents.map { case (exponent, team, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
 						<div class="clearfix" style="clear: both;"></div>
 					</div>
 				</div>
@@ -34,7 +35,7 @@
 				<div>
 					<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Tes sessions en favoris</h3>
 					<div class="row">
-						@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
+						@sessions.map { case (session, speakers, moodOpt, comments) => @Mail.partials.session(session, speakers, moodOpt, comments) }
 						<div class="clearfix" style="clear: both;"></div>
 					</div>
 				</div>
@@ -45,7 +46,7 @@
 					<div>
 						<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les sessions hors favoris</h3>
 						<div class="row">
-							@sessions.map { case (session, moodOpt, comments) => @Mail.partials.session(session, moodOpt, comments) }
+							@sessions.map { case (session, speakers, moodOpt, comments) => @Mail.partials.session(session, speakers, moodOpt, comments) }
 							<div class="clearfix" style="clear: both;"></div>
 						</div>
 					</div>
@@ -54,7 +55,7 @@
 					<div>
 						<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les exposants non vus</h3>
 						<div class="row">
-							@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+							@exponents.map { case (exponent, team, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
 							<div class="clearfix" style="clear: both;"></div>
 						</div>
 					</div>
@@ -65,7 +66,7 @@
 					<div>
 						<h3 style="font-size: 24px; margin-top: 20px; margin-bottom: 10px; font-weight: 500; line-height: 1.1;">Les exposants non vus mais en favoris</h3>
 						<div class="row">
-							@exponents.map { case (exponent, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
+							@exponents.map { case (exponent, team, moodOpt, comments) => @Mail.partials.exponent(exponent, moodOpt, comments) }
 							<div class="clearfix" style="clear: both;"></div>
 						</div>
 					</div>

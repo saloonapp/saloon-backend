@@ -2,6 +2,7 @@ package controllers.api
 
 import common.models.Page
 import common.infrastructure.repository.Repository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.ExponentRepository
 import models.event.Exponent
 import controllers.api.compatibility.Writer
@@ -15,22 +16,28 @@ object Exponents extends Controller {
   val repository: Repository[Exponent] = ExponentRepository
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("name")).map { eltPage =>
-      Ok(Json.toJson(eltPage.map(Writer.write)))
+    ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("name")).flatMap { eltPage =>
+      AttendeeRepository.findByUuids(eltPage.items.flatMap(_.info.team).toList).map { attendees =>
+        Ok(Json.toJson(eltPage.map(e => Writer.write(e, attendees.filter(a => e.info.team.contains(a.uuid))))))
+      }
     }
   }
 
   def listAll(eventId: String) = Action.async { implicit req =>
-    ExponentRepository.findByEvent(eventId).map { elts =>
-      Ok(Json.toJson(elts.map(Writer.write)))
+    ExponentRepository.findByEvent(eventId).flatMap { elts =>
+      AttendeeRepository.findByUuids(elts.flatMap(_.info.team)).map { attendees =>
+        Ok(Json.toJson(elts.map(e => Writer.write(e, attendees.filter(a => e.info.team.contains(a.uuid))))))
+      }
     }
   }
 
   def details(eventId: String, uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).map {
+    repository.getByUuid(uuid).flatMap {
       _.map { elt =>
-        Ok(Writer.write(elt))
-      }.getOrElse(NotFound)
+        AttendeeRepository.findByUuids(elt.info.team).map { attendees =>
+          Ok(Writer.write(elt, attendees))
+        }
+      }.getOrElse(Future(NotFound))
     }
   }
 }

@@ -3,6 +3,7 @@ package controllers.api
 import common.models.Page
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import models.event.Event
@@ -46,12 +47,13 @@ object Events extends Controller {
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
+          attendees <- AttendeeRepository.findByEvent(elt.uuid)
           sessions <- SessionRepository.findByEvent(elt.uuid)
           exponents <- ExponentRepository.findByEvent(elt.uuid)
         } yield {
           Ok(Writer.write(elt) ++ Json.obj(
-            "sessions" -> sessions.map(Writer.write),
-            "exponents" -> exponents.map(Writer.write)))
+            "sessions" -> sessions.map(e => Writer.write(e, attendees.filter(a => e.info.speakers.contains(a.uuid)))),
+            "exponents" -> exponents.map(e => Writer.write(e, attendees.filter(a => e.info.team.contains(a.uuid))))))
         }
       }.getOrElse(Future(NotFound(Json.obj("message" -> s"Event $uuid not found !"))))
     }

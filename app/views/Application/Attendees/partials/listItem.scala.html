@@ -1,20 +1,19 @@
-@import models.event.Person
-@(attendee: Person)
+@import models.event.Attendee
+@(attendee: Attendee)
 
 <div class="media">
 	<div class="media-left">
-		<img class="media-object" src="@attendee.avatar">
+		<img class="media-object" src="@attendee.images.avatar">
 	</div>
 	<div class="media-body">
 		<h4 class="media-heading">
-			@if(attendee.profilUrl.isEmpty){ @attendee.name }
-			@if(!attendee.profilUrl.isEmpty){ <a href="@attendee.profilUrl" target="_blank">@attendee.name</a> }
-			@if(!attendee.company.isEmpty){ (@attendee.company) }
+			@attendee.name
+			@if(!attendee.info.company.isEmpty){ (@attendee.info.company) }
 		</h4>
 		@attendee.description
 		<p>
-			@attendee.email.map { email => <a href="mailto:@email" target="_blank">@email</a> }.getOrElse("")
-			@attendee.social.siteUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
+			@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
+			@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-comment"></i></a> }.getOrElse("")
 			@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
 			@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
 			@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")

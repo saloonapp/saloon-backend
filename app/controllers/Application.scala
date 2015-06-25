@@ -17,6 +17,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.Json
+import infrastructure.repository.AttendeeRepository
 
 object Application extends Controller {
 
@@ -34,24 +35,29 @@ object Application extends Controller {
     }
   }
   private def migrateAttendee() = {
-    for {
-      sessions <- SessionRepository.findAll()
-      exponents <- ExponentRepository.findAll()
-    } yield {
-      val speakers = sessions.flatMap(s => s.info.speakers.map(_.transform(s.eventId, "speaker")))
-      val exponentAttendee = exponents.flatMap(s => s.info.team.map(_.transform(s.eventId, "exposant")))
-      val uniqAttendeesByEvent: Map[String, List[Attendee]] = (speakers ++ exponentAttendee).groupBy(_.eventId).map { case (eventId, attendees) => (eventId, attendees.groupBy(_.name).map(_._2.head).toList) }
-      val sessionsWithSpeakerIds = sessions.map { e =>
-        e.copy(info = e.info.copy(speakers2 = Some(e.info.speakers.map { s =>
-          uniqAttendeesByEvent.get(e.eventId).flatMap(_.find(_.name == s.name).map(_.uuid))
-        }.flatten)))
-      }
-      val exponentsWithTeamIds = exponents.map { e =>
-        e.copy(info = e.info.copy(team2 = Some(e.info.team.map { s =>
-          uniqAttendeesByEvent.get(e.eventId).flatMap(_.find(_.name == s.name).map(_.uuid))
-        }.flatten)))
-      }
-      uniqAttendeesByEvent
+    val futureRes = for {
+      sessions <- SessionRepository.findAllOld()
+      exponents <- ExponentRepository.findAllOld()
+    } yield (sessions, exponents)
+
+    futureRes.flatMap {
+      case (sessions, exponents) =>
+        val speakers = sessions.flatMap(s => s.info.speakers.map(_.transform(s.eventId, "speaker")))
+        val exponentAttendee = exponents.flatMap(s => s.info.team.map(_.transform(s.eventId, "exposant")))
+        val uniqAttendeesByEvent: Map[String, List[Attendee]] = (exponentAttendee ++ speakers).groupBy(_.eventId).map { case (eventId, attendees) => (eventId, attendees.groupBy(_.name).map(_._2.head).toList) }
+        val sessionsWithSpeakerIds = sessions.map { e => e.transform(uniqAttendeesByEvent.get(e.eventId).getOrElse(List())) }
+        val exponentsWithTeamIds = exponents.map { e => e.transform(uniqAttendeesByEvent.get(e.eventId).getOrElse(List())) }
+        val allAttendees = uniqAttendeesByEvent.flatMap(_._2).toList
+        for {
+          attendeeInserted <- AttendeeRepository.bulkInsert(allAttendees)
+          sessionUpdates <- SessionRepository.bulkUpdate(sessionsWithSpeakerIds.map(e => (e.uuid, e)))
+          exponentUpdates <- ExponentRepository.bulkUpdate(exponentsWithTeamIds.map(e => (e.uuid, e)))
+        } yield {
+          Json.obj(
+            "attendeeInserted" -> attendeeInserted,
+            "sessionUpdates" -> sessionUpdates,
+            "exponentUpdates" -> exponentUpdates)
+        }
     }
   }
   /*def migrate = Action.async {

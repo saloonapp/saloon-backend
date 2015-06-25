@@ -44,8 +44,8 @@ case class VoxxrinSession(
         this.room.toPlace(),
         VoxxrinSession.parseDate(this.fromTime),
         VoxxrinSession.parseDate(this.toTime),
-        this.speakers.map(_.map(_.toSpeaker())).getOrElse(List()),
-        Some(List()),
+        // TODO this.speakers.map(_.map(_.toSpeaker())).getOrElse(List()),
+        List(),
         None,
         None),
       SessionMeta(

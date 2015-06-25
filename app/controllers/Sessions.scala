@@ -9,6 +9,7 @@ import services.FileImporter
 import services.FileExporter
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -51,9 +52,12 @@ object Sessions extends Controller {
   }
 
   def create(eventId: String) = Action.async { implicit req =>
-    EventRepository.getByUuid(eventId).map { eventOpt =>
+    for {
+      eventOpt <- EventRepository.getByUuid(eventId)
+      allAttendees <- AttendeeRepository.findByEvent(eventId)
+    } yield {
       eventOpt
-        .map { event => Ok(viewCreate(form, event)) }
+        .map { event => Ok(viewCreate(form, allAttendees, event)) }
         .getOrElse(NotFound(views.html.error404()))
     }
   }
@@ -62,24 +66,33 @@ object Sessions extends Controller {
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         form.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(viewCreate(formWithErrors, event))),
-          formData => repository.insert(createElt(formData)).map {
+          formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(viewCreate(formWithErrors, allAttendees, event)) },
+          formData => repository.insert(createElt(formData)).flatMap {
             _.map { elt =>
-              Redirect(mainRoute.list(eventId)).flashing("success" -> successCreateFlash(elt))
-            }.getOrElse(InternalServerError(viewCreate(form.fill(formData), event)).flashing("error" -> errorCreateFlash(formData)))
+              Future(Redirect(mainRoute.list(eventId)).flashing("success" -> successCreateFlash(elt)))
+            }.getOrElse {
+              AttendeeRepository.findByEvent(eventId).map { allAttendees =>
+                InternalServerError(viewCreate(form.fill(formData), allAttendees, event)).flashing("error" -> errorCreateFlash(formData))
+              }
+            }
           })
       }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
 
   def details(eventId: String, uuid: String) = Action.async { implicit req =>
-    for {
+    val futureData = for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
-    } yield {
-      eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(viewDetails(elt, event)) }
-      }.getOrElse(NotFound(views.html.error404()))
+    } yield (eltOpt, eventOpt)
+
+    futureData.flatMap {
+      case (eltOpt, eventOpt) =>
+        eltOpt.flatMap { elt =>
+          eventOpt.map { event =>
+            AttendeeRepository.findByUuids(elt.info.speakers).map { attendees => Ok(viewDetails(elt, attendees, event)) }
+          }
+        }.getOrElse(Future(NotFound(views.html.error404())))
     }
   }
 
@@ -87,9 +100,10 @@ object Sessions extends Controller {
     for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
+      allAttendees <- AttendeeRepository.findByEvent(eventId)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(viewUpdate(form.fill(toData(elt)), elt, event)) }
+        eventOpt.map { event => Ok(viewUpdate(form.fill(toData(elt)), elt, allAttendees, event)) }
       }.getOrElse(NotFound(views.html.error404()))
     }
   }
@@ -104,11 +118,15 @@ object Sessions extends Controller {
       data._1.flatMap { elt =>
         data._2.map { event =>
           form.bindFromRequest.fold(
-            formWithErrors => Future(BadRequest(viewUpdate(formWithErrors, elt, event))),
-            formData => repository.update(uuid, updateElt(elt, formData)).map {
+            formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(viewUpdate(formWithErrors, elt, allAttendees, event)) },
+            formData => repository.update(uuid, updateElt(elt, formData)).flatMap {
               _.map { updatedElt =>
-                Redirect(mainRoute.list(eventId)).flashing("success" -> successUpdateFlash(updatedElt))
-              }.getOrElse(InternalServerError(viewUpdate(form.fill(formData), elt, event)).flashing("error" -> errorUpdateFlash(elt)))
+                Future(Redirect(mainRoute.list(eventId)).flashing("success" -> successUpdateFlash(updatedElt)))
+              }.getOrElse {
+                AttendeeRepository.findByEvent(eventId).map { allAttendees =>
+                  InternalServerError(viewUpdate(form.fill(formData), elt, allAttendees, event)).flashing("error" -> errorUpdateFlash(elt))
+                }
+              }
             })
         }
       }.getOrElse(Future(NotFound(views.html.error404())))

@@ -1,6 +1,7 @@
 @import models.event.Event
+@import models.event.Attendee
 @import models.event.Session
-@(session: Session, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(session: Session, sessionSpeakers: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout(session.name) {
 	<div class="row">
@@ -15,7 +16,7 @@
 					</div>
 				</div>
 				<div class="widget-body">
-					@partials.fullItem(session)
+					@partials.fullItem(session, sessionSpeakers)
 				</div>
 			</div>
 		</div>

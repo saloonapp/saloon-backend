@@ -5,12 +5,13 @@
 @(session: Session, event: Event)
 
 <tr>
-	<td>@session.name</td>
+	<td><a href="@routes.Sessions.details(event.uuid, session.uuid)">@session.name</a></td>
 	<td>@session.info.format</td>
 	<td>@session.info.category</td>
 	<td>@datetimeOpt(session.info.start)</td>
 	<td>@session.info.place</td>
 	<td>@session.description</td>
+	<td>@session.info.speakers.length speakers</td>
 	<td>
 		@session.info.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i></a> }
 		@session.info.video.map { link => <a href="@link" target="_blank"><i class="fa fa-youtube"></i></a> }

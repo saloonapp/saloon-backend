@@ -2,6 +2,7 @@ package controllers.api
 
 import common.models.Page
 import common.infrastructure.repository.Repository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import models.event.Session
 import controllers.api.compatibility.Writer
@@ -15,22 +16,28 @@ object Sessions extends Controller {
   val repository: Repository[Session] = SessionRepository
 
   def list(eventId: String, query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
-    SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start")).map { eltPage =>
-      Ok(Json.toJson(eltPage.map(Writer.write)))
+    SessionRepository.findPageByEvent(eventId, query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start")).flatMap { eltPage =>
+      AttendeeRepository.findByUuids(eltPage.items.flatMap(_.info.speakers).toList).map { attendees =>
+        Ok(Json.toJson(eltPage.map(e => Writer.write(e, attendees.filter(a => e.info.speakers.contains(a.uuid))))))
+      }
     }
   }
 
   def listAll(eventId: String) = Action.async { implicit req =>
-    SessionRepository.findByEvent(eventId).map { elts =>
-      Ok(Json.toJson(elts.map(Writer.write)))
+    SessionRepository.findByEvent(eventId).flatMap { elts =>
+      AttendeeRepository.findByUuids(elts.flatMap(_.info.speakers)).map { attendees =>
+        Ok(Json.toJson(elts.map(e => Writer.write(e, attendees.filter(a => e.info.speakers.contains(a.uuid))))))
+      }
     }
   }
 
   def details(eventId: String, uuid: String) = Action.async { implicit req =>
-    repository.getByUuid(uuid).map {
+    repository.getByUuid(uuid).flatMap {
       _.map { elt =>
-        Ok(Writer.write(elt))
-      }.getOrElse(NotFound)
+        AttendeeRepository.findByUuids(elt.info.speakers).map { attendees =>
+          Ok(Writer.write(elt, attendees))
+        }
+      }.getOrElse(Future(NotFound))
     }
   }
 }

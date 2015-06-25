@@ -34,7 +34,7 @@ object Devices extends Controller {
 
   def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
     val curPage = page.getOrElse(1)
-    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-start")).map { eltPage =>
+    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-meta.created")).map { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
         Redirect(mainRoute.list(query, Some(eltPage.totalPages), pageSize, sort))
       else

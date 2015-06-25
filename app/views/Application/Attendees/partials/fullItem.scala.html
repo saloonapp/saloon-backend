@@ -13,7 +13,7 @@
 		<p class="well">@textMultiline(attendee.description)</p>
 		<p class="text-muted">
 			@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
-			@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
+			@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-comment"></i></a> }.getOrElse("")
 			@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
 			@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
 			@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")
