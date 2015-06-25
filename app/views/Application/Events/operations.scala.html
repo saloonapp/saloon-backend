@@ -27,7 +27,7 @@
 			<div class="widget">
 				<div class="widget-header">Envoi du bilan</div>
 				<div class="widget-body">
-					<a href="@routes.Events.reportsPreview(event.uuid)" class="btn btn-success">Prévisualiser les bilans</a>
+					<a href="@routes.Events.reportsPreview(event.uuid)" class="btn btn-success">Prévisualiser les emails bilan</a>
 				</div>
 			</div>
 			<div class="widget">
@@ -48,6 +48,11 @@
 			</div>
 		</div>
 		<div class="col-md-6">
+			<div class="alert alert-success" role="alert">
+				Les fichiers importés doivent être au format <b>.csv</b> avec une ligne d'en-tête et le séparateur ';'<br>
+				Les dates doivent être formatées comme suit : <b>@FileImporter.datePattern</b><br>
+				Pensez à télécharger un export pour vous servir d'exemple.
+			</div>
 			<div class="widget">
 				<div class="widget-header">Importer les participants</div>
 				<div class="widget-body">
@@ -57,12 +62,7 @@
 						@fieldVertical(importForm("encoding"), 'label -> "Encodage"){ field => @inputSelect(field, FileImportConfig.encodings) }
 						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
-							<p class="help-block">
-								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
-								Champs obligatoires : <b>name</b><br>
-								Pour les autres champs, téléchargez un export comment exemple.<br>
-								Format des dates : @FileImporter.datePattern<br>
-							</p>
+							<p class="help-block">Champs obligatoires : <b>name</b></p>
 						}
 						<button type="submit" class="btn btn-success">Importer les participants</button>
 					</form>
@@ -77,12 +77,7 @@
 						@fieldVertical(importForm("encoding"), 'label -> "Encodage"){ field => @inputSelect(field, FileImportConfig.encodings) }
 						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
-							<p class="help-block">
-								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
-								Champs obligatoires : <b>name</b><br>
-								Pour les autres champs, téléchargez un export comment exemple.<br>
-								Format des dates : @FileImporter.datePattern<br>
-							</p>
+							<p class="help-block">Champs obligatoires : <b>name</b></p>
 						}
 						<button type="submit" class="btn btn-success">Importer les sessions</button>
 					</form>
@@ -97,12 +92,7 @@
 						@fieldVertical(importForm("encoding"), 'label -> "Encodage"){ field => @inputSelect(field, FileImportConfig.encodings) }
 						@fieldVertical(importForm("importedFile"), 'label -> "Fichier"){ field =>
 							@inputFile(field, 'required -> "true")
-							<p class="help-block">
-								Le fichier doit être un fichier .csv avec une ligne d'en-tête et le séparateur ';'.<br>
-								Champs obligatoires : <b>name</b><br>
-								Pour les autres champs, téléchargez un export comment exemple.<br>
-								Format des dates : @FileImporter.datePattern<br>
-							</p>
+							<p class="help-block">Champs obligatoires : <b>name</b></p>
 						}
 						<button type="submit" class="btn btn-success">Importer les exposants</button>
 					</form>

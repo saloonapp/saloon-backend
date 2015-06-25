@@ -124,6 +124,9 @@ GET       /api/v1/tools/scrapers/events/lanyrd/:year/:id                        
 GET       /api/v1/tools/scrapers/events/foiresetsalons/details                        controllers.tools.FoiresEtSalons.getEvent(url: String)
 GET       /api/v1/tools/scrapers/events/foiresetsalons/:page                          controllers.tools.FoiresEtSalons.getEvents(page: String, format: String ?= "csv")
 GET       /api/v1/tools/scrapers/events/foiresetsalons/:page/full                     controllers.tools.FoiresEtSalons.getEventsFull(page: String, offset: Int ?= 0, size: Int ?= 5, format: String ?= "csv")
+GET       /api/v1/tools/scrapers/events/innorobo/exhibitors                           controllers.tools.Innorobo.getExibitors()
+GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                      controllers.tools.Innorobo.getFullExibitors(offset: Int ?= 0, limit: Int ?= 5, format: String ?= "json")
+GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId              controllers.tools.Innorobo.getExibitor(exhibitorId: String)
 
 GET       /api/v1/tools/scrapers/metas                                                controllers.tools.Scrapers.getMetas(url: String)
 
