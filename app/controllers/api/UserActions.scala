@@ -40,6 +40,16 @@ object UserActions extends Controller {
     }
   }
 
+  def deleteMood(eventId: String, itemType: String, itemId: String) = Action.async { implicit req =>
+    withUser() { user =>
+      withData(eventId, itemType, itemId) { (event, item) =>
+        UserActionRepository.deleteMood(user.uuid, itemType, item.uuid).map { lastError =>
+          if (lastError.ok) { if (lastError.n == 0) NotFound(Json.obj("message" -> s"Unable to find mood for item $itemType.$itemId")) else NoContent } else { InternalServerError }
+        }
+      }
+    }
+  }
+
   def createComment(eventId: String, itemType: String, itemId: String) = Action.async(parse.json) { implicit req =>
     bodyWith("text") { text =>
       withUser() { user =>
