@@ -16,9 +16,11 @@ import services.MailSrv
 import services.MandrillSrv
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.UserActionRepository
+import controllers.api.compatibility.Writer
 import scala.util.Try
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -26,6 +28,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.libs.json._
+import infrastructure.repository.EventRepository
 
 object Events extends Controller {
   val form: Form[EventData] = Form(EventData.fields)
@@ -74,6 +77,31 @@ object Events extends Controller {
           EventRepository.getCategories().map { categories => InternalServerError(viewCreate(form.fill(formData), categories)).flashing("error" -> errorCreateFlash(formData)) }
         }
       })
+  }
+
+  def doCreateFromUrl = Action.async { implicit req =>
+    getFormParam("url").map { url =>
+      val eventUrl = EventSrv.formatUrl(url)
+      EventSrv.fetchFullEvent(eventUrl).flatMap {
+        _.map {
+          case (event, attendees, sessions, exponents) =>
+            EventRepository.getByUuid(event.uuid).flatMap {
+              _.map { localEvent =>
+                Future(Redirect(mainRoute.create()).flashing("error" -> s"L'événement ${event.uuid} existe déjà !"))
+              }.getOrElse {
+                EventSrv.insertAll(event, attendees, sessions, exponents).map {
+                  _.map {
+                    case (event, attendeeCount, sessionCount, exponentCount) =>
+                      Redirect(mainRoute.details(event.uuid)).flashing("success" -> s"Evénément ${event.name} créé avec $attendeeCount attendees, $sessionCount sessions, $exponentCount exponents")
+                  }.getOrElse {
+                    Redirect(mainRoute.create()).flashing("error" -> s"Problème lors de la création de l'événément ${event.name} (${event.uuid})")
+                  }
+                }
+              }
+            }
+        }.getOrElse(Future(Redirect(mainRoute.create()).flashing("error" -> s"Pas d'événement trouvé à l'url : <b>$eventUrl</b>")))
+      }
+    }.getOrElse(Future(Redirect(mainRoute.create()).flashing("error" -> "Le champ 'url' est nécessaire !")))
   }
 
   def details(uuid: String) = Action.async { implicit req =>
@@ -218,24 +246,26 @@ object Events extends Controller {
         getData.flatMap {
           case (fullEventOpt, localEventOpt) =>
             (for {
-              (remoteEvent, remoteSessions, remoteExponents) <- fullEventOpt
+              (remoteEvent, remoteAttendees, remoteSessions, remoteExponents) <- fullEventOpt
               localEvent <- localEventOpt
             } yield {
               val getData = for {
+                localAttendees <- AttendeeRepository.findByEvent(remoteEvent.uuid)
                 localSessions <- SessionRepository.findByEvent(remoteEvent.uuid)
                 localExponents <- ExponentRepository.findByEvent(remoteEvent.uuid)
-              } yield (localEventOpt, localSessions, localExponents)
+              } yield (localEventOpt, localAttendees, localSessions, localExponents)
 
               getData.flatMap {
-                case (localEventOpt, localSessions, localExponents) =>
+                case (localEventOpt, localAttendees, localSessions, localExponents) =>
                   localEventOpt.map { localEvent =>
-                    val remoteSource = Json.obj("event" -> remoteEvent, "sessions" -> remoteSessions, "exponents" -> remoteExponents)
+                    val remoteSource = Writer.write(remoteEvent, remoteAttendees, remoteSessions, remoteExponents, Writer.lastVersion)
                     val updatedEvent = localEvent.merge(remoteEvent)
+                    val (createdAttendees, deletedAttendees, updatedAttendees) = EventSrv.attendeeDiff(localAttendees, remoteAttendees)
                     val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
                     val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
-                    Future(Ok(views.html.Application.Events.refresh(localEvent, updatedEvent, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource)))
+                    Future(Ok(views.html.Application.Events.refresh(localEvent, updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource)))
                   }.getOrElse {
-                    EventSrv.insertAll(remoteEvent, remoteSessions, remoteExponents).map { insertedOpt =>
+                    EventSrv.insertAll(remoteEvent, remoteAttendees, remoteSessions, remoteExponents).map { insertedOpt =>
                       if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${remoteEvent.name}</b> bien créé") }
                       else { InternalServerError(viewOps(localEvent, urlImportForm.fill(formData), fileImportForm)(req.flash + ("error" -> s"Erreur pendant la création de ${remoteEvent.name} (id: ${remoteEvent.uuid})"))) }
                     }
@@ -253,16 +283,18 @@ object Events extends Controller {
           val eventUrl = EventSrv.formatUrl(url)
           for {
             remoteSourceOpt <- EventSrv.fetchFullEvent(eventUrl)
+            localAttendees <- AttendeeRepository.findByEvent(uuid)
             localSessions <- SessionRepository.findByEvent(uuid)
             localExponents <- ExponentRepository.findByEvent(uuid)
           } yield {
             remoteSourceOpt.map {
-              case (remoteEvent, remoteSessions, remoteExponents) =>
-                val remoteSource = Json.obj("event" -> remoteEvent, "sessions" -> remoteSessions, "exponents" -> remoteExponents)
+              case (remoteEvent, remoteAttendees, remoteSessions, remoteExponents) =>
+                val remoteSource = Writer.write(remoteEvent, remoteAttendees, remoteSessions, remoteExponents, Writer.lastVersion)
                 val updatedEvent = localEvent.merge(remoteEvent)
+                val (createdAttendees, deletedAttendees, updatedAttendees) = EventSrv.attendeeDiff(localAttendees, remoteAttendees)
                 val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
                 val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
-                Ok(views.html.Application.Events.refresh(localEvent, updatedEvent, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource))
+                Ok(views.html.Application.Events.refresh(localEvent, updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource))
             }.getOrElse(Ok(s"Result of url $url is incorrect !"))
           }
         }.getOrElse(Future(BadRequest(views.html.error(s"Event $uuid doesn't have a refreshUrl !"))))
@@ -310,4 +342,7 @@ object Events extends Controller {
       }).getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Les données de l'attribut 'data' du body ne sont pas correctes (JSON: {event: {}, sessions: [], exponents: []})!")))
     }.getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Le body doit contenir les données dans un attribut 'data' !")))
   }
+
+  def getFormParam(key: String)(implicit req: Request[AnyContent]): Option[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.flatMap { _.headOption }
+  def getFormMultiParam(key: String)(implicit req: Request[AnyContent]): Seq[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.getOrElse { Seq() }
 }

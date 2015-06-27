@@ -21,40 +21,36 @@ import play.api.libs.json._
 object Events extends Controller {
   val repository: Repository[Event] = EventRepository
 
-  def list(query: Option[String], page: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(query: Option[String], page: Option[Int], sort: Option[String], version: String) = Action.async { implicit req =>
     repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start"), Json.obj("config.published" -> true)).flatMap { eltPage =>
       eltPage
         .batchMapAsync(EventSrv.addMetadata _)
-        .map { page => Ok(Json.toJson(page.map(Writer.write))) }
+        .map { page => Ok(Json.toJson(page.map(e => Writer.write(e, version)))) }
     }
   }
 
-  def listAll(query: Option[String], sort: Option[String]) = Action.async { implicit req =>
+  def listAll(query: Option[String], sort: Option[String], version: String) = Action.async { implicit req =>
     repository.findAll(query.getOrElse(""), sort.getOrElse("-info.start"), Json.obj("config.published" -> true)).flatMap { elts =>
-      EventSrv.addMetadata(elts).map { list => Ok(Json.toJson(list.map(Writer.write))) }
+      EventSrv.addMetadata(elts).map { list => Ok(Json.toJson(list.map(e => Writer.write(e, version)))) }
     }
   }
 
-  def details(uuid: String) = Action.async { implicit req =>
+  def details(uuid: String, version: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
-        EventSrv.addMetadata(elt).map { eltUI => Ok(Writer.write(eltUI)) }
+        EventSrv.addMetadata(elt).map { eltUI => Ok(Writer.write(eltUI, version)) }
       }.getOrElse(Future(NotFound))
     }
   }
 
-  def detailsFull(uuid: String) = Action.async { implicit req =>
+  def detailsFull(uuid: String, version: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
           attendees <- AttendeeRepository.findByEvent(elt.uuid)
           sessions <- SessionRepository.findByEvent(elt.uuid)
           exponents <- ExponentRepository.findByEvent(elt.uuid)
-        } yield {
-          Ok(Writer.write(elt) ++ Json.obj(
-            "sessions" -> sessions.map(e => Writer.write(e, attendees.filter(a => e.info.speakers.contains(a.uuid)))),
-            "exponents" -> exponents.map(e => Writer.write(e, attendees.filter(a => e.info.team.contains(a.uuid))))))
-        }
+        } yield Ok(Writer.write(elt, attendees, sessions, exponents, version))
       }.getOrElse(Future(NotFound(Json.obj("message" -> s"Event $uuid not found !"))))
     }
   }

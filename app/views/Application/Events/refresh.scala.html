@@ -1,11 +1,12 @@
 @import models.event.Event
+@import models.event.Attendee
 @import models.event.Session
 @import models.event.Exponent
 @import services.UserActionSrv
 @import play.api.libs.json.Json
 @import play.api.libs.json.JsObject
 @import views.html.Application.format._
-@(event: Event, updatedEvent: Event, createdSessions: List[Session], deletedSessions: List[Session], updatedSessions: List[(Session, Session)], createdExponents: List[Exponent], deletedExponents: List[Exponent], updatedExponents: List[(Exponent, Exponent)], remoteSource: JsObject)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(event: Event, updatedEvent: Event, createdAttendees: List[Attendee], deletedAttendees: List[Attendee], updatedAttendees: List[(Attendee, Attendee)], createdSessions: List[Session], deletedSessions: List[Session], updatedSessions: List[(Session, Session)], createdExponents: List[Exponent], deletedExponents: List[Exponent], updatedExponents: List[(Exponent, Exponent)], remoteSource: JsObject)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Mettre à jour : "+updatedEvent.name) {
 	<div class="row">
@@ -23,6 +24,9 @@
 				</div>
 				<div class="widget-body">
 					<ul>
+						<li>@createdAttendees.length participants créées</li>
+						<li>@deletedAttendees.length  participants supprimées</li>
+						<li>@updatedAttendees.length participants modifiées</li>
 						<li>@createdSessions.length sessions créées</li>
 						<li>@deletedSessions.length sessions supprimées</li>
 						<li>@updatedSessions.length sessions modifiées</li>
@@ -46,12 +50,70 @@
 								</div>
 							</div>
 						</div>
-						
 					}
+
+					@if(createdAttendees.length > 0){
+						<h3>Participants à créer</h3>
+						<div class="panel-group" id="accordion-createdAttendees">
+							@createdAttendees.map { elt =>
+								<div class="panel panel-default">
+									<div class="panel-heading" role="tab">
+										<h4 class="panel-title">
+											<a data-toggle="collapse" data-parent="#accordion-createdAttendees" href="#createdAttendees-@elt.uuid">@elt.name</a>
+										</h4>
+									</div>
+									<div id="createdAttendees-@elt.uuid" class="panel-collapse collapse">
+										<div class="panel-body">
+											@views.html.Application.format.json(Json.toJson(elt))
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					}
+					@if(deletedAttendees.length > 0){
+						<h3>Participants à supprimer</h3>
+						<div class="panel-group" id="accordion-deletedAttendees">
+							@deletedAttendees.map { elt =>
+								<div class="panel panel-default">
+									<div class="panel-heading" role="tab">
+										<h4 class="panel-title">
+											<a data-toggle="collapse" data-parent="#accordion-deletedAttendees" href="#deletedAttendees-@elt.uuid">@elt.name</a>
+										</h4>
+									</div>
+									<div id="deletedAttendees-@elt.uuid" class="panel-collapse collapse">
+										<div class="panel-body">
+											@views.html.Application.format.json(Json.toJson(elt))
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					}
+					@if(updatedAttendees.length > 0){
+						<h3>Participants à modifier</h3>
+						<div class="panel-group" id="accordion-updatedAttendees">
+							@updatedAttendees.map { case (oldElt, elt) =>
+								<div class="panel panel-default">
+									<div class="panel-heading" role="tab">
+										<h4 class="panel-title">
+											<a data-toggle="collapse" data-parent="#accordion-updatedAttendees" href="#updatedAttendees-@elt.uuid">@elt.name</a>
+										</h4>
+									</div>
+									<div id="updatedAttendees-@elt.uuid" class="panel-collapse collapse">
+										<div class="panel-body">
+											@views.html.Application.format.jsonDiff(Json.toJson(oldElt), Json.toJson(elt))
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					}
+
 					@if(createdSessions.length > 0){
 						<h3>Sessions à créer</h3>
 						<div class="panel-group" id="accordion-createdSessions">
-							@createdSessions.map { elt => 
+							@createdSessions.map { elt =>
 								<div class="panel panel-default">
 									<div class="panel-heading" role="tab">
 										<h4 class="panel-title">
@@ -70,7 +132,7 @@
 					@if(deletedSessions.length > 0){
 						<h3>Sessions à supprimer</h3>
 						<div class="panel-group" id="accordion-deletedSessions">
-							@deletedSessions.map { elt => 
+							@deletedSessions.map { elt =>
 								<div class="panel panel-default">
 									<div class="panel-heading" role="tab">
 										<h4 class="panel-title">
@@ -89,7 +151,7 @@
 					@if(updatedSessions.length > 0){
 						<h3>Sessions à modifier</h3>
 						<div class="panel-group" id="accordion-updatedSessions">
-							@updatedSessions.map { case (oldElt, elt) => 
+							@updatedSessions.map { case (oldElt, elt) =>
 								<div class="panel panel-default">
 									<div class="panel-heading" role="tab">
 										<h4 class="panel-title">
@@ -109,7 +171,7 @@
 					@if(createdExponents.length > 0){
 						<h3>Exposants à créer</h3>
 						<div class="panel-group" id="accordion-createdExponents">
-							@createdExponents.map { elt => 
+							@createdExponents.map { elt =>
 								<div class="panel panel-default">
 									<div class="panel-heading" role="tab">
 										<h4 class="panel-title">
@@ -128,7 +190,7 @@
 					@if(deletedExponents.length > 0){
 						<h3>Exposants à supprimer</h3>
 						<div class="panel-group" id="accordion-deletedExponents">
-							@deletedExponents.map { elt => 
+							@deletedExponents.map { elt =>
 								<div class="panel panel-default">
 									<div class="panel-heading" role="tab">
 										<h4 class="panel-title">
@@ -147,7 +209,7 @@
 					@if(updatedExponents.length > 0){
 						<h3>Exposants à modifier</h3>
 						<div class="panel-group" id="accordion-updatedExponents">
-							@updatedExponents.map { case (oldElt, elt) => 
+							@updatedExponents.map { case (oldElt, elt) =>
 								<div class="panel panel-default">
 									<div class="panel-heading" role="tab">
 										<h4 class="panel-title">

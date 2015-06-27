@@ -10,6 +10,7 @@ GET       /migrate                                                              
 GET       /events                                                                     controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /events/create                                                              controllers.Events.create
 POST      /events                                                                     controllers.Events.doCreate
+POST      /events/fromUrl                                                             controllers.Events.doCreateFromUrl
 GET       /events/:eventId                                                            controllers.Events.details(eventId: String)
 GET       /events/:eventId/operations                                                 controllers.Events.operations(eventId: String)
 POST      /events/:eventId/urlImport                                                  controllers.Events.urlImport(eventId: String)
@@ -75,16 +76,16 @@ GET       /api/v1/users/:userId/actions                                         
 GET       /api/v1/users/:userId/actions/:eventId                                      controllers.api.Devices.eventActions(userId: String, eventId: String)
 POST      /api/v1/users/:userId/actions/:eventId/sync                                 controllers.api.UserActions.syncEventActions(userId: String, eventId: String)
 
-GET       /api/v1/events                                                              controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/all                                                          controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId                                                     controllers.api.Events.details(eventId: String)
-GET       /api/v1/events/:eventId/full                                                controllers.api.Events.detailsFull(eventId: String)
+GET       /api/:version/events                                                        controllers.api.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None, version: String)
+GET       /api/:version/events/all                                                    controllers.api.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None, version: String)
+GET       /api/:version/events/:eventId                                               controllers.api.Events.details(eventId: String, version: String)
+GET       /api/:version/events/:eventId/full                                          controllers.api.Events.detailsFull(eventId: String, version: String)
 POST      /api/v1/events/:eventId/subscribe                                           controllers.api.UserActions.subscribe(eventId: String)
 DELETE    /api/v1/events/:eventId/subscribe                                           controllers.api.UserActions.unsubscribe(eventId: String)
 
-GET       /api/v1/events/:eventId/sessions                                            controllers.api.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId/sessions/all                                        controllers.api.Sessions.listAll(eventId: String)
-GET       /api/v1/events/:eventId/sessions/:sessionId                                 controllers.api.Sessions.details(eventId: String, sessionId: String)
+GET       /api/:version/events/:eventId/sessions                                      controllers.api.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None, version: String)
+GET       /api/:version/events/:eventId/sessions/all                                  controllers.api.Sessions.listAll(eventId: String, version: String)
+GET       /api/:version/events/:eventId/sessions/:sessionId                           controllers.api.Sessions.details(eventId: String, sessionId: String, version: String)
 POST      /api/v1/events/:eventId/sessions/:sessionId/favorites                       controllers.api.UserActions.favorite(eventId: String, itemType: String = models.event.Session.className, sessionId: String)
 DELETE    /api/v1/events/:eventId/sessions/:sessionId/favorites                       controllers.api.UserActions.unfavorite(eventId: String, itemType: String = models.event.Session.className, sessionId: String)
 POST      /api/v1/events/:eventId/sessions/:sessionId/dones                           controllers.api.UserActions.done(eventId: String, itemType: String = models.event.Session.className, sessionId: String)
@@ -95,9 +96,9 @@ POST      /api/v1/events/:eventId/sessions/:sessionId/comments                  
 PUT       /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId             controllers.api.UserActions.updateComment(eventId: String, itemType: String = models.event.Session.className, sessionId: String, commentId: String)
 DELETE    /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId             controllers.api.UserActions.deleteComment(eventId: String, itemType: String = models.event.Session.className, sessionId: String, commentId: String)
 
-GET       /api/v1/events/:eventId/exponents                                           controllers.api.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None)
-GET       /api/v1/events/:eventId/exponents/all                                       controllers.api.Exponents.listAll(eventId: String)
-GET       /api/v1/events/:eventId/exponents/:exponentId                               controllers.api.Exponents.details(eventId: String, exponentId: String)
+GET       /api/:version/events/:eventId/exponents                                     controllers.api.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None, version: String)
+GET       /api/:version/events/:eventId/exponents/all                                 controllers.api.Exponents.listAll(eventId: String, version: String)
+GET       /api/:version/events/:eventId/exponents/:exponentId                         controllers.api.Exponents.details(eventId: String, exponentId: String, version: String)
 POST      /api/v1/events/:eventId/exponents/:exponentId/favorites                     controllers.api.UserActions.favorite(eventId: String, itemType: String = models.event.Exponent.className, exponentId: String)
 DELETE    /api/v1/events/:eventId/exponents/:exponentId/favorites                     controllers.api.UserActions.unfavorite(eventId: String, itemType: String = models.event.Exponent.className, exponentId: String)
 POST      /api/v1/events/:eventId/exponents/:exponentId/dones                         controllers.api.UserActions.done(eventId: String, itemType: String = models.event.Exponent.className, exponentId: String)

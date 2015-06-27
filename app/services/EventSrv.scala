@@ -1,6 +1,7 @@
 package services
 
 import models.event.Event
+import models.event.Attendee
 import models.event.Session
 import models.event.Exponent
 import models.event.EventItem
@@ -15,10 +16,12 @@ import infrastructure.repository.ExponentRepository
 import infrastructure.repository.EventItemRepository
 import infrastructure.repository.UserActionRepository
 import infrastructure.repository.DeviceRepository
+import controllers.api.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
 import play.api.libs.ws._
+import play.api.libs.json._
 import play.api.mvc.RequestHeader
 import reactivemongo.core.commands.LastError
 import org.joda.time.DateTime
@@ -67,15 +70,20 @@ object EventSrv {
     }
   }
 
-  def fetchFullEvent(url: String)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
+  def fetchFullEvent(url: String)(implicit req: RequestHeader): Future[Option[(Event, List[Attendee], List[Session], List[Exponent])]] = {
     val realUrl = if (url.startsWith("http")) url else "http://" + req.host + url
     WS.url(realUrl).get().map { response =>
       response.json.asOpt[Event].map { event =>
+        val attendees = (response.json \ "attendees").as[List[Attendee]]
         val sessions = (response.json \ "sessions").as[List[Session]]
         val exponents = (response.json \ "exponents").as[List[Exponent]]
-        (event, sessions, exponents)
+        (event, attendees, sessions, exponents)
       }
     }
+  }
+
+  def attendeeDiff(oldElts: List[Attendee], newElts: List[Attendee]): (List[Attendee], List[Attendee], List[(Attendee, Attendee)]) = {
+    diff(oldElts, newElts, (s: Attendee) => s.name, (s: Attendee) => s.meta.source.map(_.ref), (os: Attendee, ns: Attendee) => os.merge(ns), (os: Attendee, ns: Attendee) => os.copy(meta = os.meta.copy(updated = new DateTime(0))) == ns.copy(meta = ns.meta.copy(updated = new DateTime(0))))
   }
 
   def sessionDiff(oldElts: List[Session], newElts: List[Session]): (List[Session], List[Session], List[(Session, Session)]) = {
@@ -106,40 +114,44 @@ object EventSrv {
   def formatUrl(url: String)(implicit req: RequestHeader): String = {
     url match {
       case eventUrlMatcher(remoteHost, eventId) => {
-        val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
+        val localUrl = controllers.api.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
         localUrl.replace(req.host, remoteHost)
       }
       case _ => url
     }
   }
 
-  def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Session], List[Exponent])]] = {
-    val localUrl = controllers.api.routes.Events.detailsFull(eventId).absoluteURL(true)
+  def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Attendee], List[Session], List[Exponent])]] = {
+    val localUrl = controllers.api.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
     val remoteUrl = localUrl.replace(req.host, remoteHost)
     WS.url(remoteUrl).get().map { response =>
       response.json.asOpt[Event].map { event =>
+        val attendees = (response.json \ "attendees").as[List[Attendee]]
         val sessions = (response.json \ "sessions").as[List[Session]]
         val exponents = (response.json \ "exponents").as[List[Exponent]]
 
         if (generateIds) {
           val newEventId = Repository.generateUuid()
           (event.copy(uuid = newEventId),
+            attendees.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)),
             sessions.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)),
             exponents.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)))
         } else {
-          (event, sessions, exponents)
+          (event, attendees, sessions, exponents)
         }
       }
     }
   }
 
-  def insertAll(event: Event, sessions: List[Session], exponents: List[Exponent]): Future[Option[Event]] = {
-    EventRepository.insert(event).map { insertedOpt =>
-      if (insertedOpt.isDefined) {
-        SessionRepository.bulkInsert(sessions)
-        ExponentRepository.bulkInsert(exponents)
-      }
-      insertedOpt
+  def insertAll(event: Event, attendees: List[Attendee], sessions: List[Session], exponents: List[Exponent]): Future[Option[(Event, Int, Int, Int)]] = {
+    EventRepository.insert(event).flatMap {
+      _.map { inserted =>
+        for {
+          attendeeCount <- AttendeeRepository.bulkInsert(attendees)
+          sessionCount <- SessionRepository.bulkInsert(sessions)
+          exponentCount <- ExponentRepository.bulkInsert(exponents)
+        } yield Some((inserted, attendeeCount, sessionCount, exponentCount))
+      }.getOrElse(Future(None))
     }
   }
 }
