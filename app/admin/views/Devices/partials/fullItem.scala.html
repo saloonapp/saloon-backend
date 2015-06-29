@@ -1,0 +1,22 @@
+@import models.user.Device
+@import helpers.format._
+@import admin.views.html.format._
+@(device: Device)
+
+<div>
+	<h2>Memo</h2>
+	<div class="well">@textMultiline(device.saloonMemo)</div>
+	<h2>Device</h2>
+	Uuid: @device.info.uuid<br>
+	Platform: @device.info.platform<br>
+	Manufacturer: @device.info.manufacturer<br>
+	Model: @device.info.model<br>
+	Version: @device.info.version<br>
+	Cordova: @device.info.cordova<br>
+	@device.pushId.map { push =>
+		<h2>Push</h2>
+		Uuid: @push<br>
+	}
+	<br>
+	<p>Créé le @datetime(device.meta.created)</p>
+</div>

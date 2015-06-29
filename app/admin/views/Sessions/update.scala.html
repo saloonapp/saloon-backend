@@ -1,0 +1,26 @@
+@import models.event.Event
+@import models.event.Attendee
+@import models.event.Session
+@import models.event.SessionData
+@(sessionForm: Form[SessionData], session: Session, allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout("Modifier "+session.name){
+	<div class="row">
+		<div class="col-md-8">
+			<div class="widget">
+				<div class="widget-header">Modifier @session.name</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@admin.controllers.routes.Sessions.doUpdate(event.uuid, session.uuid)">
+						@partials.form(sessionForm, allAttendees, event)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@admin.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Modifier</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

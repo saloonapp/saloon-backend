@@ -1,0 +1,24 @@
+@import models.event.Attendee
+@import helpers.format._
+@import admin.views.html.format._
+@(attendee: Attendee)
+
+<div class="media">
+	<div class="media-left">
+		<img class="media-object" src="@attendee.images.avatar">
+	</div>
+	<div class="media-body">
+		<h4 class="media-heading">@attendee.name <span class="label label-primary">@attendee.info.role</span></h4>
+		<p class="text-muted">@if(!attendee.info.job.isEmpty){ (@attendee.info.job) } at @if(!attendee.info.company.isEmpty){ (@attendee.info.company) }</p>
+		<p class="well">@textMultiline(attendee.description)</p>
+		<p class="text-muted">
+			@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")
+			@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-comment"></i></a> }.getOrElse("")
+			@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-facebook"></i></a> }.getOrElse("")
+			@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-twitter"></i></a> }.getOrElse("")
+			@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-linkedin"></i></a> }.getOrElse("")
+			@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="fa fa-github"></i></a> }.getOrElse("")
+			| créé le @datetime(attendee.meta.created)
+		</p>
+	</div>
+</div>

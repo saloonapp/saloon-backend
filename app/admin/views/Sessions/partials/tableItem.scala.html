@@ -1,0 +1,24 @@
+@import models.event.Event
+@import models.event.Session
+@import helpers.format._
+@import admin.views.html.format._
+@(session: Session, event: Event)
+
+<tr>
+	<td><a href="@admin.controllers.routes.Sessions.details(event.uuid, session.uuid)">@session.name</a></td>
+	<td>@session.info.format</td>
+	<td>@session.info.category</td>
+	<td>@datetimeOpt(session.info.start)</td>
+	<td>@session.info.place</td>
+	<td>@session.description</td>
+	<td>@session.info.speakers.length speakers</td>
+	<td>
+		@session.info.slides.map { link => <a href="@link" target="_blank"><i class="fa fa-slideshare"></i></a> }
+		@session.info.video.map { link => <a href="@link" target="_blank"><i class="fa fa-youtube"></i></a> }
+	</td>
+	<td>
+		<a href="@admin.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="btn btn-default">Détails</a>
+		<a href="@admin.controllers.routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
+		<form method="POST" action="@admin.controllers.routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm"><i class="fa fa-trash-o"></i></button></form>
+	</td>
+</tr>

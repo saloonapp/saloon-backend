@@ -1,0 +1,24 @@
+@import models.event.Event
+@import models.event.EventData
+@(eventForm: Form[EventData], event: Event, categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout("Modifier "+event.name){
+	<div class="row">
+		<div class="col-md-8">
+			<div class="widget">
+				<div class="widget-header">Modifier @event.name</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@admin.controllers.routes.Events.doUpdate(event.uuid)">
+						@partials.form(eventForm, categories)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@admin.controllers.routes.Events.details(event.uuid)" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Modifier</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

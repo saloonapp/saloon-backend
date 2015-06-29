@@ -1,0 +1,21 @@
+@import models.user.Device
+@import helpers.format._
+@import admin.views.html.format._
+@(device: Device)
+
+<tr>
+	<td>@device.info.uuid</td>
+	<td>@device.info.platform</td>
+	<td>@device.info.manufacturer</td>
+	<td>@device.info.model</td>
+	<td>@device.info.version</td>
+	<td>@device.info.cordova</td>
+	<td>@device.pushId.map{ push => @push }</td>
+	<td>@device.saloonMemo</td>
+	<td>@date(device.meta.created)</td>
+	<td>
+		<a href="@admin.controllers.routes.Devices.details(device.uuid)" class="btn btn-default">Détails</a>
+		<a href="@admin.controllers.routes.Devices.update(device.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
+		<form method="POST" action="@admin.controllers.routes.Devices.delete(device.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm"><i class="fa fa-trash-o"></i></button></form>
+	</td>
+</tr>

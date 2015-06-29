@@ -1,0 +1,24 @@
+@import models.event.Event
+@import models.event.Attendee
+@import models.event.Exponent
+@(exponent: Exponent, exponentTeam: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout(exponent.name) {
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@admin.controllers.routes.Exponents.list(event.uuid)" class="back-btn"><i class="fa fa-arrow-left"></i>Exposants</a>
+					@exponent.name
+					<div class="pull-right">
+						<a href="@admin.controllers.routes.Exponents.update(event.uuid, exponent.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@admin.controllers.routes.Exponents.delete(event.uuid, exponent.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
+					</div>
+				</div>
+				<div class="widget-body">
+					@partials.fullItem(exponent, exponentTeam)
+				</div>
+			</div>
+		</div>
+	</div>
+}

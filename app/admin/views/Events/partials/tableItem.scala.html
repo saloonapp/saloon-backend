@@ -1,0 +1,26 @@
+@import models.event.Event
+@import helpers.format._
+@import admin.views.html.format._
+@(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)
+
+<tr>
+	<td><img src="@event.images.logo" style="max-height: 32px;"> @event.name</td>
+	<td>@event.config.published</td>
+	<td>@datetimeOpt(event.info.start)</td>
+	<td>
+		@event.meta.categories.headOption.map { mainCategory =>
+			<span class="label label-danger">@mainCategory</span>
+			@event.meta.categories.tail.map { category => <span class="label label-primary">@category</span> }
+		}
+	</td>
+	<td>@twitterHashtagOpt(event.info.social.twitter.hashtag) @twitterAccountOpt(event.info.social.twitter.account)</td>
+	<td><a href="@admin.controllers.routes.Attendees.list(event.uuid)">@attendeeCount participants</a></td>
+	<td><a href="@admin.controllers.routes.Sessions.list(event.uuid)">@sessionCount sessions</a></td>
+	<td><a href="@admin.controllers.routes.Exponents.list(event.uuid)">@exponentCount exposants</a></td>
+	<td>@actionCount actions</td>
+	<td>
+		<a href="@admin.controllers.routes.Events.details(event.uuid)" class="btn btn-default">Détails</a>
+		<a href="@admin.controllers.routes.Events.update(event.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
+		<form method="POST" action="@admin.controllers.routes.Events.delete(event.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm"><i class="fa fa-trash-o"></i></button></form>
+	</td>
+</tr>

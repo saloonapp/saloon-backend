@@ -1,0 +1,25 @@
+@import models.event.Event
+@import models.event.Attendee
+@import models.event.ExponentData
+@(exponentForm: Form[ExponentData], allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout("Créer un exposant"){
+	<div class="row">
+		<div class="col-md-8">
+			<div class="widget">
+				<div class="widget-header">Créer un exposant</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@admin.controllers.routes.Exponents.doCreate(event.uuid)">
+						@partials.form(exponentForm, allAttendees, event)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@admin.controllers.routes.Exponents.list(event.uuid)" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Créer</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

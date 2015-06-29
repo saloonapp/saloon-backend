@@ -1,0 +1,24 @@
+@import models.event.Event
+@import models.event.Attendee
+@import models.event.Session
+@(session: Session, sessionSpeakers: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout(session.name) {
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@admin.controllers.routes.Sessions.list(event.uuid)" class="back-btn"><i class="fa fa-arrow-left"></i>Sessions</a>
+					@session.name
+					<div class="pull-right">
+						<a href="@admin.controllers.routes.Sessions.update(event.uuid, session.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@admin.controllers.routes.Sessions.delete(event.uuid, session.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
+					</div>
+				</div>
+				<div class="widget-body">
+					@partials.fullItem(session, sessionSpeakers)
+				</div>
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,42 @@
+@import models.user.Device
+@(devicePage: common.models.Page[Device])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout("Appareils"){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					Appareils
+					<div class="pull-right">
+						<form class="form-inline inline">
+							<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search" class="form-control">
+							@if(req.getQueryString("page").isDefined){ <input type="hidden" name="page" value="@req.getQueryString("page")"> }
+							@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
+						</form>
+						<form class="form-inline inline">
+							<a class="btn btn-sm btn-success" href="@admin.controllers.routes.Devices.create()"><i class="fa fa-plus"></i> Créer un appareil</a>
+						</form>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<div class="widget-body no-padding">
+					<div class="table-responsive">
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr><th>Uuid</th><th>Platform</th><th>Manufacturer</th><th>Model</th><th>Version</th><th>Cordova</th><th>Push</th><th>Memo</th><th>Créé</th><th></th></tr>
+							</thead>
+							<tbody>
+								@devicePage.items.map { device =>
+									@partials.tableItem(device)
+								}
+							</tbody>
+						</table>
+					</div>
+					<div style="padding-left: 10px;">
+						@helpers.pagination(devicePage, (p: Int) => admin.controllers.routes.Devices.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

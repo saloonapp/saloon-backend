@@ -1,0 +1,95 @@
+@import models.event.Event
+@import models.event.Session
+@import models.event.Exponent
+@import models.user.UserActionFull
+@import services.UserActionSrv
+@import admin.views.html.format._
+@(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@admin.views.html.layout(event.name) {
+	<div class="row">
+		<div class="col-md-12">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@admin.controllers.routes.Events.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Evénements</a>
+					@event.name
+					<div class="pull-right">
+						<a class="btn btn-success" href="@admin.controllers.routes.Events.operations(event.uuid)"><i class="fa fa-cogs"></i></a>
+						<a href="@admin.controllers.routes.Events.update(event.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@admin.controllers.routes.Events.delete(event.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
+					</div>
+				</div>
+				<div class="widget-body">
+					@partials.fullItem(event, attendeeCount, sessionCount, exponentCount, actionCount)
+				</div>
+			</div>
+		</div>
+	</div>
+	@if(actions.length > 0){
+		<div class="row">
+			<div class="col-md-6">
+				<div class="widget">
+					<div class="widget-header">
+						Statistiques
+						<form class="pull-right" method="POST" action="@admin.controllers.routes.Events.stats(event.uuid)"><button type="submit" class="btn btn-success"><i class="fa fa-download"></i></button></form>
+					</div>
+					<div class="widget-body">
+						<p>
+							@UserActionSrv.byActionName(actions).map { case (actionName, list) =>
+								@actionName match {
+									case "mood" => {
+										@UserActionSrv.byMood(list).map { case (rating, moodList) => @moodList.length @mood(rating) }.mkString(", ")
+									}
+									case actionName => { @list.length @actionName }
+								}
+							}.mkString(", ")
+						</p>
+						<ol>
+							@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
+								<li>
+									@item match {
+										case Event(uuid,name,_,_,_,_,_,_) => { Evénement <a href="@admin.controllers.routes.Events.details(uuid)">@name</a> }
+										case Session(uuid,eventId,name,_,_,_,_) => { Session <a href="@admin.controllers.routes.Sessions.details(eventId, uuid)">@name</a> }
+										case Exponent(uuid,eventId,name,_,_,_,_,_) => { Exposant <a href="@admin.controllers.routes.Exponents.details(eventId, uuid)">@name</a> }
+										case unknown => { Inconnu @unknown }
+									}
+									@UserActionSrv.byActionName(itemActions).map { case (actionName, list) =>
+										@actionName match {
+											case "mood" => {
+												@UserActionSrv.byMood(list).map { case (rating, moodList) => @moodList.length @mood(rating) }.mkString(", ")
+											}
+											case actionName => { @list.length @actionName }
+										}
+									}.mkString(", ")
+								</li>
+							}
+						</ol>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="widget">
+					<div class="widget-header">Utilisateurs</div>
+					<div class="widget-body">
+						<ol>
+							@UserActionSrv.byUser(actions).map { case (user, userActions) =>
+								<li>
+									Device <a href="@admin.controllers.routes.Devices.details(user.uuid)">@user.saloonMemo @user.info.uuid</a>
+									@UserActionSrv.byActionName(userActions).map { case (actionName, list) =>
+										@actionName match {
+											case "mood" => {
+												@UserActionSrv.byMood(list).map { case (rating, moodList) => @moodList.length @mood(rating) }.mkString(", ")
+											}
+											case "subscribe" => { <a href="@admin.controllers.routes.Events.report(event.uuid, list.head.user.uuid)">@list.length subscribe</a> }
+											case actionName => { @list.length @actionName }
+										}
+									}
+								</li>
+							}
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

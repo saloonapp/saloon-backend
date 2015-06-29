@@ -1,0 +1,43 @@
+@import models.event.EventData
+@import helpers.forms._
+@(eventForm: Form[EventData], categories: List[String])
+
+<fieldset>
+	<legend>Général :</legend>
+	@fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Best Of Web 2015")}
+	@fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: 8 meetups web parisiens se réunissent pour vous proposer un Best Of de leurs talks de l'année, ainsi que quelques talks inédits.")}
+</fieldset>
+<fieldset>
+	<legend>Images :</legend>
+	@fieldHorizontal(eventForm("images.logo"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
+	@fieldHorizontal(eventForm("images.landing"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
+</fieldset>
+<fieldset>
+	<legend>Infos :</legend>
+	@fieldHorizontal(eventForm("info.website"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/")}
+	@fieldHorizontal(eventForm("info.start"), 'label -> "Début"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 08:00")}
+	@fieldHorizontal(eventForm("info.end"), 'label -> "Fin"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 18:00")}
+	@fieldHorizontal(eventForm("info.address.name"), 'label -> "Nom du lieu"){field => @inputText(field, 'placeholder -> "ex: La Grande Crypte")}
+	@fieldHorizontal(eventForm("info.address.street"), 'label -> "Rue"){field => @inputText(field, 'placeholder -> "ex: 69bis Rue Boissière")}
+	@fieldHorizontal(eventForm("info.address.zipCode"), 'label -> "Code postal"){field => @inputText(field, 'placeholder -> "ex: 75116")}
+	@fieldHorizontal(eventForm("info.address.city"), 'label -> "Ville"){field => @inputText(field, 'placeholder -> "ex: Paris")}
+	@fieldHorizontal(eventForm("info.price.label"), 'label -> "Prix des billets"){field => @inputText(field, 'placeholder -> "ex: 15€ - 50€")}
+	@fieldHorizontal(eventForm("info.price.url"), 'label -> "Page d'achat des billets"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/#tickets")}
+	@fieldHorizontal(eventForm("info.social.twitter.hashtag"), 'label -> "Hashtag twitter officiel"){field => @inputText(field, 'placeholder -> "ex: bestofweb2015")}
+	@fieldHorizontal(eventForm("info.social.twitter.account"), 'label -> "Compte twitter officiel"){field => @inputText(field, 'placeholder -> "ex: bestofweb2015")}
+</fieldset>
+<fieldset>
+	<legend>Emails :</legend>
+	@fieldHorizontal(eventForm("email.reportMessageHtml"), 'label -> "Message en fin de mail bilan (HTML)"){field => @inputTextarea(field, 'rows -> "4")}
+</fieldset>
+<fieldset>
+	<legend>Config :</legend>
+	@* no config.branding yet *@
+	@fieldHorizontal(eventForm("config.published"), 'label -> "Publié (dans l'application)"){field => @inputCheckbox(field)}
+</fieldset>
+<fieldset>
+	<legend>Meta :</legend>
+	@fieldHorizontal(eventForm("meta.categories"), 'label -> "Catégorie"){field => @inputTags(field, categories, 'placeholder -> "ex: emploi, tech, business") <p class="help-block info">Seule la 1ère catégorie sera affichée dans l'application</p>}
+	@fieldHorizontal(eventForm("meta.refreshUrl"), 'label -> "Refresh Url"){field => @inputText(field, 'placeholder -> "ex: /api/v1/tools/scrapers/events/voxxrin/bzh15/formated") <p class="help-block info">Url qui retourne toutes les données de l'événement pour le mettre à jour</p>}
+	@* no meta.source yet *@
+</fieldset>
