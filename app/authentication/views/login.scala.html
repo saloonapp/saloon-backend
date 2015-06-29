@@ -1,6 +1,6 @@
 @import authentication.models.User
 @import com.mohiva.play.silhouette.core.providers.Credentials
-@import bootstrap._
+@import helpers.forms._
 @(signInForm: Form[Credentials])(implicit env: com.mohiva.play.silhouette.core.Environment[User, _], request: RequestHeader)
 
 
@@ -11,16 +11,15 @@
             <strong>Error!</strong> @msg
         </div>
     }
-    <fieldset>
-        <legend class="col-md-6 col-md-offset-3">Login with your credentials</legend>
-        @helper.form(action = authentication.controllers.routes.Auth.doLogin()) {
-            @text(signInForm("identifier"), "Username")
-            @password(signInForm("password"), "Password")
-            <div class="form-group">
-                <div class="col-md-6 col-md-offset-3">
-                    <button id="submit" type="submit" value="submit" class="btn btn-primary btn-block">Submit</button>
-                </div>
-            </div>
-        }
-    </fieldset>
+
+    <div class="container">
+      @helper.form(action = authentication.controllers.routes.Auth.doLogin(), 'class->"form-signin") {
+        <h2 class="form-signin-heading">Please login</h2>
+        <label for="identifier" class="sr-only">Email address</label>
+        @inputText(signInForm("identifier"), 'placeholder->"Username", 'autofocus->"true")
+        <label for="password" class="sr-only">Password</label>
+        @inputText(signInForm("password"), 'type->"password", 'placeholder->"Password")
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+      }
+    </div> <!-- /container -->
 }

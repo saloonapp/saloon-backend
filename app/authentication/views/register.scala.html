@@ -1,5 +1,5 @@
 @import authentication.models.RegisterInfo
-@import bootstrap._
+@import helpers.forms._
 @(signInForm: Form[RegisterInfo])(implicit request: RequestHeader)
 
 @main("Silhouette - Sign Up") {
@@ -9,20 +9,18 @@
             <strong>Error!</strong> @msg
         </div>
     }
-    <fieldset>
-        <legend class="col-md-6 col-md-offset-3">Register for a new account</legend>
-        @helper.form(action = authentication.controllers.routes.Auth.doRegister()) {
-            @text(signInForm("username"), "Username")
-            @text(signInForm("email"), "Email")
-            @password(signInForm("password"), "Password")
-            <div class="form-group">
-                <div class="col-md-6 col-md-offset-3">
-                    <button id="submit" type="submit" value="submit" class="btn btn-primary btn-block">Submit</button>
-                </div>
-            </div>
-            <div class="sign-in-now col-md-6 col-md-offset-3">
-                <p>Already a member? <a href="@authentication.controllers.routes.Auth.login">Login now</a></p>
-            </div>
-        }
-    </fieldset>
+
+    <div class="container">
+      @helper.form(action = authentication.controllers.routes.Auth.doRegister(), 'class->"form-signin") {
+        <h2 class="form-signin-heading">Please register</h2>
+        <label for="username" class="sr-only">Username</label>
+        @inputText(signInForm("username"), 'placeholder->"Username", 'autofocus->"true")
+        <label for="email" class="sr-only">Email address</label>
+        @inputText(signInForm("email"), 'placeholder->"Email")
+        <label for="password" class="sr-only">Password</label>
+        @inputText(signInForm("password"), 'type->"password", 'placeholder->"Password")
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+        <p>Already a member? <a href="@authentication.controllers.routes.Auth.login">Login now</a></p>
+      }
+    </div> <!-- /container -->
 }

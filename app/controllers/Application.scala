@@ -7,6 +7,7 @@ import models.event.Session
 import models.event.Exponent
 import models.user.Device
 import infrastructure.repository.EventRepository
+import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.DeviceRepository
@@ -17,11 +18,14 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.Json
-import infrastructure.repository.AttendeeRepository
+import authentication.models.User
+import authentication.environments.SilhouetteEnvironment
+import com.mohiva.play.silhouette.core.Silhouette
+import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Application extends Controller {
+object Application extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
 
-  def home = Action { implicit req =>
+  def home = SecuredAction { implicit req =>
     Ok(views.html.Application.home())
   }
   def sample = Action { implicit req =>

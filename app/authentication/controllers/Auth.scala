@@ -27,31 +27,31 @@ import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
  */
 object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
 
-  def index = UserAwareAction { implicit request =>
+  /*def index = UserAwareAction { implicit request =>
     val userName = request.identity match {
       case Some(identity) => identity.username
       case None => "Guest"
     }
     Ok(authentication.views.html.index(request.identity, s"Hello $userName"))
-  }
+  }*/
 
   def login = UserAwareAction { implicit request =>
     request.identity match {
-      case Some(user) => Redirect(routes.Auth.index)
+      case Some(user) => Redirect(controllers.routes.Application.home)
       case None => Ok(authentication.views.html.login(LoginForm.form))
     }
   }
 
   def register = UserAwareAction { implicit request =>
     request.identity match {
-      case Some(user) => Redirect(routes.Auth.index)
+      case Some(user) => Redirect(controllers.routes.Application.home)
       case None => Ok(authentication.views.html.register(RegisterForm.form))
     }
   }
 
   def logout = SecuredAction { implicit request =>
     env.eventBus.publish(LogoutEvent(request.identity, request, request2lang))
-    env.authenticatorService.discard(Redirect(routes.Auth.index))
+    env.authenticatorService.discard(Redirect("/"))
   }
 
   def doLogin = Action.async { implicit request =>
@@ -67,7 +67,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             case Some(user) => env.authenticatorService.create(user).map {
               case Some(authenticator) =>
                 env.eventBus.publish(LoginEvent(user, request, request2lang))
-                env.authenticatorService.send(authenticator, Redirect(authentication.controllers.routes.Auth.index))
+                env.authenticatorService.send(authenticator, Redirect(controllers.routes.Application.home))
               case None => throw new AuthenticationException("Couldn't create an authenticator")
             }
             case None => Future.failed(new AuthenticationException("Couldn't find user"))
@@ -96,7 +96,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             case Some(authenticator) =>
               env.eventBus.publish(SignUpEvent(user, request, request2lang))
               env.eventBus.publish(LoginEvent(user, request, request2lang))
-              env.authenticatorService.send(authenticator, Redirect(routes.Auth.index))
+              env.authenticatorService.send(authenticator, Redirect(controllers.routes.Application.home))
             case None => throw new AuthenticationException("Couldn't create an authenticator")
           }
         }
