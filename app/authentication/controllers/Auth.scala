@@ -3,8 +3,8 @@ package authentication.controllers
 import authentication.forms.LoginForm
 import authentication.forms.RegisterForm
 import authentication.models.User
-import authentication.EnvironmentModule
-import authentication.services.UserCreationException
+import authentication.environments.SilhouetteEnvironment
+import authentication.repositories.UserCreationException
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
@@ -25,7 +25,7 @@ import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
  * @param avatarService The avatar service implementation.
  * @param passwordHasher The password hasher implementation.
  */
-object Auth extends Silhouette[User, CachedCookieAuthenticator] with EnvironmentModule {
+object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
 
   def index = UserAwareAction { implicit request =>
     val userName = request.identity match {
@@ -63,7 +63,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with Environment
             case Some(p: CredentialsProvider) => p.authenticate(formData)
             case _ => Future.failed(new AuthenticationException(s"Cannot find credentials provider"))
           }
-          resp <- userService.retrieve(loginInfo).flatMap {
+          resp <- userRepository.retrieve(loginInfo).flatMap {
             case Some(user) => env.authenticatorService.create(user).map {
               case Some(authenticator) =>
                 env.eventBus.publish(LoginEvent(user, request, request2lang))
@@ -88,7 +88,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with Environment
           username = data.username,
           email = data.email)
         val result = for {
-          user <- userService.save(user)
+          user <- userRepository.save(user)
           authInfo <- authInfoService.save(loginInfo, authInfo)
           maybeAuthenticator <- env.authenticatorService.create(user)
         } yield {

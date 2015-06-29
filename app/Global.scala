@@ -2,10 +2,10 @@ import play.api._
 import play.api.mvc.EssentialAction
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.joda.time.DateTimeZone
-import authentication.EnvironmentModule
+import authentication.environments.SilhouetteEnvironment
 import com.mohiva.play.silhouette.core.SecuredSettings
 
-object Global extends GlobalSettings with SecuredSettings with EnvironmentModule {
+object Global extends GlobalSettings with SecuredSettings with SilhouetteEnvironment {
   override def doFilter(action: EssentialAction): EssentialAction = EssentialAction { request =>
     action.apply(request).map(_.withHeaders(
       "Access-Control-Allow-Origin" -> "*",
