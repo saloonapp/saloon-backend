@@ -1,0 +1,28 @@
+@import authentication.models.RegisterInfo
+@import bootstrap._
+@(signInForm: Form[RegisterInfo])(implicit request: RequestHeader)
+
+@main("Silhouette - Sign Up") {
+    @request.flash.get("error").map { msg =>
+        <div class="col-md-6 col-md-offset-3 alert alert-danger alert-error">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+            <strong>Error!</strong> @msg
+        </div>
+    }
+    <fieldset>
+        <legend class="col-md-6 col-md-offset-3">Register for a new account</legend>
+        @helper.form(action = authentication.controllers.routes.Auth.doRegister()) {
+            @text(signInForm("username"), "Username")
+            @text(signInForm("email"), "Email")
+            @password(signInForm("password"), "Password")
+            <div class="form-group">
+                <div class="col-md-6 col-md-offset-3">
+                    <button id="submit" type="submit" value="submit" class="btn btn-primary btn-block">Submit</button>
+                </div>
+            </div>
+            <div class="sign-in-now col-md-6 col-md-offset-3">
+                <p>Already a member? <a href="@authentication.controllers.routes.Auth.login">Login now</a></p>
+            </div>
+        }
+    </fieldset>
+}
