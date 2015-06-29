@@ -6,6 +6,7 @@ import com.mohiva.play.silhouette.core.services.IdentityService
 import com.mohiva.play.silhouette.core.LoginInfo
 
 trait UserRepository extends IdentityService[User] {
+  def retrieve(loginInfo: LoginInfo): Future[Option[User]]
   def save(user: User): Future[User]
 }
 
