@@ -3,7 +3,7 @@
 # ~~~~
 
 # Web site
-GET       /                                                                                 controllers.Assets.at(path="/public", file="/site/index.html")
+GET       /                                                                                 website.controllers.Application.index
 
 #GET       /index                                                                            authentication.controllers.Auth.index
 GET       /login                                                                            authentication.controllers.Auth.login
