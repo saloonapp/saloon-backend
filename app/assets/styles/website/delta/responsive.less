@@ -1,0 +1,255 @@
+@import "mixins.less";
+@import "theme-default.less";
+
+/* Extra small devices (phones, less than 768px) */
+@media (max-width: 767px) { 
+    
+    .navbar-toggle {
+        margin-right: 0;
+    }
+
+    .promo .overview .summary li {
+        font-size: 18px;
+    }
+    .promo .overview .note .left-arrow {
+        left: 0;
+    }
+    .promo .overview .note .right-arrow {
+        right: 0;
+    }
+    .promo .overview .summary {
+        margin-left: 0;
+    }
+    
+    .promo .overview {
+        text-align: center;
+        .summary {
+            margin-left: 0;
+            li {
+               text-align: left;
+            }
+        }
+        .download-area {
+            margin: 0 auto;
+        }
+    }
+    
+    .promo .phone {
+        text-align: center;
+        .phone-holder {
+            margin: 0 auto;
+            width: auto;
+        }
+    }
+
+    .promo .ipad {
+        text-align: center;
+        .ipad-holder {
+            margin: 0 auto;   
+        }
+    }
+    
+    .promo .iphone .iphone-holder {
+        width: 260px;
+        height: 488px;
+        .background-size(contain);
+        margin-bottom: 30px;
+    }
+    .promo .iphone .iphone-holder-inner {
+        width: 181px;
+        height: auto;
+        left: 41px;
+        top: 83px;
+    } 
+    
+    .promo .iphone .flexslider .flex-control-nav {
+        bottom: -43px;
+    }
+    
+    .promo .android .android-holder {
+        width: 260px;
+        height: 488px;
+        .background-size(contain);
+        margin-bottom: 30px;
+    }
+    .promo .android .android-holder-inner {
+        width: 207px;
+        height: auto;
+        left: 28px;
+        top: 58px;
+    } 
+    
+    .promo .android .flexslider .flex-control-nav {
+        bottom: -33px;
+    }
+    
+    .promo .ipad .ipad-holder {
+        width: 260px;
+        height: 420px;
+        .background-size(contain);
+    }
+    .promo .ipad .ipad-holder-inner {
+        width: 199px;
+        height: auto;
+        left: 31px;
+        top: 50px;
+    }
+    
+    .promo .ipad .flexslider .flex-control-nav {
+        bottom: -33px;
+    }
+    .promo .overview .note .left-arrow {
+        .background-size(30px auto);
+    }
+    .promo .overview .note .right-arrow {
+        .background-size(30px auto);
+    }
+    
+    .promo-landscape .iphone .iphone-holder {
+        width: 260px;
+        height: 125px;
+        .background-size(contain);
+    }
+    
+    .promo-landscape .iphone .iphone-holder-inner {
+        width: 180px;
+        height: 394px;
+        left: 41px;
+        top: 10px;
+    }
+    
+    
+    .promo-landscape .iphone:before {
+         .background-size(contain);
+    }
+    
+    .promo-landscape .android .android-holder {
+        width: 260px;
+        height: 132px;
+        .background-size(contain);
+    }
+    
+    .promo-landscape .android .android-holder-inner {
+        width: 207px;
+        height: 117px;
+        left: 29px;
+        top: 6px;
+    }
+    
+    .promo-landscape .android .flexslider .flex-control-nav {
+        bottom: -45px;
+    }
+    
+    .promo-landscape .android:before {
+         .background-size(contain);
+    }
+    
+    .promo .overview .btn-group li {
+        display: block;
+    }
+    
+    .promo-landscape .overview .btn-group li a {
+        margin-right: 0;
+    }
+    
+    .promo-landscape .overview .summary {
+        margin-left: auto;
+        li {
+            text-align: center;
+        }
+    }
+    
+    
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: 768px) { 
+   .promo .overview {
+        text-align: center;
+        .summary {
+            margin-left: 60px;
+            li {
+               text-align: left;
+            }
+        }
+        .download-area {
+            margin: 0 auto;
+        }
+    }
+    
+    .promo .phone {
+        text-align: center;
+        .phone-holder {
+            margin: 0 auto;
+        }
+    }
+    
+    .promo .ipad {
+        text-align: center;
+        .ipad-holder {
+            margin: 0 auto;
+        }
+    }
+    
+    .header .main-nav .nav .nav-item a {
+        padding: 15px 10px;
+    }
+    
+    .promo-landscape .overview {
+        .summary {
+            margin-left: auto;
+            li {
+               text-align: center;
+            }
+        }
+    }
+    
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .promo .overview {
+        text-align: left;
+        .summary {
+            margin-left: 0;
+            li {
+               text-align: left;
+            }
+        }
+        .download-area {
+        }
+    }
+    
+    .promo .phone {
+        text-align: left;
+    }
+    
+    .promo .ipad {
+        text-align: left;
+    }
+    
+    .header .main-nav .nav .nav-item a {
+        padding: 15px 20px;
+    }
+    
+    .modal-lg {
+        width: 780px;
+    }
+    
+    .promo-landscape .overview{
+        text-align: center;
+        .summary {
+            margin-left: auto;
+            li {
+               text-align: center;
+            }
+        }
+    }
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+
+}
+
+
