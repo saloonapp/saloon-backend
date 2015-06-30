@@ -58,11 +58,4 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
     }))
   }*/
 
-  def corsPreflight(all: String) = Action {
-    Ok("").withHeaders(
-      "Allow" -> "*",
-      "Access-Control-Allow-Origin" -> "*",
-      "Access-Control-Allow-Methods" -> "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent, userId, timestamp");
-  }
 }

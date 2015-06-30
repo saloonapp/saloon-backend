@@ -151,7 +151,7 @@ DELETE    /api/v1/tools/crashs/:crashId                                         
 POST      /api/v1/tools/events/batch                                                        controllers.tools.Crashs.tmpReveiceEvents()
 
 # Allow cross-origin for API
-OPTIONS   /api/v1/*all                                                                      admin.controllers.Application.corsPreflight(all: String)
+OPTIONS   /api/v1/*all                                                                      common.controllers.Application.corsPreflight(all: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET       /assets/*file                                                                     controllers.Assets.at(path="/public", file)
