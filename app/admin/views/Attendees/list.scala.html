@@ -1,6 +1,7 @@
 @import common.models.utils.Page
 @import common.models.event.Event
 @import common.models.event.Attendee
+@import common.views.html._
 @(attendeePage: Page[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Participants"){
@@ -36,7 +37,7 @@
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(attendeePage, (p: Int) => admin.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+						@pagination(attendeePage, (p: Int) => admin.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

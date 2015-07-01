@@ -2,7 +2,7 @@
 @import common.models.UrlImportConfig
 @import common.models.FileImportConfig
 @import common.services.FileImporter
-@import helpers.forms._
+@import common.views.html.forms._
 @(event: Event, urlImportForm: Form[UrlImportConfig], importForm: Form[FileImportConfig])(implicit flash: Flash)
 
 @admin.views.html.layout("Operations pour "+event.name){

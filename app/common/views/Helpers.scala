@@ -1,4 +1,4 @@
-package views.helpers
+package common.views
 
 import common.Utils
 import play.api.data.Field

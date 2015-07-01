@@ -1,8 +1,8 @@
 @(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
 
-@import views.helpers._
+@import common.views._
 
-<select class="form-control @Helpers.getArg(args, "class")" id="@field.id" name="@field.name"
+<select class="form-control select2 @Helpers.getArg(args, "class")" id="@field.id" name="@field.name"
   @Helpers.toHtmlArgs(args, Seq("class", "emptyOption"))
   @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>
   

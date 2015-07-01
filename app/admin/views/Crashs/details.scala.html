@@ -1,6 +1,6 @@
 @import common.models.user.Crash
 @import play.api.libs.json.Json
-@import helpers.format._
+@import common.views.html.format._
 @(crash: Crash, previousCrashs: List[Crash], similarCrashs: List[Crash])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Crash"){

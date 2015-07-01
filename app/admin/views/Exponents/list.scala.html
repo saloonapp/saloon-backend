@@ -1,6 +1,7 @@
 @import common.models.utils.Page
 @import common.models.event.Event
 @import common.models.event.Exponent
+@import common.views.html._
 @(exponentPage: Page[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Exposants"){
@@ -36,7 +37,7 @@
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(exponentPage, (p: Int) => admin.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+						@pagination(exponentPage, (p: Int) => admin.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>

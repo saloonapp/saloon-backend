@@ -1,6 +1,6 @@
 @(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
 
-@import views.helpers._
+@import common.views._
 
 <select class="form-control select2 @Helpers.getArg(args, "class")" id="@field.id" name="@{field.name+"[]"}"
   multiple="multiple"

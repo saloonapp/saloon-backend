@@ -1,5 +1,5 @@
 @import common.models.user.DeviceData
-@import helpers.forms._
+@import common.views.html.forms._
 @(deviceForm: Form[DeviceData])
 
 @fieldHorizontal(deviceForm("saloonMemo"), 'label -> "Memo (réservé SalooN)"){field => @inputTextarea(field)}

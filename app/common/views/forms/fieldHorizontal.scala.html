@@ -1,4 +1,4 @@
-@import views.helpers._
+@import common.views._
 @(field: Field, args: (Symbol, String)*)(input: Field => Html)
 
 <div class="form-group @Helpers.getArg(args, "class") @if(field.hasErrors){has-error}">

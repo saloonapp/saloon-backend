@@ -1,5 +1,6 @@
 @import common.models.utils.Page
 @import common.models.user.Device
+@import common.views.html._
 @(devicePage: Page[Device])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Appareils"){
@@ -34,7 +35,7 @@
 						</table>
 					</div>
 					<div style="padding-left: 10px;">
-						@helpers.pagination(devicePage, (p: Int) => admin.controllers.routes.Devices.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+						@pagination(devicePage, (p: Int) => admin.controllers.routes.Devices.list(req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 					</div>
 				</div>
 			</div>
