@@ -1,6 +1,6 @@
 package common.models.event
 
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.joda.time.DateTime

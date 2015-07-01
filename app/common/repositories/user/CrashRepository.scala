@@ -1,6 +1,7 @@
-package infrastructure.repository
+package common.repositories.user
 
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
+import common.repositories.CollectionReferences
 import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.Play.current

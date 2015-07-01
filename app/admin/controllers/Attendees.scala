@@ -7,9 +7,9 @@ import common.models.event.Attendee
 import common.models.event.AttendeeData
 import common.services.FileImporter
 import common.services.FileExporter
-import common.infrastructure.repository.Repository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.AttendeeRepository
+import common.repositories.Repository
+import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

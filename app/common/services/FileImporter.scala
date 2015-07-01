@@ -5,10 +5,10 @@ import common.models.event.Event
 import common.models.event.Attendee
 import common.models.event.Session
 import common.models.event.Exponent
-import infrastructure.repository.EventRepository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.SessionRepository
-import infrastructure.repository.ExponentRepository
+import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.SessionRepository
+import common.repositories.event.ExponentRepository
 import org.joda.time.format.DateTimeFormat
 import scala.util.Try
 import java.io.Reader

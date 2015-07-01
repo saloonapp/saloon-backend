@@ -1,8 +1,8 @@
 package api.controllers
 
-import common.infrastructure.repository.Repository
-import infrastructure.repository.DeviceRepository
-import infrastructure.repository.UserActionRepository
+import common.repositories.Repository
+import common.repositories.user.DeviceRepository
+import common.repositories.user.UserActionRepository
 import common.models.user.Device
 import common.models.user.DeviceInfo
 import api.controllers.compatibility.Writer

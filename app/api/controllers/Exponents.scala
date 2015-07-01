@@ -1,9 +1,9 @@
 package api.controllers
 
 import common.models.utils.Page
-import common.infrastructure.repository.Repository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.ExponentRepository
+import common.repositories.Repository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.ExponentRepository
 import common.models.event.Exponent
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future

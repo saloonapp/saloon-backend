@@ -14,12 +14,12 @@ import common.services.FileExporter
 import common.services.EventSrv
 import common.services.MailSrv
 import common.services.MandrillSrv
-import common.infrastructure.repository.Repository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.SessionRepository
-import infrastructure.repository.ExponentRepository
-import infrastructure.repository.UserActionRepository
+import common.repositories.Repository
+import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.SessionRepository
+import common.repositories.event.ExponentRepository
+import common.repositories.user.UserActionRepository
 import api.controllers.compatibility.Writer
 import scala.util.Try
 import scala.concurrent.Future
@@ -28,7 +28,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.libs.json._
-import infrastructure.repository.EventRepository
+import common.repositories.event.EventRepository
 
 object Events extends Controller {
   val form: Form[EventData] = Form(EventData.fields)

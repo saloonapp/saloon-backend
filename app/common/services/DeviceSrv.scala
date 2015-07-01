@@ -3,9 +3,9 @@ package common.services
 import common.models.event.Event
 import common.models.event.EventItem
 import common.models.user.UserAction
-import infrastructure.repository.UserActionRepository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.EventItemRepository
+import common.repositories.user.UserActionRepository
+import common.repositories.event.EventRepository
+import common.repositories.event.EventItemRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 

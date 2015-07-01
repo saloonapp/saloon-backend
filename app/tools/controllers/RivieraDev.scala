@@ -24,10 +24,10 @@ import common.models.event.Person
 import common.models.event.Person._
 import common.models.event.PersonSocial
 import tools.scrapers.meta.MetaScraper
-import common.infrastructure.repository.Repository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.SessionRepository
-import infrastructure.repository.ExponentRepository
+import common.repositories.Repository
+import common.repositories.event.EventRepository
+import common.repositories.event.SessionRepository
+import common.repositories.event.ExponentRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

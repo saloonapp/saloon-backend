@@ -1,6 +1,6 @@
 package common.models.user
 
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
 import common.models.event.Event
 import common.models.event.EventItem
 import org.joda.time.DateTime

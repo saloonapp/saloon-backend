@@ -7,10 +7,10 @@ import common.models.event.Exponent
 import common.models.event.ExponentData
 import common.services.FileImporter
 import common.services.FileExporter
-import common.infrastructure.repository.Repository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.ExponentRepository
+import common.repositories.Repository
+import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.ExponentRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

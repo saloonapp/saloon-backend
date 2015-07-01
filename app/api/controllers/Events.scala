@@ -1,11 +1,11 @@
 package api.controllers
 
 import common.models.utils.Page
-import common.infrastructure.repository.Repository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.SessionRepository
-import infrastructure.repository.ExponentRepository
+import common.repositories.Repository
+import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.SessionRepository
+import common.repositories.event.ExponentRepository
 import common.models.event.Event
 import common.models.event.Session
 import common.models.event.Exponent

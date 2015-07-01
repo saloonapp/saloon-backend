@@ -1,4 +1,4 @@
-package infrastructure.repository
+package common.repositories
 
 object CollectionReferences {
   val EVENTS = "Events"

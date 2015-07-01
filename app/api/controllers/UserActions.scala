@@ -1,10 +1,10 @@
 package api.controllers
 
-import common.infrastructure.repository.Repository
-import infrastructure.repository.EventRepository
-import infrastructure.repository.EventItemRepository
-import infrastructure.repository.DeviceRepository
-import infrastructure.repository.UserActionRepository
+import common.repositories.Repository
+import common.repositories.event.EventRepository
+import common.repositories.event.EventItemRepository
+import common.repositories.user.DeviceRepository
+import common.repositories.user.UserActionRepository
 import common.models.event.Event
 import common.models.event.EventItem
 import common.models.user.Device

@@ -6,11 +6,11 @@ import common.models.event.Attendee
 import common.models.event.Session
 import common.models.event.Exponent
 import common.models.user.Device
-import infrastructure.repository.EventRepository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.SessionRepository
-import infrastructure.repository.ExponentRepository
-import infrastructure.repository.DeviceRepository
+import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.SessionRepository
+import common.repositories.event.ExponentRepository
+import common.repositories.user.DeviceRepository
 import common.services.MailSrv
 import common.services.MandrillSrv
 import scala.concurrent.Future

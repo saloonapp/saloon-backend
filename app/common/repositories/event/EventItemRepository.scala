@@ -1,6 +1,7 @@
-package infrastructure.repository
+package common.repositories.event
 
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
+import common.repositories.CollectionReferences
 import common.models.event.EventItem
 import common.models.event.Event
 import common.models.event.Session

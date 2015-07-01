@@ -1,6 +1,6 @@
 package api.controllers
 
-import infrastructure.repository.CrashRepository
+import common.repositories.user.CrashRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

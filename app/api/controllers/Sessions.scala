@@ -1,9 +1,9 @@
 package api.controllers
 
 import common.models.utils.Page
-import common.infrastructure.repository.Repository
-import infrastructure.repository.AttendeeRepository
-import infrastructure.repository.SessionRepository
+import common.repositories.Repository
+import common.repositories.event.AttendeeRepository
+import common.repositories.event.SessionRepository
 import common.models.event.Session
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future

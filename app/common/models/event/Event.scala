@@ -1,7 +1,7 @@
 package common.models.event
 
 import common.Utils
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
 import common.models.values.Address
 import common.models.values.DataSource
 import common.models.values.Link

@@ -1,7 +1,7 @@
 package tools.scrapers.voxxrin.models
 
 import common.Utils
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
 import common.models.values.DataSource
 import common.models.event.Session
 import common.models.event.SessionImages

@@ -1,8 +1,9 @@
-package infrastructure.repository
+package common.repositories.user
 
 import common.models.utils.Page
-import common.infrastructure.repository.Repository
-import common.infrastructure.repository.MongoDbCrudUtils
+import common.repositories.Repository
+import common.repositories.CollectionReferences
+import common.repositories.utils.MongoDbCrudUtils
 import common.models.user.Device
 import scala.concurrent.Future
 import play.api.Play.current

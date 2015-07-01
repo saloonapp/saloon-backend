@@ -1,8 +1,10 @@
-package infrastructure.repository
+package common.repositories.event
 
 import common.models.utils.Page
-import common.infrastructure.repository.Repository
-import common.infrastructure.repository.MongoDbCrudUtils
+import common.repositories.Repository
+import common.repositories.CollectionReferences
+import common.repositories.utils.MongoDbCrudUtils
+import common.repositories.user.UserActionRepository
 import common.models.event.Session
 import common.models.event.SessionOld
 import scala.concurrent.Future

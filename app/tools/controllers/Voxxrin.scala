@@ -1,8 +1,8 @@
 package tools.controllers
 
 import tools.scrapers.voxxrin.VoxxrinApi
-import infrastructure.repository.EventRepository
-import infrastructure.repository.SessionRepository
+import common.repositories.event.EventRepository
+import common.repositories.event.SessionRepository
 import common.models._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

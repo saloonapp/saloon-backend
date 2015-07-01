@@ -1,4 +1,4 @@
-package common.infrastructure.repository
+package common.repositories.utils
 
 import common.models.utils.Page
 import scala.concurrent.Future

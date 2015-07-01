@@ -1,12 +1,12 @@
 package admin.controllers
 
-import common.infrastructure.repository.Repository
+import common.repositories.Repository
 import common.models.utils.Page
 import common.models.user.Device
 import common.models.user.DeviceData
 import common.models.user.UserAction
-import infrastructure.repository.DeviceRepository
-import infrastructure.repository.UserActionRepository
+import common.repositories.user.DeviceRepository
+import common.repositories.user.UserActionRepository
 import common.services.DeviceSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
