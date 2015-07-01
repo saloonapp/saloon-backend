@@ -5,7 +5,7 @@ import common.infrastructure.repository.Repository
 import common.models.values.Address
 import common.models.values.DataSource
 import common.models.values.Link
-import services.FileImporter
+import common.services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._

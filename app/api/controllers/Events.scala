@@ -9,7 +9,7 @@ import infrastructure.repository.ExponentRepository
 import common.models.event.Event
 import common.models.event.Session
 import common.models.event.Exponent
-import services.EventSrv
+import common.services.EventSrv
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

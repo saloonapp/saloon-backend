@@ -2,7 +2,7 @@
 @import common.models.event.Session
 @import common.models.event.Exponent
 @import common.models.user.UserActionFull
-@import services.UserActionSrv
+@import common.services.UserActionSrv
 @import admin.views.html.format._
 @(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int, actions: List[UserActionFull])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 

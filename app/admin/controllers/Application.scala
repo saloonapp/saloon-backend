@@ -11,8 +11,8 @@ import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.DeviceRepository
-import services.MailSrv
-import services.MandrillSrv
+import common.services.MailSrv
+import common.services.MandrillSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

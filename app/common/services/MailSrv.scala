@@ -1,4 +1,4 @@
-package services
+package common.services
 
 import common.models.event.Session
 import common.models.event.Exponent

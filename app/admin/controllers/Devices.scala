@@ -7,7 +7,7 @@ import common.models.user.DeviceData
 import common.models.user.UserAction
 import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
-import services.DeviceSrv
+import common.services.DeviceSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

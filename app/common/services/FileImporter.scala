@@ -1,4 +1,4 @@
-package services
+package common.services
 
 import common.models.FileImportConfig
 import common.models.event.Event

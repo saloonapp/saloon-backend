@@ -1,4 +1,4 @@
-package services
+package common.services
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

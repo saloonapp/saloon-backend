@@ -9,11 +9,11 @@ import common.models.event.EventData
 import common.models.event.Session
 import common.models.event.Exponent
 import common.models.user.SubscribeUserAction
-import services.FileImporter
-import services.FileExporter
-import services.EventSrv
-import services.MailSrv
-import services.MandrillSrv
+import common.services.FileImporter
+import common.services.FileExporter
+import common.services.EventSrv
+import common.services.MailSrv
+import common.services.MandrillSrv
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.AttendeeRepository

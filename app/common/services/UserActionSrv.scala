@@ -1,4 +1,4 @@
-package services
+package common.services
 
 import common.models.event.EventItem
 import common.models.event.Attendee
