@@ -1,4 +1,4 @@
-package common.models
+package common.models.utils
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

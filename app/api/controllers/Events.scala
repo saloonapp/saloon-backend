@@ -1,14 +1,14 @@
 package api.controllers
 
-import common.models.Page
+import common.models.utils.Page
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
-import models.event.Event
-import models.event.Session
-import models.event.Exponent
+import common.models.event.Event
+import common.models.event.Session
+import common.models.event.Exponent
 import services.EventSrv
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future

@@ -1,4 +1,4 @@
-package models.user
+package common.models.user
 
 import org.joda.time.DateTime
 import play.api.libs.json.Json

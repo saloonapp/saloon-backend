@@ -1,6 +1,7 @@
-@import models.event.Event
-@import models.event.Session
-@(sessionPage: common.models.Page[Session], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import common.models.utils.Page
+@import common.models.event.Event
+@import common.models.event.Session
+@(sessionPage: Page[Session], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Sessions"){
 	<div class="row">

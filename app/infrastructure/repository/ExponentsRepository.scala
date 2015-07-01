@@ -1,10 +1,10 @@
 package infrastructure.repository
 
-import common.models.Page
+import common.models.utils.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
-import models.event.Exponent
-import models.event.ExponentOld
+import common.models.event.Exponent
+import common.models.event.ExponentOld
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

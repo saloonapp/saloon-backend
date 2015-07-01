@@ -1,6 +1,6 @@
-@import models.event.Event
-@import models.event.Attendee
-@import models.event.ExponentData
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.event.ExponentData
 @(exponentForm: Form[ExponentData], allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Créer un exposant"){

@@ -1,7 +1,8 @@
 @*
  *  Sample use: @helpers.pagination(taskPage, (p: Int) => routes.Tasks.list(p))
  *@
-@(page: common.models.Page[_], link: Int => play.api.mvc.Call, range: Int = 2)
+@import common.models.utils.Page
+@(page: Page[_], link: Int => play.api.mvc.Call, range: Int = 2)
 
 <div>
   @if(page.totalItems > page.pageSize) {

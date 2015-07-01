@@ -3,7 +3,7 @@ package tools.controllers
 import tools.scrapers.voxxrin.VoxxrinApi
 import infrastructure.repository.EventRepository
 import infrastructure.repository.SessionRepository
-import models._
+import common.models._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

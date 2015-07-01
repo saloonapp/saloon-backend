@@ -1,13 +1,13 @@
 package services
 
-import models.event.Event
-import models.event.Attendee
-import models.event.Session
-import models.event.Exponent
-import models.event.EventItem
-import models.user.Device
-import models.user.UserActionFull
-import models.user.SubscribeUserAction
+import common.models.event.Event
+import common.models.event.Attendee
+import common.models.event.Session
+import common.models.event.Exponent
+import common.models.event.EventItem
+import common.models.user.Device
+import common.models.user.UserActionFull
+import common.models.user.SubscribeUserAction
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository
 import infrastructure.repository.AttendeeRepository

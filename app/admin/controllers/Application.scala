@@ -1,11 +1,11 @@
 package admin.controllers
 
 import common.Utils
-import models.event.Event
-import models.event.Attendee
-import models.event.Session
-import models.event.Exponent
-import models.user.Device
+import common.models.event.Event
+import common.models.event.Attendee
+import common.models.event.Session
+import common.models.event.Exponent
+import common.models.user.Device
 import infrastructure.repository.EventRepository
 import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository

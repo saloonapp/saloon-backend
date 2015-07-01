@@ -1,7 +1,7 @@
-@import models.event.Event
-@import models.event.Attendee
-@import models.event.Session
-@import models.event.SessionData
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.event.Session
+@import common.models.event.SessionData
 @(sessionForm: Form[SessionData], session: Session, allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Modifier "+session.name){

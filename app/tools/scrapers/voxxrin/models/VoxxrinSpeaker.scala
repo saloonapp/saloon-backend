@@ -1,8 +1,8 @@
 package tools.scrapers.voxxrin.models
 
 import common.Utils
-import models.event.Person
-import models.event.PersonSocial
+import common.models.event.Person
+import common.models.event.PersonSocial
 import tools.scrapers.voxxrin.VoxxrinApi
 import play.api.libs.json._
 

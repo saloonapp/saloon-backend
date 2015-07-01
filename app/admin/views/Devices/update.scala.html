@@ -1,5 +1,5 @@
-@import models.user.Device
-@import models.user.DeviceData
+@import common.models.user.Device
+@import common.models.user.DeviceData
 @(deviceForm: Form[DeviceData], device: Device)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Modifier "+device.info.uuid){

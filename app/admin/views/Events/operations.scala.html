@@ -1,4 +1,6 @@
-@import models.event.Event
+@import common.models.event.Event
+@import common.models.UrlImportConfig
+@import common.models.FileImportConfig
 @import services.FileImporter
 @import helpers.forms._
 @(event: Event, urlImportForm: Form[UrlImportConfig], importForm: Form[FileImportConfig])(implicit flash: Flash)

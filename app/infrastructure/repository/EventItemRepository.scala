@@ -1,10 +1,10 @@
 package infrastructure.repository
 
 import common.infrastructure.repository.Repository
-import models.event.EventItem
-import models.event.Event
-import models.event.Session
-import models.event.Exponent
+import common.models.event.EventItem
+import common.models.event.Event
+import common.models.event.Session
+import common.models.event.Exponent
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 

@@ -1,4 +1,4 @@
-package models.event
+package common.models.event
 
 import common.infrastructure.repository.Repository
 import play.api.data.Forms._

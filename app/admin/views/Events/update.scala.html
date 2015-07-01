@@ -1,5 +1,5 @@
-@import models.event.Event
-@import models.event.EventData
+@import common.models.event.Event
+@import common.models.event.EventData
 @(eventForm: Form[EventData], event: Event, categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Modifier "+event.name){

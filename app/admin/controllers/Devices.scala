@@ -1,10 +1,10 @@
 package admin.controllers
 
 import common.infrastructure.repository.Repository
-import common.models.Page
-import models.user.Device
-import models.user.DeviceData
-import models.user.UserAction
+import common.models.utils.Page
+import common.models.user.Device
+import common.models.user.DeviceData
+import common.models.user.UserAction
 import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
 import services.DeviceSrv

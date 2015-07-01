@@ -1,4 +1,4 @@
-package models.user
+package common.models.user
 
 import common.infrastructure.repository.Repository
 import play.api.data.Forms._

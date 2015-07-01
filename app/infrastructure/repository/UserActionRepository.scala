@@ -1,14 +1,14 @@
 package infrastructure.repository
 
-import common.models.Page
+import common.models.utils.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
-import models.user.UserAction
-import models.user.FavoriteUserAction
-import models.user.DoneUserAction
-import models.user.MoodUserAction
-import models.user.CommentUserAction
-import models.user.SubscribeUserAction
+import common.models.user.UserAction
+import common.models.user.FavoriteUserAction
+import common.models.user.DoneUserAction
+import common.models.user.MoodUserAction
+import common.models.user.CommentUserAction
+import common.models.user.SubscribeUserAction
 import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.Play.current

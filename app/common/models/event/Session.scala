@@ -1,8 +1,8 @@
-package models.event
+package common.models.event
 
 import common.Utils
 import common.infrastructure.repository.Repository
-import models.values.DataSource
+import common.models.values.DataSource
 import services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try

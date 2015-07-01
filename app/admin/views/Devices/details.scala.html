@@ -1,14 +1,14 @@
-@import models.event.Event
-@import models.event.Session
-@import models.event.Exponent
-@import models.event.EventItem
-@import models.user.Device
-@import models.user.UserAction
-@import models.user.FavoriteUserAction
-@import models.user.DoneUserAction
-@import models.user.MoodUserAction
-@import models.user.CommentUserAction
-@import models.user.SubscribeUserAction
+@import common.models.event.Event
+@import common.models.event.Session
+@import common.models.event.Exponent
+@import common.models.event.EventItem
+@import common.models.user.Device
+@import common.models.user.UserAction
+@import common.models.user.FavoriteUserAction
+@import common.models.user.DoneUserAction
+@import common.models.user.MoodUserAction
+@import common.models.user.CommentUserAction
+@import common.models.user.SubscribeUserAction
 @(device: Device, actionsByEvents: Map[Option[Event], List[(Option[EventItem], UserAction)]])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout(device.info.uuid) {

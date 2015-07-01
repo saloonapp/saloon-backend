@@ -1,11 +1,11 @@
 package api.controllers.compatibility
 
-import models.event.Event
-import models.event.Attendee
-import models.event.Attendee._
-import models.event.Session
-import models.event.Exponent
-import models.user.Device
+import common.models.event.Event
+import common.models.event.Attendee
+import common.models.event.Attendee._
+import common.models.event.Session
+import common.models.event.Exponent
+import common.models.user.Device
 import play.api.libs.json._
 
 object Writer {

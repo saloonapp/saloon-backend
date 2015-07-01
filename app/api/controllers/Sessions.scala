@@ -1,10 +1,10 @@
 package api.controllers
 
-import common.models.Page
+import common.models.utils.Page
 import common.infrastructure.repository.Repository
 import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
-import models.event.Session
+import common.models.event.Session
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

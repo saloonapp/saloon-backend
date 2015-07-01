@@ -1,5 +1,6 @@
-@import models.event.Event
-@(eventPage: common.models.Page[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import common.models.utils.Page
+@import common.models.event.Event
+@(eventPage: Page[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Evénements"){
 	<div class="row">

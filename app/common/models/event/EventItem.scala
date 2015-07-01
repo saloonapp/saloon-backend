@@ -1,4 +1,4 @@
-package models.event
+package common.models.event
 
 trait EventItem {
   val uuid: String

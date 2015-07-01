@@ -1,4 +1,4 @@
-@import models.values.Address
+@import common.models.values.Address
 @(addressOpt: Option[Address])
 
 @addressOpt.map(address(_)).getOrElse {

@@ -1,8 +1,8 @@
-@import models.event.Event
-@import models.event.Attendee
-@import models.event.Session
-@import models.event.Exponent
-@import models.user.UserAction
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.event.Session
+@import common.models.event.Exponent
+@import common.models.user.UserAction
 @import services.UserActionSrv
 @(event: Event, sessions: List[(Session, List[Attendee])], exponents: List[(Exponent, List[Attendee])], actions: List[UserAction], filter: String)
 <!DOCTYPE html>

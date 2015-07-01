@@ -1,18 +1,18 @@
 package services
 
-import models.event.EventItem
-import models.event.Attendee
-import models.event.Session
-import models.event.Exponent
-import models.user.Device
-import models.user.UserAction
-import models.user.UserActionContent
-import models.user.FavoriteUserAction
-import models.user.DoneUserAction
-import models.user.MoodUserAction
-import models.user.CommentUserAction
-import models.user.SubscribeUserAction
-import models.user.UserActionFull
+import common.models.event.EventItem
+import common.models.event.Attendee
+import common.models.event.Session
+import common.models.event.Exponent
+import common.models.user.Device
+import common.models.user.UserAction
+import common.models.user.UserActionContent
+import common.models.user.FavoriteUserAction
+import common.models.user.DoneUserAction
+import common.models.user.MoodUserAction
+import common.models.user.CommentUserAction
+import common.models.user.SubscribeUserAction
+import common.models.user.UserActionFull
 
 object UserActionSrv {
   def byItem(actions: List[UserActionFull]): List[(EventItem, List[UserActionFull])] = {

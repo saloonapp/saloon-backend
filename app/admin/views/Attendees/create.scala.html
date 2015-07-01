@@ -1,5 +1,5 @@
-@import models.event.Event
-@import models.event.AttendeeData
+@import common.models.event.Event
+@import common.models.event.AttendeeData
 @(attendeeForm: Form[AttendeeData], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Créer un participant"){

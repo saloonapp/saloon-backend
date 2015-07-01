@@ -1,10 +1,10 @@
 package infrastructure.repository
 
-import common.models.Page
+import common.models.utils.Page
 import common.infrastructure.repository.Repository
 import common.infrastructure.repository.MongoDbCrudUtils
-import models.event.Session
-import models.event.SessionOld
+import common.models.event.Session
+import common.models.event.SessionOld
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

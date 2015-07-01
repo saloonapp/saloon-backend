@@ -1,10 +1,10 @@
 package services
 
-import models.FileImportConfig
-import models.event.Event
-import models.event.Attendee
-import models.event.Session
-import models.event.Exponent
+import common.models.FileImportConfig
+import common.models.event.Event
+import common.models.event.Attendee
+import common.models.event.Session
+import common.models.event.Exponent
 import infrastructure.repository.EventRepository
 import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository

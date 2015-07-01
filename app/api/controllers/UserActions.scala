@@ -5,10 +5,10 @@ import infrastructure.repository.EventRepository
 import infrastructure.repository.EventItemRepository
 import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
-import models.event.Event
-import models.event.EventItem
-import models.user.Device
-import models.user.UserAction
+import common.models.event.Event
+import common.models.event.EventItem
+import common.models.user.Device
+import common.models.user.UserAction
 import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

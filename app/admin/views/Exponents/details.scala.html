@@ -1,6 +1,6 @@
-@import models.event.Event
-@import models.event.Attendee
-@import models.event.Exponent
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.event.Exponent
 @(exponent: Exponent, exponentTeam: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout(exponent.name) {

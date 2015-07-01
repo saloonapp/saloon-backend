@@ -1,10 +1,10 @@
 package admin.controllers
 
 import common.FileBodyParser
-import common.models.Page
-import models.FileImportConfig
-import models.event.Attendee
-import models.event.AttendeeData
+import common.models.utils.Page
+import common.models.FileImportConfig
+import common.models.event.Attendee
+import common.models.event.AttendeeData
 import services.FileImporter
 import services.FileExporter
 import common.infrastructure.repository.Repository

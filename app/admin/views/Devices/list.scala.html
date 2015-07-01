@@ -1,5 +1,6 @@
-@import models.user.Device
-@(devicePage: common.models.Page[Device])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import common.models.utils.Page
+@import common.models.user.Device
+@(devicePage: Page[Device])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Appareils"){
 	<div class="row">
