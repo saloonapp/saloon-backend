@@ -32,7 +32,7 @@ object MailSrv {
             } yield {
               val sessionsWithSpeakers = sessions.map(e => (e, attendees.filter(a => e.info.speakers.contains(a.uuid))))
               val exponentsWithTeam = exponents.map(e => (e, attendees.filter(a => e.info.team.contains(a.uuid))))
-              val html = views.html.Mail.eventAttendeeReport(eventOpt.get, sessionsWithSpeakers, exponentsWithTeam, actions, subscribe.filter).toString
+              val html = admin.views.html.Mail.eventAttendeeReport(eventOpt.get, sessionsWithSpeakers, exponentsWithTeam, actions, subscribe.filter).toString
               val text = Jsoup.parse(html).text()
               Some(EmailData(subscribe.email, s"Bilan ${eventOpt.get.name} by SalooN", html, text))
             }
