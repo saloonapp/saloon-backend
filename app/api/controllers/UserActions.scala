@@ -1,4 +1,4 @@
-package controllers.api
+package api.controllers
 
 import common.infrastructure.repository.Repository
 import infrastructure.repository.EventRepository

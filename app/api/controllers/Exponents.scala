@@ -1,11 +1,11 @@
-package controllers.api
+package api.controllers
 
 import common.models.Page
 import common.infrastructure.repository.Repository
 import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.ExponentRepository
 import models.event.Exponent
-import controllers.api.compatibility.Writer
+import api.controllers.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

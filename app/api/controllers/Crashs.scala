@@ -1,4 +1,4 @@
-package controllers.tools
+package api.controllers
 
 import infrastructure.repository.CrashRepository
 import scala.concurrent.Future

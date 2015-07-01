@@ -16,7 +16,7 @@ import infrastructure.repository.ExponentRepository
 import infrastructure.repository.EventItemRepository
 import infrastructure.repository.UserActionRepository
 import infrastructure.repository.DeviceRepository
-import controllers.api.compatibility.Writer
+import api.controllers.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
@@ -114,7 +114,7 @@ object EventSrv {
   def formatUrl(url: String)(implicit req: RequestHeader): String = {
     url match {
       case eventUrlMatcher(remoteHost, eventId) => {
-        val localUrl = controllers.api.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
+        val localUrl = api.controllers.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
         localUrl.replace(req.host, remoteHost)
       }
       case _ => url
@@ -122,7 +122,7 @@ object EventSrv {
   }
 
   def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Attendee], List[Session], List[Exponent])]] = {
-    val localUrl = controllers.api.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
+    val localUrl = api.controllers.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
     val remoteUrl = localUrl.replace(req.host, remoteHost)
     WS.url(remoteUrl).get().map { response =>
       response.json.asOpt[Event].map { event =>

@@ -20,7 +20,7 @@ import infrastructure.repository.AttendeeRepository
 import infrastructure.repository.SessionRepository
 import infrastructure.repository.ExponentRepository
 import infrastructure.repository.UserActionRepository
-import controllers.api.compatibility.Writer
+import api.controllers.compatibility.Writer
 import scala.util.Try
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

@@ -1,4 +1,4 @@
-package controllers.tools
+package tools.controllers
 
 import tools.scrapers.lanyrd.LanyrdScraper
 import scala.concurrent.Future

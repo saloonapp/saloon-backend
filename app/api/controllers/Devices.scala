@@ -1,11 +1,11 @@
-package controllers.api
+package api.controllers
 
 import common.infrastructure.repository.Repository
 import infrastructure.repository.DeviceRepository
 import infrastructure.repository.UserActionRepository
 import models.user.Device
 import models.user.DeviceInfo
-import controllers.api.compatibility.Writer
+import api.controllers.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._

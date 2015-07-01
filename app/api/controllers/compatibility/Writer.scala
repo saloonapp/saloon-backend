@@ -1,4 +1,4 @@
-package controllers.api.compatibility
+package api.controllers.compatibility
 
 import models.event.Event
 import models.event.Attendee
