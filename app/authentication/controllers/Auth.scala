@@ -37,14 +37,14 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
 
   def login = UserAwareAction { implicit request =>
     request.identity match {
-      case Some(user) => Redirect(admin.controllers.routes.Application.home)
+      case Some(user) => Redirect(backend.controllers.routes.Application.index)
       case None => Ok(authentication.views.html.login(LoginForm.form))
     }
   }
 
   def register = UserAwareAction { implicit request =>
     request.identity match {
-      case Some(user) => Redirect(admin.controllers.routes.Application.home)
+      case Some(user) => Redirect(backend.controllers.routes.Application.index)
       case None => Ok(authentication.views.html.register(RegisterForm.form))
     }
   }
@@ -67,7 +67,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             case Some(user) => env.authenticatorService.create(user).map {
               case Some(authenticator) =>
                 env.eventBus.publish(LoginEvent(user, request, request2lang))
-                env.authenticatorService.send(authenticator, Redirect(admin.controllers.routes.Application.home))
+                env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
               case None => throw new AuthenticationException("Couldn't create an authenticator")
             }
             case None => Future.failed(new AuthenticationException("Couldn't find user"))
@@ -96,7 +96,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             case Some(authenticator) =>
               env.eventBus.publish(SignUpEvent(user, request, request2lang))
               env.eventBus.publish(LoginEvent(user, request, request2lang))
-              env.authenticatorService.send(authenticator, Redirect(admin.controllers.routes.Application.home))
+              env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
             case None => throw new AuthenticationException("Couldn't create an authenticator")
           }
         }

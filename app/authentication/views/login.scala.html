@@ -1,25 +1,67 @@
 @import authentication.models.User
 @import com.mohiva.play.silhouette.core.providers.Credentials
+@import common.views._
 @import common.views.html.forms._
 @(signInForm: Form[Credentials])(implicit env: com.mohiva.play.silhouette.core.Environment[User, _], request: RequestHeader)
 
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@if(!App.isProd()){(@App.getEnv()) }SalooN admin</title>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
 
-@main("Silhouette - Sign In") {
-    @request.flash.get("error").map { msg =>
-        <div class="col-md-6 col-md-offset-3 alert alert-danger alert-error">
-            <a href="#" class="close" data-dismiss="alert">&times;</a>
-            <strong>Error!</strong> @msg
+    <link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+</head>
+<body class="login-content">
+    <!-- Login -->
+    <div class="lc-block toggled" id="l-login">
+        @helper.form(action = authentication.controllers.routes.Auth.doLogin()){
+	        <div class="input-group m-b-20">
+	            <span class="input-group-addon"><i class="md md-email"></i></span>
+	            <div class="fg-line">
+	                @inputText(signInForm("identifier"), 'placeholder->"Email", 'autofocus->"true")
+	            </div>
+	        </div>
+	        <div class="input-group m-b-20">
+	            <span class="input-group-addon"><i class="md md-lock"></i></span>
+	            <div class="fg-line">
+	                @inputText(signInForm("password"), 'type->"password", 'placeholder->"Mot de passe")
+	            </div>
+	        </div>
+	        <a href="#" data-block="#l-forget-password">Mot de passe oublié ?</a>
+	        <button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
+	    }
+    </div>
+
+    <!-- Forgot Password -->
+    <div class="lc-block" id="l-forget-password">
+        <p class="text-left">Entrez votre email pour réinitialiser votre mot de passe.</p>
+        <div class="input-group m-b-20">
+            <span class="input-group-addon"><i class="md md-email"></i></span>
+            <div class="fg-line">
+                <input type="text" class="form-control" placeholder="Email">
+            </div>
         </div>
-    }
+        <div class="text-left"><a href="#" data-block="#l-login"><i class="md  md-arrow-back"></i> Retour</a></div>
+        <a href="" class="btn btn-login btn-danger btn-float"><i class="md md-arrow-forward"></i></a>
+    </div>
 
-    <div class="container">
-      @helper.form(action = authentication.controllers.routes.Auth.doLogin(), 'class->"form-signin") {
-        <h2 class="form-signin-heading">Please login</h2>
-        <label for="identifier" class="sr-only">Email address</label>
-        @inputText(signInForm("identifier"), 'placeholder->"Username", 'autofocus->"true")
-        <label for="password" class="sr-only">Password</label>
-        @inputText(signInForm("password"), 'type->"password", 'placeholder->"Password")
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-      }
-    </div> <!-- /container -->
-}
+    <!-- Javascript Libraries -->
+    <script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootstrap/js/bootstrap.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/Waves/dist/waves.min.js")"></script>
+    <!-- Placeholder for IE9 -->
+    <!--[if IE 9 ]>
+        <script type="text/javascript" src="@routes.Assets.at("libs/jquery-placeholder/jquery.placeholder.min.js")"></script>
+    <![endif]-->
+    <script type="text/javascript" src="@routes.Assets.at("backend/scripts/login.js")"></script>
+</body>
+</html>
