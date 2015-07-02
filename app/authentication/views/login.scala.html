@@ -24,25 +24,25 @@
     <!-- Login -->
     <div class="lc-block toggled" id="l-login">
         @helper.form(action = authentication.controllers.routes.Auth.doLogin()){
-	        <div class="input-group m-b-20">
+	        <div class="input-group m-b-20 @if(signInForm("identifier").hasErrors){has-error}"">
 	            <span class="input-group-addon"><i class="md md-email"></i></span>
 	            <div class="fg-line">
 	                @inputText(signInForm("identifier"), 'placeholder->"Email", 'autofocus->"true")
 	            </div>
 	        </div>
-	        <div class="input-group m-b-20">
+	        <div class="input-group m-b-20 @if(signInForm("password").hasErrors){has-error}">
 	            <span class="input-group-addon"><i class="md md-lock"></i></span>
 	            <div class="fg-line">
 	                @inputText(signInForm("password"), 'type->"password", 'placeholder->"Mot de passe")
 	            </div>
 	        </div>
-	        <a href="#" data-block="#l-forget-password">Mot de passe oublié ?</a>
+	        <!-- <a href="#" data-block="#l-forget-password">Mot de passe oublié ?</a> -->
 	        <button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
 	    }
     </div>
 
     <!-- Forgot Password -->
-    <div class="lc-block" id="l-forget-password">
+    <!-- <div class="lc-block" id="l-forget-password">
         <p class="text-left">Entrez votre email pour réinitialiser votre mot de passe.</p>
         <div class="input-group m-b-20">
             <span class="input-group-addon"><i class="md md-email"></i></span>
@@ -52,7 +52,7 @@
         </div>
         <div class="text-left"><a href="#" data-block="#l-login"><i class="md  md-arrow-back"></i> Retour</a></div>
         <a href="" class="btn btn-login btn-danger btn-float"><i class="md md-arrow-forward"></i></a>
-    </div>
+    </div> -->
 
     <!-- Javascript Libraries -->
     <script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>

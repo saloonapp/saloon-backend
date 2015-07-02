@@ -27,12 +27,12 @@ object Global extends GlobalSettings with SecuredSettings {
   override def onNotAuthenticated(request: RequestHeader, lang: Lang) = {
     implicit val flash = Flash()
     implicit val header = request
-    Some(Future.successful(Unauthorized(admin.views.html.error("Authentication required !"))))
+    Some(Future.successful(Unauthorized(backend.views.html.error("Ooups", "Login nécessaire !"))))
   }
 
   override def onNotAuthorized(request: RequestHeader, lang: Lang) = {
     implicit val flash = Flash()
     implicit val header = request
-    Some(Future.successful(Forbidden(admin.views.html.error("Not authorized !"))))
+    Some(Future.successful(Forbidden(backend.views.html.error("Halte !", "Vous n'avez pas les droits pour accéder à cette page :("))))
   }
 }

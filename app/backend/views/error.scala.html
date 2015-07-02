@@ -1,0 +1,30 @@
+@import common.views._
+@(title: String = "Oooups", message: String = "Une erreur inattendue vient de se produire...")(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@if(!App.isProd()){(@App.getEnv()) }SalooN</title>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+
+    <link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+</head>
+<body class="four-zero-content">
+    <div class="four-zero">
+        <h2>@title</h2>
+        <small>@message</small>
+        <footer>
+            <a href="javascript:history.back()"><i class="md md-arrow-back"></i></a>
+            <a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i></a>
+        </footer>
+    </div>
+</body>
+</html>
