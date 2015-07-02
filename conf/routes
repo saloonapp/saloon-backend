@@ -4,6 +4,7 @@
 
 # Web site
 GET       /                                                                                 website.controllers.Application.index
+GET       /sample                                                                           website.controllers.Application.sample
 
 #GET       /index                                                                            authentication.controllers.Auth.index
 GET       /login                                                                            authentication.controllers.Auth.login

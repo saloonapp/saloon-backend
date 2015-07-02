@@ -9,4 +9,8 @@ object Application extends Controller {
     Ok(website.views.html.index())
   }
 
+  def sample = Action { implicit req =>
+    Ok(website.views.html.sample.index())
+  }
+
 }
