@@ -1,0 +1,8 @@
+@(pageName: String)
+
+<ul class="tab-nav tn-justified">
+    <li class="waves-effect @if(pageName=="profile-about"){active}"><a href="@backend.controllers.routes.Sample.page("profile-about")">About</a></li>
+    <li class="waves-effect @if(pageName=="profile-timeline"){active}"><a href="@backend.controllers.routes.Sample.page("profile-timeline")">Timeline</a></li>
+    <li class="waves-effect @if(pageName=="profile-photos"){active}"><a href="@backend.controllers.routes.Sample.page("profile-photos")">Photos</a></li>
+    <li class="waves-effect @if(pageName=="profile-connections"){active}"><a href="@backend.controllers.routes.Sample.page("profile-connections")">Connections</a></li>
+</ul>

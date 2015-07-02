@@ -1,0 +1,82 @@
+@import common.views._
+@(title: String)(content: Html)
+
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@if(!App.isProd()){(@App.getEnv()) }@title</title>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon."+App.getEnv()+".png")">
+
+    <link rel="stylesheet" href="@routes.Assets.at("libs/fullcalendar/dist/fullcalendar.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/bootgrid/jquery.bootgrid.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/lightgallery/light-gallery/css/lightGallery.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/mediaelement/build/mediaelementplayer.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/sweetalert/dist/sweetalert-override.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/socicon/socicon.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/bootstrap-select/dist/css/bootstrap-select.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/nouislider/distribute/jquery.nouislider.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/summernote/dist/summernote.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/farbtastic/farbtastic.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/chosen_v1.4.2/chosen.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+</head>
+<body>
+    @content
+    @partials.oldBrowserMessage()
+    <script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootstrap/js/bootstrap.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/flot/jquery.flot.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/flot/jquery.flot.resize.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/flot/jquery.flot.pie.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/flot.tooltip/js/jquery.flot.tooltip.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/flot-orderBars/js/jquery.flot.orderBars.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/flot.curvedlines/curvedLines.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/sparklines/jquery.sparkline.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/autosize/dist/autosize.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/mediaelement/build/mediaelement-and-player.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/moment/moment.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/moment/fr.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/fullcalendar/dist/fullcalendar.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootgrid/jquery.bootgrid.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/simpleWeather/jquery.simpleWeather.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/jquery.nicescroll/jquery.nicescroll.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/Waves/dist/waves.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootstrap-growl/bootstrap-growl.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/sweetalert/dist/sweetalert.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/lightgallery/light-gallery/js/lightGallery.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootstrap-select/dist/js/bootstrap-select.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/nouislider/distribute/jquery.nouislider.all.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/summernote/dist/summernote.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/chosen_v1.4.2/chosen.jquery.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/fileinput/fileinput.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/input-mask/input-mask.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/farbtastic/farbtastic.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootstrap-wizard/jquery.bootstrap.wizard.min.js")"></script>
+    <!-- Placeholder for IE9 -->
+    <!--[if IE 9 ]>
+        <script type="text/javascript" src="@routes.Assets.at("libs/jquery-placeholder/jquery.placeholder.min.js")"></script>
+    <![endif]-->
+    
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/flot-charts/curved-line-chart.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/flot-charts/line-chart.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/flot-charts/bar-chart.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/flot-charts/dynamic-chart.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/flot-charts/pie-chart.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/charts.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/datatable.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/calendar.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/functions.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("backend/sample/scripts/demo.js")"></script>
+</body>
+</html>

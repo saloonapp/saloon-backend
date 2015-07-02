@@ -1,0 +1,359 @@
+@(pageName: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("SalooN"){
+    @partials.header()
+    <section id="main">
+        @partials.sidebar(pageName)
+        @partials.chat()
+        <section id="content">
+            <div class="container">
+                <div class="block-header">
+                    <h2>Form Elements</h2>
+                
+                    <ul class="actions">
+                        <li>
+                            <a class="icon-pop" href="">
+                                <i class="md md-trending-up"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="icon-pop" href="">
+                                <i class="md md-done-all"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a class="icon-pop" href="" data-toggle="dropdown">
+                                <i class="md md-more-vert"></i>
+                            </a>
+                
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Refresh</a>
+                                </li>
+                                <li>
+                                    <a href="">Manage Widgets</a>
+                                </li>
+                                <li>
+                                    <a href="">Widgets Settings</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                
+                </div>
+            
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Input Text <small>Text Inputs with different sizes by height and column.</small></h2>
+                    </div>
+                    
+                    <div class="card-body card-padding">
+                        <p class="c-black f-500">Basic Text Feilds with different sizes by height and column.</p>
+                        
+                        <div class="form-group">
+                            <div class="fg-line">
+                                <input type="text" class="form-control input-sm" placeholder="Input Small">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="fg-line">
+                                <input type="text" class="form-control" placeholder="Input Default">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="fg-line">
+                                <input type="text" class="form-control input-lg" placeholder="Input Large">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-4">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-4">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-4">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="fg-line">   
+                                        <input type="text" class="form-control" placeholder="col-sm-3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-3">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <input type="text" class="form-control" placeholder="col-sm-6">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <br/>
+                        <p class="m-b-25 m-t-25 c-black f-500">Floating Label - Floating animation for label when Input feild is active.</p>
+                        
+                        <div class="form-group fg-float">
+                            <div class="fg-line">
+                                <input type="text" class="input-sm form-control fg-input">
+                            </div>
+                            <label class="fg-label">Input Small</label>
+                        </div>
+                        
+                        <div class="form-group fg-float">
+                            <div class="fg-line">
+                                <input type="text" class="form-control fg-input">
+                            </div>
+                            <label class="fg-label">Input Default</label>
+                        </div>
+                        
+                        <div class="form-group fg-float">
+                            <div class="fg-line">
+                                <input type="text" class="input-lg form-control fg-input">
+                            </div>
+                            <label class="fg-label">Input Large</label>
+                        </div>
+                        
+                        <br/>
+                        <p class="m-b-25 m-t-25 c-black f-500">Input Status - Focused and Disabled</p>
+                        
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="fg-line fg-toggled">
+                                        <input type="text" class="form-control" value="This is Focused">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="fg-line disabled">
+                                        <input type="text" class="form-control" value="This is Disabled" disabled>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Textarea <small>Form control which supports multiple lines of text. Change 'rows' attribute as necessary.</small></h2>
+                    </div>
+                
+                    <div class="card-body card-padding">
+                        <p class="c-black f-500 m-b-20">Basic Example</p>
+                        
+                        <div class="form-group">
+                            <div class="fg-line">
+                                <textarea class="form-control" rows="5" placeholder="Let us type some lorem ipsum...."></textarea>
+                            </div>
+                        </div>
+                        
+                        <p class="c-black f-500 m-t-20 m-b-20">Height Auto Growing</p>
+                        
+                        <div class="form-group">
+                            <div class="fg-line">
+                                <textarea class="form-control auto-size" placeholder="Start pressing Enter to see growing..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <p class="c-black f-500 m-b-20 m-t-20">Disabled State</p>
+                        
+                        <div class="form-group">
+                            <div class="fg-line disabled">
+                                <textarea class="form-control" disabled>This is disabled</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Select <small>Use the default option, or add multiple to show multiple options at once.</small></h2>
+                    </div>
+                
+                    <div class="card-body card-padding">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p class="c-black f-500 m-b-20">Basic Example</p>
+                        
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <div class="select">
+                                            <select class="form-control">
+                                                <option>Select an Option</option>
+                                                <option>Option 1</option>
+                                                <option>Option 2</option>
+                                                <option>Option 3</option>
+                                                <option>Option 4</option>
+                                                <option>Option 5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-6">
+                                <p class="c-black f-500 m-b-20">Disabled Stat</p>
+                        
+                                <div class="form-group">
+                                    <div class="fg-line">
+                                        <div class="select">
+                                            <select class="form-control" disabled>
+                                                <option>Select an Option</option>
+                                                <option>Option 1</option>
+                                                <option>Option 2</option>
+                                                <option>Option 3</option>
+                                                <option>Option 4</option>
+                                                <option>Option 5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Checkbox and Radio <small>Checkboxes are for selecting one or several options in a list, while radios are for selecting one option from many.</small></h2>
+                    </div>
+                    
+                    <div class="card-body card-padding">
+                        <p class="c-black f-500 m-b-20">Basic Example</p>
+                        
+                        <div class="checkbox m-b-15">
+                            <label>
+                                <input type="checkbox" value="">
+                                <i class="input-helper"></i>
+                                Option one is this and that-be sure to include why it's great
+                            </label>
+                        </div>
+                        
+                        <div class="checkbox disabled">
+                            <label>
+                                <input type="checkbox" value="" disabled="">
+                                <i class="input-helper"></i>
+                                Option two is disabled
+                            </label>
+                        </div>
+                        
+                        <br/>
+                        
+                        <div class="radio m-b-15">
+                            <label>
+                                <input type="radio" name="sample" value="">
+                                <i class="input-helper"></i>
+                                Option one is this and that-be sure to include why it's great
+                            </label>
+                        </div>
+                        
+                        <div class="radio m-b-15">
+                            <label>
+                                <input type="radio" name="sample" value="">
+                                <i class="input-helper"></i>
+                                Option two can be something else and selecting it will deselect option one
+                            </label>
+                        </div>
+                        
+                        <div class="radio disabled">
+                            <label>
+                                <input type="radio" value="" disabled="">
+                                <i class="input-helper"></i>
+                                Option three is disabled
+                            </label>
+                        </div>
+                        
+                        <br/>
+                        <p class="c-black f-500 m-b-20 m-t-20">Inline Checkboxes and Radios - Use the '.checkbox-inline' or '.radio-inline' classes on a series of checkboxes or radios for controls that appear on the same line.</p>
+                        
+                        <label class="checkbox checkbox-inline m-r-20">
+                            <input type="checkbox" value="option1">
+                            <i class="input-helper"></i>    
+                            1
+                        </label>
+                        <label class="checkbox checkbox-inline m-r-20">
+                            <input type="checkbox" value="option2">
+                            <i class="input-helper"></i>    
+                            2
+                        </label>
+                        <label class="checkbox checkbox-inline m-r-20">
+                            <input type="checkbox" value="option3">
+                            <i class="input-helper"></i>    
+                            3
+                        </label>
+                        
+                        <br/><br/>
+                        
+                        <label class="radio radio-inline m-r-20">
+                            <input type="radio" name="inlineRadioOptions" value="option1">
+                            <i class="input-helper"></i>  
+                            1
+                        </label>
+                        
+                        <label class="radio radio-inline m-r-20">
+                            <input type="radio" name="inlineRadioOptions" value="option2">
+                            <i class="input-helper"></i>  
+                            2
+                        </label>
+                        
+                        <label class="radio radio-inline m-r-20">
+                            <input type="radio" name="inlineRadioOptions" value="option3">
+                            <i class="input-helper"></i>  
+                            3
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    @partials.footer()
+}

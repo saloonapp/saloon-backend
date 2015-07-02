@@ -1,0 +1,111 @@
+@(pageName: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("SalooN"){
+    @partials.header()
+    <section id="main">
+        @partials.sidebar(pageName)
+        @partials.chat()
+        <section id="content">
+            <div class="container">
+                <div class="block-header">
+                    <h2>Alerts</h2>
+                
+                    <ul class="actions">
+                        <li>
+                            <a class="icon-pop" href="">
+                                <i class="md md-trending-up"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="icon-pop" href="">
+                                <i class="md md-done-all"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a class="icon-pop" href="" data-toggle="dropdown">
+                                <i class="md md-more-vert"></i>
+                            </a>
+                
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Refresh</a>
+                                </li>
+                                <li>
+                                    <a href="">Manage Widgets</a>
+                                </li>
+                                <li>
+                                    <a href="">Widgets Settings</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                
+                </div>
+            
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Basic Example <small>Wrap any text and an optional dismiss button in '.alert' and one of the four contextual classes (e.g., .alert-success) for basic alert messages.</small></h2>
+                    </div>
+
+                    <div class="card-body card-padding">
+                        <div class="alert alert-success" role="alert">Well done! You successfully read this important alert message.</div>
+                        <div class="alert alert-info" role="alert">Heads up! This alert needs your attention, but it's not super important.</div>
+                        <div class="alert alert-warning" role="alert">Warning! Better check yourself, you're not looking too good.</div>
+                        <div class="alert alert-danger" role="alert">Oh snap! Change a few things up and try submitting again.</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Dismissible Alerts <small>Build on any alert by adding an optional '.alert-dismissible' and close button.</small></h2>
+                    </div>
+
+                    <div class="card-body card-padding">
+                        <div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Well done! You successfully read this important alert message.
+                        </div>
+                        <div class="alert alert-info alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Heads up! This alert needs your attention, but it's not super important.
+                        </div>
+                        <div class="alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Warning! Better check yourself, you're not looking too good.
+                        </div>
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Oh snap! Change a few things up and try submitting again.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Links in alerts <small>Use the '.alert-link' utility class to quickly provide matching colored links within any alert.</small></h2>
+                    </div>
+
+                    <div class="card-body card-padding">
+                        <div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Well done! You successfully read <a href="" class="alert-link">this important alert message.</a>
+                        </div>
+                        <div class="alert alert-info alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Heads up! This <a href="" class="alert-link">alert needs your attention</a>, but it's not super important.
+                        </div>
+                        <div class="alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Warning! Better check yourself, you're <a href="" class="alert-link">not looking too good.</a>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            Oh snap! <a href="" class="alert-link">Change a few things up</a> and try submitting again.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    @partials.footer()
+}

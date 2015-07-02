@@ -12,6 +12,10 @@ GET       /logout                                                               
 POST      /login                                                                            authentication.controllers.Auth.doLogin
 POST      /register                                                                         authentication.controllers.Auth.doRegister
 
+GET       /backend                                                                          backend.controllers.Application.index
+GET       /backend/sample                                                                   backend.controllers.Sample.index
+GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
+
 GET       /admin                                                                            admin.controllers.Application.home
 GET       /admin/sample                                                                     admin.controllers.Application.sample
 GET       /admin/migrate                                                                    admin.controllers.Application.migrate

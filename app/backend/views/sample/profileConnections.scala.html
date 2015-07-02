@@ -1,0 +1,330 @@
+@(pageName: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("SalooN"){
+    @partials.header()
+    <section id="main">
+        @partials.sidebar(pageName)
+        @partials.chat()
+        <section id="content">
+            <div class="container">
+                @partials.profileHeader()
+                <div class="card" id="profile-main">
+                    @partials.profileInfo()
+                    <div class="pm-body clearfix">
+                        @partials.profileTabs(pageName)
+                        <div class="pmb-block">
+                            <div class="p-header">
+                                <ul class="p-menu">
+                                    <li class="active"><a href=""><i class="md md-person-add hidden-xs"></i> Recommanded</a></li>
+                                    <li><a href=""><i class="md md-people hidden-xs"></i> Connected</a></li>
+                                    <li class="pm-search">
+                                        <div class="pms-inner">
+                                            <i class="md md-search"></i>
+                                            <input type="text" placeholder="Search...">
+                                        </div>
+                                    </li>
+                                </ul>
+                                
+                                <ul class="actions m-t-20 hidden-xs">
+                                    <li class="dropdown">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                            
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li>
+                                                <a href="">Refresh</a>
+                                            </li>
+                                            <li>
+                                                <a href="">Settings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="contacts clearfix row">
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/1.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Cathy Shelton</strong>
+                                            <small>cathy.shelton31@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/2.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Stella Flores</strong>
+                                            <small>stella@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/3.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Marilyn Thomas</strong>
+                                            <small>marilyn@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/4.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Dwight Gilbert</strong>
+                                            <small>dwight@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/5.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Cody Moreno</strong>
+                                            <small>moreno@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/6.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Jamie Freeman</strong>
+                                            <small>freeman@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/7.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Charles Spencer</strong>
+                                            <small>charles@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/8.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Vickie Reed</strong>
+                                            <small>reed@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/9.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Lauren Ruiz</strong>
+                                            <small>ruiz@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/10.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Marlene Vasquez</strong>
+                                            <small>vasquez@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/11.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Loretta Morrisonz</strong>
+                                            <small>morrisonz@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/12.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Yvonne Wood</strong>
+                                            <small>wood@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/13.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Denise Franklin</strong>
+                                            <small>franklin@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/14.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Joseph Gonzalez</strong>
+                                            <small>gonzalez@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/15.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Rick Graham</strong>
+                                            <small>graham@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 col-xs-6">
+                                    <div class="c-item">
+                                        <a href="" class="ci-avatar">
+                                            <img src="@routes.Assets.at("backend/sample/images/contacts/16.jpg")" alt="">
+                                        </a>
+                                        
+                                        <div class="c-info">
+                                            <strong>Alexander Bailey</strong>
+                                            <small>bailey@@example.com</small>
+                                        </div>
+                                        
+                                        <div class="c-footer">
+                                            <button class="waves-effect"><i class="md md-person-add"></i> Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="load-more">
+                                <a href=""><i class="md md-refresh"></i> Load More...</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    @partials.footer()
+}

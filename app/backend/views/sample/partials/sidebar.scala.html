@@ -1,0 +1,86 @@
+@(pageName: String)
+
+<aside id="sidebar">
+    <div class="sidebar-inner c-overflow">
+        <div class="profile-menu">
+            <a href="">
+                <div class="profile-pic">
+                    <img src="@routes.Assets.at("backend/sample/images/profile-pics/1.jpg")" alt="">
+                </div>
+                <div class="profile-info">
+                    Malinda Hollaway
+                    <i class="md md-arrow-drop-down"></i>
+                </div>
+            </a>
+            <ul class="main-menu">
+                <li><a href="profile-about.html"><i class="md md-person"></i> View Profile</a></li>
+                <li><a href=""><i class="md md-settings-input-antenna"></i> Privacy Settings</a></li>
+                <li><a href=""><i class="md md-settings"></i> Settings</a></li>
+                <li><a href=""><i class="md md-history"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <ul class="main-menu">
+            <li @if(pageName=="index"){class="active"}><a href="@backend.controllers.routes.Sample.index()"><i class="md md-home"></i> Home</a></li>
+            <li @if(pageName=="typography"){class="active"}><a href="@backend.controllers.routes.Sample.page("typography")"><i class="md md-format-underline"></i> Typography</a></li>
+            <li class="sub-menu @if(List("widget-templates","widgets").contains(pageName)){active toggled}">
+                <a href=""><i class="md md-now-widgets"></i> Widgets</a>
+                <ul>
+                    <li><a @if(pageName=="widget-templates"){class="active"} href="@backend.controllers.routes.Sample.page("widget-templates")">Templates</a></li>
+                    <li><a @if(pageName=="widgets"){class="active"} href="@backend.controllers.routes.Sample.page("widgets")">Widgets</a></li>
+                </ul>
+            </li>
+            <li class="sub-menu @if(List("tables","data-tables").contains(pageName)){active toggled}">
+                <a href=""><i class="md md-view-list"></i> Tables</a>
+                <ul>
+                    <li><a @if(pageName=="tables"){class="active"} href="@backend.controllers.routes.Sample.page("tables")">Normal Tables</a></li>
+                    <li><a @if(pageName=="data-tables"){class="active"} href="@backend.controllers.routes.Sample.page("data-tables")">Data Tables</a></li>
+                </ul>
+            </li>
+            <li class="sub-menu @if(List("form-elements","form-components","form-examples","form-validations").contains(pageName)){active toggled}">
+                <a href=""><i class="md md-my-library-books"></i> Forms</a>
+                <ul>
+                    <li><a @if(pageName=="form-elements"){class="active"} href="@backend.controllers.routes.Sample.page("form-elements")">Basic Form Elements</a></li>
+                    <li><a @if(pageName=="form-components"){class="active"} href="@backend.controllers.routes.Sample.page("form-components")">Form Components</a></li>
+                    <li><a @if(pageName=="form-examples"){class="active"} href="@backend.controllers.routes.Sample.page("form-examples")">Form Examples</a></li>
+                    <li><a @if(pageName=="form-validations"){class="active"} href="@backend.controllers.routes.Sample.page("form-validations")">Form Validation</a></li>
+                </ul>
+            </li>
+            <li class="sub-menu @if(List("colors","animations","box-shadow","buttons","icons","alerts","notification-dialog","media","components","breadcrumbs","other-components").contains(pageName)){active toggled}">
+                <a href=""><i class="md md-swap-calls"></i>User Interface</a>
+                <ul>
+                    <li><a @if(pageName=="colors"){class="active"} href="@backend.controllers.routes.Sample.page("colors")">Colors</a></li>
+                    <li><a @if(pageName=="animations"){class="active"} href="@backend.controllers.routes.Sample.page("animations")">Animations</a></li>
+                    <li><a @if(pageName=="box-shadow"){class="active"} href="@backend.controllers.routes.Sample.page("box-shadow")">Box Shadow</a></li>
+                    <li><a @if(pageName=="buttons"){class="active"} href="@backend.controllers.routes.Sample.page("buttons")">Buttons</a></li>
+                    <li><a @if(pageName=="icons"){class="active"} href="@backend.controllers.routes.Sample.page("icons")">Icons</a></li>
+                    <li><a @if(pageName=="alerts"){class="active"} href="@backend.controllers.routes.Sample.page("alerts")">Alerts</a></li>
+                    <li><a @if(pageName=="notification-dialog"){class="active"} href="@backend.controllers.routes.Sample.page("notification-dialog")">Notifications & Dialogs</a></li>
+                    <li><a @if(pageName=="media"){class="active"} href="@backend.controllers.routes.Sample.page("media")">Media</a></li>
+                    <li><a @if(pageName=="components"){class="active"} href="@backend.controllers.routes.Sample.page("components")">Components</a></li>
+                    <li><a @if(pageName=="breadcrumbs"){class="active"} href="@backend.controllers.routes.Sample.page("breadcrumbs")">Breadcrumbs</a></li>
+                    <li><a @if(pageName=="other-components"){class="active"} href="@backend.controllers.routes.Sample.page("other-components")">Others</a></li>
+                </ul>
+            </li>
+            <li class="sub-menu @if(List("flot-charts","other-charts").contains(pageName)){active toggled}">
+                <a href=""><i class="md md-trending-up"></i>Charts</a>
+                <ul>
+                    <li><a @if(pageName=="flot-charts"){class="active"} href="@backend.controllers.routes.Sample.page("flot-charts")">Flot Charts</a></li>
+                    <li><a @if(pageName=="other-charts"){class="active"} href="@backend.controllers.routes.Sample.page("other-charts")">Other Charts</a></li>
+                </ul>
+            </li>
+            <li @if(pageName=="calendar"){class="active"}><a href="@backend.controllers.routes.Sample.page("calendar")"><i class="md md-today"></i> Calendar</a></li>
+            <li @if(pageName=="generic-classes"){class="active"}><a href="@backend.controllers.routes.Sample.page("generic-classes")"><i class="md md-layers"></i> Generic Classes</a></li>
+            <li class="sub-menu @if(List("profile-about","profile-timeline","profile-photos","profile-connections","list-view","messages","login","404").contains(pageName)){active toggled}">
+                <a href=""><i class="md md-content-copy"></i> Sample Pages</a>
+                <ul>
+                    <li><a @if(List("profile-about","profile-timeline","profile-photos","profile-connections").contains(pageName)){class="active"} href="@backend.controllers.routes.Sample.page("profile-about")">Profile</a></li>
+                    <li><a @if(pageName=="list-view"){class="active"} href="@backend.controllers.routes.Sample.page("list-view")">List View</a></li>
+                    <li><a @if(pageName=="messages"){class="active"} href="@backend.controllers.routes.Sample.page("messages")">Messages</a></li>
+                    <li><a @if(pageName=="login"){class="active"} href="@backend.controllers.routes.Sample.page("login")">Login and Sign Up</a></li>
+                    <li><a @if(pageName=="404"){class="active"} href="@backend.controllers.routes.Sample.page("404")">Error 404</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</aside>

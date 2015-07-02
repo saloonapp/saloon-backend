@@ -1,0 +1,143 @@
+@(pageName: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("SalooN"){
+    @partials.header()
+    <section id="main">
+        @partials.sidebar(pageName)
+        @partials.chat()<section id="content">
+            <div class="container">
+                <div class="block-header">
+                    <h2>Form Validations</h2>
+                
+                    <ul class="actions">
+                        <li>
+                            <a href="">
+                                <i class="md md-trending-up"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="md md-done-all"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="" data-toggle="dropdown">
+                                <i class="md md-more-vert"></i>
+                            </a>
+                
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Refresh</a>
+                                </li>
+                                <li>
+                                    <a href="">Manage Widgets</a>
+                                </li>
+                                <li>
+                                    <a href="">Widgets Settings</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Basic Example <small>Bootstrap includes validation styles for error, warning, and success states on form controls. To use, add .has-warning, .has-error, or .has-success to the parent element. Any .control-label, .form-control, and .help-block within that element will receive the validation styles.</small></h2>
+                    </div>
+                    
+                    <div class="card-body card-padding">
+                        <div class="form-group has-success">
+                            <div class="fg-line">
+                                <label class="control-label" for="inputSuccess1">Input with success</label>
+                                <input type="text" class="form-control" id="inputSuccess1" value="Vestibulum ante ipsum primis in faucibus orci luctus">
+                            </div>  
+                            <small class="help-block">This is a successfull help block</small>
+                        </div>
+                        
+                        <div class="form-group has-warning">
+                            <div class="fg-line">
+                                <label class="control-label" for="inputWarning1">Input with warning</label>
+                                <input type="text" class="form-control" id="inputWarning1" value="Duis at suscipit nibh. Sed nec libero non">
+                            </div>
+                            <small class="help-block">This is a warning help block</small>
+                        </div>
+                        
+                        <div class="form-group has-error">
+                            <div class="fg-line">
+                                <label class="control-label" for="inputError1">Input with error</label>
+                                <input type="text" class="form-control" id="inputError1" value="Nam et eleifend massa. Cum sociis natoque penatibus">
+                            </div>
+                            <small class="help-block">This is an error help block</small>
+                        </div>
+                        
+                        <br/>
+                        
+                        <div class="has-success">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="">
+                                    <i class="input-helper"></i>
+                                    Checkbox with success
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="has-warning">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="">
+                                    <i class="input-helper"></i>
+                                    Checkbox with warning
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="has-error">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="">
+                                    <i class="input-helper"></i>
+                                    Checkbox with error
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Validation Stats with Icon <small>You can also add optional feedback icons with the addition of .has-feedback and the right icon.</small></h2>
+                    </div>
+                    
+                    <div class="card-body card-padding">
+                        <div class="form-group has-warning has-feedback">
+                            <label class="control-label" for="inputWarning2">Input with warning</label>
+                            <div class="fg-line">
+                                <input type="text" class="form-control" id="inputWarning2">
+                            </div>
+                            <span class="md md-warning form-control-feedback"></span>
+                        </div>
+                        
+                        <div class="form-group has-success has-feedback">
+                            <label class="control-label" for="inputSuccess2">Input with success</label>
+                            <div class="fg-line">
+                                <input type="text" class="form-control" id="inputSuccess2">
+                            </div>
+                            <span class="md md-check form-control-feedback"></span>
+                        </div>
+                        
+                        <div class="form-group has-error has-feedback">
+                            <label class="control-label" for="inputError2">Input with error</label>
+                            <div class="fg-line">
+                                <input type="text" class="form-control" id="inputError2">
+                            </div>
+                            <span class="md md-close form-control-feedback"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    @partials.footer()
+}

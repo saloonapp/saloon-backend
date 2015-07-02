@@ -1,0 +1,201 @@
+@(pageName: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("SalooN"){
+    @partials.header()
+    <section id="main" class="notification-demo">
+        @partials.sidebar(pageName)
+        @partials.chat()
+        <section id="content">
+            <div class="container">
+                <div class="block-header">
+                    <h2>Notifications and Dialog</h2>
+                
+                    <ul class="actions">
+                        <li>
+                            <a href="">
+                                <i class="md md-trending-up"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="md md-done-all"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="" data-toggle="dropdown">
+                                <i class="md md-more-vert"></i>
+                            </a>
+                
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Refresh</a>
+                                </li>
+                                <li>
+                                    <a href="">Manage Widgets</a>
+                                </li>
+                                <li>
+                                    <a href="">Widgets Settings</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                
+                </div>
+            
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Notification <small>Animated Alerts with custome types and alignments</small></h2>
+                    </div>
+
+                    <div class="card-body card-padding">
+                        <p class="f-500 m-b-20 c-black">Notificaions</p>
+
+                        <div class="notifications row">
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-from="top" data-align="left" data-icon="fa fa-check">Top Left</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse"  data-from="top" data-align="right" data-icon="fa fa-comments">Top Right</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse"  data-from="top" data-align="center" data-icon="fa fa-comments">Top Center</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse"  data-from="bottom" data-align="left">Bottom Left</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse"  data-from="bottom" data-align="right">Bottom Right</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse"  data-from="bottom" data-align="center">Bottom Center</a>
+                            </div>
+                        </div>
+
+                        <br/>
+
+                        <p class="f-500 m-b-20 c-black">Type</p>
+                        <div class="notifications row">    
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-inverse" data-type="inverse">Inverse</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="info">Info</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-success" data-type="success">Success</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-warning" data-type="warning">Warning</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-danger" data-type="danger">Danger</a>
+                            </div>
+                        </div>
+
+                        <br/>
+
+                        <p class="f-500 m-b-20 c-black">Animation</p>
+                        <div class="notifications row">
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated fadeIn"  data-animation-Out="animated fadeOut">Fade In</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated fadeInLeft"  data-animation-Out="animated fadeOutLeft">Fade In Left</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated fadeInRight"  data-animation-Out="animated fadeOutRight">Fade In Right</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated fadeInUp"  data-animation-Out="animated fadeOutUp">Fade In Up</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated fadeInDown"  data-animation-Out="animated fadeOutDown">Fade In Down</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated bounceIn"  data-animation-Out="animated bounceOut">Bounce In</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated bounceInLeft"  data-animation-Out="animated bounceOutLeft">Bounce In Left</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated bounceInRight"  data-animation-Out="animated bounceOutRight">Bounce In Right</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated bounceInUp"  data-animation-Out="animated bounceOutUp">Bounce In Up</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-animation-in="animated rotateInDownRight"  data-animation-Out="animated rotateOutUpRight">Fall In Right</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated rotateIn"  data-animation-Out="animated rotateOut">Rotate In</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated flipInX"  data-animation-Out="animated flipOutX">Flip In X</a>
+                            </div>
+                            <div class="col-sm-2 col-xs-6">
+                                <a href="" class="btn btn-info" data-type="inverse" data-animation-in="animated flipInY"  data-animation-Out="animated flipOutY">Flip In Y</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Dialog <small>A beautiful replacement for Javascript's boring Alert</small></h2>
+                    </div>
+
+                    <div class="card-body card-padding">
+                        <div class="row dialog">
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">Basic Example</p>
+
+                                <button class="btn btn-info" id="sa-basic">Click me</button>
+                            </div> 
+
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">A title with a text under</p>
+
+                                <button class="btn btn-info" id="sa-title">Click me</button>
+                            </div> 
+
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">A success message!</p>
+
+                                <button class="btn btn-info" id="sa-success">Click me</button>
+                            </div> 
+
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">A warning message, with a function attached to the "Confirm"-button...</p>
+
+                                <button class="btn btn-info" id="sa-warning">Click me</button>
+                            </div>  
+                        </div>
+
+                        <br/><br/>
+
+                        <div class="row dialog">
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">By passing a parameter, you can execute something else for "Cancel".</p>
+
+                                <button class="btn btn-info" id="sa-params">Click me</button>
+                            </div>   
+
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">A message with custom Image Header</p>
+
+                                <button class="btn btn-info" id="sa-image">Click me</button>
+                            </div>         
+
+                            <div class="col-sm-3">
+                                <p class="f-500 c-black m-b-20">A message with auto close timer</p>
+
+                                <button class="btn btn-info" id="sa-close">Click me</button>
+                            </div>          
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    @partials.footer()
+}

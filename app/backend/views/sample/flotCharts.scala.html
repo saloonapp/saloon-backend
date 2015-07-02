@@ -1,0 +1,214 @@
+@(pageName: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("SalooN"){
+    @partials.header()
+    <section id="main">
+        @partials.sidebar(pageName)
+        @partials.chat()
+        <section id="content">
+            <div class="container">
+                <div class="block-header">
+                    <h2>Flot Charts <small>Flot is a pure JavaScript plotting library for jQuery, with a focus on simple usage, attractive looks and interactive features.</small></h2>
+                
+                    <ul class="actions">
+                        <li>
+                            <a href="">
+                                <i class="md md-trending-up"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="md md-done-all"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="" data-toggle="dropdown">
+                                <i class="md md-more-vert"></i>
+                            </a>
+                
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Refresh</a>
+                                </li>
+                                <li>
+                                    <a href="">Manage Widgets</a>
+                                </li>
+                                <li>
+                                    <a href="">Widgets Settings</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Line Chart with curved edges <small>Curved edges made possible using curvedLines Flot plugin.</small></h2>
+                        
+                                <ul class="actions">
+                                    <li class="dropdown action-show">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                        
+                                        <div class="dropdown-menu pull-right">
+                                            <p class="p-20">
+                                                You can put anything here
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        
+                            <div class="card-body">
+                                <div class="chart-edge">
+                                    <div id="curved-line-chart" class="flot-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Lines Chart <small>Same above example without curved edges.</small></h2>
+                                
+                                <ul class="actions">
+                                    <li class="dropdown action-show">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                        
+                                        <div class="dropdown-menu pull-right">
+                                            <p class="p-20">
+                                                You can put anything here
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="chart-edge">
+                                    <div id="line-chart" class="flot-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Bar Chart</h2>
+                                
+                                <ul class="actions">
+                                    <li class="dropdown action-show">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                        
+                                        <div class="dropdown-menu pull-right">
+                                            <p class="p-20">
+                                                You can put anything here
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-body card-padding-sm">
+                                <div id="bar-chart" class="flot-chart"></div>
+                                <div class="flc-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Dynamic Chart</h2>
+                                
+                                <ul class="actions">
+                                    <li class="dropdown action-show">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                        
+                                        <div class="dropdown-menu pull-right">
+                                            <p class="p-20">
+                                                You can put anything here
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-body card-padding-sm">
+                                <div id="dynamic-chart" class="flot-chart"></div>
+                                <div class="flc-dynamic"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Pie Chart</h2>
+                                
+                                <ul class="actions">
+                                    <li class="dropdown action-show">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                        
+                                        <div class="dropdown-menu pull-right">
+                                            <p class="p-20">
+                                                You can put anything here
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-body card-padding">
+                                <div id="pie-chart" class="flot-chart-pie"></div>
+                                <div class="flc-pie hidden-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Donut Chart</h2>
+                                
+                                <ul class="actions">
+                                    <li class="dropdown action-show">
+                                        <a href="" data-toggle="dropdown">
+                                            <i class="md md-more-vert"></i>
+                                        </a>
+                        
+                                        <div class="dropdown-menu pull-right">
+                                            <p class="p-20">
+                                                You can put anything here
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-body card-padding">
+                                <div id="donut-chart" class="flot-chart-pie"></div>
+                                <div class="flc-donut hidden-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    @partials.footer()
+}
