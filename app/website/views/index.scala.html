@@ -1,6 +1,8 @@
+@import common.views.html._
 @()(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @main("SalooN"){
+    @notifications(flash)
     @partials.header()
     @partials.sectionPromo()
     @*@partials.sectionFeatures()*@

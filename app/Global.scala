@@ -5,6 +5,7 @@ import play.api.mvc.RequestHeader
 import play.api.mvc.Flash
 import play.api.mvc.Results.Unauthorized
 import play.api.mvc.Results.Forbidden
+import play.api.mvc.Results.Redirect
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.joda.time.DateTimeZone
@@ -27,12 +28,12 @@ object Global extends GlobalSettings with SecuredSettings {
   override def onNotAuthenticated(request: RequestHeader, lang: Lang) = {
     implicit val flash = Flash()
     implicit val header = request
-    Some(Future.successful(Unauthorized(backend.views.html.error("Ooups", "Login nécessaire !"))))
+    Some(Future(Redirect(website.controllers.routes.Application.index).flashing("error" -> "Vous devez être authentifié !")))
   }
 
   override def onNotAuthorized(request: RequestHeader, lang: Lang) = {
     implicit val flash = Flash()
     implicit val header = request
-    Some(Future.successful(Forbidden(backend.views.html.error("Halte !", "Vous n'avez pas les droits pour accéder à cette page :("))))
+    Some(Future(Redirect(backend.controllers.routes.Application.index).flashing("error" -> "Vous n'avez pas les droits pour accéder à cette page :(")))
   }
 }

@@ -17,7 +17,7 @@ GET       /backend                                                              
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
 
-GET       /admin                                                                            admin.controllers.Application.home
+GET       /admin                                                                            admin.controllers.Application.index
 GET       /admin/sample                                                                     admin.controllers.Application.sample
 GET       /admin/migrate                                                                    admin.controllers.Application.migrate
 

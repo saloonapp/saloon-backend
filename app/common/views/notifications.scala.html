@@ -1,12 +1,12 @@
 @(flash: Flash)
 
-<div class="row">
+<div class="row notification-container">
 	<div class="col-md-12">
 		@flash.get("success").map{ msg =>
 			@if(!msg.isEmpty){
 				<div class="alert alert-success" role="alert">
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<strong>Well done!</strong> @Html(msg)
+					<strong>Well done!</strong> <span class="message">@Html(msg)</span>
 				</div>
 			}
 		}
@@ -14,7 +14,7 @@
 			@if(!msg.isEmpty){
 				<div class="alert alert-danger" role="alert">
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<strong>Oh snap!</strong> @Html(msg)
+					<strong>Oh snap!</strong> <span class="message">@Html(msg)</span>
 				</div>
 			}
 		}

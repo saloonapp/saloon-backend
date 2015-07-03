@@ -25,7 +25,7 @@ import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
 object Application extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
 
-  def home = SecuredAction { implicit req =>
+  def index = SecuredAction { implicit req =>
     Ok(admin.views.html.home())
   }
   def sample = Action { implicit req =>
@@ -39,7 +39,7 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
       m2 <- migrateSessions()
       m3 <- migrateExponents()
     } yield {
-      Redirect(routes.Application.home).flashing("success" -> "Migrated !")
+      Redirect(routes.Application.index).flashing("success" -> "Migrated !")
     }
   }
   private def migrateEvents(): Future[List[Option[Event]]] = {
