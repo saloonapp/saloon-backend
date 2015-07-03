@@ -18,7 +18,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.Json
-import authentication.models.User
+import common.models.user.User
 import authentication.environments.SilhouetteEnvironment
 import com.mohiva.play.silhouette.core.Silhouette
 import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator

@@ -13,8 +13,6 @@
     <div class="container">
       @helper.form(action = authentication.controllers.routes.Auth.doRegister(), 'class->"form-signin") {
         <h2 class="form-signin-heading">Please register</h2>
-        <label for="username" class="sr-only">Username</label>
-        @inputText(signInForm("username"), 'placeholder->"Username", 'autofocus->"true")
         <label for="email" class="sr-only">Email address</label>
         @inputText(signInForm("email"), 'placeholder->"Email")
         <label for="password" class="sr-only">Password</label>

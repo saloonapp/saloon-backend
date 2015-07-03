@@ -1,0 +1,33 @@
+package authentication.repositories.impl
+
+import common.repositories.CollectionReferences
+import authentication.repositories.PasswordRepository
+import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.json.Json
+import play.api.libs.json.JsValue
+import play.api.Play.current
+import reactivemongo.api.DB
+import play.modules.reactivemongo.ReactiveMongoPlugin
+import play.modules.reactivemongo.json.collection.JSONCollection
+import com.mohiva.play.silhouette.core.LoginInfo
+import com.mohiva.play.silhouette.core.providers.PasswordInfo
+
+class MongoPasswordRepository extends PasswordRepository {
+  val db = ReactiveMongoPlugin.db
+  lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.CREDENTIALS)
+  implicit val formatLoginInfo = Json.format[LoginInfo]
+  implicit val formatPasswordInfo = Json.format[PasswordInfo]
+
+  def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] = {
+    play.Logger.info("find PasswordInfo for LoginInfo: " + loginInfo)
+    collection.find(Json.obj("loginInfo" -> loginInfo)).one[JsValue].map(_.map(json => (json \ "passwordInfo").as[PasswordInfo]))
+  }
+
+  def save(loginInfo: LoginInfo, passwordInfo: PasswordInfo): Future[PasswordInfo] = {
+    play.Logger.info("save PasswordInfo: " + passwordInfo + " for " + loginInfo)
+    collection.save(Json.obj("loginInfo" -> loginInfo, "passwordInfo" -> passwordInfo)).map { err =>
+      passwordInfo
+    }
+  }
+}

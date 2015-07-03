@@ -6,6 +6,8 @@ object CollectionReferences {
   val EXPONENTS = "Exponents"
   val ATTENDEES = "Attendees"
   val DEVICES = "Devices"
+  val USERS = "Users"
+  val CREDENTIALS = "Credentials"
   val USERACTIONS = "UserActions"
   val CRASHS = "Crashs"
 }

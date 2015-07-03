@@ -1,6 +1,6 @@
 package authentication.repositories
 
-import authentication.models.User
+import common.models.user.User
 import scala.concurrent.Future
 import com.mohiva.play.silhouette.core.services.IdentityService
 import com.mohiva.play.silhouette.core.LoginInfo

@@ -2,7 +2,7 @@ package authentication.controllers
 
 import authentication.forms.LoginForm
 import authentication.forms.RegisterForm
-import authentication.models.User
+import common.models.user.User
 import authentication.environments.SilhouetteEnvironment
 import authentication.repositories.UserCreationException
 import scala.concurrent.Future
@@ -79,14 +79,13 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
 
   def doRegister = Action.async { implicit request =>
     RegisterForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(authentication.views.html.register(form))),
-      data => {
-        val loginInfo = LoginInfo(CredentialsProvider.Credentials, data.username)
-        val authInfo = passwordHasher.hash(data.password)
+      formWithErrors => Future.successful(BadRequest(authentication.views.html.register(formWithErrors))),
+      formData => {
+        val loginInfo = LoginInfo(CredentialsProvider.Credentials, formData.email)
+        val authInfo = passwordHasher.hash(formData.password)
         val user = User(
           loginInfo = loginInfo,
-          username = data.username,
-          email = data.email)
+          email = formData.email)
         val result = for {
           user <- userRepository.save(user)
           authInfo <- authInfoService.save(loginInfo, authInfo)

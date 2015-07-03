@@ -1,6 +1,6 @@
 package authentication.repositories.impl
 
-import authentication.models.User
+import common.models.user.User
 import authentication.repositories.UserRepository
 import authentication.repositories.UserCreationException
 import scala.collection.mutable
@@ -13,12 +13,12 @@ class InMemoryUserRepository extends UserRepository {
     play.Logger.info("find User for loginInfo: " + loginInfo)
     Future.successful(InMemoryUserRepository.users.find { case (id, user) => user.loginInfo == loginInfo }.map(_._2))
   }
-  def save(user: User) = {
+  def save(user: User): Future[User] = {
     play.Logger.info("save User: " + user)
-    if (InMemoryUserRepository.users.contains(user.username)) {
-      Future.failed(new UserCreationException("username already exists."))
+    if (InMemoryUserRepository.users.contains(user.email)) {
+      Future.failed(new UserCreationException("email already exists."))
     } else {
-      InMemoryUserRepository.users += (user.username -> user)
+      InMemoryUserRepository.users += (user.email -> user)
       Future.successful(user)
     }
   }

@@ -1,6 +1,6 @@
 package authentication.environments
 
-import authentication.models.User
+import common.models.user.User
 import play.api.Play
 import play.api.Play.current
 import com.mohiva.play.silhouette.core.Environment
@@ -20,7 +20,7 @@ import com.mohiva.play.silhouette.contrib.utils.BCryptPasswordHasher
 import com.mohiva.play.silhouette.contrib.utils.PlayCacheLayer
 import com.mohiva.play.silhouette.contrib.utils.SecureRandomIDGenerator
 
-trait SilhouetteEnvironment extends InMemoryRepositories {
+trait SilhouetteEnvironment extends MongoRepositories {
 
   lazy val authenticatorService: AuthenticatorService[CachedCookieAuthenticator] = {
     new CachedCookieAuthenticatorService(CachedCookieAuthenticatorSettings(
