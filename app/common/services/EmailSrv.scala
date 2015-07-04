@@ -1,7 +1,9 @@
 package common.services
 
+import common.Defaults
 import common.models.event.Session
 import common.models.event.Exponent
+import common.models.user.User
 import common.models.user.SubscribeUserAction
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
@@ -12,9 +14,11 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import org.jsoup.Jsoup
 
-case class EmailData(to: String, subject: String, html: String, text: String)
+case class EmailData(fromName: String, fromEmail: String, to: String, subject: String, html: String, text: String)
 
-object MailSrv {
+object EmailSrv {
+  val senderName = "Bob de SalooN"
+  val senderEmail = "bob@saloonapp.co"
 
   def generateEventReport(eventId: String, userId: String): Future[Option[EmailData]] = {
     UserActionRepository.findByUserEvent(userId, eventId).flatMap { actions =>
@@ -32,15 +36,21 @@ object MailSrv {
             } yield {
               val sessionsWithSpeakers = sessions.map(e => (e, attendees.filter(a => e.info.speakers.contains(a.uuid))))
               val exponentsWithTeam = exponents.map(e => (e, attendees.filter(a => e.info.team.contains(a.uuid))))
-              val html = admin.views.html.Mail.eventAttendeeReport(eventOpt.get, sessionsWithSpeakers, exponentsWithTeam, actions, subscribe.filter).toString
+              val html = admin.views.html.Email.eventAttendeeReport(eventOpt.get, sessionsWithSpeakers, exponentsWithTeam, actions, subscribe.filter).toString
               val text = Jsoup.parse(html).text()
-              Some(EmailData(subscribe.email, s"Bilan ${eventOpt.get.name} by SalooN", html, text))
+              Some(EmailData(senderName, senderEmail, subscribe.email, s"Bilan ${eventOpt.get.name} by SalooN", html, text))
             }
           }
           case _ => Future(None) // not subscribed
         }
       }.getOrElse(Future(None)) // not subscribed
     }
+  }
+
+  def generateContactEmail(source: String, name: String, email: String, message: String, userOpt: Option[User]): EmailData = {
+    val html = common.views.html.Email.contact(source, name, email, message, userOpt).toString
+    val text = common.views.txt.Email.contact(source, name, email, message, userOpt).toString
+    EmailData(name, email, Defaults.contactEmail, s"Contact SalooN depuis ${source}", html, text)
   }
 
 }

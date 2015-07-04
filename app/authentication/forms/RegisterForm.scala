@@ -7,6 +7,8 @@ import play.api.data.Forms._
 object RegisterForm {
   val form = Form(
     mapping(
+      "firstName" -> nonEmptyText,
+      "lastName" -> nonEmptyText,
       "email" -> email,
       "password" -> nonEmptyText)(RegisterInfo.apply)(RegisterInfo.unapply))
 }

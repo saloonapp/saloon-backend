@@ -1,4 +1,5 @@
-@()
+@import common.models.user.User
+@(userOpt: Option[User])
 
 <!-- ******HEADER****** -->
 <header id="top" class="header navbar-fixed-top">
@@ -28,7 +29,11 @@
                     <!-- <li class="nav-item"><a class="scrollto" href="#pricing">Pricing</a></li> -->
                     <li class="nav-item"><a class="scrollto" href="#testimonials">Clients</a></li>
                     <li class="nav-item"><a class="scrollto" href="#contact">Contact</a></li>
-                    <li class="nav-item"><a href="@authentication.controllers.routes.Auth.login()">Login</a></li>
+                    @userOpt.map { user =>
+                        <li class="nav-item"><a href="@backend.controllers.routes.Application.index()">Backend</a></li>
+                    }.getOrElse {
+                        <li class="nav-item"><a href="@authentication.controllers.routes.Auth.login()">Login</a></li>
+                    }
                 </ul><!--//nav-->
             </div><!--//navabr-collapse-->
         </nav><!--//main-nav-->

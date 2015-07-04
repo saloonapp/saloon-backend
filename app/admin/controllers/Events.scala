@@ -1,5 +1,6 @@
 package admin.controllers
 
+import common.Utils
 import common.FileBodyParser
 import common.models.utils.Page
 import common.models.FileImportConfig
@@ -12,7 +13,7 @@ import common.models.user.SubscribeUserAction
 import common.services.FileImporter
 import common.services.FileExporter
 import common.services.EventSrv
-import common.services.MailSrv
+import common.services.EmailSrv
 import common.services.MandrillSrv
 import common.repositories.Repository
 import common.repositories.event.EventRepository
@@ -80,7 +81,7 @@ object Events extends Controller {
   }
 
   def doCreateFromUrl = Action.async { implicit req =>
-    getFormParam("url").map { url =>
+    Utils.getFormParam("url").map { url =>
       val eventUrl = EventSrv.formatUrl(url)
       EventSrv.fetchFullEvent(eventUrl).flatMap {
         _.map {
@@ -118,7 +119,7 @@ object Events extends Controller {
   }
 
   def report(eventId: String, userId: String) = Action.async { implicit req =>
-    MailSrv.generateEventReport(eventId, userId).map {
+    EmailSrv.generateEventReport(eventId, userId).map {
       _.map { email =>
         Ok(play.twirl.api.Html(email.html))
       }.getOrElse(NotFound(admin.views.html.error(s"User $userId didn't subscribe to event $eventId")))
@@ -144,7 +145,7 @@ object Events extends Controller {
 
       val listFutures = users.map {
         case (userId, sub) =>
-          MailSrv.generateEventReport(eventId, userId).flatMap {
+          EmailSrv.generateEventReport(eventId, userId).flatMap {
             _.map { emailData => MandrillSrv.sendEmail(emailData.copy(to = sub.email)) }.getOrElse(Future(Json.obj("message" -> s"error for ${sub.email}")))
           }
       }
@@ -161,7 +162,7 @@ object Events extends Controller {
       _.map {
         _.action match {
           case SubscribeUserAction(email, filter, subscribe) => {
-            MailSrv.generateEventReport(eventId, userId).flatMap {
+            EmailSrv.generateEventReport(eventId, userId).flatMap {
               _.map { emailData =>
                 MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
                   Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
@@ -342,7 +343,4 @@ object Events extends Controller {
       }).getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Les données de l'attribut 'data' du body ne sont pas correctes (JSON: {event: {}, sessions: [], exponents: []})!")))
     }.getOrElse(Future(Redirect(mainRoute.refresh(uuid)).flashing("error" -> "Le body doit contenir les données dans un attribut 'data' !")))
   }
-
-  def getFormParam(key: String)(implicit req: Request[AnyContent]): Option[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.flatMap { _.headOption }
-  def getFormMultiParam(key: String)(implicit req: Request[AnyContent]): Seq[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.getOrElse { Seq() }
 }

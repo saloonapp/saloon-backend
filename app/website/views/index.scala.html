@@ -1,9 +1,10 @@
+@import common.models.user.User
 @import common.views.html._
-@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(userOpt: Option[User])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @main("SalooN"){
     @notifications(flash)
-    @partials.header()
+    @partials.header(userOpt)
     @partials.sectionPromo()
     @*@partials.sectionFeatures()*@
     @*@partials.sectionHow()*@
@@ -11,6 +12,6 @@
     @partials.sectionStory()
     @partials.sectionTestimonials()
     @*@partials.sectionPricing()*@
-    @partials.sectionContact()
+    @partials.sectionContact(userOpt)
     @partials.footer()
 }

@@ -9,8 +9,6 @@ import play.api.Play.current
 object MandrillSrv {
   val baseUrl = "https://mandrillapp.com/api/1.0"
   val key = "md9UcB8wRMp480u9VfGIpw"
-  val senderEmail = "bob@saloonapp.co"
-  val senderName = "Bob de SalooN"
 
   def sendEmail(data: EmailData): Future[JsValue] = {
     WS.url(baseUrl + "/messages/send.json").post(Json.obj(
@@ -19,8 +17,8 @@ object MandrillSrv {
         "html" -> data.html,
         "text" -> data.text,
         "subject" -> data.subject,
-        "from_email" -> senderEmail,
-        "from_name" -> senderName,
+        "from_email" -> data.fromEmail,
+        "from_name" -> data.fromName,
         "to" -> Json.arr(
           Json.obj("email" -> data.to, "type" -> "to"))))).map { response =>
       response.json

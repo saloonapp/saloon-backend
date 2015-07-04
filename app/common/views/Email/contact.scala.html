@@ -1,0 +1,11 @@
+@import common.models.user.User
+@(source: String, name: String, email: String, message: String, userOpt: Option[User])
+
+De : @name &lt;@email&gt;<br>
+Utilisateur : @userOpt.map { user => @user.email (@user.uuid) }.getOrElse { Non authentifié }<br>
+<br>
+Corps du message :<br>
+@message<br>
+<br>
+--<br>
+This e-mail was sent from @source

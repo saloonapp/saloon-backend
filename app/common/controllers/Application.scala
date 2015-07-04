@@ -1,9 +1,26 @@
 package common.controllers
 
+import common.Utils
+import common.services.EmailSrv
+import common.services.MandrillSrv
+import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
+import common.models.user.User
+import authentication.environments.SilhouetteEnvironment
+import com.mohiva.play.silhouette.core.Silhouette
+import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Application extends Controller {
+object Application extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+  val contactForm = Form(
+    tuple(
+      "url" -> nonEmptyText,
+      "name" -> nonEmptyText,
+      "email" -> nonEmptyText,
+      "message" -> nonEmptyText))
 
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(
@@ -13,4 +30,17 @@ object Application extends Controller {
       "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent, userId, timestamp");
   }
 
+  def contact = UserAwareAction.async { implicit request =>
+    contactForm.bindFromRequest.fold(
+      formWithErrors => Future(Redirect(Utils.getFormParam("url").get).flashing("error" -> "Tous les champs du formulaire sont obligatoires !")),
+      formData => {
+        formData match {
+          case (url, name, email, message) =>
+            val emailData = EmailSrv.generateContactEmail("http://" + request.host + url, name, email, message, request.identity)
+            MandrillSrv.sendEmail(emailData).map { res =>
+              Redirect(url).flashing("success" -> "Email de contact envoyé :)")
+            }
+        }
+      })
+  }
 }

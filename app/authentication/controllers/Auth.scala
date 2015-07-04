@@ -3,6 +3,7 @@ package authentication.controllers
 import authentication.forms.LoginForm
 import authentication.forms.RegisterForm
 import common.models.user.User
+import common.models.user.UserInfo
 import authentication.environments.SilhouetteEnvironment
 import authentication.repositories.UserCreationException
 import scala.concurrent.Future
@@ -85,7 +86,10 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
         val authInfo = passwordHasher.hash(formData.password)
         val user = User(
           loginInfo = loginInfo,
-          email = formData.email)
+          email = formData.email,
+          info = UserInfo(
+            formData.firstName,
+            formData.lastName))
         val result = for {
           user <- userRepository.save(user)
           authInfo <- authInfoService.save(loginInfo, authInfo)

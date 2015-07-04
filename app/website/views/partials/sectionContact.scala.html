@@ -1,4 +1,5 @@
-@()
+@import common.models.user.User
+@(userOpt: Option[User])
 
 <!-- ******CONTACT****** -->
 <section id="contact" class="contact section has-pattern">
@@ -15,18 +16,19 @@
         </div><!--//row-->
         <div class="row text-center">
             <div class="contact-form col-md-6 col-sm-12 col-xs-12 col-md-offset-3">
-                <form class="form">
+                <form class="form" method="POST" action="@common.controllers.routes.Application.contact()">
+                    <input type="hidden" name="url" value="@website.controllers.routes.Application.index()">
                     <div class="form-group name">
                         <label class="sr-only" for="name">Name</label>
-                        <input id="name" type="text" class="form-control" placeholder="Name:">
+                        <input type="text" class="form-control" id="name" name="name" value="@userOpt.map(u => u.info.firstName+" "+u.info.lastName).getOrElse("")" placeholder="Name:" required>
                     </div><!--//form-group-->
                     <div class="form-group email">
                         <label class="sr-only" for="email">Email</label>
-                        <input id="email" type="email" class="form-control" placeholder="Email:">
+                        <input type="email" class="form-control" id="email" name="email" value="@userOpt.map(_.email).getOrElse("")" placeholder="Email:" required>
                     </div><!--//form-group-->
                     <div class="form-group message">
                         <label class="sr-only" for="message">Message</label>
-                        <textarea id="message" class="form-control" rows="6" placeholder="Message:"></textarea>
+                        <textarea class="form-control" id="message" name="message" rows="6" placeholder="Message:" required></textarea>
                     </div><!--//form-group-->
                     <button type="submit" class="btn btn-lg btn-theme">Send Message</button>
                 </form><!--//form-->

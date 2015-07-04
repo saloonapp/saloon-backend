@@ -5,6 +5,7 @@
 # Web site
 GET       /                                                                                 website.controllers.Application.index
 GET       /sample                                                                           website.controllers.Application.sample
+POST      /contact                                                                          common.controllers.Application.contact
 
 #GET       /index                                                                            authentication.controllers.Auth.index
 GET       /login                                                                            authentication.controllers.Auth.login

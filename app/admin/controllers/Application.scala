@@ -11,7 +11,7 @@ import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.user.DeviceRepository
-import common.services.MailSrv
+import common.services.EmailSrv
 import common.services.MandrillSrv
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

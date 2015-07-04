@@ -6,6 +6,8 @@ import org.joda.time.format.DateTimeFormatter
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play
+import play.api.mvc.Request
+import play.api.mvc.AnyContent
 import org.jsoup.Jsoup
 
 object Utils {
@@ -19,6 +21,9 @@ object Utils {
   def toTwitterHashtag(str: String): String = if (str.startsWith("#")) str.substring(1) else str
   def toTwitterAccount(str: String): String = if (str.startsWith("@")) str.substring(1) else str
   def parseDate(format: DateTimeFormatter)(date: String): Option[DateTime] = if (date.isEmpty()) None else Some(DateTime.parse(date, format))
+
+  def getFormParam(key: String)(implicit req: Request[AnyContent]): Option[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.flatMap { _.headOption }
+  def getFormMultiParam(key: String)(implicit req: Request[AnyContent]): Seq[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.getOrElse { Seq() }
 
   def htmlToText(html: String): String = Jsoup.parse(html.replaceAll("\\n", "\\\\n")).text().replaceAll("\\\\n", "\n")
   /*
