@@ -1,5 +1,9 @@
 # SalooN
 
+## deploy
+
+Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
+
 ## Installation
 
 ### Linux
