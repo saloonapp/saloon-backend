@@ -10,6 +10,7 @@ import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 object Application extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
 
   def index = SecuredAction { implicit req =>
+    implicit val user = req.identity
     Ok(backend.views.html.index())
   }
 

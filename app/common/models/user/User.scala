@@ -22,13 +22,25 @@ case class User(
   email: String,
   info: UserInfo,
   rights: Map[String, Boolean] = Map(),
-  meta: UserMeta = UserMeta(new DateTime(), new DateTime())) extends Identity
+  meta: UserMeta = UserMeta(new DateTime(), new DateTime())) extends Identity {
+  def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
+  def canCreateEvent(): Boolean = hasRight(UserRight.createEvent)
+  def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)
+}
 object User {
   implicit val formatLoginInfo = Json.format[LoginInfo]
   implicit val formatUserInfo = Json.format[UserInfo]
   implicit val formatUserRights = Json.format[UserRights]
   implicit val formatUserMeta = Json.format[UserMeta]
   implicit val format = Json.format[User]
+}
+
+case class UserRight(key: String, label: String)
+object UserRight {
+  val administrateSalooN = UserRight("administrateSaloon", "Administrer SalooN")
+  val createEvent = UserRight("createEvent", "Créer un événement")
+
+  val all = Seq(administrateSalooN, createEvent)
 }
 
 // mapping object for User Form
@@ -43,7 +55,7 @@ object UserData {
       "firstName" -> text,
       "lastName" -> text)(UserInfo.apply)(UserInfo.unapply),
     "rights" -> list(text))(UserData.apply)(UserData.unapply)
-  val rights: Seq[(String, String)] = Seq(("admin-saloon", "Administrer SalooN"), ("create-event", "Créer un événement"))
+  val rights: Seq[(String, String)] = UserRight.all.map(r => (r.key, r.label))
 
   def toModel(d: UserData): User = User(Repository.generateUuid(), LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
   def fromModel(d: User): UserData = UserData(d.email, d.info, fromRights(d.rights))

@@ -1,86 +1,87 @@
-@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import common.models.user.User
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 
 @main("SalooN"){
-@partials.header()
-<section id="main">
-	@partials.sidebar()
-	<section id="content">
-		<div class="container">
-			<div class="block-header">
-				<h2>Événements organisés</h2>
+	@partials.header()
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="block-header">
+					<h2>Événements organisés</h2>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="card blog-post">
+							<div class="bp-header">
+								<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_340,w_851,x_0,y_0/c_pad,h_160,w_400/v1435246304/backend-images/j6rhrznmsdw8ufc6ubrg.jpg" alt="">
+								<a href="" class="bp-title">
+									<h2>Innorobo 2015</h2>
+									<small>25 participants, 45 sessions, 154 exposants, 21 actions</small>
+								</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="card blog-post">
+							<div class="bp-header">
+								<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_500,w_1250,x_250,y_0/c_pad,h_160,w_400/v1435132351/backend-images/muah8rbprvkm4s5jl6wr.jpg" alt="">
+								<a href="" class="bp-title">
+									<h2>NWX Summer Festival</h2>
+									<small>3 participants, 20 sessions, 0 exposants, 2 actions</small>
+								</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="card blog-post">
+							<div class="bp-header">
+								<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_470,w_833,x_356,y_0/c_pad,h_226,w_400/v1434618220/backend-images/uxhyic4bwpu1kntde3k5.png" alt="">
+								<a href="" class="bp-title">
+									<h2>Drupagora 2015</h2>
+									<small>21 participants, 21 sessions, 0 exposants, 71 actions</small>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="card blog-post">
+							<div class="bp-header">
+								<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_138,w_245,x_0,y_43/c_pad,h_226,w_400/v1434002404/backend-images/gcrvfpjhbnaw3p6oykdy.jpg" alt="">
+								<a href="" class="bp-title">
+									<h2>Salon des 10 000 emplois</h2>
+									<small>0 participants, 0 sessions, 42 exposants, 97 actions</small>
+								</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="card blog-post">
+							<div class="bp-header">
+								<img src="http://res.cloudinary.com/saloon/image/upload/c_pad,h_150,w_400/v1432979947/BreizhCamp2015/landing.png" alt="">
+								<a href="" class="bp-title">
+									<h2>Breizhcamp 2015</h2>
+									<small>85 participants, 99 sessions, 0 exposants, 52 actions</small>
+								</a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="card blog-post">
+							<div class="bp-header">
+								<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_85,w_151,x_0,y_31/c_pad,h_226,w_400/v1434002702/backend-images/p5wndktxiex4hjijimox.png" alt="">
+								<a href="" class="bp-title">
+									<h2>PARAMEDICAL - Le Salon Emploi des infirmiers</h2>
+									<small>0 participants, 0 sessions, 21 exposants, 120 actions</small>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div class="row">
-				<div class="col-sm-4">
-					<div class="card blog-post">
-						<div class="bp-header">
-							<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_340,w_851,x_0,y_0/c_pad,h_160,w_400/v1435246304/backend-images/j6rhrznmsdw8ufc6ubrg.jpg" alt="">
-							<a href="" class="bp-title">
-								<h2>Innorobo 2015</h2>
-								<small>25 participants, 45 sessions, 154 exposants, 21 actions</small>
-							</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<div class="card blog-post">
-						<div class="bp-header">
-							<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_500,w_1250,x_250,y_0/c_pad,h_160,w_400/v1435132351/backend-images/muah8rbprvkm4s5jl6wr.jpg" alt="">
-							<a href="" class="bp-title">
-								<h2>NWX Summer Festival</h2>
-								<small>3 participants, 20 sessions, 0 exposants, 2 actions</small>
-							</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<div class="card blog-post">
-						<div class="bp-header">
-							<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_470,w_833,x_356,y_0/c_pad,h_226,w_400/v1434618220/backend-images/uxhyic4bwpu1kntde3k5.png" alt="">
-							<a href="" class="bp-title">
-								<h2>Drupagora 2015</h2>
-								<small>21 participants, 21 sessions, 0 exposants, 71 actions</small>
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-4">
-					<div class="card blog-post">
-						<div class="bp-header">
-							<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_138,w_245,x_0,y_43/c_pad,h_226,w_400/v1434002404/backend-images/gcrvfpjhbnaw3p6oykdy.jpg" alt="">
-							<a href="" class="bp-title">
-								<h2>Salon des 10 000 emplois</h2>
-								<small>0 participants, 0 sessions, 42 exposants, 97 actions</small>
-							</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<div class="card blog-post">
-						<div class="bp-header">
-							<img src="http://res.cloudinary.com/saloon/image/upload/c_pad,h_150,w_400/v1432979947/BreizhCamp2015/landing.png" alt="">
-							<a href="" class="bp-title">
-								<h2>Breizhcamp 2015</h2>
-								<small>85 participants, 99 sessions, 0 exposants, 52 actions</small>
-							</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<div class="card blog-post">
-						<div class="bp-header">
-							<img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_85,w_151,x_0,y_31/c_pad,h_226,w_400/v1434002702/backend-images/p5wndktxiex4hjijimox.png" alt="">
-							<a href="" class="bp-title">
-								<h2>PARAMEDICAL - Le Salon Emploi des infirmiers</h2>
-								<small>0 participants, 0 sessions, 21 exposants, 120 actions</small>
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		</section>
 	</section>
-</section>
-@partials.footer()
+	@partials.footer()
 }
