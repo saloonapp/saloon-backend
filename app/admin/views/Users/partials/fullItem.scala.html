@@ -1,0 +1,23 @@
+@import common.models.user.User
+@import common.models.user.UserData
+@import common.views.html.format._
+@import admin.views.html.format._
+@(user: User)
+
+<div>
+	<h2>
+		@user.info.firstName @user.info.lastName
+		@user.loginInfo.providerID match {
+			case "" => {<small>En attente...</small>}
+			case _ => {}
+		}
+	</h2>
+	<a href="mailto:@user.email">@user.email</a><br>
+	<h2>Droits</h2>
+	<ul>
+	@user.rights.map { case (right,_) =>
+		<li>@UserData.rights.find(_._1 == right).map(_._2).getOrElse("Droit {"+right+"} inconnu...")</li>
+	}
+	</ul>
+	<p>Créé le @datetime(user.meta.created)</p>
+</div>

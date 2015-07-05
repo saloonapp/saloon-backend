@@ -1,0 +1,23 @@
+@import common.models.user.User
+@import admin.views.html._
+@(user: User)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout(user.email) {
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@admin.controllers.routes.Users.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Utilisateurs</a>
+					@user.info.firstName @user.info.lastName
+					<div class="pull-right">
+						<a href="@admin.controllers.routes.Users.update(user.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@admin.controllers.routes.Users.delete(user.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
+					</div>
+				</div>
+				<div class="widget-body">
+					@partials.fullItem(user)
+				</div>
+			</div>
+		</div>
+	</div>
+}

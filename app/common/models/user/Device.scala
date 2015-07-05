@@ -30,7 +30,7 @@ object Device {
   def fromInfo(info: DeviceInfo): Device = Device(Repository.generateUuid(), info, None, "", DeviceMeta(new DateTime(), new DateTime()))
 }
 
-// mapping object for User Form
+// mapping object for Device Form
 case class DeviceData(
   info: DeviceInfo,
   pushId: Option[String],

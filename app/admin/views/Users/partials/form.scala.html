@@ -1,0 +1,8 @@
+@import common.models.user.UserData
+@import common.views.html.forms._
+@(userForm: Form[UserData])
+
+@fieldHorizontal(userForm("email"), 'label -> "Email"){field => @inputText(field)}
+@fieldHorizontal(userForm("info.firstName"), 'label -> "Prénom"){field => @inputText(field)}
+@fieldHorizontal(userForm("info.lastName"), 'label -> "Nom"){field => @inputText(field)}
+@fieldHorizontal(userForm("rights"), 'label -> "Droits dans SalooN"){field => @inputSelect2Multi(field, UserData.rights)}

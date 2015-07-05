@@ -70,6 +70,14 @@ GET       /admin/events/:eventId/exponents/:sessionId/edit                      
 POST      /admin/events/:eventId/exponents/:sessionId                                       admin.controllers.Exponents.doUpdate(eventId: String, sessionId: String)
 POST      /admin/events/:eventId/exponents/:sessionId/delete                                admin.controllers.Exponents.delete(eventId: String, sessionId: String)
 
+GET       /admin/users                                                                      admin.controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /admin/users/create                                                               admin.controllers.Users.create
+POST      /admin/users                                                                      admin.controllers.Users.doCreate
+GET       /admin/users/:userId                                                              admin.controllers.Users.details(userId: String)
+GET       /admin/users/:userId/edit                                                         admin.controllers.Users.update(userId: String)
+POST      /admin/users/:userId                                                              admin.controllers.Users.doUpdate(userId: String)
+POST      /admin/users/:userId/delete                                                       admin.controllers.Users.delete(userId: String)
+
 GET       /admin/devices                                                                    admin.controllers.Devices.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /admin/devices/create                                                             admin.controllers.Devices.create
 POST      /admin/devices                                                                    admin.controllers.Devices.doCreate
