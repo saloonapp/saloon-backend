@@ -18,8 +18,9 @@
 				<li class="sidebar-list"><a href="@admin.controllers.routes.Application.index()">Home <i class="menu-icon fa fa-home"></i></a></li>
 				<li class="sidebar-title separator"><span>DATA</span></li>
 				<li class="sidebar-list"><a href="@admin.controllers.routes.Events.list()">Événements <i class="menu-icon fa fa-connectdevelop"></i></a></li>
-				<li class="sidebar-list"><a href="@admin.controllers.routes.Devices.list()">Appareils <i class="menu-icon fa fa-mobile"></i></a></li>
+				<li class="sidebar-list"><a href="#">Organisations <i class="menu-icon fa fa-users"></i></a></li>
 				<li class="sidebar-list"><a href="#">Utilisateurs <i class="menu-icon fa fa-user"></i></a></li>
+				<li class="sidebar-list"><a href="@admin.controllers.routes.Devices.list()">Appareils <i class="menu-icon fa fa-mobile"></i></a></li>
 				<li class="sidebar-list"><a href="@admin.controllers.routes.Crashs.list()">Crashs <i class="menu-icon fa fa-bug"></i></a></li>
 				<!-- <li class="sidebar-title separator"><span>NAVIGATION</span></li>
 				<li class="sidebar-list"><a href="#">Dashboard <i class="menu-icon fa fa-tachometer"></i></a></li>
@@ -51,7 +52,9 @@
 								<ul class="dropdown-menu dropdown-menu-right">
 									<li class="dropdown-header">Loïc</li>
 									<li class="divider"></li>
-									<li class="link"><a href="@authentication.controllers.routes.Auth.logout">Logout</a></li>
+									<li class="link"><a href="@backend.controllers.routes.Application.index()">Backend</a></li>
+									<li class="divider"></li>
+									<li class="link"><a href="@authentication.controllers.routes.Auth.logout()">Logout</a></li>
 								</ul>
 							</div>
 							<!-- <div class="item dropdown">

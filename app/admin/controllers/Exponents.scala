@@ -16,8 +16,12 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
+import common.models.user.User
+import authentication.environments.SilhouetteEnvironment
+import com.mohiva.play.silhouette.core.Silhouette
+import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Exponents extends Controller {
+object Exponents extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
   val form: Form[ExponentData] = Form(ExponentData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
   val repository: Repository[Exponent] = ExponentRepository
@@ -36,7 +40,7 @@ object Exponents extends Controller {
   def successDeleteFlash(elt: Exponent) = s"Exponent '${elt.name}' has been deleted"
   def successImportFlash(count: Int) = s"${count} exponents imported"
 
-  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     val curPage = page.getOrElse(1)
     for {
       eltPage <- ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("name"))
@@ -51,7 +55,7 @@ object Exponents extends Controller {
     }
   }
 
-  def create(eventId: String) = Action.async { implicit req =>
+  def create(eventId: String) = SecuredAction.async { implicit req =>
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
       allAttendees <- AttendeeRepository.findByEvent(eventId)
@@ -62,7 +66,7 @@ object Exponents extends Controller {
     }
   }
 
-  def doCreate(eventId: String) = Action.async { implicit req =>
+  def doCreate(eventId: String) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         form.bindFromRequest.fold(
@@ -80,7 +84,7 @@ object Exponents extends Controller {
     }
   }
 
-  def details(eventId: String, uuid: String) = Action.async { implicit req =>
+  def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     val futureData = for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -96,7 +100,7 @@ object Exponents extends Controller {
     }
   }
 
-  def update(eventId: String, uuid: String) = Action.async { implicit req =>
+  def update(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -108,7 +112,7 @@ object Exponents extends Controller {
     }
   }
 
-  def doUpdate(eventId: String, uuid: String) = Action.async { implicit req =>
+  def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     val dataFuture = for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -133,7 +137,7 @@ object Exponents extends Controller {
     }
   }
 
-  def delete(eventId: String, uuid: String) = Action.async { implicit req =>
+  def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -143,7 +147,7 @@ object Exponents extends Controller {
   }
 
   // TODO : add preview of updates
-  def fileImport(eventId: String) = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
+  def fileImport(eventId: String) = SecuredAction.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         fileImportForm.bindFromRequest.fold(
@@ -164,7 +168,7 @@ object Exponents extends Controller {
     }
   }
 
-  def fileExport(eventId: String) = Action.async { implicit req =>
+  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         ExponentRepository.findByEvent(eventId).map { elts =>

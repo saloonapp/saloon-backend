@@ -14,8 +14,12 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import reactivemongo.core.commands.LastError
+import common.models.user.User
+import authentication.environments.SilhouetteEnvironment
+import com.mohiva.play.silhouette.core.Silhouette
+import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Devices extends Controller {
+object Devices extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
   val form: Form[DeviceData] = Form(DeviceData.fields)
   val repository: Repository[Device] = DeviceRepository
   val mainRoute = routes.Devices
@@ -32,7 +36,7 @@ object Devices extends Controller {
   def errorUpdateFlash(elt: Device) = s"Device '${elt.info.uuid}' can't be modified"
   def successDeleteFlash(elt: Device) = s"Device '${elt.info.uuid}' has been deleted"
 
-  def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     val curPage = page.getOrElse(1)
     repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-meta.created")).map { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
@@ -42,11 +46,11 @@ object Devices extends Controller {
     }
   }
 
-  def create = Action { implicit req =>
+  def create = SecuredAction { implicit req =>
     Ok(viewCreate(form))
   }
 
-  def doCreate = Action.async { implicit req =>
+  def doCreate = SecuredAction.async { implicit req =>
     form.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(viewCreate(formWithErrors))),
       formData => repository.insert(createElt(formData)).map {
@@ -56,7 +60,7 @@ object Devices extends Controller {
       })
   }
 
-  def details(uuid: String) = Action.async { implicit req =>
+  def details(uuid: String) = SecuredAction.async { implicit req =>
     for {
       deviceOpt <- repository.getByUuid(uuid)
       actions <- DeviceSrv.getActionsForUser(uuid)
@@ -67,7 +71,7 @@ object Devices extends Controller {
     }
   }
 
-  def update(uuid: String) = Action.async { implicit req =>
+  def update(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         Ok(viewUpdate(form.fill(toData(elt)), elt))
@@ -75,7 +79,7 @@ object Devices extends Controller {
     }
   }
 
-  def doUpdate(uuid: String) = Action.async { implicit req =>
+  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
@@ -89,7 +93,7 @@ object Devices extends Controller {
     }
   }
 
-  def delete(uuid: String) = Action.async { implicit req =>
+  def delete(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -98,7 +102,7 @@ object Devices extends Controller {
     }
   }
 
-  def deleteAction(deviceId: String, itemType: String, itemId: String, actionType: String, actionId: String) = Action.async { implicit req =>
+  def deleteAction(deviceId: String, itemType: String, itemId: String, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(deviceId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =

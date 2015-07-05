@@ -15,8 +15,12 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
+import common.models.user.User
+import authentication.environments.SilhouetteEnvironment
+import com.mohiva.play.silhouette.core.Silhouette
+import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Attendees extends Controller {
+object Attendees extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
   val form: Form[AttendeeData] = Form(AttendeeData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
   val repository: Repository[Attendee] = AttendeeRepository
@@ -35,7 +39,7 @@ object Attendees extends Controller {
   def successDeleteFlash(elt: Attendee) = s"Attendee '${elt.name}' has been deleted"
   def successImportFlash(count: Int) = s"${count} attendees imported"
 
-  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     val curPage = page.getOrElse(1)
     for {
       eltPage <- AttendeeRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-start"))
@@ -50,7 +54,7 @@ object Attendees extends Controller {
     }
   }
 
-  def create(eventId: String) = Action.async { implicit req =>
+  def create(eventId: String) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).map { eventOpt =>
       eventOpt
         .map { event => Ok(viewCreate(form, event)) }
@@ -58,7 +62,7 @@ object Attendees extends Controller {
     }
   }
 
-  def doCreate(eventId: String) = Action.async { implicit req =>
+  def doCreate(eventId: String) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         form.bindFromRequest.fold(
@@ -72,7 +76,7 @@ object Attendees extends Controller {
     }
   }
 
-  def details(eventId: String, uuid: String) = Action.async { implicit req =>
+  def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -83,7 +87,7 @@ object Attendees extends Controller {
     }
   }
 
-  def update(eventId: String, uuid: String) = Action.async { implicit req =>
+  def update(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -94,7 +98,7 @@ object Attendees extends Controller {
     }
   }
 
-  def doUpdate(eventId: String, uuid: String) = Action.async { implicit req =>
+  def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     val dataFuture = for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -115,7 +119,7 @@ object Attendees extends Controller {
     }
   }
 
-  def delete(eventId: String, uuid: String) = Action.async { implicit req =>
+  def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -125,7 +129,7 @@ object Attendees extends Controller {
   }
 
   // TODO : add preview of updates
-  def fileImport(eventId: String) = Action.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
+  def fileImport(eventId: String) = SecuredAction.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         fileImportForm.bindFromRequest.fold(
@@ -146,7 +150,7 @@ object Attendees extends Controller {
     }
   }
 
-  def fileExport(eventId: String) = Action.async { implicit req =>
+  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         AttendeeRepository.findByEvent(eventId).map { elts =>

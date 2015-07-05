@@ -30,8 +30,12 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.libs.json._
 import common.repositories.event.EventRepository
+import common.models.user.User
+import authentication.environments.SilhouetteEnvironment
+import com.mohiva.play.silhouette.core.Silhouette
+import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Events extends Controller {
+object Events extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
   val form: Form[EventData] = Form(EventData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
   val urlImportForm = Form(UrlImportConfig.fields)
@@ -52,7 +56,7 @@ object Events extends Controller {
   def successDeleteFlash(elt: Event) = s"Event '${elt.name}' has been deleted"
   def successImportFlash(count: Int) = s"${count} events imported"
 
-  def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = Action.async { implicit req =>
+  def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     val curPage = page.getOrElse(1)
     repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-info.start")).flatMap { eltPage =>
       if (curPage > 1 && eltPage.totalPages < curPage)
@@ -62,13 +66,13 @@ object Events extends Controller {
     }
   }
 
-  def create = Action.async { implicit req =>
+  def create = SecuredAction.async { implicit req =>
     EventRepository.getCategories().map { categories =>
       Ok(viewCreate(form, categories))
     }
   }
 
-  def doCreate = Action.async { implicit req =>
+  def doCreate = SecuredAction.async { implicit req =>
     form.bindFromRequest.fold(
       formWithErrors => EventRepository.getCategories().map { categories => BadRequest(viewCreate(formWithErrors, categories)) },
       formData => repository.insert(createElt(formData)).flatMap {
@@ -80,7 +84,7 @@ object Events extends Controller {
       })
   }
 
-  def doCreateFromUrl = Action.async { implicit req =>
+  def doCreateFromUrl = SecuredAction.async { implicit req =>
     Utils.getFormParam("url").map { url =>
       val eventUrl = EventSrv.formatUrl(url)
       EventSrv.fetchFullEvent(eventUrl).flatMap {
@@ -105,7 +109,7 @@ object Events extends Controller {
     }.getOrElse(Future(Redirect(mainRoute.create()).flashing("error" -> "Le champ 'url' est nécessaire !")))
   }
 
-  def details(uuid: String) = Action.async { implicit req =>
+  def details(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
@@ -118,7 +122,7 @@ object Events extends Controller {
     }
   }
 
-  def report(eventId: String, userId: String) = Action.async { implicit req =>
+  def report(eventId: String, userId: String) = SecuredAction.async { implicit req =>
     EmailSrv.generateEventReport(eventId, userId).map {
       _.map { email =>
         Ok(play.twirl.api.Html(email.html))
@@ -126,7 +130,7 @@ object Events extends Controller {
     }
   }
 
-  def reportsPreview(eventId: String) = Action.async { implicit req =>
+  def reportsPreview(eventId: String) = SecuredAction.async { implicit req =>
     UserActionRepository.findSubscribes(Event.className, eventId).map { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
@@ -136,7 +140,7 @@ object Events extends Controller {
     }
   }
 
-  def sendReports(eventId: String) = Action.async { implicit req =>
+  def sendReports(eventId: String) = SecuredAction.async { implicit req =>
     UserActionRepository.findSubscribes(Event.className, eventId).flatMap { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
@@ -157,7 +161,7 @@ object Events extends Controller {
     }
   }
 
-  def sendReport(eventId: String, userId: String) = Action.async { implicit req =>
+  def sendReport(eventId: String, userId: String) = SecuredAction.async { implicit req =>
     UserActionRepository.getSubscribe(userId, Event.className, eventId).flatMap {
       _.map {
         _.action match {
@@ -176,7 +180,7 @@ object Events extends Controller {
     }
   }
 
-  def stats(uuid: String) = Action.async { implicit req =>
+  def stats(uuid: String) = SecuredAction.async { implicit req =>
     EventSrv.getActions(uuid).map { actions =>
       val filename = actions.head.event.name + "_stats.csv"
       val content = FileExporter.makeCsv(actions.map(_.toMap))
@@ -186,7 +190,7 @@ object Events extends Controller {
     }
   }
 
-  def update(uuid: String) = Action.async { implicit req =>
+  def update(uuid: String) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       categories <- EventRepository.getCategories()
@@ -197,7 +201,7 @@ object Events extends Controller {
     }
   }
 
-  def doUpdate(uuid: String) = Action.async { implicit req =>
+  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
@@ -213,7 +217,7 @@ object Events extends Controller {
     }
   }
 
-  def delete(uuid: String) = Action.async { implicit req =>
+  def delete(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -222,7 +226,7 @@ object Events extends Controller {
     }
   }
 
-  def operations(uuid: String) = Action.async { implicit req =>
+  def operations(uuid: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { event =>
         Ok(viewOps(event, urlImportForm, fileImportForm.fill(FileImportConfig())))
@@ -230,7 +234,7 @@ object Events extends Controller {
     }
   }
 
-  def urlImport(uuid: String) = Action.async { implicit req =>
+  def urlImport(uuid: String) = SecuredAction.async { implicit req =>
     urlImportForm.bindFromRequest.fold(
       formWithErrors => repository.getByUuid(uuid).map {
         _.map { event =>
@@ -277,7 +281,7 @@ object Events extends Controller {
       })
   }
 
-  def refresh(uuid: String) = Action.async { implicit req =>
+  def refresh(uuid: String) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(uuid).flatMap { eventOpt =>
       eventOpt.map { localEvent =>
         localEvent.meta.refreshUrl.map { url =>
@@ -303,7 +307,7 @@ object Events extends Controller {
     }
   }
 
-  def doRefresh(uuid: String) = Action.async { implicit req =>
+  def doRefresh(uuid: String) = SecuredAction.async { implicit req =>
     req.body.asFormUrlEncoded.flatMap(_.get("data").flatMap(_.headOption)).map { data =>
       val jsonTry: Try[JsValue] = Try(Json.parse(data))
       (for {
