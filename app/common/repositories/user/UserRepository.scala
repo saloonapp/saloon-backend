@@ -5,6 +5,8 @@ import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
 import common.models.user.User
+import authentication.repositories.impl.MongoUserRepository
+import authentication.repositories.impl.MongoPasswordRepository
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -25,10 +27,14 @@ trait MongoDbUserRepository extends Repository[User] {
   override def insert(elt: User): Future[Option[User]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
   override def update(uuid: String, elt: User): Future[Option[User]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(uuid: String): Future[Option[User]] = {
-    crud.delete(uuid).map { err =>
-      // UserActionRepository.deleteByUser(uuid)
-      None
-    } // TODO : return deleted elt !
+    getByUuid(uuid).flatMap { userOpt =>
+      userOpt.map { user =>
+        for {
+          userRemoved <- MongoUserRepository.remove(user.loginInfo)
+          passwordRemoved <- MongoPasswordRepository.remove(user.loginInfo)
+        } yield userOpt
+      }.getOrElse(Future(None))
+    }
   }
 
   def findByUuids(uuids: List[String]): Future[List[User]] = crud.findByUuids(uuids)

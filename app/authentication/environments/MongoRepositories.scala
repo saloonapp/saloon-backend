@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.contrib.daos.DelegableAuthInfoDAO
 
 trait MongoRepositories {
 
-  lazy val userRepository: UserRepository = new MongoUserRepository()
-  lazy val passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo] = new MongoPasswordRepository()
+  lazy val userRepository: UserRepository = MongoUserRepository
+  lazy val passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo] = MongoPasswordRepository
 
 }

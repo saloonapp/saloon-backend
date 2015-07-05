@@ -10,11 +10,12 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import play.api.Play.current
 import reactivemongo.api.DB
+import reactivemongo.core.commands.LastError
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
 import com.mohiva.play.silhouette.core.LoginInfo
 
-class MongoUserRepository extends UserRepository {
+object MongoUserRepository extends UserRepository {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.USERS)
   implicit val formatLoginInfo = Json.format[LoginInfo]
@@ -37,4 +38,6 @@ class MongoUserRepository extends UserRepository {
       }
     }
   }
+
+  def remove(loginInfo: LoginInfo): Future[LastError] = collection.remove(Json.obj("loginInfo" -> loginInfo))
 }
