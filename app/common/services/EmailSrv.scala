@@ -17,8 +17,8 @@ import org.jsoup.Jsoup
 case class EmailData(fromName: String, fromEmail: String, to: String, subject: String, html: String, text: String)
 
 object EmailSrv {
-  val senderName = "Bob de SalooN"
-  val senderEmail = "bob@saloonapp.co"
+  val senderName = "L'équipe SalooN"
+  val senderEmail = "contact@saloonapp.co"
 
   def generateEventReport(eventId: String, userId: String): Future[Option[EmailData]] = {
     UserActionRepository.findByUserEvent(userId, eventId).flatMap { actions =>
@@ -51,6 +51,12 @@ object EmailSrv {
     val html = common.views.html.Email.contact(source, name, email, message, userOpt).toString
     val text = common.views.txt.Email.contact(source, name, email, message, userOpt).toString
     EmailData(name, email, Defaults.contactEmail, s"Contact SalooN depuis ${source}", html, text)
+  }
+
+  def generateUserInviteEmail(inviteUrl: String, email: String): EmailData = {
+    val html = common.views.html.Email.userInvite(inviteUrl).toString
+    val text = common.views.txt.Email.userInvite(inviteUrl).toString
+    EmailData(senderName, senderEmail, email, "Création de votre compte SalooN", html, text)
   }
 
 }

@@ -1,10 +1,12 @@
 package admin.controllers
 
-import common.repositories.Repository
 import common.models.utils.Page
 import common.models.user.User
 import common.models.user.UserData
 import common.models.user.UserAction
+import common.services.EmailSrv
+import common.services.MandrillSrv
+import common.repositories.Repository
 import common.repositories.user.UserRepository
 import common.repositories.user.UserActionRepository
 import scala.concurrent.Future
@@ -111,6 +113,24 @@ object Users extends Silhouette[User, CachedCookieAuthenticator] with Silhouette
 
         res.map(err => Redirect(mainRoute.details(userId)))
       }.getOrElse(Future(NotFound(admin.views.html.error404())))
+    }
+  }
+
+  def sendInviteEmail(userId: String) = SecuredAction.async { implicit request =>
+    UserRepository.getByUuid(userId).flatMap { userOpt =>
+      userOpt.map { user =>
+        if (user.loginInfo.providerID == "") {
+          val inviteUrl = authentication.controllers.routes.Auth.createAccount(userId).absoluteURL(true)
+          val emailData = EmailSrv.generateUserInviteEmail(inviteUrl, user.email)
+          MandrillSrv.sendEmail(emailData).map { res =>
+            Redirect(admin.controllers.routes.Users.details(userId)).flashing("success" -> "Email d'invitation envoyé :)")
+          }
+        } else {
+          Future(Redirect(admin.controllers.routes.Users.details(userId)).flashing("error" -> "L'invitation a déjà été acceptée"))
+        }
+      }.getOrElse {
+        Future(Redirect(admin.controllers.routes.Users.details(userId)).flashing("error" -> s"L'utilisateur $userId n'existe pas"))
+      }
     }
   }
 }

@@ -1,0 +1,11 @@
+@(inviteUrl: String)
+
+Bonjour,
+
+Votre compte SalooN vient d'être créé.
+Pour finaliser votre inscription, veuillez cliquer sur le lien suivant :
+
+@inviteUrl
+
+Bonne journée et à bientôt,
+L'équipe SalooN

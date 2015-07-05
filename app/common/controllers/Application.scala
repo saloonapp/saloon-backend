@@ -3,6 +3,7 @@ package common.controllers
 import common.Utils
 import common.services.EmailSrv
 import common.services.MandrillSrv
+import common.repositories.user.UserRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -22,15 +23,7 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
       "email" -> nonEmptyText,
       "message" -> nonEmptyText))
 
-  def corsPreflight(all: String) = Action {
-    Ok("").withHeaders(
-      "Allow" -> "*",
-      "Access-Control-Allow-Origin" -> "*",
-      "Access-Control-Allow-Methods" -> "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent, userId, timestamp");
-  }
-
-  def contact = UserAwareAction.async { implicit request =>
+  def sendContactEmail = UserAwareAction.async { implicit request =>
     contactForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(Utils.getFormParam("url").get).flashing("error" -> "Tous les champs du formulaire sont obligatoires !")),
       formData => {
@@ -42,5 +35,13 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
             }
         }
       })
+  }
+
+  def corsPreflight(all: String) = Action {
+    Ok("").withHeaders(
+      "Allow" -> "*",
+      "Access-Control-Allow-Origin" -> "*",
+      "Access-Control-Allow-Methods" -> "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent, userId, timestamp");
   }
 }

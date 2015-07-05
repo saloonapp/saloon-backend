@@ -8,7 +8,10 @@
 	<h2>
 		@user.info.firstName @user.info.lastName
 		@user.loginInfo.providerID match {
-			case "" => {<small>En attente...</small>}
+			case "" => {
+				<small>En attente...</small>
+				<a class="btn btn-default" href="@admin.controllers.routes.Users.sendInviteEmail(user.uuid)">Envoyer une invitation</a>
+			}
 			case _ => {}
 		}
 	</h2>
