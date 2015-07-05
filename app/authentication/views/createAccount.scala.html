@@ -1,0 +1,81 @@
+@import common.models.user.User
+@import authentication.models.RegisterInfo
+@import com.mohiva.play.silhouette.core.providers.Credentials
+@import common.views._
+@import common.views.html.forms._
+@(userOpt: Option[User], registerForm: Form[RegisterInfo])(implicit env: com.mohiva.play.silhouette.core.Environment[User, _], request: RequestHeader)
+
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@if(!App.isProd()){(@App.getEnv()) }SalooN admin</title>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+
+    <link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+</head>
+<body class="login-content">
+    <!-- Login -->
+    <div class="lc-block toggled" id="l-login">
+    	@userOpt.map { user =>
+    		@if(user.loginInfo.providerID == ""){
+		    	<h1>Créez votre compte SalooN :</h1>
+		        @helper.form(action = authentication.controllers.routes.Auth.doCreateAccount(userOpt.get.uuid)){
+		        	<div class="row">
+		        		<div class="col-sm-6">
+					        <div class="input-group m-b-20 @if(registerForm("firstName").hasErrors){has-error}">
+					            <span class="input-group-addon"><i class="md md-face-unlock"></i></span>
+					            <div class="fg-line">
+					                @inputText(registerForm("firstName"), 'placeholder->"Prénom", 'autofocus->"true")
+					            </div>
+					        </div>
+		        		</div>
+		        		<div class="col-sm-6">
+					        <div class="input-group m-b-20 @if(registerForm("lastName").hasErrors){has-error}">
+					            <div class="fg-line">
+					                @inputText(registerForm("lastName"), 'placeholder->"Nom")
+					            </div>
+					        </div>
+		        		</div>
+		        	</div>
+			        <div class="input-group m-b-20 @if(registerForm("email").hasErrors){has-error}">
+			            <span class="input-group-addon"><i class="md md-email"></i></span>
+			            <div class="fg-line">
+			                @inputText(registerForm("email"), 'placeholder->"Email")
+			            </div>
+			        </div>
+			        <div class="input-group m-b-20 @if(registerForm("password").hasErrors){has-error}">
+			            <span class="input-group-addon"><i class="md md-lock"></i></span>
+			            <div class="fg-line">
+			                @inputText(registerForm("password"), 'type->"password", 'placeholder->"Mot de passe")
+			            </div>
+			        </div>
+			        <button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
+			    }
+    		}
+    		@if(user.loginInfo.providerID != ""){
+	    		<h1>Lien expiré</h1>
+    		}
+    	}.getOrElse {
+    		<h1>Lien incorrect :(</h1>
+    	}
+    </div>
+
+    <!-- Javascript Libraries -->
+    <script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/bootstrap/js/bootstrap.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/Waves/dist/waves.min.js")"></script>
+    <!-- Placeholder for IE9 -->
+    <!--[if IE 9 ]>
+        <script type="text/javascript" src="@routes.Assets.at("libs/jquery-placeholder/jquery.placeholder.min.js")"></script>
+    <![endif]-->
+    <script type="text/javascript" src="@routes.Assets.at("backend/scripts/login.js")"></script>
+</body>
+</html>

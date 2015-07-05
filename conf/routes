@@ -13,6 +13,8 @@ GET       /register                                                             
 GET       /logout                                                                           authentication.controllers.Auth.logout
 POST      /login                                                                            authentication.controllers.Auth.doLogin
 POST      /register                                                                         authentication.controllers.Auth.doRegister
+GET       /createAccount/:userId                                                            authentication.controllers.Auth.createAccount(userId: String)
+POST      /createAccount/:userId                                                            authentication.controllers.Auth.doCreateAccount(userId: String)
 
 GET       /backend                                                                          backend.controllers.Application.index
 GET       /backend/sample                                                                   backend.controllers.Sample.index
