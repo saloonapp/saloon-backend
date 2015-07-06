@@ -1,11 +1,11 @@
 package common.repositories.event
 
 import common.models.utils.Page
+import common.models.event.Event
 import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
 import common.repositories.user.UserActionRepository
-import common.models.event.Event
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

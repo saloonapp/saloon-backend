@@ -28,7 +28,6 @@ object Helpers {
       .filter(e => !exclude.contains(e._1.name))
       .map { case (symbol, value) => symbol.name + "=\"" + value + "\"" }
       .mkString(" "))
-
 }
 
 object App {
