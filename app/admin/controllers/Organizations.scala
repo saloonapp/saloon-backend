@@ -6,18 +6,15 @@ import common.models.user.OrganizationData
 import common.repositories.Repository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.UserRepository
+import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import reactivemongo.core.commands.LastError
-import common.models.user.User
-import authentication.environments.SilhouetteEnvironment
-import com.mohiva.play.silhouette.core.Silhouette
-import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Organizations extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+object Organizations extends SilhouetteEnvironment {
   val form: Form[OrganizationData] = Form(OrganizationData.fields)
   val repository: Repository[Organization] = OrganizationRepository
   val mainRoute = routes.Organizations

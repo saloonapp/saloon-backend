@@ -13,17 +13,14 @@ import common.repositories.event.ExponentRepository
 import common.repositories.user.DeviceRepository
 import common.services.EmailSrv
 import common.services.MandrillSrv
+import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.Json
-import common.models.user.User
-import authentication.environments.SilhouetteEnvironment
-import com.mohiva.play.silhouette.core.Silhouette
-import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Application extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+object Application extends SilhouetteEnvironment {
 
   def index = SecuredAction { implicit req =>
     Ok(admin.views.html.home())

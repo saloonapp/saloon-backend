@@ -10,17 +10,14 @@ import common.services.FileExporter
 import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
+import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
-import common.models.user.User
-import authentication.environments.SilhouetteEnvironment
-import com.mohiva.play.silhouette.core.Silhouette
-import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Attendees extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+object Attendees extends SilhouetteEnvironment {
   val form: Form[AttendeeData] = Form(AttendeeData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
   val repository: Repository[Attendee] = AttendeeRepository

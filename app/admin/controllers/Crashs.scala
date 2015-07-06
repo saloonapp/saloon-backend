@@ -2,6 +2,7 @@ package admin.controllers
 
 import common.models.user.Crash
 import common.repositories.user.CrashRepository
+import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -9,12 +10,8 @@ import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.ws._
 import play.api.Play.current
-import common.models.user.User
-import authentication.environments.SilhouetteEnvironment
-import com.mohiva.play.silhouette.core.Silhouette
-import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Crashs extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+object Crashs extends SilhouetteEnvironment {
 
   def list = SecuredAction.async { implicit req =>
     CrashRepository.find(Json.obj("solved" -> Json.obj("$exists" -> false))).map { crashJsons =>

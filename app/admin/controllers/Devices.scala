@@ -1,25 +1,22 @@
 package admin.controllers
 
-import common.repositories.Repository
 import common.models.utils.Page
 import common.models.user.Device
 import common.models.user.DeviceData
 import common.models.user.UserAction
+import common.repositories.Repository
 import common.repositories.user.DeviceRepository
 import common.repositories.user.UserActionRepository
 import common.services.DeviceSrv
+import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import reactivemongo.core.commands.LastError
-import common.models.user.User
-import authentication.environments.SilhouetteEnvironment
-import com.mohiva.play.silhouette.core.Silhouette
-import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Devices extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+object Devices extends SilhouetteEnvironment {
   val form: Form[DeviceData] = Form(DeviceData.fields)
   val repository: Repository[Device] = DeviceRepository
   val mainRoute = routes.Devices

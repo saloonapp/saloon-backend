@@ -11,17 +11,14 @@ import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
+import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
-import common.models.user.User
-import authentication.environments.SilhouetteEnvironment
-import com.mohiva.play.silhouette.core.Silhouette
-import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-object Exponents extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
+object Exponents extends SilhouetteEnvironment {
   val form: Form[ExponentData] = Form(ExponentData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
   val repository: Repository[Exponent] = ExponentRepository
