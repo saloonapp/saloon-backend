@@ -1,0 +1,24 @@
+@import common.models.user.OrganizationData
+@import admin.views.html._
+@(organizationForm: Form[OrganizationData])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Créer un organisation"){
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Créer une organisation</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@admin.controllers.routes.Organizations.doCreate()">
+						@partials.form(organizationForm)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@admin.controllers.routes.Organizations.list()" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Créer</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

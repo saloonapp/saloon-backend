@@ -1,0 +1,15 @@
+@import common.models.user.Organization
+@import common.models.user.OrganizationData
+@import common.views.html.format._
+@import admin.views.html.format._
+@(organization: Organization)
+
+<tr>
+	<td>@organization.name</td>
+	<td>@date(organization.meta.created)</td>
+	<td>
+		<a href="@admin.controllers.routes.Organizations.details(organization.uuid)" class="btn btn-default">Détails</a>
+		<a href="@admin.controllers.routes.Organizations.update(organization.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>
+		<form method="POST" action="@admin.controllers.routes.Organizations.delete(organization.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm"><i class="fa fa-trash-o"></i></button></form>
+	</td>
+</tr>

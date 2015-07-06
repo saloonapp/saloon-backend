@@ -1,0 +1,23 @@
+@import common.models.user.Organization
+@import admin.views.html._
+@(organization: Organization)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout(organization.name) {
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">
+					<a href="@admin.controllers.routes.Organizations.list()" class="back-btn"><i class="fa fa-arrow-left"></i>Organisations</a>
+					@organization.name
+					<div class="pull-right">
+						<a href="@admin.controllers.routes.Organizations.update(organization.uuid)" class="btn btn-info">Modifier</a>
+						<form method="POST" action="@admin.controllers.routes.Organizations.delete(organization.uuid)" class="form-button"><button type="submit" class="btn btn-danger confirm">Supprimer</button></form>
+					</div>
+				</div>
+				<div class="widget-body">
+					@partials.fullItem(organization)
+				</div>
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,25 @@
+@import common.models.user.Organization
+@import common.models.user.OrganizationData
+@import admin.views.html._
+@(organizationForm: Form[OrganizationData], organization: Organization)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@layout("Modifier "+organization.name){
+	<div class="row">
+		<div class="col-md-6">
+			<div class="widget">
+				<div class="widget-header">Modifier @organization.name</div>
+				<div class="widget-body">
+					<form class="form-horizontal" method="POST" action="@admin.controllers.routes.Organizations.doUpdate(organization.uuid)">
+						@partials.form(organizationForm)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@admin.controllers.routes.Organizations.details(organization.uuid)" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Modifier</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+}

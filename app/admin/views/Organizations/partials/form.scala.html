@@ -1,0 +1,5 @@
+@import common.models.user.OrganizationData
+@import common.views.html.forms._
+@(organizationForm: Form[OrganizationData])
+
+@fieldHorizontal(organizationForm("name"), 'label -> "Nom"){field => @inputText(field)}

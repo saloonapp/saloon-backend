@@ -1,0 +1,10 @@
+@import common.models.user.Organization
+@import common.models.user.OrganizationData
+@import common.views.html.format._
+@import admin.views.html.format._
+@(organization: Organization)
+
+<div>
+	<h2>@organization.name</h2>
+	<p>Créé le @datetime(organization.meta.created)</p>
+</div>
