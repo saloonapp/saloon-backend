@@ -4,7 +4,7 @@
 @(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)
 
 <tr>
-	<td><img src="@event.images.logo" style="max-height: 32px;"> @event.name</td>
+	<td><a href="@admin.controllers.routes.Events.details(event.uuid)"><img src="@event.images.logo" style="max-height: 32px;"> @event.name</a></td>
 	<td>@event.config.published</td>
 	<td>@datetimeOpt(event.info.start)</td>
 	<td>

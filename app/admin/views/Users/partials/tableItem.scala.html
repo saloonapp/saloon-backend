@@ -1,12 +1,20 @@
+@import common.models.user.Organization
 @import common.models.user.User
 @import common.models.user.UserData
 @import common.views.html.format._
 @import admin.views.html.format._
-@(user: User)
+@(user: User, organizationOpt: Option[Organization])
 
 <tr>
-	<td>@user.info.firstName @user.info.lastName</td>
+	<td><a href="@admin.controllers.routes.Users.details(user.uuid)">@user.info.firstName @user.info.lastName</a></td>
 	<td>@user.email</td>
+	<td>
+		@organizationOpt.map { organization =>
+			<a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a>
+		}.getOrElse {
+			@user.organizationId.map{id => @id}.getOrElse("")
+		}
+	</td>
 	<td>
 		@user.rights.map { case (right,_) =>
 			<span class="label label-primary">@UserData.rights.find(_._1 == right).map(_._2).getOrElse("Droit {"+right+"} inconnu...")</span>

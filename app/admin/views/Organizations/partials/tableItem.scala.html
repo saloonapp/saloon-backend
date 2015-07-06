@@ -5,7 +5,7 @@
 @(organization: Organization)
 
 <tr>
-	<td>@organization.name</td>
+	<td><a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a></td>
 	<td>@date(organization.meta.created)</td>
 	<td>
 		<a href="@admin.controllers.routes.Organizations.details(organization.uuid)" class="btn btn-default">Détails</a>

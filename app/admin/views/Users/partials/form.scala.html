@@ -1,7 +1,9 @@
+@import common.models.user.Organization
 @import common.models.user.UserData
 @import common.views.html.forms._
-@(userForm: Form[UserData])
+@(userForm: Form[UserData], organizations: List[Organization])
 
+@fieldHorizontal(userForm("organizationId"), 'label -> "Organisation"){field => @inputSelect2(field, organizations.map(o => (o.uuid, o.name)), 'emptyOption->"--")}
 @fieldHorizontal(userForm("email"), 'label -> "Email"){field => @inputText(field)}
 @fieldHorizontal(userForm("info.firstName"), 'label -> "Prénom"){field => @inputText(field)}
 @fieldHorizontal(userForm("info.lastName"), 'label -> "Nom"){field => @inputText(field)}

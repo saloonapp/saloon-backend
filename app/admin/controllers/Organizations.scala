@@ -5,6 +5,7 @@ import common.models.user.Organization
 import common.models.user.OrganizationData
 import common.repositories.Repository
 import common.repositories.user.OrganizationRepository
+import common.repositories.user.UserRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -60,9 +61,10 @@ object Organizations extends Silhouette[User, CachedCookieAuthenticator] with Si
   def details(uuid: String) = SecuredAction.async { implicit req =>
     for {
       organizationOpt <- repository.getByUuid(uuid)
+      users <- UserRepository.findByOrganization(uuid)
     } yield {
       organizationOpt.map { elt =>
-        Ok(viewDetails(elt))
+        Ok(viewDetails(elt, users))
       }.getOrElse(NotFound(admin.views.html.error404()))
     }
   }

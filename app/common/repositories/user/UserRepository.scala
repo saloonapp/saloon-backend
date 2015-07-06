@@ -1,10 +1,10 @@
 package common.repositories.user
 
+import common.models.user.User
 import common.models.utils.Page
 import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
-import common.models.user.User
 import authentication.repositories.impl.MongoUserRepository
 import authentication.repositories.impl.MongoPasswordRepository
 import scala.concurrent.Future
@@ -38,5 +38,6 @@ trait MongoDbUserRepository extends Repository[User] {
   }
 
   def findByUuids(uuids: List[String]): Future[List[User]] = crud.findByUuids(uuids)
+  def findByOrganization(organizationId: String): Future[List[User]] = crud.findBy("organizationId", organizationId)
 }
 object UserRepository extends MongoDbUserRepository

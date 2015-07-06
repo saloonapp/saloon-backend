@@ -18,6 +18,7 @@ case class UserMeta(
   updated: DateTime)
 case class User(
   uuid: String = Repository.generateUuid(),
+  organizationId: Option[String] = None,
   loginInfo: LoginInfo,
   email: String,
   info: UserInfo,
@@ -45,11 +46,13 @@ object UserRight {
 
 // mapping object for User Form
 case class UserData(
+  organizationId: Option[String],
   email: String,
   info: UserInfo,
   rights: List[String])
 object UserData {
   val fields = mapping(
+    "organizationId" -> optional(text),
     "email" -> email,
     "info" -> mapping(
       "firstName" -> text,
@@ -57,8 +60,8 @@ object UserData {
     "rights" -> list(text))(UserData.apply)(UserData.unapply)
   val rights: Seq[(String, String)] = UserRight.all.map(r => (r.key, r.label))
 
-  def toModel(d: UserData): User = User(Repository.generateUuid(), LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
-  def fromModel(d: User): UserData = UserData(d.email, d.info, fromRights(d.rights))
+  def toModel(d: UserData): User = User(Repository.generateUuid(), d.organizationId, LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
+  def fromModel(d: User): UserData = UserData(d.organizationId, d.email, d.info, fromRights(d.rights))
   def merge(m: User, d: UserData): User = toModel(d).copy(uuid = m.uuid, loginInfo = m.loginInfo, meta = UserMeta(m.meta.created, new DateTime()))
 
   private def toRights(rights: List[String]): Map[String, Boolean] = rights.map(r => (r, true)).toMap

@@ -34,7 +34,7 @@
 								@crashs.groupBy(_.error).map { case (_, list) =>
 									<tr>
 										<td>
-											<label>@list.head.error.message</label> (@list.length erreurs)<br>
+											<label><a href="@admin.controllers.routes.Crashs.details(list.head.uuid)">@list.head.error.message</a></label> (@list.length erreurs)<br>
 											@list.head.error.stack.map{ s => <pre>@s</pre> }
 											App versions : @list.map(_.application.map(_.appVersion)).flatten.distinct.mkString(", ")<br>
 											Models : @list.map(_.device.map(d => d.platform+" "+d.model)).flatten.distinct.mkString(", ")<br>

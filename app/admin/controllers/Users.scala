@@ -8,6 +8,7 @@ import common.services.EmailSrv
 import common.services.MandrillSrv
 import common.repositories.Repository
 import common.repositories.user.UserRepository
+import common.repositories.user.OrganizationRepository
 import common.repositories.user.UserActionRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -39,42 +40,55 @@ object Users extends Silhouette[User, CachedCookieAuthenticator] with Silhouette
 
   def list(query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     val curPage = page.getOrElse(1)
-    repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-meta.created")).map { eltPage =>
+    for {
+      eltPage <- repository.findPage(query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-meta.created"))
+      organizations <- OrganizationRepository.findAll()
+    } yield {
       if (curPage > 1 && eltPage.totalPages < curPage)
         Redirect(mainRoute.list(query, Some(eltPage.totalPages), pageSize, sort))
       else
-        Ok(viewList(eltPage))
+        Ok(viewList(eltPage, organizations))
     }
   }
 
-  def create = SecuredAction { implicit req =>
-    Ok(viewCreate(form))
+  def create = SecuredAction.async { implicit req =>
+    for {
+      organizations <- OrganizationRepository.findAll()
+    } yield {
+      Ok(viewCreate(form, organizations))
+    }
   }
 
   def doCreate = SecuredAction.async { implicit req =>
     form.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(viewCreate(formWithErrors))),
-      formData => repository.insert(createElt(formData)).map {
+      formWithErrors => OrganizationRepository.findAll().map { organizations => BadRequest(viewCreate(formWithErrors, organizations)) },
+      formData => repository.insert(createElt(formData)).flatMap {
         _.map { elt =>
-          Redirect(mainRoute.list()).flashing("success" -> successCreateFlash(elt))
-        }.getOrElse(InternalServerError(viewCreate(form.fill(formData))).flashing("error" -> errorCreateFlash(formData)))
+          Future(Redirect(mainRoute.list()).flashing("success" -> successCreateFlash(elt)))
+        }.getOrElse {
+          OrganizationRepository.findAll().map { organizations => InternalServerError(viewCreate(form.fill(formData), organizations)).flashing("error" -> errorCreateFlash(formData)) }
+        }
       })
   }
 
   def details(uuid: String) = SecuredAction.async { implicit req =>
     for {
       userOpt <- repository.getByUuid(uuid)
+      organizationOpt <- userOpt.flatMap { _.organizationId.map { organizationId => OrganizationRepository.getByUuid(organizationId) } }.getOrElse(Future(None))
     } yield {
       userOpt.map { elt =>
-        Ok(viewDetails(elt))
+        Ok(viewDetails(elt, organizationOpt))
       }.getOrElse(NotFound(admin.views.html.error404()))
     }
   }
 
   def update(uuid: String) = SecuredAction.async { implicit req =>
-    repository.getByUuid(uuid).map {
-      _.map { elt =>
-        Ok(viewUpdate(form.fill(toData(elt)), elt))
+    for {
+      eltOpt <- repository.getByUuid(uuid)
+      organizations <- OrganizationRepository.findAll()
+    } yield {
+      eltOpt.map { elt =>
+        Ok(viewUpdate(form.fill(toData(elt)), organizations, elt))
       }.getOrElse(NotFound(admin.views.html.error404()))
     }
   }
@@ -83,11 +97,13 @@ object Users extends Silhouette[User, CachedCookieAuthenticator] with Silhouette
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(viewUpdate(formWithErrors, elt))),
-          formData => repository.update(uuid, updateElt(elt, formData)).map {
+          formWithErrors => OrganizationRepository.findAll().map { organizations => BadRequest(viewUpdate(formWithErrors, organizations, elt)) },
+          formData => repository.update(uuid, updateElt(elt, formData)).flatMap {
             _.map { updatedElt =>
-              Redirect(mainRoute.details(uuid)).flashing("success" -> successUpdateFlash(updatedElt))
-            }.getOrElse(InternalServerError(viewUpdate(form.fill(formData), elt)).flashing("error" -> errorUpdateFlash(elt)))
+              Future(Redirect(mainRoute.details(uuid)).flashing("success" -> successUpdateFlash(updatedElt)))
+            }.getOrElse {
+              OrganizationRepository.findAll().map { organizations => InternalServerError(viewUpdate(form.fill(formData), organizations, elt)).flashing("error" -> errorUpdateFlash(elt)) }
+            }
           })
       }.getOrElse(Future(NotFound(admin.views.html.error404())))
     }

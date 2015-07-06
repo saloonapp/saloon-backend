@@ -1,8 +1,9 @@
+@import common.models.user.Organization
 @import common.models.utils.Page
 @import common.models.user.User
 @import common.views.html._
 @import admin.views.html._
-@(userPage: Page[User])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(userPage: Page[User], organizations: List[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Utilisateurs"){
 	<div class="row">
@@ -26,11 +27,11 @@
 					<div class="table-responsive">
 						<table class="table table-striped table-hover">
 							<thead>
-								<tr><th>Nom</th><th>Email</th><th>Droits</th><th>Statut</th><th>Créé</th><th></th></tr>
+								<tr><th>Nom</th><th>Email</th><th>Organisation</th><th>Droits</th><th>Statut</th><th>Créé</th><th></th></tr>
 							</thead>
 							<tbody>
 								@userPage.items.map { user =>
-									@partials.tableItem(user)
+									@partials.tableItem(user, user.organizationId.flatMap(id => organizations.find(_.uuid == id)))
 								}
 							</tbody>
 						</table>

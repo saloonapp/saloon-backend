@@ -4,7 +4,7 @@
 @(device: Device)
 
 <tr>
-	<td>@device.info.uuid</td>
+	<td><a href="@admin.controllers.routes.Devices.details(device.uuid)">@device.info.uuid</a></td>
 	<td>@device.info.platform</td>
 	<td>@device.info.manufacturer</td>
 	<td>@device.info.model</td>
