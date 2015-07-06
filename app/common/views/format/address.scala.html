@@ -1,0 +1,9 @@
+@import common.models.values.Address
+@(address: Address, multiLine: Boolean = false)
+@(address.name.isEmpty && address.street.isEmpty) match {
+	case true => { @addressOpt(None) }
+	case false => {
+		@if(multiLine){@address.name,<br>@address.street<br>@address.zipCode @address.city<br>}
+		@if(!multiLine){@address.name, @address.street @address.zipCode @address.city}
+	}
+}

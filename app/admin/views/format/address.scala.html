@@ -1,9 +1,0 @@
-@import common.models.values.Address
-@(address: Address)
-
-@(address.name.isEmpty && address.street.isEmpty) match {
-	case true => { @addressOpt(None) }
-	case false => {
-		<span class="address">@address.name, @address.street  @address.zipCode  @address.city</span>
-	}
-}

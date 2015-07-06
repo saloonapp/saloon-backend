@@ -16,7 +16,9 @@ POST      /register                                                             
 GET       /createAccount/:userId                                                            authentication.controllers.Auth.createAccount(userId: String)
 POST      /createAccount/:userId                                                            authentication.controllers.Auth.doCreateAccount(userId: String)
 
+GET       /backend                                                                          backend.controllers.Events.list
 GET       /backend                                                                          backend.controllers.Application.index
+GET       /backend/events/:eventId                                                          backend.controllers.Events.details(eventId: String)
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
 

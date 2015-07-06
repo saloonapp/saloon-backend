@@ -1,0 +1,11 @@
+@(startOpt: Option[org.joda.time.DateTime], endOpt: Option[org.joda.time.DateTime], template: String = "dd MMMM YYYY", default: String = "N/A")
+@endOpt.map { end =>
+	@startOpt.map { start =>
+		@if(start.toDateMidnight().isEqual(end.toDateMidnight())){@start.toString(template)}
+		@if(!start.toDateMidnight().isEqual(end.toDateMidnight())){@start.toString("dd")-@end.toString(template)}
+	}.getOrElse {
+		@end.toString(template)
+	}
+}.getOrElse {
+	@startOpt.map(_.toString(template)).getOrElse(default)
+}

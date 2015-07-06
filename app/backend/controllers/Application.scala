@@ -13,14 +13,8 @@ import com.mohiva.play.silhouette.core.LoginInfo
 
 object Application extends SilhouetteEnvironment {
 
-  def index = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    EventRepository.findAll(sort = "-info.start").flatMap { events =>
-      EventSrv.addMetadata(events).map { fullEvents =>
-        Ok(backend.views.html.index(fullEvents.toList))
-      }
-    }
+  def index = SecuredAction { implicit req =>
+    Redirect(backend.controllers.routes.Events.list())
   }
 
 }

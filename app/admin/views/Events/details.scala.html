@@ -48,7 +48,7 @@
 							@UserActionSrv.byItem(actions).map { case (item, itemActions) =>
 								<li>
 									@item match {
-										case Event(uuid,name,_,_,_,_,_,_) => { Evénement <a href="@admin.controllers.routes.Events.details(uuid)">@name</a> }
+										case Event(uuid,name,_,_,_,_,_,_) => { Événement <a href="@admin.controllers.routes.Events.details(uuid)">@name</a> }
 										case Session(uuid,eventId,name,_,_,_,_) => { Session <a href="@admin.controllers.routes.Sessions.details(eventId, uuid)">@name</a> }
 										case Exponent(uuid,eventId,name,_,_,_,_,_) => { Exposant <a href="@admin.controllers.routes.Exponents.details(eventId, uuid)">@name</a> }
 										case unknown => { Inconnu @unknown }

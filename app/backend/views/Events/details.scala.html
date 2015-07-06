@@ -1,0 +1,115 @@
+@import common.models.event.Event
+@import common.models.user.User
+@import backend.views.html._
+@import common.views.html.format._
+@(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main("SalooN"){
+	@partials.header()
+	@partials.breadcrumb(event.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"))
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="block-header">
+					<h2>@event.name</h2>
+					<ul class="actions">
+						<li><a href=""><i class="md md-edit"></i></a></li>
+						<li><a href=""><i class="md md-delete"></i></a></li>
+					</ul>
+				</div>
+				<div class="row">
+					@List((attendeeCount, "Participants", "cyan"), (sessionCount, "Sessions", "lightgreen"), (exponentCount, "Exposants", "pink"), (actionCount, "Actions", "teal")).map { case (number, name, color) =>
+						<div class="col-sm-3">
+							<div class="mini-charts-item bgm-@color">
+								<div class="clearfix">
+									<div class="chart number"><span style="display: inline-block; width: 83px; height: 45px; vertical-align: top;">@number</span></div>
+									<div class="count">
+										<small>&nbsp;</small>
+										<h2>@name</h2>
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+				<div class="card" id="profile-main">
+					<div class="pm-overview c-overflow">
+						<div class="pmo-pic"><img class="img-responsive" src="@event.images.logo" alt=""></div>
+						<div class="pmo-block pmo-contact hidden-xs">
+							<h2>Informations générales</h2>
+							<ul>
+								@if(event.info.start.isDefined){<li><i class="md md-event"></i> @period(event.info.start, event.info.end)</li>}
+								@if(!(event.info.address.name.isEmpty && event.info.address.street.isEmpty)){<li><i class="md md-location-on"></i> @address(event.info.address, true)</li>}
+								@if(event.info.website != ""){<li><i class="md md-link"></i> <a href="@event.info.website" target="_blank">@event.info.website</a></li>}
+								@if(event.info.price.url != "" || event.info.price.label != ""){
+									<li>
+										<i class="md md-attach-money"></i>
+										@if(event.info.price.url != ""){<a href="@event.info.price.url" target="_blank">@event.info.price.label</a>}
+										@if(event.info.price.url == "" && event.info.price.label != ""){@event.info.price.label}
+									</li>
+								}
+								@if(event.meta.categories.length > 0){
+									<li>
+										<i class="md md-local-offer"></i>
+										@event.meta.categories.headOption.map { mainCategory =>
+											<span class="label label-danger">@mainCategory</span>
+											@event.meta.categories.tail.map { category => <span class="label label-primary">@category</span> }
+										}
+									</li>
+								}
+								@if(event.info.social.twitter.account.isDefined || event.info.social.twitter.hashtag.isDefined){<li><i class="socicon socicon-twitter"></i> @twitterAccountOpt(event.info.social.twitter.account) @twitterHashtagOpt(event.info.social.twitter.hashtag)</li>}
+							</ul>
+						</div>
+					</div>
+					<div class="pm-body clearfix" style="min-height: 650px;">
+						<div class="pmb-block">
+							<div class="pmbb-header">
+								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
+							</div>
+							<div class="p-l-30">
+								@textMultiline(event.description)
+							</div>
+						</div>
+						<div class="pmb-block visible-xs">
+							<div class="pmbb-header">
+								<h2><i class="md md-person m-r-5"></i> Informations générales</h2>
+							</div>
+							<div class="p-l-30">
+								@if(event.info.start.isDefined){<dl class="dl-horizontal"><dt>Date</dt><dd>@period(event.info.start, event.info.end)</dd></dl>}
+								@if(!(event.info.address.name.isEmpty && event.info.address.street.isEmpty)){<dl class="dl-horizontal"><dt>Adresse</dt><dd>@address(event.info.address, true)</dd></dl>}
+								@if(event.info.website != ""){<dl class="dl-horizontal"><dt>Site web</dt><dd><a href="@event.info.website" target="_blank">@event.info.website</a></dd></dl>}
+								@if(event.info.price.url != "" || event.info.price.label != ""){
+									<dl class="dl-horizontal">
+										<dt>Tickets</dt>
+										<dd>
+											@if(event.info.price.url != ""){<a href="@event.info.price.url" target="_blank">@event.info.price.label</a>}
+											@if(event.info.price.url == "" && event.info.price.label != ""){@event.info.price.label}
+										</dd>
+									</dl>
+								}
+								@if(event.meta.categories.length > 0){
+									<dl class="dl-horizontal">
+										<dt>Catégorie</dt>
+										<dd>
+											@event.meta.categories.headOption.map { mainCategory =>
+												<span class="label label-danger">@mainCategory</span>
+												@event.meta.categories.tail.map { category => <span class="label label-primary">@category</span> }
+											}
+										</dd>
+									</dl>
+								}
+								@if(event.info.social.twitter.account.isDefined || event.info.social.twitter.hashtag.isDefined){
+									<dl class="dl-horizontal">
+										<dt>Twitter</dt>
+										<dd>@twitterAccountOpt(event.info.social.twitter.account) @twitterHashtagOpt(event.info.social.twitter.hashtag)</dd>
+									</dl>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}
