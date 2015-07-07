@@ -1,0 +1,72 @@
+@import common.models.utils.Page
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.user.User
+@import common.views.html._
+@import backend.views.html._
+@(attendeePage: Page[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main("Participants"){
+	@partials.header()
+	@partials.breadcrumb("Participants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="card">
+					<div class="card-header ch-alt">
+						<h2>
+							Participants à @event.name
+							<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
+						</h2>
+						<ul class="actions">
+							<li class="dropdown">
+								<a href="#" data-toggle="dropdown" title="Trier les résultats"><i class="md md-sort"></i></a>
+								<ul class="dropdown-menu dropdown-menu-right">
+									<li><a href="@backend.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("name"))">Trier par nom</a></li>
+									<li><a href="@backend.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("info.company"))">Trier par société</a></li>
+									<li><a href="@backend.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("meta.created"))">Trier par date d'inscription</a></li>
+								</ul>
+							</li>
+							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
+						</ul>
+						<button class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></button>
+					</div>
+					<div class="card-body card-padding">
+						<ul class="p-menu">
+							<li class="pm-search">
+								<form class="pms-inner">
+									<i class="md md-search"></i>
+									<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search..." class="form-control @if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){open}">
+									@if(req.getQueryString("page").isDefined){ <input type="hidden" name="page" value="@req.getQueryString("page")"> }
+									@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
+								</form>
+							</li>
+						</ul>
+						<div class="media-list">
+							@attendeePage.items.map { attendee =>
+								<div class="media media-avatar">
+									<div class="pull-left"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@partials.avatar(attendee.images.avatar, attendee.name, 'class->"media-object")</a></div>
+									<div class="media-body">
+										<h4 class="media-heading">@attendee.name @partials.role(attendee.info.role)</h4>
+										@if(!attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.job chez @attendee.info.company}
+										@if(attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.company}
+										@if(!attendee.info.job.isEmpty && attendee.info.company.isEmpty){@attendee.info.job}
+										<br>
+										@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
+										@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="md md-messenger"></i></a> }.getOrElse("")
+										@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-facebook"></i></a> }.getOrElse("")
+										@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-twitter"></i></a> }.getOrElse("")
+										@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-linkedin"></i></a> }.getOrElse("")
+										@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-github"></i></a> }.getOrElse("")
+									</div>
+								</div>
+							}
+						</div>
+						@pagination(attendeePage, (p: Int) => backend.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}

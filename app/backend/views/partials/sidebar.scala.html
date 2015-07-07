@@ -1,11 +1,10 @@
 @import common.models.user.User
 @(user: User)
-
 <aside id="sidebar">
 	<div class="sidebar-inner c-overflow">
 		<div class="profile-menu">
 			<a href="#" style="background-image: url('@routes.Assets.at("backend/sample/images/profile-menu.png")');">
-				<div class="profile-pic"><img src="@routes.Assets.at("backend/sample/images/profile-pics/1.jpg")" alt=""></div>
+				<div class="profile-pic">@avatar("", user.info.firstName)</div>
 				<div class="profile-info">@user.info.firstName @user.info.lastName <i class="md md-arrow-drop-down"></i></div>
 			</a>
 			<ul class="main-menu">

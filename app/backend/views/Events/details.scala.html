@@ -1,7 +1,7 @@
 @import common.models.event.Event
 @import common.models.user.User
-@import backend.views.html._
 @import common.views.html.format._
+@import backend.views.html._
 @(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main("SalooN"){
 	@partials.header()
@@ -18,9 +18,9 @@
 					</ul>
 				</div>
 				<div class="row">
-					@List((attendeeCount, "Participants", "cyan"), (sessionCount, "Sessions", "lightgreen"), (exponentCount, "Exposants", "pink"), (actionCount, "Actions", "teal")).map { case (number, name, color) =>
+					@List((attendeeCount, "Participants", "cyan", backend.controllers.routes.Attendees.list(event.uuid)), (sessionCount, "Sessions", "lightgreen", backend.controllers.routes.Events.details(event.uuid)), (exponentCount, "Exposants", "pink", backend.controllers.routes.Events.details(event.uuid)), (actionCount, "Actions", "teal", backend.controllers.routes.Events.details(event.uuid))).map { case (number, name, color, url) =>
 						<div class="col-sm-3">
-							<div class="mini-charts-item bgm-@color">
+							<a href="@url" class="mini-charts-item bgm-@color">
 								<div class="clearfix">
 									<div class="chart number"><span style="display: inline-block; width: 83px; height: 45px; vertical-align: top;">@number</span></div>
 									<div class="count">
@@ -28,7 +28,7 @@
 										<h2>@name</h2>
 									</div>
 								</div>
-							</div>
+							</a>
 						</div>
 					}
 				</div>

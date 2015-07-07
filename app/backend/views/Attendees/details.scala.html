@@ -1,0 +1,65 @@
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@(attendee: Attendee, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main(attendee.name){
+	@partials.header()
+	@partials.breadcrumb(attendee.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"))
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="block-header">
+					<h2>
+						@attendee.name @partials.role(attendee.info.role)
+						<small>
+							@if(!attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.job chez @attendee.info.company}
+							@if(attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.company}
+							@if(!attendee.info.job.isEmpty && attendee.info.company.isEmpty){@attendee.info.job}
+						</small>
+					</h2>
+					<ul class="actions">
+						<li><a href=""><i class="md md-edit"></i></a></li>
+						<li><a href=""><i class="md md-delete"></i></a></li>
+					</ul>
+				</div>
+				<div class="card" id="profile-main">
+					<div class="pm-overview c-overflow">
+						<div class="pmo-pic"><img class="img-responsive" src="@attendee.images.avatar" alt=""></div>
+						<div class="pmo-block pmo-contact hidden-xs">
+							<ul>
+								<li><i class="md md-create"></i> enregistré le @datetime(attendee.meta.created)</li>
+							</ul>
+						</div>
+					</div>
+					<div class="pm-body clearfix">
+						<div class="pmb-block">
+							<div class="pmbb-header">
+								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
+							</div>
+							<div class="p-l-30">
+								@textMultiline(attendee.description)
+							</div>
+						</div>
+						<div class="pmb-block">
+							<div class="pmbb-header">
+								<h2><i class="md md-phone m-r-5"></i> Contact</h2>
+							</div>
+							<div class="pmbb-body p-l-30">
+								@attendee.info.website.map { url => <dl class="dl-horizontal"><dt>Site</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+								@attendee.social.blogUrl.map { url => <dl class="dl-horizontal"><dt>Blog</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+								@attendee.social.facebookUrl.map { url => <dl class="dl-horizontal"><dt>Facebook</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+								@attendee.social.twitterUrl.map { url => <dl class="dl-horizontal"><dt>Twitter</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+								@attendee.social.linkedinUrl.map { url => <dl class="dl-horizontal"><dt>Linkedin</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+								@attendee.social.githubUrl.map { url => <dl class="dl-horizontal"><dt>Github</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}

@@ -1,0 +1,25 @@
+@import common.views._
+@(avatar: String, name: String, args: (Symbol, String)*)
+@avatarColor(letter: Char) = @{
+	letter.toLower match {
+		case 'a'|'q' => "bgm-red"
+		case 'b'|'r' => "bgm-pink"
+		case 'c'|'s' => "bgm-purple"
+		case 'd'|'t' => "bgm-deeppurple"
+		case 'e'|'u' => "bgm-indigo"
+		case 'f'|'v' => "bgm-blue"
+		case 'g'|'w' => "bgm-lightblue"
+		case 'h'|'x' => "bgm-cyan"
+		case 'i'|'y' => "bgm-teal"
+		case 'j'|'z' => "bgm-green"
+		case 'k'     => "bgm-lightgreen"
+		case 'l'     => "bgm-lime"
+		case 'm'     => "bgm-yellow"
+		case 'n'     => "bgm-amber"
+		case 'o'     => "bgm-orange"
+		case 'p'     => "bgm-deeporange"
+		case _ => "bgm-bluegray"
+	}
+}
+@if(!avatar.isEmpty){<img src="@avatar" @Helpers.toHtmlArgs(args)>}
+@if(avatar.isEmpty){<div class="lv-avatar @avatarColor(name.head) @Helpers.getArg(args, "class")", @Helpers.toHtmlArgs(args, Seq("class"))>@name.head</div>}
