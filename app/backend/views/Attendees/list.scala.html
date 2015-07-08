@@ -48,9 +48,7 @@
 									<div class="pull-left"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@partials.avatar(attendee.images.avatar, attendee.name, 'class->"media-object")</a></div>
 									<div class="media-body">
 										<h4 class="media-heading">@attendee.name @partials.role(attendee.info.role)</h4>
-										@if(!attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.job chez @attendee.info.company}
-										@if(attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.company}
-										@if(!attendee.info.job.isEmpty && attendee.info.company.isEmpty){@attendee.info.job}
+										@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")
 										<br>
 										@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
 										@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="md md-messenger"></i></a> }.getOrElse("")

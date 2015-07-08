@@ -14,11 +14,7 @@
 				<div class="block-header">
 					<h2>
 						@attendee.name @partials.role(attendee.info.role)
-						<small>
-							@if(!attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.job chez @attendee.info.company}
-							@if(attendee.info.job.isEmpty && !attendee.info.company.isEmpty){@attendee.info.company}
-							@if(!attendee.info.job.isEmpty && attendee.info.company.isEmpty){@attendee.info.job}
-						</small>
+						<small>@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")</small>
 					</h2>
 					<ul class="actions">
 						<li><a href=""><i class="md md-edit"></i></a></li>
