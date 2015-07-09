@@ -1,9 +1,10 @@
 @import common.models.event.Event
+@import common.models.event.Session
 @import common.models.event.Attendee
 @import common.models.user.User
 @import common.views.html.format._
 @import backend.views.html._
-@(attendee: Attendee, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(attendee: Attendee, attendeeSessions: List[Session], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main(attendee.name){
 	@partials.header()
 	@partials.breadcrumb(attendee.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"))
@@ -55,7 +56,24 @@
 									@attendee.social.linkedinUrl.map { url => <dl class="dl-horizontal"><dt>Linkedin</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
 									@attendee.social.githubUrl.map { url => <dl class="dl-horizontal"><dt>Github</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
 								</div>
-						</div>
+							</div>
+						}
+						@if(attendeeSessions.length > 0){
+							<div class="pmb-block">
+								<div class="pmbb-header">
+									<h2><i class="md md-schedule m-r-5"></i> Sessions</h2>
+								</div>
+								<div class="pmbb-body p-l-30 media-list">
+									@attendeeSessions.map { session =>
+										<div class="media">
+											<div class="media-body">
+												<h4 class="media-heading"><a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)">@session.name</a></h4>
+												<p class="media-line">@session.description</p>
+											</div>
+										</div>
+									}
+								</div>
+							</div>
 						}
 					</div>
 				</div>

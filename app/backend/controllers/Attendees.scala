@@ -4,6 +4,7 @@ import common.models.user.User
 import common.models.user.UserInfo
 import common.models.utils.Page
 import common.repositories.event.EventRepository
+import common.repositories.event.SessionRepository
 import common.repositories.event.AttendeeRepository
 import common.services.EventSrv
 import authentication.environments.SilhouetteEnvironment
@@ -39,9 +40,10 @@ object Attendees extends SilhouetteEnvironment {
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- AttendeeRepository.getByUuid(uuid)
+      sessions <- SessionRepository.findByEventAttendee(eventId, uuid)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Attendees.details(elt, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Attendees.details(elt, sessions, event)) }
       }.getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
     }
   }
