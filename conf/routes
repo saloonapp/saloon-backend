@@ -23,6 +23,8 @@ GET       /backend/events/:eventId/attendees                                    
 GET       /backend/events/:eventId/attendees/:attendeeId                                    backend.controllers.Attendees.details(eventId: String, attendeeId: String)
 GET       /backend/events/:eventId/sessions                                                 backend.controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /backend/events/:eventId/sessions/:sessionId                                      backend.controllers.Sessions.details(eventId: String, sessionId: String)
+GET       /backend/events/:eventId/exponents                                                backend.controllers.Exponents.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /backend/events/:eventId/exponents/:exponentId                                    backend.controllers.Exponents.details(eventId: String, exponentId: String)
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
 

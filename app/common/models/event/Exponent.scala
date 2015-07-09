@@ -51,10 +51,10 @@ case class ExponentImages(
   logo: String, // squared logo (~ 100x100)
   landing: String) // landscape img (~ 400x150)
 case class ExponentInfo(
-  website: String,
+  website: String, // TODO : transform to Option[String]
   place: String, // where to find this exponent
   team: List[String], // attendees being part of this exponent
-  level: Option[Int], // level of exponent (sponsoring) : lower is better
+  level: Option[Int], // level of exponent (sponsoring) : lower is better TODO : remove this field (useless)
   sponsor: Boolean) // to show it on info tab
 case class ExponentConfig(
   scanQRCode: Boolean)

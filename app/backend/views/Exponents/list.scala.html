@@ -1,0 +1,69 @@
+@import common.models.utils.Page
+@import common.models.event.Event
+@import common.models.event.Exponent
+@import common.models.user.User
+@import common.views.html._
+@import backend.views.html._
+@(exponentPage: Page[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main("Exposants"){
+	@partials.header()
+	@partials.breadcrumb("Exposants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="card">
+					<div class="card-header ch-alt">
+						<h2>
+							Exposants à @event.name
+							<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
+						</h2>
+						<ul class="actions">
+							<li class="dropdown">
+								<a href="#" data-toggle="dropdown" title="Trier les résultats"><i class="md md-sort"></i></a>
+								<ul class="dropdown-menu dropdown-menu-right">
+									<li><a href="@backend.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("name"))">Trier par nom</a></li>
+									<li><a href="@backend.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("info.place"))">Trier par emplacement</a></li>
+									<li><a href="@backend.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("meta.updated"))">Trier par date de mise à jour</a></li>
+									<li><a href="@backend.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("meta.created"))">Trier par date de création</a></li>
+								</ul>
+							</li>
+							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
+						</ul>
+						<button class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></button>
+					</div>
+					<div class="card-body card-padding">
+						<ul class="p-menu">
+							<li class="pm-search">
+								<form class="pms-inner">
+									<i class="md md-search"></i>
+									<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search..." class="form-control @if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){open}">
+									@if(req.getQueryString("page").isDefined){ <input type="hidden" name="page" value="@req.getQueryString("page")"> }
+									@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
+								</form>
+							</li>
+						</ul>
+						<div class="media-list">
+							@exponentPage.items.map { exponent =>
+								<div class="media media-avatar">
+									<div class="pull-left"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@partials.avatar(exponent.images.logo, exponent.name, 'class->"media-object")</a></div>
+									<div class="media-body">
+										<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a> @if(exponent.info.sponsor){<span class="label label-danger">Sponsor</span>}</h4>
+										@if(!exponent.info.place.isEmpty){<i class="md md-location-on"></i> @exponent.info.place}
+										@if(!exponent.info.website.isEmpty){<a href="@exponent.info.website" target="_blank"><i class="md md-link"></i></a>}
+										@if(exponent.config.scanQRCode){
+											<br>Options: 
+											@if(exponent.config.scanQRCode){<i class="md md-apps" title="Scan de QRCode"></i>}
+										}
+									</div>
+								</div>
+							}
+						</div>
+						@pagination(exponentPage, (p: Int) => backend.controllers.routes.Exponents.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}

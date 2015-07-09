@@ -4,8 +4,9 @@ import common.models.user.User
 import common.models.user.UserInfo
 import common.models.utils.Page
 import common.repositories.event.EventRepository
-import common.repositories.event.SessionRepository
 import common.repositories.event.AttendeeRepository
+import common.repositories.event.SessionRepository
+import common.repositories.event.ExponentRepository
 import common.services.EventSrv
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
@@ -41,9 +42,10 @@ object Attendees extends SilhouetteEnvironment {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- AttendeeRepository.getByUuid(uuid)
       sessions <- SessionRepository.findByEventAttendee(eventId, uuid)
+      exponents <- ExponentRepository.findByEventAttendee(eventId, uuid)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Attendees.details(elt, sessions, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Attendees.details(elt, sessions, exponents, event)) }
       }.getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
     }
   }

@@ -1,0 +1,121 @@
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.event.Exponent
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@(exponent: Exponent, exponentTeam: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main(exponent.name){
+	@partials.header()
+	@partials.breadcrumb(exponent.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Exponents.list(event.uuid), "Exposants"))
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="block-header">
+					<h2>
+						@exponent.name
+						<small>
+							@if(!exponent.info.place.isEmpty){<i class="md md-location-on"></i> @exponent.info.place}
+							@if(exponent.info.sponsor){<span class="label label-danger">Sponsor</span>}
+						</small>
+					</h2>
+					<ul class="actions">
+						<li><a href=""><i class="md md-edit"></i></a></li>
+						<li><a href=""><i class="md md-delete"></i></a></li>
+					</ul>
+				</div>
+				<div class="card" id="profile-main">
+					<div class="pm-overview c-overflow">
+						<div class="pmo-pic">@partials.avatar(exponent.images.logo, exponent.name, 'class->"img-responsive")</div>
+						<div class="pmo-block pmo-contact hidden-xs">
+							<ul>
+								<li><i class="md md-create"></i> enregistré le @datetime(exponent.meta.created)</li>
+								@if(exponent.meta.created != exponent.meta.updated){<li><i class="md md-create"></i> mis à jour le @datetime(exponent.meta.updated)</li>}
+							</ul>
+						</div>
+					</div>
+					<div class="pm-body clearfix">
+						<div class="pmb-block">
+							<div class="pmbb-header">
+								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
+							</div>
+							<div class="p-l-30">
+								@textMultiline(exponent.description)
+							</div>
+						</div>
+						<div class="pmb-block">
+							<div class="pmbb-header">
+								<!-- <i class="md md-assignment-turned-in"></i>
+								<i class="md md-done-all"></i>
+								<i class="md md-wallet-giftcard"></i>
+								<i class="md md-storage"></i>
+								<i class="md md-attach-money"></i> -->
+								<h2><i class="md md-wallet-giftcard m-r-5"></i> Options</h2>
+							</div>
+							<div class="pmbb-body p-l-30">
+								<dl class="dl-horizontal">
+									<dt>Scan de QRCode</dt>
+									<dd>
+										@exponent.config.scanQRCode match {
+											case true => {<i class="md md-check-box"></i>}
+											case false => {<i class="md md-check-box-outline-blank"></i>}
+										}
+									</dd>
+								</dl>
+								<dl class="dl-horizontal">
+									<dt>CVthèque</dt>
+									<dd>
+										@exponent.config.scanQRCode match {
+											case false => {<i class="md md-check-box"></i>}
+											case true => {<i class="md md-check-box-outline-blank"></i>}
+										}
+									</dd>
+								</dl>
+							</div>
+						</div>
+						@if(!exponent.info.website.isEmpty){
+							<div class="pmb-block">
+								<div class="pmbb-header">
+									<h2><i class="md md-phone m-r-5"></i> Contact</h2>
+								</div>
+								<div class="pmbb-body p-l-30">
+									<dl class="dl-horizontal"><dt>Site</dt><dd><a href="@exponent.info.website" target="_blank">@exponent.info.website</a></dd></dl>
+								</div>
+							</div>
+						}
+						@if(exponentTeam.length > 0){
+							<div class="pmb-block">
+								<div class="pmbb-header">
+									<h2><i class="md md-people m-r-5"></i> Équipe</h2>
+								</div>
+								<div class="pmbb-body p-l-30">
+									@exponentTeam.map { attendee => 
+										<div class="media media-avatar">
+											<div class="pull-left">
+												<a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)"><img class="media-object" src="@attendee.images.avatar" alt=""></a>
+											</div>
+											<div class="media-body">
+												<h4 class="media-heading"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@attendee.name</a></h4>
+												<p class="media-line">@attendee.description</p>
+												<p class="media-line">
+													@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
+													@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="md md-messenger"></i></a> }.getOrElse("")
+													@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-facebook"></i></a> }.getOrElse("")
+													@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-twitter"></i></a> }.getOrElse("")
+													@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-linkedin"></i></a> }.getOrElse("")
+													@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-github"></i></a> }.getOrElse("")
+												</p>
+											</div>
+										</div>
+									}
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}

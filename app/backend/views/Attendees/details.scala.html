@@ -1,10 +1,11 @@
 @import common.models.event.Event
-@import common.models.event.Session
 @import common.models.event.Attendee
+@import common.models.event.Session
+@import common.models.event.Exponent
 @import common.models.user.User
 @import common.views.html.format._
 @import backend.views.html._
-@(attendee: Attendee, attendeeSessions: List[Session], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main(attendee.name){
 	@partials.header()
 	@partials.breadcrumb(attendee.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"))
@@ -69,6 +70,23 @@
 											<div class="media-body">
 												<h4 class="media-heading"><a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)">@session.name</a></h4>
 												<p class="media-line">@session.description</p>
+											</div>
+										</div>
+									}
+								</div>
+							</div>
+						}
+						@if(attendeeExponents.length > 0){
+							<div class="pmb-block">
+								<div class="pmbb-header">
+									<h2><i class="md md-wallet-travel m-r-5"></i> Exposants</h2>
+								</div>
+								<div class="pmbb-body p-l-30 media-list">
+									@attendeeExponents.map { exponent =>
+										<div class="media">
+											<div class="media-body">
+												<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a></h4>
+												<p class="media-line">@exponent.description</p>
 											</div>
 										</div>
 									}
