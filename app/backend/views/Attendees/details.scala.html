@@ -13,8 +13,11 @@
 			<div class="container">
 				<div class="block-header">
 					<h2>
-						@attendee.name @partials.role(attendee.info.role)
-						<small>@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")</small>
+						@attendee.name
+						<small>
+							@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")
+							@partials.role(attendee.info.role)
+						</small>
 					</h2>
 					<ul class="actions">
 						<li><a href=""><i class="md md-edit"></i></a></li>
@@ -23,7 +26,7 @@
 				</div>
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
-						<div class="pmo-pic"><img class="img-responsive" src="@attendee.images.avatar" alt=""></div>
+						<div class="pmo-pic">@partials.avatar(attendee.images.avatar, attendee.name, 'class->"img-responsive")</div>
 						<div class="pmo-block pmo-contact hidden-xs">
 							<ul>
 								<li><i class="md md-create"></i> enregistré le @datetime(attendee.meta.created)</li>
@@ -39,19 +42,21 @@
 								@textMultiline(attendee.description)
 							</div>
 						</div>
-						<div class="pmb-block">
-							<div class="pmbb-header">
-								<h2><i class="md md-phone m-r-5"></i> Contact</h2>
-							</div>
-							<div class="pmbb-body p-l-30">
-								@attendee.info.website.map { url => <dl class="dl-horizontal"><dt>Site</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
-								@attendee.social.blogUrl.map { url => <dl class="dl-horizontal"><dt>Blog</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
-								@attendee.social.facebookUrl.map { url => <dl class="dl-horizontal"><dt>Facebook</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
-								@attendee.social.twitterUrl.map { url => <dl class="dl-horizontal"><dt>Twitter</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
-								@attendee.social.linkedinUrl.map { url => <dl class="dl-horizontal"><dt>Linkedin</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
-								@attendee.social.githubUrl.map { url => <dl class="dl-horizontal"><dt>Github</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
-							</div>
+						@if(attendee.info.website.isDefined || attendee.social.blogUrl.isDefined || attendee.social.facebookUrl.isDefined || attendee.social.twitterUrl.isDefined || attendee.social.linkedinUrl.isDefined || attendee.social.githubUrl.isDefined){
+							<div class="pmb-block">
+								<div class="pmbb-header">
+									<h2><i class="md md-phone m-r-5"></i> Contact</h2>
+								</div>
+								<div class="pmbb-body p-l-30">
+									@attendee.info.website.map { url => <dl class="dl-horizontal"><dt>Site</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+									@attendee.social.blogUrl.map { url => <dl class="dl-horizontal"><dt>Blog</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+									@attendee.social.facebookUrl.map { url => <dl class="dl-horizontal"><dt>Facebook</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+									@attendee.social.twitterUrl.map { url => <dl class="dl-horizontal"><dt>Twitter</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+									@attendee.social.linkedinUrl.map { url => <dl class="dl-horizontal"><dt>Linkedin</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+									@attendee.social.githubUrl.map { url => <dl class="dl-horizontal"><dt>Github</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
+								</div>
 						</div>
+						}
 					</div>
 				</div>
 			</div>

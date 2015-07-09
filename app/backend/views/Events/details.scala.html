@@ -18,7 +18,7 @@
 					</ul>
 				</div>
 				<div class="row">
-					@List((attendeeCount, "Participants", "cyan", backend.controllers.routes.Attendees.list(event.uuid)), (sessionCount, "Sessions", "lightgreen", backend.controllers.routes.Events.details(event.uuid)), (exponentCount, "Exposants", "pink", backend.controllers.routes.Events.details(event.uuid)), (actionCount, "Actions", "teal", backend.controllers.routes.Events.details(event.uuid))).map { case (number, name, color, url) =>
+					@List((attendeeCount, "Participants", "cyan", backend.controllers.routes.Attendees.list(event.uuid)), (sessionCount, "Sessions", "lightgreen", backend.controllers.routes.Sessions.list(event.uuid)), (exponentCount, "Exposants", "pink", backend.controllers.routes.Events.details(event.uuid)), (actionCount, "Actions", "teal", backend.controllers.routes.Events.details(event.uuid))).map { case (number, name, color, url) =>
 						<div class="col-sm-3">
 							<a href="@url" class="mini-charts-item bgm-@color">
 								<div class="clearfix">

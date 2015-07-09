@@ -1,0 +1,49 @@
+.agenda {
+	.flex-row {
+		padding: 0px;
+	}
+	.agenda-col {
+		position: relative;
+		height: 750px;
+		padding: 0px;
+	}
+	.agenda-item {
+		position: absolute;
+		display: block;
+		width: 100%;
+		overflow: hidden;
+		padding: 3px;
+		color: #000;
+		background: #f7f7f7;
+		border: 1px solid #ccc;
+		border-radius: 3px;
+		&:hover {
+			z-index: 10000;
+			overflow: inherit;
+			height: initial !important;
+			background: #eee;
+		}
+		&.warning {
+			background-color: rgba(255, 235, 59, 0.9);
+			border: 2px dashed #f44336;
+			&:hover {
+				background-color: rgb(255, 235, 59);
+			}
+		}
+		h4 {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			/*white-space: nowrap;*/
+			margin: 0px;
+			font-size: 14px;
+		}
+		p {
+			margin: 0px;
+		}
+		.meta {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+}

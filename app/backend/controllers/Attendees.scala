@@ -21,7 +21,7 @@ object Attendees extends SilhouetteEnvironment {
     val curPage = page.getOrElse(1)
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
-      eltPage <- AttendeeRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("-start"))
+      eltPage <- AttendeeRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("name"))
     } yield {
       if (curPage > 1 && eltPage.totalPages < curPage) {
         Redirect(backend.controllers.routes.Attendees.list(eventId, query, Some(eltPage.totalPages), pageSize, sort))

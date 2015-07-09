@@ -1,0 +1,181 @@
+// from https://github.com/driftyco/ionic/blob/master/scss/_grid.scss and https://github.com/driftyco/ionic/blob/master/scss/_mixins.scss
+
+// variables
+@grid-padding-width: 10px;
+
+// mixins
+.display-flex {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.flex-wrap(@value: nowrap) {
+  // No Webkit Box fallback.
+  -webkit-flex-wrap: @value;
+  -moz-flex-wrap: @value;
+  flex-wrap: @value;
+}
+
+.flex(@fg: 1, @fs: null, @fb: null) {
+  -webkit-box-flex: @fg;
+  -webkit-flex: @fg @fs @fb;
+  -moz-box-flex: @fg;
+  -moz-flex: @fg @fs @fb;
+  -ms-flex: @fg @fs @fb;
+  flex: @fg @fs @fb;
+}
+
+.align-items(@value: stretch) {
+  -webkit-align-items: @value;
+  -moz-align-items: @value;
+  align-items: @value;
+}
+
+.align-self(@value: auto) {
+  -webkit-align-self: @value;
+  -moz-align-self: @value;
+  align-self: @value;
+}
+
+// rules
+.flex-row {
+  .display-flex;
+  padding: (@grid-padding-width / 2);
+  width: 100%;
+}
+
+.flex-row-wrap {
+  .flex-wrap(wrap);
+}
+
+.flex-row-no-padding {
+  padding: 0;
+
+  > .col {
+    padding: 0;
+  }
+}
+
+.flex-row + .flex-row {
+  margin-top: (@grid-padding-width / 2) * -1;
+  padding-top: 0;
+}
+
+.flex-row {
+	.col {
+	  .flex(1);
+	  display: block;
+	  padding: (@grid-padding-width / 2);
+	  width: 100%;
+	}
+}
+
+
+/* Vertically Align Columns */
+/* .row-* vertically aligns every .col in the .row */
+.flex-row-top {
+  .align-items(flex-start);
+}
+.flex-row-bottom {
+  .align-items(flex-end);
+}
+.flex-row-center {
+  .align-items(center);
+}
+.flex-row-stretch {
+  .align-items(stretch);
+}
+.flex-row-baseline {
+  .align-items(baseline);
+}
+
+/* .col-* vertically aligns an individual .col */
+.flex-row {
+	.col-top {
+	  .align-self(flex-start);
+	}
+	.col-bottom {
+	  .align-self(flex-end);
+	}
+	.col-center {
+	  .align-self(center);
+	}
+}
+
+/* Column Offsets */
+.flex-row {
+	.col-offset-10 {
+	  margin-left: 10%;
+	}
+	.col-offset-20 {
+	  margin-left: 20%;
+	}
+	.col-offset-25 {
+	  margin-left: 25%;
+	}
+	.col-offset-33, .col-offset-34 {
+	  margin-left: 33.3333%;
+	}
+	.col-offset-50 {
+	  margin-left: 50%;
+	}
+	.col-offset-66, .col-offset-67 {
+	  margin-left: 66.6666%;
+	}
+	.col-offset-75 {
+	  margin-left: 75%;
+	}
+	.col-offset-80 {
+	  margin-left: 80%;
+	}
+	.col-offset-90 {
+	  margin-left: 90%;
+	}
+}
+
+/* Explicit Column Percent Sizes */
+/* By default each grid column will evenly distribute */
+/* across the grid. However, you can specify individual */
+/* columns to take up a certain size of the available area */
+.flex-row {
+	.col-10 {
+	  .flex(0, 0, 10%);
+	  max-width: 10%;
+	}
+	.col-20 {
+	  .flex(0, 0, 20%);
+	  max-width: 20%;
+	}
+	.col-25 {
+	  .flex(0, 0, 25%);
+	  max-width: 25%;
+	}
+	.col-33, .col-34 {
+	  .flex(0, 0, 33.3333%);
+	  max-width: 33.3333%;
+	}
+	.col-50 {
+	  .flex(0, 0, 50%);
+	  max-width: 50%;
+	}
+	.col-66, .col-67 {
+	  .flex(0, 0, 66.6666%);
+	  max-width: 66.6666%;
+	}
+	.col-75 {
+	  .flex(0, 0, 75%);
+	  max-width: 75%;
+	}
+	.col-80 {
+	  .flex(0, 0, 80%);
+	  max-width: 80%;
+	}
+	.col-90 {
+	  .flex(0, 0, 90%);
+	  max-width: 90%;
+	}
+}

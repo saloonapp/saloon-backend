@@ -1,0 +1,129 @@
+@import common.models.event.Event
+@import common.models.event.Session
+@import common.models.user.User
+@import org.joda.time.DateTime
+@import common.views.html._
+@import common.views.html.format._
+@import backend.views.html._
+@(sessionsByDay: List[(DateTime, List[Session])], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@hourData(sessionsOfDay: List[Session]) = @{
+	val start: DateTime = sessionsOfDay.map(_.info.start).flatten.reduceLeft((d1, d2) => if(d1.isBefore(d2)) d1 else d2)
+	val end: DateTime = sessionsOfDay.map(_.info.end).flatten.reduceLeft((d1, d2) => if(d1.isAfter(d2)) d1 else d2)
+	val maxHeight = 1000
+	val minuteDuration: Long = (end.millisOfDay().get() - start.millisOfDay().get())/(60*1000)
+	val pxByMinute: Double = maxHeight.toDouble / minuteDuration.toDouble
+	(start, end, maxHeight, pxByMinute)
+}
+@hourPosition(pxByMinute: Double, min: DateTime, start: DateTime) = @{
+	val minuteDuration: Long = (start.millisOfDay().get() - min.millisOfDay().get())/(60*1000)
+	minuteDuration*pxByMinute
+}
+@heightDuration(pxByMinute: Double, start: DateTime, end: DateTime) = @{
+	val minuteDuration: Long = (end.millisOfDay().get() - start.millisOfDay().get())/(60*1000)
+	minuteDuration*pxByMinute
+}
+@hasConflict(start: DateTime, sessionsOfPlace: List[Session]) = @{
+	sessionsOfPlace.find(s => s.info.start.get.isBefore(start) && s.info.end.get.isAfter(start)).map(s => true)getOrElse(false)
+}
+@metaInfos(session: Session) = {
+	@timeOpt(session.info.start)-@timeOpt(session.info.end)
+	@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
+	@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
+}
+@main("Sessions"){
+	@partials.header()
+	@partials.breadcrumb("Sessions", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="card">
+					<div class="card-header ch-alt">
+						<h2>
+							Sessions de @event.name
+							<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
+						</h2>
+						<ul class="actions">
+							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
+						</ul>
+						<button class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></button>
+					</div>
+					<div class="card-body">
+						<div class="media-list">
+							<div role="tabpanel">
+								<ul class="tab-nav" role="tablist" tabindex="1">
+									@sessionsByDay.zipWithIndex.map { case ((date, sessionsOfDay), i) =>
+										<li @if(i==0){class="active"}>
+											<a href="#@date.toString("ddMMMMyyyy")" aria-controls="@date.toString("ddMMMMyyyy")" role="tab" data-toggle="tab">
+												@if(date.getMillis() == 0){Non planifié}
+												@if(date.getMillis() != 0){@date.toString("d MMMM")}
+												(@sessionsOfDay.length)
+											</a>
+										</li>
+									}
+								</ul>
+								<div class="tab-content">
+									@sessionsByDay.zipWithIndex.map { case ((date, sessionsOfDay), i) =>
+										<div role="tabpanel" class="tab-pane @if(i==0){active}" id="@date.toString("ddMMMMyyyy")">
+											@if(date.getMillis() == 0){
+												<div class="flex-row">
+													@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+														<div class="col media-list">
+															<h3>@place</h3>
+															@sessionsOfPlace.map { session =>
+																<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="media">
+																	<div class="media-body">
+																		<h4>@session.name</h4>
+																		@metaInfos(session)
+																		@session.info.slides.map { link => <i class="socicon socicon-slideshare"></i> }
+																		@session.info.video.map { link => <i class="socicon socicon-youtube"></i> }
+																		@if(session.info.speakers.length > 0){@session.info.speakers.length speaker@if(session.info.speakers.length > 1){s}}
+																	</div>
+																</a>
+															}
+														</div>
+													}
+												</div>
+											}
+											@if(date.getMillis() != 0){
+												<div class="agenda">
+													@defining(hourData(sessionsOfDay)){ case (min, max, maxHeight, pxByMinute) =>
+														<div class="flex-row">
+															@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+																<div class="col">
+																	<h3>@place</h3>
+																</div>
+															}
+														</div>
+														<div class="flex-row">
+															@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+																<div class="col agenda-col" style="height: @{maxHeight}px;">
+																	@sessionsOfPlace.map { session =>
+																		<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="agenda-item @if(hasConflict(session.info.start.get, sessionsOfPlace)){warning}" style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">
+																			<p class="meta">@metaInfos(session)</p>
+																			<h4>@session.name</h4>
+																			<p>
+																				@session.info.slides.map { link => <i class="socicon socicon-slideshare"></i> }
+																				@session.info.video.map { link => <i class="socicon socicon-youtube"></i> }
+																				@if(session.info.speakers.length > 0){@session.info.speakers.length speaker@if(session.info.speakers.length > 1){s}}
+																			</p>
+																		</a>
+																	}
+																</div>
+															}
+														</div>
+													}
+												</div>
+											}
+										</div>
+									}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}
