@@ -1,12 +1,5 @@
-.header-inner .logo a {
-	font-size: 20px;
-	text-transform: initial;
-}
-#sidebar .profile-menu > a {
-	background-size: cover;
-}
-body.sw-toggled #footer {
-	  padding-left: initial;
+.form-group {
+    margin-bottom: 20px;
 }
 
 .media {
@@ -44,6 +37,13 @@ body.sw-toggled #footer {
 	display: block;
 }
 
+.header-inner .logo a {
+	font-size: 20px;
+	text-transform: initial;
+}
+#sidebar .profile-menu > a {
+	background-size: cover;
+}
 #sidebar .profile-menu > a .profile-pic > .lv-avatar {
 	width: 47px;
 	height: 47px;
@@ -52,6 +52,41 @@ body.sw-toggled #footer {
 	box-sizing: content-box;
 	line-height: 47px;
 	font-size: 25px;
+}
+@media(max-width: 1200px){
+	body.sw-toggled #footer {
+		padding-left: initial;
+	}
+}
+
+#profile-main .pm-overview {
+	overflow-x: hidden;
+}
+
+.note-editor,
+.note-popover {
+    .fa {
+        &.fa-strikethrough:before { content: "\f188"; }
+        &.fa-undo:before { content: "\f11c"; }
+        &.fa-repeat:before { content: "\f110"; }
+	}
+	.note-toolbar {
+		padding: 0px;
+		text-align: left;
+		& > .btn-group {
+			margin-top: 0px;
+			.btn {
+				padding: 0px 5px;
+				height: 30px;
+			}
+		}
+		.note-misc {
+			float: right;
+		}
+	}
+}
+.note-dialog .checkbox input {
+	opacity: 1;
 }
 
 .four-zero {

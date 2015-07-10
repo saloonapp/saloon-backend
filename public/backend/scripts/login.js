@@ -17,9 +17,8 @@ $(document).ready(function(){
     }
 
     /*
-     * Text Feild
+     * Text Field
      */
-    
     //Add blue animated border and remove with condition when focus and blur
     if($('.fg-line')[0]) {
         $('body').on('focus', '.form-control', function(){
@@ -40,8 +39,7 @@ $(document).ready(function(){
             }
         });
     }
-    
-    //Add blue border for pre-valued fg-flot text feilds
+    //Add blue border for pre-valued fg-flot text fields
     if($('.fg-float')[0]) {
         $('.fg-float .form-control').each(function(){
             var i = $(this).val();
@@ -52,7 +50,7 @@ $(document).ready(function(){
             
         });
     }
-    
+
     /*
      * IE 9 Placeholder
      */

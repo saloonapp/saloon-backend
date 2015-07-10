@@ -1,7 +1,5 @@
-@(field: Field, args: (Symbol, String)*)
-
 @import common.views._
-
+@(field: Field, args: (Symbol, String)*)
 <input
   type="@Helpers.getArg(args, "type", "text")"
   class="form-control @Helpers.getArg(args, "class")"

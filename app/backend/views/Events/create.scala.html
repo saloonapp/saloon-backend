@@ -1,0 +1,34 @@
+@import common.models.user.User
+@import backend.forms.EventCreateData
+@import common.views.html.forms._
+@import backend.views.html._
+@import backend.views.html.partials._
+@(eventForm: Form[EventCreateData], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main("Créer un événement"){
+	@header()
+	@breadcrumb("Créer un événement", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"))
+	<section id="main">
+		@sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="card">
+					<div class="card-header ch-alt">
+						<h2>Créer un événement</h2>
+					</div>
+					<div class="card-body card-padding">
+						<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Events.doCreate()">
+							@partials.form(eventForm, categories)
+							<div class="form-group">
+								<div class="col-md-offset-2 col-md-10">
+									<a href="@backend.controllers.routes.Events.list()" class="btn btn-default">Annuler</a>
+									<button type="submit" class="btn btn-success">Créer</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@footer()
+}

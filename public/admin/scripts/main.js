@@ -20,11 +20,18 @@ $(function() {
 		}
 	});
 
-	// http://cloudinary.com/documentation/upload_widget#upload_widget_options
+	/*
+	 * Cloudinary upload (cf http://cloudinary.com/documentation/upload_widget#upload_widget_options)
+	 */
+	$('.cloudinary-upload').each(function(){
+		var input = $(this).find('input[type="hidden"]');
+		var preview = $(this).find('.preview');
+		if(input.attr('value') === ''){ preview.hide(); }
+	});
 	$('.cloudinary-upload button').click(function(e) {
 		e.preventDefault();
-		var thumbnail = $(this).next();
-		var input = $(this).next().next();
+		var input = $(this).parent().find('input[type="hidden"]');
+		var preview = $(this).parent().find('.preview');
 
 		var ratio = $(this).attr('ratio') || undefined;
 		var width = $(this).attr('width') || undefined;
@@ -59,12 +66,12 @@ $(function() {
 					height: height
 				});
 				var url = formatCloudinaryUrl(result[0].url, args);
-				thumbnail.attr('src', url);
+				preview.find('img').attr('src', url);
+				preview.show();
 				input.attr('value', url);
 			}
 		});
 	});
-
 	function formatCloudinaryUrl(url, args){
 		var values = args.map(function(arg){ return buildArg(arg); });
 		return url.replace(new RegExp('(.*/upload/).*(v[0-9].*)', 'gi'), '$1'+values.join('/')+'/$2');

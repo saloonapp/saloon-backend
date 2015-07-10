@@ -1,11 +1,11 @@
 package common.models.event
 
 import common.Utils
-import common.repositories.Repository
 import common.models.values.Address
 import common.models.values.DataSource
 import common.models.values.Link
 import common.services.FileImporter
+import common.repositories.Repository
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._

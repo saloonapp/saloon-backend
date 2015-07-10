@@ -2,18 +2,19 @@
 @import common.models.user.User
 @import common.views.html.format._
 @import backend.views.html._
+@import backend.views.html.partials._
 @(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main("SalooN"){
-	@partials.header()
-	@partials.breadcrumb(event.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"))
+	@header()
+	@breadcrumb(event.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="block-header">
 					<h2>@event.name</h2>
 					<ul class="actions">
-						<li><a href=""><i class="md md-edit"></i></a></li>
+						<li><a href="@backend.controllers.routes.Events.update(event.uuid)"><i class="md md-edit"></i></a></li>
 						<li><a href=""><i class="md md-delete"></i></a></li>
 					</ul>
 				</div>
@@ -111,5 +112,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

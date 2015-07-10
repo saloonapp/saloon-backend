@@ -1,0 +1,27 @@
+.select2-container {
+	.select2-selection {
+		box-shadow: none;
+		border-radius: 0;
+		border: none;
+		border-bottom: 1px solid #e0e0e0;
+		&:focus {
+			border-bottom-color: #b4b4b4;
+		}
+		.select2-search__field {
+			  font-family: roboto;
+			font-size: 13px;
+			padding: 0px !important;
+		}
+	}
+}
+.select2-container--bootstrap {
+	&.select2-container--focus .select2-selection, &.select2-container--open .select2-selection {
+		box-shadow: none;
+	}
+	.select2-dropdown {
+		border: none;
+	}
+	.select2-results__option--highlighted[aria-selected] {
+		background-color: @m-blue;
+	}
+}

@@ -1,16 +1,20 @@
 @import common.models.event.Event
 @import common.models.user.User
 @import backend.views.html._
+@import backend.views.html.partials._
 @(events: List[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main("SalooN"){
-	@partials.header()
-	@partials.breadcrumb("Événements", (backend.controllers.routes.Application.index(), "Accueil"))
+	@header()
+	@breadcrumb("Événements", (backend.controllers.routes.Application.index(), "Accueil"))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="block-header">
 					<h2>Événements organisés</h2>
+					<ul class="actions">
+						<li><a href="@backend.controllers.routes.Events.create()" title="Créer un nouvel événement"><i class="md md-add"></i></a></li>
+					</ul>
 				</div>
 				@events.sliding(3, 3).map { row =>
 					<div class="row">
@@ -38,5 +42,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

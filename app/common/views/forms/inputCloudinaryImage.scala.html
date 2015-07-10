@@ -1,14 +1,9 @@
-@(field: Field, args: (Symbol, String)*)
-
 @import common.views._
-
+@(field: Field, args: (Symbol, String)*)
 <div class="cloudinary-upload">
-	<button class="btn btn-default" type="button"
-		@Helpers.toHtmlArgs(args)>Upload image</button>
-	<img src="@field.value" style="display: block;">
-	<input
-	  type="hidden"
-	  name="@field.name"
-	  id="@field.id"
-	  value="@field.value">
+	<button class="btn btn-default" type="button" @Helpers.toHtmlArgs(args, Seq("name"))>
+		@Helpers.getArg(args, "name", "Upload image")
+	</button>
+	<div class="preview"><img src="@field.value"></div>
+	<input type="hidden" name="@field.name" id="@field.id" value="@field.value">
 </div>
