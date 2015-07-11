@@ -4,12 +4,13 @@
 @import common.models.user.User
 @import common.views.html.format._
 @import backend.views.html._
+@import backend.views.html.partials._
 @(exponent: Exponent, exponentTeam: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main(exponent.name){
-	@partials.header()
-	@partials.breadcrumb(exponent.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Exponents.list(event.uuid), "Exposants"))
+	@header()
+	@breadcrumb(exponent.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Exponents.list(event.uuid), "Exposants"))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="block-header">
@@ -21,13 +22,13 @@
 						</small>
 					</h2>
 					<ul class="actions">
-						<li><a href=""><i class="md md-edit"></i></a></li>
-						<li><a href=""><i class="md md-delete"></i></a></li>
+						<li><a href="@backend.controllers.routes.Exponents.update(event.uuid, exponent.uuid)"><i class="md md-edit"></i></a></li>
+						<li><form method="POST" action="@backend.controllers.routes.Exponents.delete(event.uuid, exponent.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
 					</ul>
 				</div>
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
-						<div class="pmo-pic">@partials.avatar(exponent.images.logo, exponent.name, 'class->"img-responsive")</div>
+						<div class="pmo-pic">@avatar(exponent.images.logo, exponent.name, 'class->"img-responsive")</div>
 						<div class="pmo-block pmo-contact hidden-xs">
 							<ul>
 								<li><i class="md md-create"></i> enregistré le @datetime(exponent.meta.created)</li>
@@ -117,5 +118,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

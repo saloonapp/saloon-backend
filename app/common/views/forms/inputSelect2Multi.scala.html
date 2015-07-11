@@ -3,8 +3,8 @@
 @import common.views._
 
 <select class="form-control select2 @Helpers.getArg(args, "class")" id="@field.id" name="@{field.name+"[]"}"
-  multiple="multiple"
-  @Helpers.toHtmlArgs(args, Seq("class", "emptyOption"))
+  multiple="multiple" size="1"
+  @Helpers.toHtmlArgs(args, Seq("class", "emptyOption", "multiple", "size"))
   @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>
   
   @if(Helpers.getArg(args, "emptyOption").length > 0){ <option class="blank" value="">@Helpers.getArg(args, "emptyOption")</option> }

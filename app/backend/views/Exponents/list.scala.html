@@ -4,12 +4,13 @@
 @import common.models.user.User
 @import common.views.html._
 @import backend.views.html._
+@import backend.views.html.partials._
 @(exponentPage: Page[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main("Exposants"){
-	@partials.header()
-	@partials.breadcrumb("Exposants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
+	@header()
+	@breadcrumb("Exposants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="card">
@@ -30,7 +31,7 @@
 							</li>
 							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
 						</ul>
-						<button class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></button>
+						<a href="@backend.controllers.routes.Exponents.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
 					</div>
 					<div class="card-body card-padding">
 						<ul class="p-menu">
@@ -46,7 +47,7 @@
 						<div class="media-list">
 							@exponentPage.items.map { exponent =>
 								<div class="media media-avatar">
-									<div class="pull-left"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@partials.avatar(exponent.images.logo, exponent.name, 'class->"media-object")</a></div>
+									<div class="pull-left"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@avatar(exponent.images.logo, exponent.name, 'class->"media-object")</a></div>
 									<div class="media-body">
 										<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a> @if(exponent.info.sponsor){<span class="label label-danger">Sponsor</span>}</h4>
 										@if(!exponent.info.place.isEmpty){<i class="md md-location-on"></i> @exponent.info.place}
@@ -65,5 +66,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

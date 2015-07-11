@@ -85,7 +85,7 @@ object Events extends SilhouetteEnvironment {
           formWithErrors => EventRepository.getCategories().map { categories => BadRequest(backend.views.html.Events.update(formWithErrors, elt, categories)) },
           formData => EventRepository.update(uuid, EventCreateData.merge(elt, formData)).flatMap {
             _.map { updatedElt =>
-              Future(Redirect(backend.controllers.routes.Events.details(uuid)).flashing("success" -> s"L'événements '${elt.name}' a bien été modifié"))
+              Future(Redirect(backend.controllers.routes.Events.details(uuid)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
             }.getOrElse {
               EventRepository.getCategories().map { categories => InternalServerError(backend.views.html.Events.update(createForm.fill(formData), elt, categories)).flashing("error" -> s"Impossible de modifier l'événement '${elt.name}'") }
             }
