@@ -29,6 +29,12 @@
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
 						<div class="pmo-pic">@avatar(exponent.images.logo, exponent.name, 'class->"img-responsive")</div>
+						@if(exponentTeam.length > 0){
+							<div class="pmo-block pmo-contact hidden-xs">
+								<h2><i class="md md-people m-r-5"></i> Équipe</h2>
+								@exponentTeam.map { attendee => @attendeeMedia(attendee, event) }
+							</div>
+						}
 						<div class="pmo-block pmo-contact hidden-xs">
 							<ul>
 								<li><i class="md md-create"></i> enregistré le @datetime(exponent.meta.created)</li>
@@ -86,30 +92,12 @@
 							</div>
 						}
 						@if(exponentTeam.length > 0){
-							<div class="pmb-block">
+							<div class="pmb-block visible-xs">
 								<div class="pmbb-header">
 									<h2><i class="md md-people m-r-5"></i> Équipe</h2>
 								</div>
 								<div class="pmbb-body p-l-30">
-									@exponentTeam.map { attendee => 
-										<div class="media media-avatar">
-											<div class="pull-left">
-												<a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)"><img class="media-object" src="@attendee.images.avatar" alt=""></a>
-											</div>
-											<div class="media-body">
-												<h4 class="media-heading"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@attendee.name</a></h4>
-												<p class="media-line">@attendee.description</p>
-												<p class="media-line">
-													@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
-													@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="md md-messenger"></i></a> }.getOrElse("")
-													@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-facebook"></i></a> }.getOrElse("")
-													@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-twitter"></i></a> }.getOrElse("")
-													@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-linkedin"></i></a> }.getOrElse("")
-													@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-github"></i></a> }.getOrElse("")
-												</p>
-											</div>
-										</div>
-									}
+									@exponentTeam.map { attendee => @attendeeMedia(attendee, event) }
 								</div>
 							</div>
 						}
