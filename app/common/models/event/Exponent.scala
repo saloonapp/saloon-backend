@@ -9,44 +9,6 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class ExponentInfoOld(
-  website: String,
-  place: String,
-  team: List[Person],
-  level: Option[Int],
-  sponsor: Boolean)
-case class ExponentOld(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  images: ExponentImages,
-  info: ExponentInfoOld,
-  config: ExponentConfig,
-  meta: ExponentMeta) {
-  def transform(attendees: List[Attendee]): Exponent = Exponent(
-    this.uuid,
-    this.eventId,
-    this.name,
-    this.description,
-    this.images,
-    ExponentInfo(
-      this.info.website,
-      this.info.place,
-      this.info.team.map { s => attendees.find(_.name == s.name).map(_.uuid) }.flatten,
-      this.info.level,
-      this.info.sponsor),
-    this.config,
-    this.meta)
-}
-object ExponentOld {
-  implicit val formatExponentImages = Json.format[ExponentImages]
-  implicit val formatExponentInfoOld = Json.format[ExponentInfoOld]
-  implicit val formatExponentConfig = Json.format[ExponentConfig]
-  implicit val formatExponentMeta = Json.format[ExponentMeta]
-  implicit val format = Json.format[ExponentOld]
-}
-
 case class ExponentImages(
   logo: String, // squared logo (~ 100x100)
   landing: String) // landscape img (~ 400x150)
