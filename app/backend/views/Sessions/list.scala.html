@@ -5,6 +5,7 @@
 @import common.views.html._
 @import common.views.html.format._
 @import backend.views.html._
+@import backend.views.html.partials._
 @(sessionsByDay: List[(DateTime, List[Session])], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @hourData(sessionsOfDay: List[Session]) = @{
 	val start: DateTime = sessionsOfDay.map(_.info.start).flatten.reduceLeft((d1, d2) => if(d1.isBefore(d2)) d1 else d2)
@@ -31,10 +32,10 @@
 	@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
 }
 @main("Sessions"){
-	@partials.header()
-	@partials.breadcrumb("Sessions", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
+	@header()
+	@breadcrumb("Sessions", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="card">
@@ -46,7 +47,7 @@
 						<ul class="actions">
 							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
 						</ul>
-						<button class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></button>
+						<a href="@backend.controllers.routes.Sessions.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
 					</div>
 					<div class="card-body">
 						<div class="media-list">
@@ -125,5 +126,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

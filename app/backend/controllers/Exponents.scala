@@ -6,7 +6,6 @@ import common.models.utils.Page
 import common.repositories.event.EventRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.event.AttendeeRepository
-import common.services.EventSrv
 import backend.forms.ExponentCreateData
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future

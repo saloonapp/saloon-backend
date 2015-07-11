@@ -7,7 +7,6 @@ import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
-import common.services.EventSrv
 import backend.forms.AttendeeCreateData
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future

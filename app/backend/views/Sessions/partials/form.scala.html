@@ -1,0 +1,28 @@
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import backend.forms.SessionCreateData
+@import common.views.html.forms._
+@(sessionForm: Form[SessionCreateData], allAttendees: List[Attendee], event: Event)
+@inputHidden(sessionForm("eventId"), 'value -> event.uuid)
+@fieldHorizontal(sessionForm("name"), 'label -> "Nom"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: Reactive Programming avec RxJS")</div>}
+@fieldHorizontal(sessionForm("place"), 'label -> "Emplacement"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: Grand amphi")</div>}
+@fieldHorizontal(sessionForm("start"), 'label -> "Horaire"){field =>
+	<div class="row">
+		<div class="col-md-3"><div class="fg-line">@inputDatetime(field, 'placeholder -> "Début (ex: 05/06/2015 08:00)")</div></div>
+		<div class="col-md-3"><div class="fg-line">@inputDatetime(sessionForm("end"), 'placeholder -> "Fin (ex: 05/06/2015 09:00)")</div></div>
+	</div>
+}
+@fieldHorizontal(sessionForm("speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid, a.name)))}
+@fieldHorizontal(sessionForm("format"), 'label -> "Catégories"){field => 
+	<div class="row">
+		<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder -> "Format (ex: Quickie)")</div><p class="help-block">Format / Type de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p></div>
+		<div class="col-md-6"><div class="fg-line">@inputText(sessionForm("category"), 'placeholder -> "Thème (ex: Web)")</div><p class="help-block">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p></div>
+	</div>
+}
+@fieldHorizontal(sessionForm("descriptionHTML"), 'label -> "Description"){field => @inputWysiwyg(field, 'placeholder -> "ex: Le développement d'applications Javascript est étroitement lié à la programmation événementiel : du DOM à Node.js, Backbone, React ou Angular, la gestion des événements est centrale. Pour traiter ces flux de données asynchrones, les concepts de FRP sont particulièrement puissants.")}
+@fieldHorizontal(sessionForm("slides"), 'label -> "Contenu de la session"){field =>
+	<div class="row">
+		<div class="col-md-6"><div class="input-group"><span class="input-group-addon" title="Slides"><i class="md socicon socicon-slideshare"></i></span><div class="fg-line">@inputText(field, 'placeholder -> "Slides (ex: http://fr.slideshare.net/loicknuchel/ionic-humantalks-11032015)")</div></div></div>
+		<div class="col-md-6"><div class="input-group"><span class="input-group-addon" title="Vidéo"><i class="md socicon socicon-youtube"></i></span><div class="fg-line">@inputText(sessionForm("video"), 'placeholder -> "Vidéo (ex: https://www.youtube.com/watch?v=EB2CZndGU9A)")</div></div></div>
+	</div>
+}
