@@ -56,7 +56,7 @@ object Events extends SilhouetteEnvironment {
       formWithErrors => EventRepository.getCategories().map { categories => BadRequest(backend.views.html.Events.create(formWithErrors, categories)) },
       formData => EventRepository.insert(EventCreateData.toModel(formData)).flatMap {
         _.map { elt =>
-          Future(Redirect(backend.controllers.routes.Events.list()).flashing("success" -> s"Événement '${elt.name}' créé !"))
+          Future(Redirect(backend.controllers.routes.Events.details(elt.uuid)).flashing("success" -> s"Événement '${elt.name}' créé !"))
         }.getOrElse {
           EventRepository.getCategories().map { categories => InternalServerError(backend.views.html.Events.create(createForm.fill(formData), categories)).flashing("error" -> s"Impossible de créer l'événement '${formData.name}'") }
         }
@@ -85,7 +85,7 @@ object Events extends SilhouetteEnvironment {
           formWithErrors => EventRepository.getCategories().map { categories => BadRequest(backend.views.html.Events.update(formWithErrors, elt, categories)) },
           formData => EventRepository.update(uuid, EventCreateData.merge(elt, formData)).flatMap {
             _.map { updatedElt =>
-              Future(Redirect(backend.controllers.routes.Events.details(uuid)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
+              Future(Redirect(backend.controllers.routes.Events.details(updatedElt.uuid)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
             }.getOrElse {
               EventRepository.getCategories().map { categories => InternalServerError(backend.views.html.Events.update(createForm.fill(formData), elt, categories)).flashing("error" -> s"Impossible de modifier l'événement '${elt.name}'") }
             }

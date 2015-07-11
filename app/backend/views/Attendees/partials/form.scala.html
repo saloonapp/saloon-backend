@@ -1,0 +1,27 @@
+@import common.models.event.Event
+@import backend.forms.AttendeeCreateData
+@import common.views.html.forms._
+@(attendeeForm: Form[AttendeeCreateData], event: Event)
+@inputHidden(attendeeForm("eventId"), 'value -> event.uuid)
+@fieldHorizontal(attendeeForm("name"), 'label -> "Name"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: Loïc Knuchel")</div>}
+@fieldHorizontal(attendeeForm("role"), 'label -> "Role"){field => <div class="fg-line">@inputSelect(field, Seq("staff", "exposant", "speaker", "visiteur").map(v=>(v,v)), 'emptyOption->"--")</div>}
+@fieldHorizontal(attendeeForm("job"), 'label -> "Emploi"){field => 
+	<div class="row">
+		<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder -> "Poste (ex: Développeur)")</div></div>
+		<div class="col-md-6"><div class="fg-line">@inputText(attendeeForm("company"), 'placeholder -> "Société (ex: SalooN)")</div></div>
+	</div>
+}
+@fieldHorizontal(attendeeForm("descriptionHTML"), 'label -> "Description"){field => @inputWysiwyg(field, 'placeholder -> "ex: Fondateur de SalooN, développeur web")}
+@fieldHorizontal(attendeeForm("avatar"), 'label -> "Avatar"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block">Image carrée, largeur min: 100px</p>}
+@fieldHorizontal(attendeeForm("website"), 'label -> "Liens sociaux"){field =>
+	<div class="row">
+		<div class="col-md-3"><div class="input-group"><span class="input-group-addon" title="Site"><i class="md md-link"></i></span><div class="fg-line">@inputText(field, 'placeholder -> "ex: http://loic.knuchel.org/")</div></div></div>
+		<div class="col-md-3"><div class="input-group"><span class="input-group-addon" title="Blog"><i class="md md-messenger"></i></span><div class="fg-line">@inputText(attendeeForm("blogUrl"), 'placeholder -> "ex: http://loic.knuchel.org/blog/")</div></div></div>
+		<div class="col-md-3"><div class="input-group"><span class="input-group-addon" title="Facebook"><i class="md socicon socicon-facebook"></i></span><div class="fg-line">@inputText(attendeeForm("facebookUrl"), 'placeholder -> "ex: https://www.facebook.com/loic.knuchel")</div></div></div>
+		<div class="col-md-3"><div class="input-group"><span class="input-group-addon" title="Twitter"><i class="md socicon socicon-twitter"></i></span><div class="fg-line">@inputText(attendeeForm("twitterUrl"), 'placeholder -> "ex: https://twitter.com/loicknuchel")</div></div></div>
+	</div>
+	<div class="row">
+		<div class="col-md-3"><div class="input-group"><span class="input-group-addon" title="Linkedin"><i class="md socicon socicon-linkedin"></i></span><div class="fg-line">@inputText(attendeeForm("linkedinUrl"), 'placeholder -> "ex: https://www.linkedin.com/in/loicknuchel")</div></div></div>
+		<div class="col-md-3"><div class="input-group"><span class="input-group-addon" title="Github"><i class="md socicon socicon-github"></i></span><div class="fg-line">@inputText(attendeeForm("githubUrl"), 'placeholder -> "ex: https://github.com/loicknuchel")</div></div></div>
+	</div>
+}

@@ -12,12 +12,12 @@
 </fieldset>
 <fieldset>
 	<legend>Images :</legend>
-	@fieldHorizontal(sessionForm("images.landing"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
+	@fieldHorizontal(sessionForm("images.landing"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block">Image paysage, largeur min: 400px</p>}
 </fieldset>
 <fieldset>
 	<legend>Infos :</legend>
-	@fieldHorizontal(sessionForm("info.format"), 'label -> "Format"){field => @inputText(field, 'placeholder -> "ex: Quickie") <p class="help-block info">La format de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p>}
-	@fieldHorizontal(sessionForm("info.category"), 'label -> "Catégorie"){field => @inputText(field, 'placeholder -> "ex: Web") <p class="help-block info">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p>}
+	@fieldHorizontal(sessionForm("info.format"), 'label -> "Format"){field => @inputText(field, 'placeholder -> "ex: Quickie") <p class="help-block">La format de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p>}
+	@fieldHorizontal(sessionForm("info.category"), 'label -> "Catégorie"){field => @inputText(field, 'placeholder -> "ex: Web") <p class="help-block">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p>}
 	@fieldHorizontal(sessionForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B12")}
 	@fieldHorizontal(sessionForm("info.start"), 'label -> "Début"){field => @inputDatetime(field)}
 	@fieldHorizontal(sessionForm("info.end"), 'label -> "Fin"){field => @inputDatetime(field)}

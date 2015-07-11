@@ -4,12 +4,13 @@
 @import common.models.user.User
 @import common.views.html._
 @import backend.views.html._
+@import backend.views.html.partials._
 @(attendeePage: Page[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main("Participants"){
-	@partials.header()
-	@partials.breadcrumb("Participants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
+	@header()
+	@breadcrumb("Participants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="card">
@@ -29,7 +30,7 @@
 							</li>
 							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
 						</ul>
-						<button class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></button>
+						<a href="@backend.controllers.routes.Attendees.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
 					</div>
 					<div class="card-body card-padding">
 						<ul class="p-menu">
@@ -45,9 +46,9 @@
 						<div class="media-list">
 							@attendeePage.items.map { attendee =>
 								<div class="media media-avatar">
-									<div class="pull-left"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@partials.avatar(attendee.images.avatar, attendee.name, 'class->"media-object")</a></div>
+									<div class="pull-left"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@avatar(attendee.images.avatar, attendee.name, 'class->"media-object")</a></div>
 									<div class="media-body">
-										<h4 class="media-heading"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@attendee.name</a> @partials.role(attendee.info.role)</h4>
+										<h4 class="media-heading"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@attendee.name</a> @role(attendee.info.role)</h4>
 										@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")
 										<br>
 										@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
@@ -66,5 +67,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

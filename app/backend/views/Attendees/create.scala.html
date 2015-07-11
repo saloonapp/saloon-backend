@@ -1,0 +1,35 @@
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.user.User
+@import backend.forms.AttendeeCreateData
+@import backend.views.html._
+@import backend.views.html.partials._
+@(attendeeForm: Form[AttendeeCreateData], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main("Créer un participant"){
+	@header()
+	@breadcrumb("Créer un participant", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"))
+	<section id="main">
+		@sidebar(user)
+		<section id="content">
+			<div class="container">
+				<div class="card">
+					<div class="card-header ch-alt">
+						<h2>Créer un participant</h2>
+					</div>
+					<div class="card-body card-padding">
+						<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Attendees.doCreate(event.uuid)">
+							@partials.form(attendeeForm, event)
+							<div class="form-group">
+								<div class="col-md-offset-2 col-md-10">
+									<a href="@backend.controllers.routes.Attendees.list(event.uuid)" class="btn btn-default">Annuler</a>
+									<button type="submit" class="btn btn-success">Créer</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+	@footer()
+}

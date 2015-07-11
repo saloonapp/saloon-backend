@@ -12,20 +12,20 @@
 </fieldset>
 <fieldset>
 	<legend>Images :</legend>
-	@fieldHorizontal(exponentForm("images.logo"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block info">Image carrée, largeur min: 100px</p>}
-	@fieldHorizontal(exponentForm("images.landing"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block info">Image paysage, largeur min: 400px</p>}
+	@fieldHorizontal(exponentForm("images.logo"), 'label -> "Logo"){field => @inputCloudinaryImage(field, 'ratio -> "1", 'width -> "100") <p class="help-block">Image carrée, largeur min: 100px</p>}
+	@fieldHorizontal(exponentForm("images.landing"), 'label -> "Image paysage"){field => @inputCloudinaryImage(field, 'ratio -> "2.5", 'width -> "400") <p class="help-block">Image paysage, largeur min: 400px</p>}
 </fieldset>
 <fieldset>
 	<legend>Infos :</legend>
 	@fieldHorizontal(exponentForm("info.website"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://www.soat.fr/")}
 	@fieldHorizontal(exponentForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B1")}
 	@fieldHorizontal(exponentForm("info.team"), 'label -> "Equipe"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid, a.name)))}
-	@fieldHorizontal(exponentForm("info.level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block info">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
-	@fieldHorizontal(exponentForm("info.sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant doit être affiché sur la page info du l'événement</p>}
+	@fieldHorizontal(exponentForm("info.level"), 'label -> "Niveau"){field => @inputText(field, 'placeholder -> "ex: 1") <p class="help-block">Plus le nombre est grand, moins le sponsoring est important.<br>Ex: 1 -> Gold, 2 -> Silver, 3 -> Bronze</p>}
+	@fieldHorizontal(exponentForm("info.sponsor"), 'label -> "Sponsor"){field => @inputCheckbox(field) <p class="help-block">Si l'exposant doit être affiché sur la page info du l'événement</p>}
 </fieldset>
 <fieldset>
 	<legend>Config :</legend>
-	@fieldHorizontal(exponentForm("config.scanQRCode"), 'label -> "scan QRCode"){field => @inputCheckbox(field) <p class="help-block info">Si l'exposant a l'option de scan de QRCode</p>}
+	@fieldHorizontal(exponentForm("config.scanQRCode"), 'label -> "scan QRCode"){field => @inputCheckbox(field) <p class="help-block">Si l'exposant a l'option de scan de QRCode</p>}
 </fieldset>
 @*<fieldset>
 	<legend>Meta :</legend>

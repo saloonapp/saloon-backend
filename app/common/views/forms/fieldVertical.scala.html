@@ -12,7 +12,7 @@
   }
   @if(!field.hasErrors && field.constraints.length > 0 && !Helpers.hasArg(args, "constraints", "false")){
     @for(constraint <- field.constraints) {
-      <p class="help-block info">@Messages(constraint._1, constraint._2)</p>
+      <p class="help-block">@Messages(constraint._1, constraint._2)</p>
     }
   }
 </div>

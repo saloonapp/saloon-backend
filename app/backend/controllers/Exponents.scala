@@ -76,7 +76,7 @@ object Exponents extends SilhouetteEnvironment {
           formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(backend.views.html.Exponents.create(formWithErrors, allAttendees, event)) },
           formData => ExponentRepository.insert(ExponentCreateData.toModel(formData)).flatMap {
             _.map { elt =>
-              Future(Redirect(backend.controllers.routes.Exponents.list(eventId)).flashing("success" -> s"Exposant '${elt.name}' créé !"))
+              Future(Redirect(backend.controllers.routes.Exponents.details(eventId, elt.uuid)).flashing("success" -> s"Exposant '${elt.name}' créé !"))
             }.getOrElse {
               AttendeeRepository.findByEvent(eventId).map { allAttendees =>
                 InternalServerError(backend.views.html.Exponents.create(createForm.fill(formData), allAttendees, event)).flashing("error" -> s"Impossible de créer l'exposant '${formData.name}'")
@@ -116,10 +116,10 @@ object Exponents extends SilhouetteEnvironment {
             formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(backend.views.html.Exponents.update(formWithErrors, elt, allAttendees, event)) },
             formData => ExponentRepository.update(uuid, ExponentCreateData.merge(elt, formData)).flatMap {
               _.map { updatedElt =>
-                Future(Redirect(backend.controllers.routes.Exponents.list(eventId)).flashing("success" -> s"L'exposant '${updatedElt.name}' a bien été modifié"))
+                Future(Redirect(backend.controllers.routes.Exponents.details(eventId, updatedElt.uuid)).flashing("success" -> s"L'exposant '${updatedElt.name}' a bien été modifié"))
               }.getOrElse {
                 AttendeeRepository.findByEvent(eventId).map { allAttendees =>
-                  InternalServerError(backend.views.html.Exponents.update(createForm.fill(formData), elt, allAttendees, event)).flashing("error" -> s"Impossible de modifier L'EXPOSANT '${elt.name}'")
+                  InternalServerError(backend.views.html.Exponents.update(createForm.fill(formData), elt, allAttendees, event)).flashing("error" -> s"Impossible de modifier l'exposant '${elt.name}'")
                 }
               }
             })

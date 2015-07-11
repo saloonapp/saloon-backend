@@ -27,7 +27,12 @@ POST      /backend/events/:eventId                                              
 POST      /backend/events/:eventId/delete                                                   backend.controllers.Events.delete(eventId: String)
 
 GET       /backend/events/:eventId/attendees                                                backend.controllers.Attendees.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
+GET       /backend/events/:eventId/attendees/create                                         backend.controllers.Attendees.create(eventId: String)
+POST      /backend/events/:eventId/attendees                                                backend.controllers.Attendees.doCreate(eventId: String)
 GET       /backend/events/:eventId/attendees/:attendeeId                                    backend.controllers.Attendees.details(eventId: String, attendeeId: String)
+GET       /backend/events/:eventId/attendees/:attendeeId/edit                               backend.controllers.Attendees.update(eventId: String, attendeeId: String)
+POST      /backend/events/:eventId/attendees/:attendeeId                                    backend.controllers.Attendees.doUpdate(eventId: String, attendeeId: String)
+POST      /backend/events/:eventId/attendees/:attendeeId/delete                             backend.controllers.Attendees.delete(eventId: String, attendeeId: String)
 
 GET       /backend/events/:eventId/sessions                                                 backend.controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /backend/events/:eventId/sessions/:sessionId                                      backend.controllers.Sessions.details(eventId: String, sessionId: String)

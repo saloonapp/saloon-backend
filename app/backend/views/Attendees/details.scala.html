@@ -5,12 +5,13 @@
 @import common.models.user.User
 @import common.views.html.format._
 @import backend.views.html._
+@import backend.views.html.partials._
 @(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main(attendee.name){
-	@partials.header()
-	@partials.breadcrumb(attendee.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"))
+	@header()
+	@breadcrumb(attendee.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"))
 	<section id="main">
-		@partials.sidebar(user)
+		@sidebar(user)
 		<section id="content">
 			<div class="container">
 				<div class="block-header">
@@ -18,17 +19,17 @@
 						@attendee.name
 						<small>
 							@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")
-							@partials.role(attendee.info.role)
+							@role(attendee.info.role)
 						</small>
 					</h2>
 					<ul class="actions">
-						<li><a href=""><i class="md md-edit"></i></a></li>
-						<li><a href=""><i class="md md-delete"></i></a></li>
+						<li><a href="@backend.controllers.routes.Attendees.update(event.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
+						<li><form method="POST" action="@backend.controllers.routes.Attendees.delete(event.uuid, attendee.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
 					</ul>
 				</div>
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
-						<div class="pmo-pic">@partials.avatar(attendee.images.avatar, attendee.name, 'class->"img-responsive")</div>
+						<div class="pmo-pic">@avatar(attendee.images.avatar, attendee.name, 'class->"img-responsive")</div>
 						<div class="pmo-block pmo-contact hidden-xs">
 							<ul>
 								<li><i class="md md-create"></i> enregistré le @datetime(attendee.meta.created)</li>
@@ -98,5 +99,5 @@
 			</div>
 		</section>
 	</section>
-	@partials.footer()
+	@footer()
 }

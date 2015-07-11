@@ -2,7 +2,7 @@
 @import common.views.html.forms._
 @(eventForm: Form[EventCreateData], categories: List[String])
 @fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: Best Of Web 2015")</div>}
-@fieldHorizontal(eventForm("categories"), 'label -> "Catégorie"){field => @inputTags(field, categories, 'placeholder -> "ex: emploi, tech, business") <p class="help-block info">Seule la 1ère catégorie sera affichée dans l'application</p>}
+@fieldHorizontal(eventForm("categories"), 'label -> "Catégorie"){field => @inputTags(field, categories, 'placeholder -> "ex: emploi, tech, business") <p class="help-block">Seule la 1ère catégorie sera affichée dans l'application</p>}
 @fieldHorizontal(eventForm("start"), 'label -> "Date"){field =>
 	<div class="row">
 		<div class="col-md-3"><div class="fg-line">@inputDatetime(field, 'placeholder -> "Début (ex: 05/06/2015 08:00)")</div></div>
@@ -27,8 +27,8 @@
 @fieldHorizontal(eventForm("descriptionHTML"), 'label -> "Description"){field => @inputWysiwyg(field, 'placeholder -> "ex: 8 meetups web parisiens se réunissent pour vous proposer un Best Of de leurs talks de l'année, ainsi que quelques talks inédits.")}
 @fieldHorizontal(eventForm("logo"), 'label -> "Images"){field =>
 	<div class="row">
-		<div class="col-md-6">@inputCloudinaryImage(field, 'name -> "Upload logo", 'ratio -> "1", 'width -> "100")<p class="help-block info">Image carrée, largeur min: 100px</p></div>
-		<div class="col-md-6">@inputCloudinaryImage(eventForm("landing"), 'name -> "Upload banière", 'ratio -> "2.5", 'width -> "400")<p class="help-block info">Image paysage, largeur min: 400px</p></div>
+		<div class="col-md-6">@inputCloudinaryImage(field, 'name -> "Upload logo", 'ratio -> "1", 'width -> "100")<p class="help-block">Image carrée, largeur min: 100px</p></div>
+		<div class="col-md-6">@inputCloudinaryImage(eventForm("landing"), 'name -> "Upload banière", 'ratio -> "2.5", 'width -> "400")<p class="help-block">Image paysage, largeur min: 400px</p></div>
 	</div>
 }
 @fieldHorizontal(eventForm("twitterAccount"), 'label -> "Twitter"){field =>
