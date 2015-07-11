@@ -17,8 +17,8 @@ GET       /createAccount/:userId                                                
 POST      /createAccount/:userId                                                            authentication.controllers.Auth.doCreateAccount(userId: String)
 
 # backend
-GET       /backend                                                                          backend.controllers.Events.list
 GET       /backend                                                                          backend.controllers.Application.index
+GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
 POST      /backend/events                                                                   backend.controllers.Events.doCreate
 GET       /backend/events/:eventId                                                          backend.controllers.Events.details(eventId: String)
