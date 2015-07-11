@@ -20,7 +20,8 @@ object Events extends SilhouetteEnvironment {
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.findAll(sort = "-info.start").flatMap { events =>
-      EventSrv.addMetadata(events).map { fullEvents =>
+      val eventsNullFirst = events.filter(_.info.start.isEmpty) ++ events.filter(_.info.start.isDefined)
+      EventSrv.addMetadata(eventsNullFirst).map { fullEvents =>
         Ok(backend.views.html.Events.list(fullEvents.toList))
       }
     }
@@ -90,6 +91,17 @@ object Events extends SilhouetteEnvironment {
             }
           })
       }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+    }
+  }
+
+  def delete(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    EventRepository.getByUuid(uuid).map {
+      _.map { elt =>
+        EventRepository.delete(uuid)
+        Redirect(backend.controllers.routes.Events.list()).flashing("success" -> s"Suppression de l'événement '${elt.name}'")
+      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
 

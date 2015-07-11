@@ -15,7 +15,7 @@
 					<h2>@event.name</h2>
 					<ul class="actions">
 						<li><a href="@backend.controllers.routes.Events.update(event.uuid)"><i class="md md-edit"></i></a></li>
-						<li><a href=""><i class="md md-delete"></i></a></li>
+						<li><form method="POST" action="@backend.controllers.routes.Events.delete(event.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
 					</ul>
 				</div>
 				<div class="row">

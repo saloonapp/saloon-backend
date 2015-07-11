@@ -127,6 +127,25 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
+  def sendReport(eventId: String, userId: String) = SecuredAction.async { implicit req =>
+    UserActionRepository.getSubscribe(userId, Event.className, eventId).flatMap {
+      _.map {
+        _.action match {
+          case SubscribeUserAction(email, filter, subscribe) => {
+            EmailSrv.generateEventReport(eventId, userId).flatMap {
+              _.map { emailData =>
+                MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
+                  Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
+                }
+              }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+            }
+          }
+          case _ => Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId"))
+        }
+      }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+    }
+  }
+
   def reportsPreview(eventId: String) = SecuredAction.async { implicit req =>
     UserActionRepository.findSubscribes(Event.className, eventId).map { subscribes =>
       var users = subscribes.map(s => s.action match {
@@ -155,25 +174,6 @@ object Events extends SilhouetteEnvironment {
         val message = "Emails envoyés :<br>" + results.map(r => s" - ${Json.stringify(r)}<br>").mkString("")
         Redirect(mainRoute.operations(eventId)).flashing("success" -> message)
       }
-    }
-  }
-
-  def sendReport(eventId: String, userId: String) = SecuredAction.async { implicit req =>
-    UserActionRepository.getSubscribe(userId, Event.className, eventId).flatMap {
-      _.map {
-        _.action match {
-          case SubscribeUserAction(email, filter, subscribe) => {
-            EmailSrv.generateEventReport(eventId, userId).flatMap {
-              _.map { emailData =>
-                MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
-                  Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
-                }
-              }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
-            }
-          }
-          case _ => Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId"))
-        }
-      }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
     }
   }
 

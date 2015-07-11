@@ -18,7 +18,7 @@ $(document).ready(function(){
 		});
 	});
 	$('.confirm').click(function(e){
-		if(!confirm('Sure ?')){
+		if(!confirm('Confirmer ?')){
 			e.preventDefault();
 		}
 	});
