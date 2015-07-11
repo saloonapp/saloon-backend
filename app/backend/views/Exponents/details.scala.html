@@ -30,12 +30,12 @@
 					<div class="pm-overview c-overflow">
 						<div class="pmo-pic">@avatar(exponent.images.logo, exponent.name, 'class->"img-responsive")</div>
 						@if(exponentTeam.length > 0){
-							<div class="pmo-block pmo-contact hidden-xs">
+							<div class="pmo-block hidden-xs">
 								<h2><i class="md md-people m-r-5"></i> Équipe</h2>
 								@exponentTeam.map { attendee => @attendeeMedia(attendee, event) }
 							</div>
 						}
-						<div class="pmo-block pmo-contact hidden-xs">
+						<div class="pmo-block hidden-xs">
 							<ul>
 								<li><i class="md md-create"></i> enregistré le @datetime(exponent.meta.created)</li>
 								@if(exponent.meta.created != exponent.meta.updated){<li><i class="md md-create"></i> mis à jour le @datetime(exponent.meta.updated)</li>}
@@ -44,22 +44,13 @@
 					</div>
 					<div class="pm-body clearfix">
 						<div class="pmb-block">
-							<div class="pmbb-header">
-								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
-							</div>
+							<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 							<div class="p-l-30">
 								@textMultiline(exponent.description)
 							</div>
 						</div>
 						<div class="pmb-block">
-							<div class="pmbb-header">
-								<!-- <i class="md md-assignment-turned-in"></i>
-								<i class="md md-done-all"></i>
-								<i class="md md-wallet-giftcard"></i>
-								<i class="md md-storage"></i>
-								<i class="md md-attach-money"></i> -->
-								<h2><i class="md md-wallet-giftcard m-r-5"></i> Options</h2>
-							</div>
+							<div class="pmbb-header"><h2><i class="md md-wallet-giftcard m-r-5"></i> Options</h2></div>
 							<div class="pmbb-body p-l-30">
 								<dl class="dl-horizontal">
 									<dt>Scan de QRCode</dt>
@@ -83,9 +74,7 @@
 						</div>
 						@if(!exponent.info.website.isEmpty){
 							<div class="pmb-block">
-								<div class="pmbb-header">
-									<h2><i class="md md-phone m-r-5"></i> Contact</h2>
-								</div>
+								<div class="pmbb-header"><h2><i class="md md-phone m-r-5"></i> Contact</h2></div>
 								<div class="pmbb-body p-l-30">
 									<dl class="dl-horizontal"><dt>Site</dt><dd><a href="@exponent.info.website" target="_blank">@exponent.info.website</a></dd></dl>
 								</div>
@@ -93,9 +82,7 @@
 						}
 						@if(exponentTeam.length > 0){
 							<div class="pmb-block visible-xs">
-								<div class="pmbb-header">
-									<h2><i class="md md-people m-r-5"></i> Équipe</h2>
-								</div>
+								<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Équipe</h2></div>
 								<div class="pmbb-body p-l-30">
 									@exponentTeam.map { attendee => @attendeeMedia(attendee, event) }
 								</div>

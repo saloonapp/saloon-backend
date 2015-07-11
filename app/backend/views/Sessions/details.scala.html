@@ -33,25 +33,23 @@
 				</div>
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
-						<div class="pmo-block pmo-contact hidden-xs">
-							<h2><i class="md md-people m-r-5"></i> Speakers</h2>
-							@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
-						</div>
+						@if(sessionSpeakers.length > 0){
+							<div class="pmo-block hidden-xs">
+								<h2><i class="md md-people m-r-5"></i> Speakers</h2>
+								@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
+							</div>
+						}
 					</div>
 					<div class="pm-body clearfix">
 						<div class="pmb-block">
-							<div class="pmbb-header">
-								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
-							</div>
+							<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 							<div class="p-l-30">
 								@textMultiline(session.description)
 							</div>
 						</div>
 						@if(sessionSpeakers.length > 0){
 							<div class="pmb-block visible-xs">
-								<div class="pmbb-header">
-									<h2><i class="md md-people m-r-5"></i> Speakers</h2>
-								</div>
+								<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Speakers</h2></div>
 								<div class="p-l-30">
 									@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
 								</div>

@@ -30,7 +30,7 @@
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
 						<div class="pmo-pic">@avatar(attendee.images.avatar, attendee.name, 'class->"img-responsive")</div>
-						<div class="pmo-block pmo-contact hidden-xs">
+						<div class="pmo-block hidden-xs">
 							<ul>
 								<li><i class="md md-create"></i> enregistré le @datetime(attendee.meta.created)</li>
 							</ul>
@@ -38,18 +38,14 @@
 					</div>
 					<div class="pm-body clearfix">
 						<div class="pmb-block">
-							<div class="pmbb-header">
-								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
-							</div>
+							<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 							<div class="p-l-30">
 								@textMultiline(attendee.description)
 							</div>
 						</div>
 						@if(attendee.info.website.isDefined || attendee.social.blogUrl.isDefined || attendee.social.facebookUrl.isDefined || attendee.social.twitterUrl.isDefined || attendee.social.linkedinUrl.isDefined || attendee.social.githubUrl.isDefined){
 							<div class="pmb-block">
-								<div class="pmbb-header">
-									<h2><i class="md md-phone m-r-5"></i> Contact</h2>
-								</div>
+								<div class="pmbb-header"><h2><i class="md md-phone m-r-5"></i> Contact</h2></div>
 								<div class="pmbb-body p-l-30">
 									@attendee.info.website.map { url => <dl class="dl-horizontal"><dt>Site</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
 									@attendee.social.blogUrl.map { url => <dl class="dl-horizontal"><dt>Blog</dt><dd><a href="@url" target="_blank">@url</a></dd></dl> }.getOrElse("")
@@ -62,35 +58,17 @@
 						}
 						@if(attendeeSessions.length > 0){
 							<div class="pmb-block">
-								<div class="pmbb-header">
-									<h2><i class="md md-schedule m-r-5"></i> Sessions</h2>
-								</div>
+								<div class="pmbb-header"><h2><i class="md md-schedule m-r-5"></i> Sessions</h2></div>
 								<div class="pmbb-body p-l-30 media-list">
-									@attendeeSessions.map { session =>
-										<div class="media">
-											<div class="media-body">
-												<h4 class="media-heading"><a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)">@session.name</a></h4>
-												<p class="media-line">@session.description</p>
-											</div>
-										</div>
-									}
+									@attendeeSessions.map { session => @sessionMedia(session, event) }
 								</div>
 							</div>
 						}
 						@if(attendeeExponents.length > 0){
 							<div class="pmb-block">
-								<div class="pmbb-header">
-									<h2><i class="md md-wallet-travel m-r-5"></i> Exposants</h2>
-								</div>
+								<div class="pmbb-header"><h2><i class="md md-wallet-travel m-r-5"></i> Exposants</h2></div>
 								<div class="pmbb-body p-l-30 media-list">
-									@attendeeExponents.map { exponent =>
-										<div class="media">
-											<div class="media-body">
-												<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a></h4>
-												<p class="media-line">@exponent.description</p>
-											</div>
-										</div>
-									}
+									@attendeeExponents.map { exponent => @exponentMedia(exponent, event) }
 								</div>
 							</div>
 						}

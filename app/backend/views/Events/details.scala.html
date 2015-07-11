@@ -36,7 +36,7 @@
 				<div class="card" id="profile-main">
 					<div class="pm-overview c-overflow">
 						<div class="pmo-pic"><img class="img-responsive" src="@event.images.logo" alt=""></div>
-						<div class="pmo-block pmo-contact hidden-xs">
+						<div class="pmo-block hidden-xs">
 							<h2>Informations générales</h2>
 							<ul>
 								@if(event.info.start.isDefined){<li><i class="md md-event"></i> @period(event.info.start, event.info.end)</li>}
@@ -64,17 +64,13 @@
 					</div>
 					<div class="pm-body clearfix" style="min-height: 650px;">
 						<div class="pmb-block">
-							<div class="pmbb-header">
-								<h2><i class="md md-format-align-left m-r-5"></i> Description</h2>
-							</div>
+							<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 							<div class="p-l-30">
 								@textMultiline(event.description)
 							</div>
 						</div>
 						<div class="pmb-block visible-xs">
-							<div class="pmbb-header">
-								<h2><i class="md md-person m-r-5"></i> Informations générales</h2>
-							</div>
+							<div class="pmbb-header"><h2><i class="md md-person m-r-5"></i> Informations générales</h2></div>
 							<div class="p-l-30">
 								@if(event.info.start.isDefined){<dl class="dl-horizontal"><dt>Date</dt><dd>@period(event.info.start, event.info.end)</dd></dl>}
 								@if(!(event.info.address.name.isEmpty && event.info.address.street.isEmpty)){<dl class="dl-horizontal"><dt>Adresse</dt><dd>@address(event.info.address, true)</dd></dl>}

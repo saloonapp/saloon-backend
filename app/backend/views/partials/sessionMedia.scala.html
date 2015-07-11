@@ -1,0 +1,9 @@
+@import common.models.event.Event
+@import common.models.event.Session
+@(session: Session, event: Event)
+<div class="media">
+	<div class="media-body">
+		<h4 class="media-heading"><a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)">@session.name</a></h4>
+		<p class="media-line">@session.description</p>
+	</div>
+</div>

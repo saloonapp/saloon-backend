@@ -1,0 +1,9 @@
+@import common.models.event.Event
+@import common.models.event.Exponent
+@(exponent: Exponent, event: Event)
+<div class="media">
+	<div class="media-body">
+		<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a></h4>
+		<p class="media-line">@exponent.description</p>
+	</div>
+</div>
