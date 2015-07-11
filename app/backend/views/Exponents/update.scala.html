@@ -6,31 +6,21 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(exponentForm: Form[ExponentCreateData], exponent: Exponent, allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@main("Modifier "+exponent.name){
-	@header()
-	@breadcrumb("Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Exponents.list(event.uuid), "Exposants"), (backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid), exponent.name))
-	<section id="main">
-		@sidebar(user)
-		<section id="content">
-			<div class="container">
-				<div class="card">
-					<div class="card-header ch-alt">
-						<h2>Modifier @exponent.name</h2>
-					</div>
-					<div class="card-body card-padding">
-						<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Exponents.doUpdate(event.uuid, exponent.uuid)">
-							@partials.form(exponentForm, allAttendees, event)
-							<div class="form-group">
-								<div class="col-md-offset-2 col-md-10">
-									<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
-									<button type="submit" class="btn btn-success">Modifier</button>
-								</div>
-							</div>
-						</form>
+@layout("Modifier "+exponent.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Exponents.list(event.uuid), "Exposants"), (backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid), exponent.name)){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Modifier @exponent.name :</h2>
+		</div>
+		<div class="card-body card-padding">
+			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Exponents.doUpdate(event.uuid, exponent.uuid)">
+				@partials.form(exponentForm, allAttendees, event)
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Modifier</button>
 					</div>
 				</div>
-			</div>
-		</section>
-	</section>
-	@footer()
+			</form>
+		</div>
+	</div>
 }

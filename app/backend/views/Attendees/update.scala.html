@@ -5,31 +5,21 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(attendeeForm: Form[AttendeeCreateData], attendee: Attendee, event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@main("Modifier "+attendee.name){
-	@header()
-	@breadcrumb("Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"), (backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid), attendee.name))
-	<section id="main">
-		@sidebar(user)
-		<section id="content">
-			<div class="container">
-				<div class="card">
-					<div class="card-header ch-alt">
-						<h2>Modifier @attendee.name</h2>
-					</div>
-					<div class="card-body card-padding">
-						<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Attendees.doUpdate(event.uuid, attendee.uuid)">
-							@partials.form(attendeeForm, event)
-							<div class="form-group">
-								<div class="col-md-offset-2 col-md-10">
-									<a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)" class="btn btn-default">Annuler</a>
-									<button type="submit" class="btn btn-success">Modifier</button>
-								</div>
-							</div>
-						</form>
+@layout("Modifier "+attendee.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Attendees.list(event.uuid), "Participants"), (backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid), attendee.name)){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Modifier @attendee.name :</h2>
+		</div>
+		<div class="card-body card-padding">
+			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Attendees.doUpdate(event.uuid, attendee.uuid)">
+				@partials.form(attendeeForm, event)
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Modifier</button>
 					</div>
 				</div>
-			</div>
-		</section>
-	</section>
-	@footer()
+			</form>
+		</div>
+	</div>
 }

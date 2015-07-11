@@ -6,59 +6,49 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(session: Session, sessionSpeakers: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@main(session.name){
-	@header()
-	@breadcrumb(session.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Sessions.list(event.uuid), "Sessions"))
-	<section id="main">
-		@sidebar(user)
-		<section id="content">
-			<div class="container">
-				<div class="block-header">
-					<h2>
-						@session.name
-						<small>
-							@if(!session.info.place.isEmpty){@session.info.place}
-							@session.info.start.orElse(session.info.end).map(d => if(!session.info.place.isEmpty){", "} + "le " + d.toString("EEEE dd MMMM")).getOrElse("")
-							@if(session.info.start.isDefined && session.info.end.isDefined){de @session.info.start.get.toString("hh'h'mm") à @session.info.end.get.toString("hh'h'mm")}
-							@if(session.info.start.isDefined && session.info.end.isEmpty){à @session.info.start.get.toString("hh'h'mm")}
-							@if(session.info.start.isEmpty && session.info.end.isDefined){jusqu'à @session.info.end.get.toString("hh'h'mm")}
-							@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
-							@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
-						</small>
-					</h2>
-					<ul class="actions">
-						<li><a href="@backend.controllers.routes.Sessions.update(event.uuid, session.uuid)"><i class="md md-edit"></i></a></li>
-						<li><form method="POST" action="@backend.controllers.routes.Sessions.delete(event.uuid, session.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
-					</ul>
+@layout(session.name+", "+event.name, session.name, (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Sessions.list(event.uuid), "Sessions")){
+	<div class="block-header">
+		<h2>
+			@session.name
+			<small>
+				@if(!session.info.place.isEmpty){@session.info.place}
+				@session.info.start.orElse(session.info.end).map(d => if(!session.info.place.isEmpty){", "} + "le " + d.toString("EEEE dd MMMM")).getOrElse("")
+				@if(session.info.start.isDefined && session.info.end.isDefined){de @session.info.start.get.toString("hh'h'mm") à @session.info.end.get.toString("hh'h'mm")}
+				@if(session.info.start.isDefined && session.info.end.isEmpty){à @session.info.start.get.toString("hh'h'mm")}
+				@if(session.info.start.isEmpty && session.info.end.isDefined){jusqu'à @session.info.end.get.toString("hh'h'mm")}
+				@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
+				@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
+			</small>
+		</h2>
+		<ul class="actions">
+			<li><a href="@backend.controllers.routes.Sessions.update(event.uuid, session.uuid)"><i class="md md-edit"></i></a></li>
+			<li><form method="POST" action="@backend.controllers.routes.Sessions.delete(event.uuid, session.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
+		</ul>
+	</div>
+	<div class="card" id="profile-main">
+		<div class="pm-overview c-overflow">
+			@if(sessionSpeakers.length > 0){
+				<div class="pmo-block pmo-contact hidden-xs">
+					<h2><i class="md md-people m-r-5"></i> Speakers</h2>
+					@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
 				</div>
-				<div class="card" id="profile-main">
-					<div class="pm-overview c-overflow">
-						@if(sessionSpeakers.length > 0){
-							<div class="pmo-block hidden-xs">
-								<h2><i class="md md-people m-r-5"></i> Speakers</h2>
-								@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
-							</div>
-						}
-					</div>
-					<div class="pm-body clearfix">
-						<div class="pmb-block">
-							<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
-							<div class="p-l-30">
-								@textMultiline(session.description)
-							</div>
-						</div>
-						@if(sessionSpeakers.length > 0){
-							<div class="pmb-block visible-xs">
-								<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Speakers</h2></div>
-								<div class="p-l-30">
-									@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
-								</div>
-							</div>
-						}
-					</div>
+			}
+		</div>
+		<div class="pm-body clearfix">
+			<div class="pmb-block">
+				<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
+				<div class="p-l-30">
+					@textMultiline(session.description)
 				</div>
 			</div>
-		</section>
-	</section>
-	@footer()
+			@if(sessionSpeakers.length > 0){
+				<div class="pmb-block visible-xs">
+					<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Speakers</h2></div>
+					<div class="p-l-30">
+						@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
+					</div>
+				</div>
+			}
+		</div>
+	</div>
 }

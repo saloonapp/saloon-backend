@@ -1,0 +1,15 @@
+@import common.models.user.User
+@(title: String, breadcrumbTitle: String, breadcrumbList: (Call, String)*)(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@main(if(title.length > 0) title+" | SalooN" else "SalooN"){
+	@partials.header()
+	@partials.breadcrumb(breadcrumbTitle, breadcrumbList)
+	<section id="main">
+		@partials.sidebar(user)
+		<section id="content">
+			<div class="container">
+				@content
+			</div>
+		</section>
+	</section>
+	@partials.footer()
+}

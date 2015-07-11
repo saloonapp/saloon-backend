@@ -31,100 +31,90 @@
 	@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
 	@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
 }
-@main("Sessions"){
-	@header()
-	@breadcrumb("Sessions", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name))
-	<section id="main">
-		@sidebar(user)
-		<section id="content">
-			<div class="container">
-				<div class="card">
-					<div class="card-header ch-alt">
-						<h2>
-							Sessions de @event.name
-							<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
-						</h2>
-						<ul class="actions">
-							<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
-						</ul>
-						<a href="@backend.controllers.routes.Sessions.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
-					</div>
-					<div class="card-body">
-						<div class="media-list">
-							<div role="tabpanel">
-								<ul class="tab-nav" role="tablist" tabindex="1">
-									@sessionsByDay.zipWithIndex.map { case ((date, sessionsOfDay), i) =>
-										<li @if(i==0){class="active"}>
-											<a href="#@date.toString("ddMMMMyyyy")" aria-controls="@date.toString("ddMMMMyyyy")" role="tab" data-toggle="tab">
-												@if(date.getMillis() == 0){Non planifié}
-												@if(date.getMillis() != 0){@date.toString("d MMMM")}
-												(@sessionsOfDay.length)
-											</a>
-										</li>
-									}
-								</ul>
-								<div class="tab-content">
-									@sessionsByDay.zipWithIndex.map { case ((date, sessionsOfDay), i) =>
-										<div role="tabpanel" class="tab-pane @if(i==0){active}" id="@date.toString("ddMMMMyyyy")">
-											@if(date.getMillis() == 0){
-												<div class="flex-row">
-													@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
-														<div class="col media-list">
-															<h3>@place</h3>
-															@sessionsOfPlace.map { session =>
-																<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="media">
-																	<div class="media-body">
-																		<h4>@session.name</h4>
-																		@metaInfos(session)
-																		@session.info.slides.map { link => <i class="socicon socicon-slideshare"></i> }
-																		@session.info.video.map { link => <i class="socicon socicon-youtube"></i> }
-																		@if(session.info.speakers.length > 0){@session.info.speakers.length speaker@if(session.info.speakers.length > 1){s}}
-																	</div>
-																</a>
-															}
+@layout("Sessions pour "+event.name, "Sessions", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>
+				Sessions pour @event.name :
+				<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
+			</h2>
+			<ul class="actions">
+				<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
+			</ul>
+			<a href="@backend.controllers.routes.Sessions.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
+		</div>
+		<div class="card-body">
+			<div class="media-list">
+				<div role="tabpanel">
+					<ul class="tab-nav" role="tablist" tabindex="1">
+						@sessionsByDay.zipWithIndex.map { case ((date, sessionsOfDay), i) =>
+							<li @if(i==0){class="active"}>
+								<a href="#@date.toString("ddMMMMyyyy")" aria-controls="@date.toString("ddMMMMyyyy")" role="tab" data-toggle="tab">
+									@if(date.getMillis() == 0){Non planifié}
+									@if(date.getMillis() != 0){@date.toString("d MMMM")}
+									(@sessionsOfDay.length)
+								</a>
+							</li>
+						}
+					</ul>
+					<div class="tab-content">
+						@sessionsByDay.zipWithIndex.map { case ((date, sessionsOfDay), i) =>
+							<div role="tabpanel" class="tab-pane @if(i==0){active}" id="@date.toString("ddMMMMyyyy")">
+								@if(date.getMillis() == 0){
+									<div class="flex-row">
+										@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+											<div class="col media-list">
+												<h3>@place</h3>
+												@sessionsOfPlace.map { session =>
+													<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="media">
+														<div class="media-body">
+															<h4>@session.name</h4>
+															@metaInfos(session)
+															@session.info.slides.map { link => <i class="socicon socicon-slideshare"></i> }
+															@session.info.video.map { link => <i class="socicon socicon-youtube"></i> }
+															@if(session.info.speakers.length > 0){@session.info.speakers.length speaker@if(session.info.speakers.length > 1){s}}
 														</div>
-													}
-												</div>
-											}
-											@if(date.getMillis() != 0){
-												<div class="agenda">
-													@defining(hourData(sessionsOfDay)){ case (min, max, maxHeight, pxByMinute) =>
-														<div class="flex-row">
-															@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
-																<div class="col">
-																	<h3>@place</h3>
-																</div>
-															}
-														</div>
-														<div class="flex-row">
-															@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
-																<div class="col agenda-col" style="height: @{maxHeight}px;">
-																	@sessionsOfPlace.map { session =>
-																		<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="agenda-item @if(hasConflict(session.info.start.get, sessionsOfPlace)){warning}" style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">
-																			<p class="meta">@metaInfos(session)</p>
-																			<h4>@session.name</h4>
-																			<p>
-																				@session.info.slides.map { link => <i class="socicon socicon-slideshare"></i> }
-																				@session.info.video.map { link => <i class="socicon socicon-youtube"></i> }
-																				@if(session.info.speakers.length > 0){@session.info.speakers.length speaker@if(session.info.speakers.length > 1){s}}
-																			</p>
-																		</a>
-																	}
-																</div>
-															}
-														</div>
-													}
-												</div>
-											}
-										</div>
-									}
-								</div>
+													</a>
+												}
+											</div>
+										}
+									</div>
+								}
+								@if(date.getMillis() != 0){
+									<div class="agenda">
+										@defining(hourData(sessionsOfDay)){ case (min, max, maxHeight, pxByMinute) =>
+											<div class="flex-row">
+												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+													<div class="col">
+														<h3>@place</h3>
+													</div>
+												}
+											</div>
+											<div class="flex-row">
+												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+													<div class="col agenda-col" style="height: @{maxHeight}px;">
+														@sessionsOfPlace.map { session =>
+															<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="agenda-item @if(hasConflict(session.info.start.get, sessionsOfPlace)){warning}" style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">
+																<p class="meta">@metaInfos(session)</p>
+																<h4>@session.name</h4>
+																<p>
+																	@session.info.slides.map { link => <i class="socicon socicon-slideshare"></i> }
+																	@session.info.video.map { link => <i class="socicon socicon-youtube"></i> }
+																	@if(session.info.speakers.length > 0){@session.info.speakers.length speaker@if(session.info.speakers.length > 1){s}}
+																</p>
+															</a>
+														}
+													</div>
+												}
+											</div>
+										}
+									</div>
+								}
 							</div>
-						</div>
+						}
 					</div>
 				</div>
 			</div>
-		</section>
-	</section>
-	@footer()
+		</div>
+	</div>
 }

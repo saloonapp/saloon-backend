@@ -5,31 +5,21 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(sessionForm: Form[SessionCreateData], allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@main("Créer une session"){
-	@header()
-	@breadcrumb("Créer une session", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Sessions.list(event.uuid), "Sessions"))
-	<section id="main">
-		@sidebar(user)
-		<section id="content">
-			<div class="container">
-				<div class="card">
-					<div class="card-header ch-alt">
-						<h2>Créer une session</h2>
-					</div>
-					<div class="card-body card-padding">
-						<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Sessions.doCreate(event.uuid)">
-							@partials.form(sessionForm, allAttendees, event)
-							<div class="form-group">
-								<div class="col-md-offset-2 col-md-10">
-									<a href="@backend.controllers.routes.Sessions.list(event.uuid)" class="btn btn-default">Annuler</a>
-									<button type="submit" class="btn btn-success">Créer</button>
-								</div>
-							</div>
-						</form>
+@layout("Nouvelle session pour "+event.name, "Nouvelle session", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Sessions.list(event.uuid), "Sessions")){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Nouvelle session :</h2>
+		</div>
+		<div class="card-body card-padding">
+			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Sessions.doCreate(event.uuid)">
+				@partials.form(sessionForm, allAttendees, event)
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@backend.controllers.routes.Sessions.list(event.uuid)" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Créer</button>
 					</div>
 				</div>
-			</div>
-		</section>
-	</section>
-	@footer()
+			</form>
+		</div>
+	</div>
 }
