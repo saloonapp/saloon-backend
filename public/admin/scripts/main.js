@@ -60,11 +60,11 @@ $(function() {
 						height: coordinates[3]
 					});
 				}
-				args.push({
+				/*args.push({
 					mode: 'pad',
 					width: width,
 					height: height
-				});
+				});*/
 				var url = formatCloudinaryUrl(result[0].url, args);
 				preview.find('img').attr('src', url);
 				preview.show();
