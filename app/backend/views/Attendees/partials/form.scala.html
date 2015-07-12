@@ -1,10 +1,10 @@
 @import common.models.event.Event
 @import backend.forms.AttendeeCreateData
 @import common.views.html.forms._
-@(attendeeForm: Form[AttendeeCreateData], event: Event)
+@(attendeeForm: Form[AttendeeCreateData], roles: List[String], event: Event)
 @inputHidden(attendeeForm("eventId"), 'value -> event.uuid)
 @fieldHorizontal(attendeeForm("name"), 'label -> "Name"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: Loïc Knuchel")</div>}
-@fieldHorizontal(attendeeForm("role"), 'label -> "Role"){field => <div class="fg-line">@inputSelect(field, Seq("staff", "exposant", "speaker", "visiteur").map(v=>(v,v)), 'emptyOption->"--")</div>}
+@fieldHorizontal(attendeeForm("role"), 'label -> "Role"){field => <div class="fg-line">@inputTypeahead(field, (roles++List("staff", "exposant", "speaker", "participant", "visiteur")).distinct.sorted, 'placeholder->"ex: staff, exposant, speaker, participant, visiteur")</div>}
 @fieldHorizontal(attendeeForm("job"), 'label -> "Emploi"){field => 
 	<div class="row">
 		<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder -> "Poste (ex: Développeur)")</div></div>

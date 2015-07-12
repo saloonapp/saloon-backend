@@ -33,6 +33,7 @@ case class Session(
   info: SessionInfo,
   meta: SessionMeta) extends EventItem {
   def toMap(): Map[String, String] = Session.toMap(this)
+  def toBackendExport(): Map[String, String] = Session.toBackendExport(this)
   def merge(e: Session): Session = Session.merge(this, e)
 }
 object Session {
@@ -84,6 +85,21 @@ object Session {
     "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
+
+  def toBackendExport(e: Session): Map[String, String] = Map(
+    "uuid" -> e.uuid,
+    "name" -> e.name,
+    "description" -> e.description,
+    "format" -> e.info.format,
+    "category" -> e.info.category,
+    "place" -> e.info.place,
+    "start" -> e.info.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
+    "end" -> e.info.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
+    "speakerUuids" -> Utils.fromList(e.info.speakers),
+    "slides" -> e.info.slides.getOrElse(""),
+    "video" -> e.info.video.getOrElse(""),
+    "created" -> e.meta.created.toString(FileImporter.dateFormat),
+    "updated" -> e.meta.updated.toString(FileImporter.dateFormat))
 
   def merge(e1: Session, e2: Session): Session = Session(
     e1.uuid,

@@ -91,7 +91,8 @@ $(document).ready(function(){
 			hint: true
 		}, {
 			name: 'datalist',
-			source: datasourceWithDefaults
+			source: datasourceWithDefaults,
+			limit: 15
 		});
 		$(this).removeAttr('list');
 		$('datalist#'+listId).remove();

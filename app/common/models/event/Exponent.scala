@@ -34,6 +34,7 @@ case class Exponent(
   config: ExponentConfig,
   meta: ExponentMeta) extends EventItem {
   def toMap(): Map[String, String] = Exponent.toMap(this)
+  def toBackendExport(): Map[String, String] = Exponent.toBackendExport(this)
   def merge(e: Exponent): Exponent = Exponent.merge(this, e)
 }
 object Exponent {
@@ -85,6 +86,25 @@ object Exponent {
     "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
+
+  def toBackendExport(e: Exponent): Map[String, String] = Map(
+    "uuid" -> e.uuid,
+    "name" -> e.name,
+    "description" -> e.description,
+    "logo" -> e.images.logo,
+    "landing" -> e.images.landing,
+    "website" -> e.info.website,
+    "location" -> e.info.place,
+    "teamUuids" -> Utils.fromList(e.info.team),
+    "sponsor" -> e.info.level.map(_ match {
+      case 1 => "Gold"
+      case 2 => "Silver"
+      case 3 => "Bronze"
+      case _ => "Non"
+    }).getOrElse("Non"),
+    "scanQRCode" -> e.config.scanQRCode.toString,
+    "created" -> e.meta.created.toString(FileImporter.dateFormat),
+    "updated" -> e.meta.updated.toString(FileImporter.dateFormat))
 
   def merge(e1: Exponent, e2: Exponent): Exponent = Exponent(
     e1.uuid,

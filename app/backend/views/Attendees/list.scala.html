@@ -22,7 +22,12 @@
 						<li><a href="@backend.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), req.getQueryString("page").map(_.toInt), req.getQueryString("pageSize").map(_.toInt), Some("meta.created"))">Trier par date d'inscription</a></li>
 					</ul>
 				</li>
-				<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
+				<li class="dropdown">
+					<a href="#" data-toggle="dropdown" title="Exporter"><i class="md md-file-download"></i></a>
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li><form method="POST" action="@backend.controllers.routes.Attendees.fileExport(event.uuid)"><button type="submit">Exporter tout</button></form></li>
+					</ul>
+				</li>
 			</ul>
 			<a href="@backend.controllers.routes.Attendees.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
 		</div>

@@ -95,6 +95,31 @@
 		}
 	}
 }
+.dropdown-menu > li > form > button {
+	display: block;
+	clear: both;
+	padding: 8px 17px;
+	width: 100%;
+	background: none;
+	border: none;
+	font-family: roboto;
+	color: #4C4C4C;
+	font-weight: normal;
+	line-height: 1.42857143;
+	white-space: nowrap;
+	-webkit-transition: background-color;
+	     -o-transition: background-color;
+	        transition: background-color;
+	-webkit-transition-duration: 300ms;
+	        transition-duration: 300ms;
+	&:hover {
+		color: #000;
+		background-color: rgba(0, 0, 0, 0.075);
+	}
+}
+.dropdown-menu.dropdown-menu-right > li > form > button {
+	text-align: right;
+}
 
 .mini-charts-item {
 	display: block;

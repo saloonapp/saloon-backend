@@ -3,6 +3,7 @@ package backend.controllers
 import common.models.user.User
 import common.models.user.UserInfo
 import common.models.utils.Page
+import common.services.FileExporter
 import common.repositories.event.EventRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.event.AttendeeRepository
@@ -135,6 +136,20 @@ object Exponents extends SilhouetteEnvironment {
         ExponentRepository.delete(uuid)
         Redirect(backend.controllers.routes.Exponents.list(eventId)).flashing("success" -> s"Suppression de l'exposant '${elt.name}'")
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    }
+  }
+
+  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        ExponentRepository.findByEvent(eventId).map { elts =>
+          val filename = event.name + "_exponents.csv"
+          val content = FileExporter.makeCsv(elts.map(_.toBackendExport))
+          Ok(content)
+            .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+            .as("text/csv")
+        }
+      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
     }
   }
 

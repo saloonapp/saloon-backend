@@ -39,7 +39,12 @@
 				<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
 			</h2>
 			<ul class="actions">
-				<li><a href="" title="Exporter"><i class="md md-file-download"></i></a></li>
+				<li class="dropdown">
+					<a href="#" data-toggle="dropdown" title="Exporter"><i class="md md-file-download"></i></a>
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li><form method="POST" action="@backend.controllers.routes.Sessions.fileExport(event.uuid)"><button type="submit">Exporter tout</button></form></li>
+					</ul>
+				</li>
 			</ul>
 			<a href="@backend.controllers.routes.Sessions.create(event.uuid)" class="btn bgm-red btn-float waves-effect"><i class="md md-add"></i></a>
 		</div>

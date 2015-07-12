@@ -36,6 +36,7 @@ case class Attendee(
   social: AttendeeSocial,
   meta: AttendeeMeta) extends EventItem {
   def toMap(): Map[String, String] = Attendee.toMap(this)
+  def toBackendExport(): Map[String, String] = Attendee.toBackendExport(this)
   def merge(e: Attendee): Attendee = Attendee.merge(this, e)
 }
 object Attendee {
@@ -91,6 +92,23 @@ object Attendee {
     "meta.source.url" -> e.meta.source.map(_.url).getOrElse(""),
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
+
+  def toBackendExport(e: Attendee): Map[String, String] = Map(
+    "uuid" -> e.uuid,
+    "name" -> e.name,
+    "description" -> e.description,
+    "avatar" -> e.images.avatar,
+    "role" -> e.info.role,
+    "job" -> e.info.job,
+    "company" -> e.info.company,
+    "website" -> e.info.website.getOrElse(""),
+    "blogUrl" -> e.social.blogUrl.getOrElse(""),
+    "facebookUrl" -> e.social.facebookUrl.getOrElse(""),
+    "twitterUrl" -> e.social.twitterUrl.getOrElse(""),
+    "linkedinUrl" -> e.social.linkedinUrl.getOrElse(""),
+    "githubUrl" -> e.social.githubUrl.getOrElse(""),
+    "created" -> e.meta.created.toString(FileImporter.dateFormat),
+    "updated" -> e.meta.updated.toString(FileImporter.dateFormat))
 
   def merge(e1: Attendee, e2: Attendee): Attendee = Attendee(
     e1.uuid,

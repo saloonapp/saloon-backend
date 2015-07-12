@@ -36,6 +36,7 @@ trait MongoDbAttendeeRepository extends Repository[Attendee] {
   def findByUuids(uuids: List[String]): Future[List[Attendee]] = crud.findByUuids(uuids)
   def findByEvent(eventId: String, query: String = "", sort: String = ""): Future[List[Attendee]] = crud.findAll(query, sort, Json.obj("eventId" -> eventId))
   def findPageByEvent(eventId: String, query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = ""): Future[Page[Attendee]] = crud.findPage(query, page, pageSize, sort, Json.obj("eventId" -> eventId))
+  def findEventRoles(eventId: String): Future[List[String]] = crud.distinct("info.role", Json.obj("eventId" -> eventId)).map(_.filter(_ != ""))
   def countForEvent(eventId: String): Future[Int] = crud.countFor("eventId", eventId)
   def countForEvents(eventIds: Seq[String]): Future[Map[String, Int]] = crud.countFor("eventId", eventIds)
   def deleteByEvent(eventId: String): Future[LastError] = crud.deleteBy("eventId", eventId)

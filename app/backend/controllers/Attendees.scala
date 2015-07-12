@@ -3,6 +3,7 @@ package backend.controllers
 import common.models.user.User
 import common.models.user.UserInfo
 import common.models.utils.Page
+import common.services.FileExporter
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
@@ -55,9 +56,12 @@ object Attendees extends SilhouetteEnvironment {
   def create(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    EventRepository.getByUuid(eventId).map { eventOpt =>
+    for {
+      eventOpt <- EventRepository.getByUuid(eventId)
+      roles <- AttendeeRepository.findEventRoles(eventId)
+    } yield {
       eventOpt
-        .map { event => Ok(backend.views.html.Attendees.create(createForm, event)) }
+        .map { event => Ok(backend.views.html.Attendees.create(createForm, roles, event)) }
         .getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -68,11 +72,17 @@ object Attendees extends SilhouetteEnvironment {
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         createForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Attendees.create(formWithErrors, event))),
-          formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).map {
+          formWithErrors => for {
+            roles <- AttendeeRepository.findEventRoles(eventId)
+          } yield BadRequest(backend.views.html.Attendees.create(formWithErrors, roles, event)),
+          formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
             _.map { elt =>
-              Redirect(backend.controllers.routes.Attendees.details(eventId, elt.uuid)).flashing("success" -> s"Participant '${elt.name}' créé !")
-            }.getOrElse(InternalServerError(backend.views.html.Attendees.create(createForm.fill(formData), event)).flashing("error" -> s"Impossible de créer le participant '${formData.name}'"))
+              Future(Redirect(backend.controllers.routes.Attendees.details(eventId, elt.uuid)).flashing("success" -> s"Participant '${elt.name}' créé !"))
+            }.getOrElse {
+              for {
+                roles <- AttendeeRepository.findEventRoles(eventId)
+              } yield InternalServerError(backend.views.html.Attendees.create(createForm.fill(formData), roles, event)).flashing("error" -> s"Impossible de créer le participant '${formData.name}'")
+            }
           })
       }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
     }
@@ -84,9 +94,10 @@ object Attendees extends SilhouetteEnvironment {
     for {
       eltOpt <- AttendeeRepository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
+      roles <- AttendeeRepository.findEventRoles(eventId)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(elt)), elt, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(elt)), elt, roles, event)) }
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -103,11 +114,17 @@ object Attendees extends SilhouetteEnvironment {
       data._1.flatMap { elt =>
         data._2.map { event =>
           createForm.bindFromRequest.fold(
-            formWithErrors => Future(BadRequest(backend.views.html.Attendees.update(formWithErrors, elt, event))),
-            formData => AttendeeRepository.update(uuid, AttendeeCreateData.merge(elt, formData)).map {
+            formWithErrors => for {
+              roles <- AttendeeRepository.findEventRoles(eventId)
+            } yield BadRequest(backend.views.html.Attendees.update(formWithErrors, elt, roles, event)),
+            formData => AttendeeRepository.update(uuid, AttendeeCreateData.merge(elt, formData)).flatMap {
               _.map { updatedElt =>
-                Redirect(backend.controllers.routes.Attendees.details(eventId, updatedElt.uuid)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié")
-              }.getOrElse(InternalServerError(backend.views.html.Attendees.update(createForm.fill(formData), elt, event)).flashing("error" -> s"Impossible de modifier le participant '${elt.name}'"))
+                Future(Redirect(backend.controllers.routes.Attendees.details(eventId, updatedElt.uuid)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
+              }.getOrElse {
+                for {
+                  roles <- AttendeeRepository.findEventRoles(eventId)
+                } yield InternalServerError(backend.views.html.Attendees.update(createForm.fill(formData), elt, roles, event)).flashing("error" -> s"Impossible de modifier le participant '${elt.name}'")
+              }
             })
         }
       }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
@@ -122,6 +139,20 @@ object Attendees extends SilhouetteEnvironment {
         AttendeeRepository.delete(uuid)
         Redirect(backend.controllers.routes.Attendees.list(eventId)).flashing("success" -> s"Suppression du participant '${elt.name}'")
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    }
+  }
+
+  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        AttendeeRepository.findByEvent(eventId).map { elts =>
+          val filename = event.name + "_attendees.csv"
+          val content = FileExporter.makeCsv(elts.map(_.toBackendExport))
+          Ok(content)
+            .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+            .as("text/csv")
+        }
+      }.getOrElse(Future(NotFound(admin.views.html.error404())))
     }
   }
 

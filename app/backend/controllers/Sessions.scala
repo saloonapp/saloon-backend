@@ -3,6 +3,7 @@ package backend.controllers
 import common.models.event.Session
 import common.models.user.User
 import common.models.user.UserInfo
+import common.services.FileExporter
 import common.repositories.event.EventRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.AttendeeRepository
@@ -156,6 +157,20 @@ object Sessions extends SilhouetteEnvironment {
         SessionRepository.delete(uuid)
         Redirect(backend.controllers.routes.Sessions.list(eventId)).flashing("success" -> s"Suppression de la session '${elt.name}'")
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    }
+  }
+
+  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
+      eventOpt.map { event =>
+        SessionRepository.findByEvent(eventId).map { elts =>
+          val filename = event.name + "_sessions.csv"
+          val content = FileExporter.makeCsv(elts.map(_.toBackendExport))
+          Ok(content)
+            .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+            .as("text/csv")
+        }
+      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
     }
   }
 
