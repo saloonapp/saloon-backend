@@ -43,6 +43,7 @@ case class MongoDbCrudUtils[T](
   def getBy(fieldName: String, fieldValue: String): Future[Option[T]] = MongoDbCrudUtils.getBy(fieldValue, collection, fieldName)
   def findBy(fieldName: String, fieldValues: Seq[String]): Future[List[T]] = MongoDbCrudUtils.findByList(fieldValues, collection, fieldName)
   def countFor(fieldName: String, fieldValues: Seq[String]): Future[Map[String, Int]] = MongoDbCrudUtils.countForList(fieldValues, collection, fieldName)
+  def distinct(field: String, filter: JsObject = Json.obj()): Future[List[String]] = MongoDbCrudUtils.distinct(field, filter, collection)
   def update(uuid: String, elt: T): Future[LastError] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
   def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
   def deleteBy(fieldName: String, fieldValue: String): Future[LastError] = MongoDbCrudUtils.deleteBy(fieldValue, collection, fieldName)
@@ -140,6 +141,17 @@ object MongoDbCrudUtils {
       (Json.toJson(result) \ "result").as[List[JsObject]].map { obj =>
         ((obj \ "_id").as[String], (obj \ "count").as[Int])
       }.toMap
+    }
+  }
+
+  def distinct(field: String, filter: JsObject = Json.obj(), collection: JSONCollection): Future[List[String]] = {
+    val commandDoc = BSONDocument(
+      "distinct" -> collection.name,
+      "key" -> field,
+      "query" -> BSONFormats.BSONDocumentFormat.reads(filter).get)
+    collection.db.command(RawCommand(commandDoc)).map { result =>
+      import play.modules.reactivemongo.json.BSONFormats._
+      (Json.toJson(result) \ "values").as[List[String]]
     }
   }
 

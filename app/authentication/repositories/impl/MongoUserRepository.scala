@@ -21,12 +21,10 @@ object MongoUserRepository extends UserRepository {
   implicit val formatLoginInfo = Json.format[LoginInfo]
 
   def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
-    play.Logger.info("find User for loginInfo: " + loginInfo)
     collection.find(Json.obj("loginInfo" -> loginInfo)).one[User]
   }
 
   def save(user: User) = {
-    play.Logger.info("save User: " + user)
     collection.find(Json.obj("email" -> user.email)).one[User].flatMap {
       _.map { existingUser => // user exists
         //Future.failed(new UserCreationException("user email already exists."))

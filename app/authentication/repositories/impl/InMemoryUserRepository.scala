@@ -10,11 +10,9 @@ import com.mohiva.play.silhouette.core.LoginInfo
 
 class InMemoryUserRepository extends UserRepository {
   def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
-    play.Logger.info("find User for loginInfo: " + loginInfo)
     Future.successful(InMemoryUserRepository.users.find { case (id, user) => user.loginInfo == loginInfo }.map(_._2))
   }
   def save(user: User): Future[User] = {
-    play.Logger.info("save User: " + user)
     if (InMemoryUserRepository.users.contains(user.email)) {
       Future.failed(new UserCreationException("email already exists."))
     } else {

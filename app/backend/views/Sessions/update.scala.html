@@ -5,7 +5,7 @@
 @import common.models.user.User
 @import backend.views.html._
 @import backend.views.html.partials._
-@(sessionForm: Form[SessionCreateData], session: Session, allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(sessionForm: Form[SessionCreateData], session: Session, allAttendees: List[Attendee], formats: List[String], categories: List[String], places: List[String], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Modifier "+session.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Sessions.list(event.uuid), "Sessions"), (backend.controllers.routes.Sessions.details(event.uuid, session.uuid), session.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
@@ -13,7 +13,7 @@
 		</div>
 		<div class="card-body card-padding">
 			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Sessions.doUpdate(event.uuid, session.uuid)">
-				@partials.form(sessionForm, allAttendees, event)
+				@partials.form(sessionForm, allAttendees, formats, categories, places, event)
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
 						<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="btn btn-default">Annuler</a>

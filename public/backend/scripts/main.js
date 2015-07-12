@@ -65,6 +65,39 @@ $(document).ready(function(){
 	}
 
 	/*
+	 * Typeahead field
+	 */
+	$('.typeahead').each(function(){
+		var listId = $(this).attr('list');
+		var values = [];
+		$('datalist#'+listId+' option').each(function(){
+			values.push($(this).attr('value'));
+		});
+		var datasource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.whitespace,
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			local: values
+		});
+		function datasourceWithDefaults(q, sync){
+			if(q === ''){
+				sync(values);
+			} else {
+				datasource.search(q, sync);
+			}
+		}
+		$(this).typeahead({
+			minLength: 0,
+			highlight: true,
+			hint: true
+		}, {
+			name: 'datalist',
+			source: datasourceWithDefaults
+		});
+		$(this).removeAttr('list');
+		$('datalist#'+listId).remove();
+	});
+
+	/*
 	 * HTML Editor
 	 */
 	$('.wysiwyg').each(function(){

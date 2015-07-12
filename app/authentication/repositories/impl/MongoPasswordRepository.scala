@@ -21,12 +21,10 @@ object MongoPasswordRepository extends PasswordRepository {
   implicit val formatPasswordInfo = Json.format[PasswordInfo]
 
   def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] = {
-    play.Logger.info("find PasswordInfo for LoginInfo: " + loginInfo)
     collection.find(Json.obj("loginInfo" -> loginInfo)).one[JsValue].map(_.map(json => (json \ "passwordInfo").as[PasswordInfo]))
   }
 
   def save(loginInfo: LoginInfo, passwordInfo: PasswordInfo): Future[PasswordInfo] = {
-    play.Logger.info("save PasswordInfo: " + passwordInfo + " for " + loginInfo)
     collection.save(Json.obj("loginInfo" -> loginInfo, "passwordInfo" -> passwordInfo)).map { err =>
       passwordInfo
     }

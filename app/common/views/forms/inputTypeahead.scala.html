@@ -1,0 +1,14 @@
+@import common.views._
+@(field: Field, datalist: List[String], args: (Symbol, String)*)
+<input
+  type="@Helpers.getArg(args, "type", "text")"
+  class="form-control typeahead @Helpers.getArg(args, "class")"
+  name="@field.name"
+  id="@field.id"
+  list="@field.id-list"
+  value="@field.value"
+  @Helpers.toHtmlArgs(args, Seq("type", "class"))
+  @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>
+<datalist id="@field.id-list">
+	@datalist.map{v=><option value="@v">}
+</datalist>
