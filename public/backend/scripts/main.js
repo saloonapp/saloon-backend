@@ -205,4 +205,36 @@ $(document).ready(function(){
 	function cleanCloudinaryUrl(url){
 		return url.replace(new RegExp('(.*/upload/).*(v[0-9].*)', 'gi'), '$1$2');
 	}
+
+	/*
+	 * Notifications (flash messages)
+	 */
+	$('.notification-container .alert').each(function(){
+        var message = $(this).find('span.message').text();
+        var type = $(this).hasClass('alert-success') ? 'success' : 'inverse';
+        notify(message, type);
+    });
+    function notify(message, type){
+        $.growl({
+            message: message
+        },{
+            type: type,
+            allow_dismiss: true,
+            label: 'Cancel',
+            className: 'btn-xs btn-inverse',
+            placement: {
+                from: 'top',
+                align: 'right'
+            },
+            delay: 25000,
+            animate: {
+                enter: 'animated bounceIn',
+                exit: 'animated bounceOut'
+            },
+            offset: {
+                x: 20,
+                y: 70
+            }
+        });
+    }
 });
