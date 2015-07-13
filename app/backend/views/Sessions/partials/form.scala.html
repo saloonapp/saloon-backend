@@ -16,7 +16,7 @@
 @fieldHorizontal(sessionForm("format"), 'label -> "Catégories"){field => 
 	<div class="row">
 		<div class="col-md-6"><div class="fg-line">@inputTypeahead(field, formats, 'placeholder -> "Format (ex: Quickie)")</div><p class="help-block">Format / Type de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p></div>
-		<div class="col-md-6"><div class="fg-line">@inputTypeahead(sessionForm("category"), categories, 'placeholder -> "Thème (ex: Web)")</div><p class="help-block">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p></div>
+		<div class="col-md-6"><div class="fg-line">@inputTypeahead(sessionForm("theme"), categories, 'placeholder -> "Thème (ex: Web)")</div><p class="help-block">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p></div>
 	</div>
 }
 @fieldHorizontal(sessionForm("descriptionHTML"), 'label -> "Description"){field => @inputWysiwyg(field, 'placeholder -> "ex: Le développement d'applications Javascript est étroitement lié à la programmation événementiel : du DOM à Node.js, Backbone, React ou Angular, la gestion des événements est centrale. Pour traiter ces flux de données asynchrones, les concepts de FRP sont particulièrement puissants.")}

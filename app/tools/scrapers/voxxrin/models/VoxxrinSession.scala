@@ -31,7 +31,7 @@ case class VoxxrinSession(
   nextId: Option[String],
   previousId: Option[String],
   uri: String) {
-  def toSession(eventId: String, sessionId: String = Repository.generateUuid()): Session = {
+  /*def toSession(eventId: String, sessionId: String = Repository.generateUuid()): Session = {
     Session(
       sessionId,
       eventId,
@@ -52,7 +52,7 @@ case class VoxxrinSession(
         Some(DataSource(this.id, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
         new DateTime(),
         new DateTime()))
-  }
+  }*/
 }
 object VoxxrinSession {
   implicit val format = Json.format[VoxxrinSession]

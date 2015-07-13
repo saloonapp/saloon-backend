@@ -2,8 +2,6 @@ package common.models.event
 
 import play.api.data.Forms._
 
-case class AttendeeRegistrationQuestion(question: String, multiple: Boolean, otherAllowed: Boolean, answers: List[String])
-case class AttendeeRegistrationSurvey(questions: List[AttendeeRegistrationQuestion])
 case class AttendeeRegistrationAnswerChecked(answer: String, checked: Boolean)
 case class AttendeeRegistrationAnswer(question: String, answers: List[AttendeeRegistrationAnswerChecked], answer: String, multiple: Boolean, otherAllowed: Boolean, other: String)
 case class AttendeeRegistration(
@@ -38,7 +36,7 @@ object AttendeeRegistration {
       "otherAllowed" -> boolean,
       "other" -> text)(AttendeeRegistrationAnswer.apply)(AttendeeRegistrationAnswer.unapply)))(AttendeeRegistration.apply)(AttendeeRegistration.unapply)
 
-  def prepare(survey: AttendeeRegistrationSurvey): AttendeeRegistration =
+  def prepare(survey: EventConfigAttendeeSurvey): AttendeeRegistration =
     AttendeeRegistration(
       "",
       "",

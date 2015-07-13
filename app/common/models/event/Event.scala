@@ -10,6 +10,47 @@ import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
+import org.jsoup.Jsoup
+
+case class EventConfigOld(
+  branding: Option[EventConfigBranding],
+  published: Boolean)
+case class EventOld(
+  uuid: String,
+  name: String,
+  description: String,
+  images: EventImages,
+  info: EventInfo,
+  email: EventEmail,
+  config: EventConfigOld,
+  meta: EventMeta) {
+  def transform(): Event = Event(
+    this.uuid,
+    "",
+    this.name,
+    Jsoup.parse(this.description).text(),
+    this.description,
+    this.images,
+    this.info,
+    this.email,
+    EventConfig(
+      this.config.branding,
+      Map(),
+      None,
+      this.config.published),
+    this.meta)
+}
+object EventOld {
+  implicit val formatEventImages = Json.format[EventImages]
+  implicit val formatEventInfoSocialTwitter = Json.format[EventInfoSocialTwitter]
+  implicit val formatEventInfoSocial = Json.format[EventInfoSocial]
+  implicit val formatEventInfo = Json.format[EventInfo]
+  implicit val formatEventEmail = Json.format[EventEmail]
+  implicit val formatEventConfigBranding = Json.format[EventConfigBranding]
+  implicit val formatEventConfig = Json.format[EventConfigOld]
+  implicit val formatEventMeta = Json.format[EventMeta]
+  implicit val format = Json.format[EventOld]
+}
 
 case class EventImages(
   logo: String, // squared logo of event (~ 100x100)
@@ -33,8 +74,19 @@ case class EventConfigBranding(
   secondaryColor: String,
   dailySessionMenu: List[String],
   exponentMenu: List[String])
+case class EventConfigAttendeeSurveyQuestion(
+  question: String,
+  multiple: Boolean,
+  required: Boolean,
+  otherAllowed: Boolean,
+  answers: List[String])
+case class EventConfigAttendeeSurvey(
+  fields: List[String],
+  questions: List[EventConfigAttendeeSurveyQuestion])
 case class EventConfig(
   branding: Option[EventConfigBranding],
+  options: Map[String, Boolean],
+  attendeeSurvey: Option[EventConfigAttendeeSurvey],
   published: Boolean)
 case class EventMeta(
   categories: List[String],
@@ -44,15 +96,17 @@ case class EventMeta(
   updated: DateTime)
 case class Event(
   uuid: String,
+  ownerId: String, // Organization uuid
   name: String,
   description: String,
+  descriptionHTML: String,
   images: EventImages,
   info: EventInfo,
   email: EventEmail,
   config: EventConfig,
   meta: EventMeta) extends EventItem {
-  def toMap(): Map[String, String] = Event.toMap(this)
   def merge(e: Event): Event = Event.merge(this, e)
+  //def toMap(): Map[String, String] = Event.toMap(this)
 }
 object Event {
   val className = "events"
@@ -62,12 +116,59 @@ object Event {
   implicit val formatEventInfo = Json.format[EventInfo]
   implicit val formatEventEmail = Json.format[EventEmail]
   implicit val formatEventConfigBranding = Json.format[EventConfigBranding]
+  implicit val formatEventConfigAttendeeSurveyQuestion = Json.format[EventConfigAttendeeSurveyQuestion]
+  implicit val formatEventConfigAttendeeSurvey = Json.format[EventConfigAttendeeSurvey]
   implicit val formatEventConfig = Json.format[EventConfig]
   implicit val formatEventMeta = Json.format[EventMeta]
   implicit val format = Json.format[Event]
-  private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)
 
-  def fromMap(d: Map[String, String]): Try[Event] =
+  def merge(e1: Event, e2: Event): Event = Event(
+    e1.uuid,
+    e1.ownerId,
+    merge(e1.name, e2.name),
+    merge(e1.description, e2.description),
+    merge(e1.descriptionHTML, e2.descriptionHTML),
+    merge(e1.images, e2.images),
+    merge(e1.info, e2.info),
+    merge(e1.email, e2.email),
+    merge(e1.config, e2.config),
+    merge(e1.meta, e2.meta))
+  private def merge(e1: EventImages, e2: EventImages): EventImages = EventImages(
+    merge(e1.logo, e2.logo),
+    merge(e1.landing, e2.landing))
+  private def merge(e1: EventInfo, e2: EventInfo): EventInfo = EventInfo(
+    merge(e1.website, e2.website),
+    merge(e1.start, e2.start),
+    merge(e1.end, e2.end),
+    merge(e1.address, e2.address),
+    merge(e1.price, e2.price),
+    merge(e1.social, e2.social))
+  private def merge(e1: EventInfoSocial, e2: EventInfoSocial): EventInfoSocial = EventInfoSocial(
+    merge(e1.twitter, e2.twitter))
+  private def merge(e1: EventInfoSocialTwitter, e2: EventInfoSocialTwitter): EventInfoSocialTwitter = EventInfoSocialTwitter(
+    merge(e1.hashtag, e2.hashtag),
+    merge(e1.account, e2.account))
+  private def merge(e1: EventEmail, e2: EventEmail): EventEmail = EventEmail(
+    merge(e1.reportMessageHtml, e2.reportMessageHtml))
+  private def merge(e1: EventConfig, e2: EventConfig): EventConfig = EventConfig(
+    merge(e1.branding, e2.branding),
+    merge(e1.options, e2.options),
+    merge(e1.attendeeSurvey, e2.attendeeSurvey),
+    e2.published)
+  private def merge(e1: EventMeta, e2: EventMeta): EventMeta = EventMeta(
+    merge(e1.categories, e2.categories),
+    merge(e1.refreshUrl, e2.refreshUrl),
+    merge(e1.source, e2.source),
+    e1.created,
+    e2.updated)
+  private def merge(e1: Link, e2: Link): Link = if (e2.label.isEmpty && e2.url.isEmpty) e1 else e2
+  private def merge(e1: Address, e2: Address): Address = if (e2.name.isEmpty && e2.street.isEmpty && e2.zipCode.isEmpty && e2.city.isEmpty) e1 else e2
+  private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
+  private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
+  private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
+  private def merge[A, B](e1: Map[A, B], e2: Map[A, B]): Map[A, B] = if (e2.isEmpty) e1 else e2
+
+  /*def fromMap(d: Map[String, String]): Try[Event] =
     Try(Event(
       d.get("uuid").flatMap(u => if (u.isEmpty) None else Some(u)).getOrElse(Repository.generateUuid()),
       d.get("name").get,
@@ -140,46 +241,7 @@ object Event {
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
 
-  def merge(e1: Event, e2: Event): Event = Event(
-    e1.uuid,
-    merge(e1.name, e2.name),
-    merge(e1.description, e2.description),
-    merge(e1.images, e2.images),
-    merge(e1.info, e2.info),
-    merge(e1.email, e2.email),
-    merge(e1.config, e2.config),
-    merge(e1.meta, e2.meta))
-  private def merge(e1: EventImages, e2: EventImages): EventImages = EventImages(
-    merge(e1.logo, e2.logo),
-    merge(e1.landing, e2.landing))
-  private def merge(e1: EventInfo, e2: EventInfo): EventInfo = EventInfo(
-    merge(e1.website, e2.website),
-    merge(e1.start, e2.start),
-    merge(e1.end, e2.end),
-    merge(e1.address, e2.address),
-    merge(e1.price, e2.price),
-    merge(e1.social, e2.social))
-  private def merge(e1: EventInfoSocial, e2: EventInfoSocial): EventInfoSocial = EventInfoSocial(
-    merge(e1.twitter, e2.twitter))
-  private def merge(e1: EventInfoSocialTwitter, e2: EventInfoSocialTwitter): EventInfoSocialTwitter = EventInfoSocialTwitter(
-    merge(e1.hashtag, e2.hashtag),
-    merge(e1.account, e2.account))
-  private def merge(e1: EventEmail, e2: EventEmail): EventEmail = EventEmail(
-    merge(e1.reportMessageHtml, e2.reportMessageHtml))
-  private def merge(e1: EventConfig, e2: EventConfig): EventConfig = EventConfig(
-    merge(e1.branding, e2.branding),
-    e2.published)
-  private def merge(e1: EventMeta, e2: EventMeta): EventMeta = EventMeta(
-    merge(e1.categories, e2.categories),
-    merge(e1.refreshUrl, e2.refreshUrl),
-    merge(e1.source, e2.source),
-    e1.created,
-    e2.updated)
-  private def merge(e1: Link, e2: Link): Link = if (e2.label.isEmpty && e2.url.isEmpty) e1 else e2
-  private def merge(e1: Address, e2: Address): Address = if (e2.name.isEmpty && e2.street.isEmpty && e2.zipCode.isEmpty && e2.city.isEmpty) e1 else e2
-  private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
-  private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
-  private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
+  private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)*/
 }
 
 // mapping object for Event Form
@@ -196,8 +258,10 @@ case class EventMetaData(
   refreshUrl: Option[String],
   source: Option[DataSource])
 case class EventData(
+  ownerId: String,
   name: String,
   description: String,
+  descriptionHTML: String,
   images: EventImages,
   info: EventInfo,
   email: EventEmail,
@@ -205,8 +269,10 @@ case class EventData(
   meta: EventMetaData)
 object EventData {
   val fields = mapping(
+    "ownerId" -> nonEmptyText,
     "name" -> nonEmptyText,
     "description" -> text,
+    "descriptionHTML" -> text,
     "images" -> mapping(
       "logo" -> text,
       "landing" -> text)(EventImages.apply)(EventImages.unapply),
@@ -238,13 +304,13 @@ object EventData {
   def toModel(d: EventInfoSocial): EventInfoSocial = d.copy(twitter = toModel(d.twitter))
   def toModel(d: EventInfo): EventInfo = d.copy(social = toModel(d.social))
   def toModel(d: EventConfigBrandingData): EventConfigBranding = EventConfigBranding(d.primaryColor, d.secondaryColor, Utils.toList(d.dailySessionMenu), Utils.toList(d.exponentMenu))
-  def toModel(d: EventConfigData): EventConfig = EventConfig(d.branding.map(b => toModel(b)), d.published)
+  def toModel(d: EventConfigData): EventConfig = EventConfig(d.branding.map(b => toModel(b)), Map(), None, d.published)
   def toModel(d: EventMetaData): EventMeta = EventMeta(d.categories, d.refreshUrl, d.source, new DateTime(), new DateTime())
-  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.name, d.description, d.images, toModel(d.info), d.email, toModel(d.config), toModel(d.meta))
+  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.ownerId, d.name, d.description, d.descriptionHTML, d.images, toModel(d.info), d.email, toModel(d.config), toModel(d.meta))
   def fromModel(d: EventConfigBranding): EventConfigBrandingData = EventConfigBrandingData(d.primaryColor, d.secondaryColor, Utils.fromList(d.dailySessionMenu), Utils.fromList(d.exponentMenu))
   def fromModel(d: EventConfig): EventConfigData = EventConfigData(d.branding.map(b => fromModel(b)), d.published)
   def fromModel(d: EventMeta): EventMetaData = EventMetaData(d.categories, d.refreshUrl, d.source)
-  def fromModel(d: Event): EventData = EventData(d.name, d.description, d.images, d.info, d.email, fromModel(d.config), fromModel(d.meta))
+  def fromModel(d: Event): EventData = EventData(d.ownerId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.email, fromModel(d.config), fromModel(d.meta))
   def merge(m: EventMeta, d: EventMetaData): EventMeta = toModel(d).copy(source = m.source, created = m.created)
-  def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, meta = merge(m.meta, d.meta))
+  def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, ownerId = m.ownerId, meta = merge(m.meta, d.meta))
 }

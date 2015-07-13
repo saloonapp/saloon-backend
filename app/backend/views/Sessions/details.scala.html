@@ -17,7 +17,7 @@
 				@if(session.info.start.isDefined && session.info.end.isEmpty){à @session.info.start.get.toString("hh'h'mm")}
 				@if(session.info.start.isEmpty && session.info.end.isDefined){jusqu'à @session.info.end.get.toString("hh'h'mm")}
 				@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
-				@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
+				@if(!session.info.theme.isEmpty){<span class="label label-danger">@session.info.theme</span>}
 			</small>
 		</h2>
 		<ul class="actions">
@@ -38,7 +38,7 @@
 			<div class="pmb-block">
 				<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 				<div class="p-l-30">
-					@Html(session.description)
+					@Html(session.descriptionHTML)
 				</div>
 			</div>
 			@if(sessionSpeakers.length > 0){

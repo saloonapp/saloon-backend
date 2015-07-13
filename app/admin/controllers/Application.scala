@@ -29,12 +29,13 @@ object Application extends SilhouetteEnvironment {
     Ok(admin.views.html.sample())
   }
 
-  def migrate = TODO
-  /*def migrate = Action.async {
+  //def migrate = TODO
+  def migrate = Action.async {
     for {
       m1 <- migrateEvents()
-      m2 <- migrateSessions()
+      m2 <- migrateAttendees()
       m3 <- migrateExponents()
+      m4 <- migrateSessions()
     } yield {
       Redirect(routes.Application.index).flashing("success" -> "Migrated !")
     }
@@ -44,15 +45,20 @@ object Application extends SilhouetteEnvironment {
       EventRepository.update(e.uuid, e.transform())
     }))
   }
-  private def migrateSessions(): Future[List[Option[Session]]] = {
-    SessionRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
-      SessionRepository.update(e.uuid, e.transform())
+  private def migrateAttendees(): Future[List[Option[Attendee]]] = {
+    AttendeeRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
+      AttendeeRepository.update(e.uuid, e.transform())
     }))
   }
   private def migrateExponents(): Future[List[Option[Exponent]]] = {
     ExponentRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       ExponentRepository.update(e.uuid, e.transform())
     }))
-  }*/
+  }
+  private def migrateSessions(): Future[List[Option[Session]]] = {
+    SessionRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
+      SessionRepository.update(e.uuid, e.transform())
+    }))
+  }
 
 }

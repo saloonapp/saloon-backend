@@ -48,7 +48,7 @@
 					<div class="media media-avatar">
 						<div class="pull-left"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@avatar(exponent.images.logo, exponent.name, 'class->"media-object")</a></div>
 						<div class="media-body">
-							<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a> @if(exponent.info.sponsor){<span class="label label-danger">Sponsor</span>}</h4>
+							<h4 class="media-heading"><a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)">@exponent.name</a> @exponent.info.sponsorLevel.map{l => <span class="label label-danger">Sponsor</span>}</h4>
 							@if(!exponent.info.place.isEmpty){<i class="md md-location-on"></i> @exponent.info.place}
 							@if(!exponent.info.website.isEmpty){<a href="@exponent.info.website" target="_blank"><i class="md md-link"></i></a>}
 							@if(exponent.config.scanQRCode){

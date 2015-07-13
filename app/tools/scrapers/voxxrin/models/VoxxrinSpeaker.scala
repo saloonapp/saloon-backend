@@ -27,7 +27,7 @@ case class VoxxrinSpeaker(
   __href: Option[String],
   lastmodified: Option[Long]) {
   def merge(s: VoxxrinSpeaker)(implicit w: Format[VoxxrinSpeaker]): VoxxrinSpeaker = (Json.toJson(this).as[JsObject] ++ Json.toJson(s).as[JsObject]).as[VoxxrinSpeaker]
-  def toSpeaker(eventId: String): Attendee =
+  /*def toSpeaker(eventId: String): Attendee =
     Attendee(
       Repository.generateUuid(),
       eventId,
@@ -49,7 +49,7 @@ case class VoxxrinSpeaker(
       AttendeeMeta(
         Some(DataSource(this.name, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
         new DateTime(),
-        new DateTime()))
+        new DateTime()))*/
 }
 object VoxxrinSpeaker {
   implicit val format = Json.format[VoxxrinSpeaker]

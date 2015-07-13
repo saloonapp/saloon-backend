@@ -32,7 +32,7 @@
 					<a href="@admin.controllers.routes.Events.reportsPreview(event.uuid)" class="btn btn-success">Prévisualiser les emails bilan</a>
 				</div>
 			</div>
-			<div class="widget">
+			@*<div class="widget">
 				<div class="widget-header">Exporter les données</div>
 				<div class="widget-body">
 					<form method="POST" action="@admin.controllers.routes.Attendees.fileExport(event.uuid)">
@@ -47,9 +47,9 @@
 						<button type="submit" class="btn btn-success">Exporter les exposants (.csv)</button>
 					</form>
 				</div>
-			</div>
+			</div>*@
 		</div>
-		<div class="col-md-6">
+		@*<div class="col-md-6">
 			<div class="alert alert-success" role="alert">
 				Les fichiers importés doivent être au format <b>.csv</b> avec une ligne d'en-tête et le séparateur ';'<br>
 				Les dates doivent être formatées comme suit : <b>@FileImporter.datePattern</b><br>
@@ -100,6 +100,6 @@
 					</form>
 				</div>
 			</div>
-		</div>
+		</div>*@
 	</div>
 }

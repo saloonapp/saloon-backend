@@ -42,7 +42,7 @@ import org.joda.time.DateTime
 
 object RivieraDev extends Controller {
 
-  case class RivieraDevEvent(name: String, description: String, logoUrl: String, siteUrl: String, start: Option[DateTime], end: Option[DateTime], address: Address, price: String, priceUrl: String, twitterAccount: Option[String], tags: List[String]) {
+  /*case class RivieraDevEvent(name: String, description: String, logoUrl: String, siteUrl: String, start: Option[DateTime], end: Option[DateTime], address: Address, price: String, priceUrl: String, twitterAccount: Option[String], tags: List[String]) {
     def toEvent(): Event = Event(Repository.generateUuid(), this.name, this.description, EventImages(this.logoUrl, ""), EventInfo(this.siteUrl, this.start, this.end, this.address, Link(this.price, this.priceUrl), EventInfoSocial(EventInfoSocialTwitter(None, this.twitterAccount))), EventEmail(None), EventConfig(None, true), EventMeta(List(), Some("/api/v1/tools/scrapers/events/rivieradev/formated"), Some(DataSource(this.name, "RivieraDev API", "http://www.rivieradev.fr/apiv1/general")), new DateTime(), new DateTime()))
   }
   case class RivieraDevAttendee(name: String, description: String, company: Option[String], avatar: String, profilUrl: Option[String], social: AttendeeSocial) {
@@ -89,6 +89,6 @@ object RivieraDev extends Controller {
         "sessions" -> sessions,
         "exponents" -> exponents))
     }
-  }
+  }*/
 
 }

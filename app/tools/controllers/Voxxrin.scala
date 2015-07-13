@@ -12,7 +12,7 @@ import play.api.libs.json._
 
 object Voxxrin extends Controller {
 
-  def getEvents() = Action.async {
+  /*def getEvents() = Action.async {
     VoxxrinApi.getEvents().map { res =>
       Ok(Json.toJson(res))
     }
@@ -73,6 +73,6 @@ object Voxxrin extends Controller {
         Ok(Json.obj("message" -> s"Event $eventId saved in DB (${sessionsSaved} sessions)"))
       }
     }
-  }
+  }*/
 
 }

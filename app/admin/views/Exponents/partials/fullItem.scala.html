@@ -13,7 +13,7 @@
 		<p class="well">@textMultiline(exponent.description)</p>
 		<p class="text-muted">
 			@exponent.info.place |
-			niveau: @exponent.info.level.map(_.toString).getOrElse("") @if(exponent.info.sponsor){ + sponsor } |
+			@exponent.info.sponsorLevel.map{l => sponsor niveau @l.toString}.getOrElse("") |
 			@if(!exponent.info.website.isEmpty) { <a href="@exponent.info.website" target="_blank"><i class="fa fa-link"></i></a> }
 		</p>
 		@exponentTeam.map { speaker => @admin.views.html.Attendees.partials.listItem(speaker) }

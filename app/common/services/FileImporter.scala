@@ -21,7 +21,7 @@ object FileImporter {
   val datePattern = "dd/MM/yyyy HH:mm"
   val dateFormat = DateTimeFormat.forPattern(datePattern)
 
-  def importAttendees(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
+  /*def importAttendees(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
     importData(Attendee.fromMap(eventId), () => AttendeeRepository.deleteByEvent(eventId).map(_.ok), AttendeeRepository.bulkInsert)(importedFile, cfg)
   }
 
@@ -31,7 +31,7 @@ object FileImporter {
 
   def importExponents(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {
     importData(Exponent.fromMap(eventId), () => ExponentRepository.deleteByEvent(eventId).map(_.ok), ExponentRepository.bulkInsert)(importedFile, cfg)
-  }
+  }*/
 
   private def importData[T](formatData: Map[String, String] => Try[T], deleteOld: () => Future[Boolean], bulkInsert: List[T] => Future[Int])(importedFile: Reader, cfg: FileImportConfig): Future[(Int, List[String])] = {
     val lines = CSVReader.open(importedFile).allWithHeaders().map { _.map { case (key, value) => (key, value.replace("\\r", "\r").replace("\\n", "\n")) } }

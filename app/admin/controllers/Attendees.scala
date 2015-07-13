@@ -126,7 +126,7 @@ object Attendees extends SilhouetteEnvironment {
   }
 
   // TODO : add preview of updates
-  def fileImport(eventId: String) = SecuredAction.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
+  /*def fileImport(eventId: String) = SecuredAction.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         fileImportForm.bindFromRequest.fold(
@@ -159,5 +159,5 @@ object Attendees extends SilhouetteEnvironment {
         }
       }.getOrElse(Future(NotFound(admin.views.html.error404())))
     }
-  }
+  }*/
 }

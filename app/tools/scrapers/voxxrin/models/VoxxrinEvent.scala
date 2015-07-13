@@ -41,7 +41,7 @@ case class VoxxrinEvent(
   schedule: Option[List[VoxxrinSession]],
   enabled: Boolean,
   lastmodified: Long) {
-  def toEvent(eventId: String = Repository.generateUuid()): (Event, List[Session]) = {
+  /*def toEvent(eventId: String = Repository.generateUuid()): (Event, List[Session]) = {
     val event = Event(
       eventId,
       this.title,
@@ -68,7 +68,7 @@ case class VoxxrinEvent(
     }.getOrElse(List[Session]())
 
     (event, sessions)
-  }
+  }*/
 }
 object VoxxrinEvent {
   implicit val format = Json.format[VoxxrinEvent]

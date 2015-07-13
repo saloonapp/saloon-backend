@@ -29,7 +29,7 @@
 @metaInfos(session: Session) = {
 	@timeOpt(session.info.start)-@timeOpt(session.info.end)
 	@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
-	@if(!session.info.category.isEmpty){<span class="label label-danger">@session.info.category</span>}
+	@if(!session.info.theme.isEmpty){<span class="label label-danger">@session.info.theme</span>}
 }
 @layout("Sessions pour "+event.name, "Sessions", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
 	<div class="card">
