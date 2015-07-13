@@ -12,46 +12,6 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
 
-case class EventConfigOld(
-  branding: Option[EventConfigBranding],
-  published: Boolean)
-case class EventOld(
-  uuid: String,
-  name: String,
-  description: String,
-  images: EventImages,
-  info: EventInfo,
-  email: EventEmail,
-  config: EventConfigOld,
-  meta: EventMeta) {
-  def transform(): Event = Event(
-    this.uuid,
-    "",
-    this.name,
-    Jsoup.parse(this.description).text(),
-    this.description,
-    this.images,
-    this.info,
-    this.email,
-    EventConfig(
-      this.config.branding,
-      Map(),
-      None,
-      this.config.published),
-    this.meta)
-}
-object EventOld {
-  implicit val formatEventImages = Json.format[EventImages]
-  implicit val formatEventInfoSocialTwitter = Json.format[EventInfoSocialTwitter]
-  implicit val formatEventInfoSocial = Json.format[EventInfoSocial]
-  implicit val formatEventInfo = Json.format[EventInfo]
-  implicit val formatEventEmail = Json.format[EventEmail]
-  implicit val formatEventConfigBranding = Json.format[EventConfigBranding]
-  implicit val formatEventConfig = Json.format[EventConfigOld]
-  implicit val formatEventMeta = Json.format[EventMeta]
-  implicit val format = Json.format[EventOld]
-}
-
 case class EventImages(
   logo: String, // squared logo of event (~ 100x100)
   landing: String) // landscape img for event (in info screen) (~ 400x150)

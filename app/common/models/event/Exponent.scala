@@ -10,44 +10,6 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
 
-case class ExponentInfoOld(
-  website: String,
-  place: String,
-  team: List[String],
-  level: Option[Int],
-  sponsor: Boolean)
-case class ExponentOld(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  images: ExponentImages,
-  info: ExponentInfoOld,
-  config: ExponentConfig,
-  meta: ExponentMeta) {
-  def transform(): Exponent = Exponent(
-    this.uuid,
-    this.eventId,
-    this.name,
-    Jsoup.parse(this.description).text(),
-    this.description,
-    this.images,
-    ExponentInfo(
-      this.info.website,
-      this.info.place,
-      this.info.team,
-      if (this.info.sponsor) { Some(this.info.level.getOrElse(1)) } else { None }),
-    this.config,
-    this.meta)
-}
-object ExponentOld {
-  implicit val formatExponentImages = Json.format[ExponentImages]
-  implicit val formatExponentInfo = Json.format[ExponentInfoOld]
-  implicit val formatExponentConfig = Json.format[ExponentConfig]
-  implicit val formatExponentMeta = Json.format[ExponentMeta]
-  implicit val format = Json.format[ExponentOld]
-}
-
 case class ExponentImages(
   logo: String, // squared logo (~ 100x100)
   landing: String) // landscape img (~ 400x150)

@@ -11,46 +11,6 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
 
-case class AttendeeInfoOld(
-  role: String,
-  job: String,
-  company: String,
-  website: Option[String])
-case class AttendeeOld(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  images: AttendeeImages,
-  info: AttendeeInfoOld,
-  social: AttendeeSocial,
-  meta: AttendeeMeta) {
-  def transform(): Attendee = Attendee(
-    this.uuid,
-    this.eventId,
-    this.name,
-    Jsoup.parse(this.description).text(),
-    this.description,
-    this.images,
-    AttendeeInfo(
-      this.info.role,
-      "", this.name.split(" ").head, this.name.split(" ").tail.mkString(" "), None, "", "", Address("", "", "", ""),
-      this.info.job,
-      this.info.company,
-      this.info.website),
-    None,
-    this.social,
-    List(),
-    this.meta)
-}
-object AttendeeOld {
-  implicit val formatAttendeeImages = Json.format[AttendeeImages]
-  implicit val formatAttendeeInfoOld = Json.format[AttendeeInfoOld]
-  implicit val formatAttendeeSocial = Json.format[AttendeeSocial]
-  implicit val formatAttendeeMeta = Json.format[AttendeeMeta]
-  implicit val format = Json.format[AttendeeOld]
-}
-
 case class AttendeeImages(
   avatar: String)
 case class AttendeeInfo(

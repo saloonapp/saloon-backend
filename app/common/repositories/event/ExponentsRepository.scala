@@ -2,7 +2,6 @@ package common.repositories.event
 
 import common.models.utils.Page
 import common.models.event.Exponent
-import common.models.event.ExponentOld
 import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
@@ -22,7 +21,7 @@ trait MongoDbExponentRepository extends Repository[Exponent] {
 
   private val crud = MongoDbCrudUtils(collection, Exponent.format, List("name", "description", "info.place", "info.team.name", "info.team.description", "info.team.company"), "uuid")
 
-  def findAllOld(): Future[List[ExponentOld]] = collection.find(Json.obj()).cursor[ExponentOld].collect[List]()
+  //def findAllOld(): Future[List[ExponentOld]] = collection.find(Json.obj()).cursor[ExponentOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Exponent]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Exponent]] = crud.findPage(query, page, pageSize, sort, filter)
   override def getByUuid(uuid: String): Future[Option[Exponent]] = crud.getByUuid(uuid)

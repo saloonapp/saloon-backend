@@ -10,48 +10,6 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
 
-case class SessionInfoOld(
-  format: String,
-  category: String,
-  place: String,
-  start: Option[DateTime],
-  end: Option[DateTime],
-  speakers: List[String],
-  slides: Option[String],
-  video: Option[String])
-case class SessionOld(
-  uuid: String,
-  eventId: String,
-  name: String,
-  description: String,
-  images: SessionImages,
-  info: SessionInfoOld,
-  meta: SessionMeta) {
-  def transform(): Session = Session(
-    this.uuid,
-    this.eventId,
-    this.name,
-    Jsoup.parse(this.description).text(),
-    this.description,
-    this.images,
-    SessionInfo(
-      this.info.format,
-      this.info.category,
-      this.info.place,
-      this.info.start,
-      this.info.end,
-      this.info.speakers,
-      this.info.slides,
-      this.info.video),
-    this.meta)
-}
-object SessionOld {
-  implicit val formatSessionImages = Json.format[SessionImages]
-  implicit val formatSessionInfo = Json.format[SessionInfoOld]
-  implicit val formatSessionMeta = Json.format[SessionMeta]
-  implicit val format = Json.format[SessionOld]
-}
-
 case class SessionImages(
   landing: String) // landscape img (~ 400x150)
 case class SessionInfo(

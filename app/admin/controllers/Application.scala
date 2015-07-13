@@ -29,8 +29,8 @@ object Application extends SilhouetteEnvironment {
     Ok(admin.views.html.sample())
   }
 
-  //def migrate = TODO
-  def migrate = Action.async {
+  def migrate = TODO
+  /*def migrate = Action.async {
     for {
       m1 <- migrateEvents()
       m2 <- migrateAttendees()
@@ -59,6 +59,6 @@ object Application extends SilhouetteEnvironment {
     SessionRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       SessionRepository.update(e.uuid, e.transform())
     }))
-  }
+  }*/
 
 }

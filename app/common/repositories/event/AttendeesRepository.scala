@@ -2,7 +2,6 @@ package common.repositories.event
 
 import common.models.utils.Page
 import common.models.event.Attendee
-import common.models.event.AttendeeOld
 import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
@@ -22,7 +21,7 @@ trait MongoDbAttendeeRepository extends Repository[Attendee] {
 
   private val crud = MongoDbCrudUtils(collection, Attendee.format, List("name", "description", "info.website", "info.company", "info.job", "info.role", "social.blogUrl", "social.facebookUrl", "social.twitterUrl", "social.linkedinUrl", "social.githubUrl"), "uuid")
 
-  def findAllOld(): Future[List[AttendeeOld]] = collection.find(Json.obj()).cursor[AttendeeOld].collect[List]()
+  //def findAllOld(): Future[List[AttendeeOld]] = collection.find(Json.obj()).cursor[AttendeeOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Attendee]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Attendee]] = crud.findPage(query, page, pageSize, sort, filter)
   override def getByUuid(uuid: String): Future[Option[Attendee]] = crud.getByUuid(uuid)
