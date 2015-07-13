@@ -32,7 +32,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>@if(!App.isProd()){(@App.getEnv()) }Connexion à l'administration SalooN</title>
+	<title>@if(!App.isProd()){(@App.getEnv()) }Inscription à @event.name</title>
 	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
 
 	<link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
@@ -64,11 +64,11 @@
 								<div class="col-sm-2">@fieldFloating(registerForm("genre"), 'label->"Genre", 'constraints->"false"){field => @inputSelect2(registerForm("genre"), Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")}</div>
 								<div class="col-sm-4">@fieldFloating(registerForm("firstName"), 'label->"Prénom", 'constraints->"false"){field => @inputText(field)}</div>
 								<div class="col-sm-4">@fieldFloating(registerForm("lastName"), 'label->"Nom", 'constraints->"false"){field => @inputText(field)}</div>
-								<div class="col-sm-2">@fieldFloating(registerForm("birthYear"), 'label->"Année de naissance", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-2">@fieldFloating(registerForm("birthYear"), 'label->"Année de naissance", 'constraints->"false"){field => @inputText(field, 'type->"number")}</div>
 							</div>
 							<div class="row">
-								<div class="col-sm-8">@fieldFloating(registerForm("email"), 'label->"Email", 'constraints->"false"){field => @inputText(field)}</div>
-								<div class="col-sm-4">@fieldFloating(registerForm("phone"), 'label->"Téléphone portable", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-8">@fieldFloating(registerForm("email"), 'label->"Email", 'constraints->"false"){field => @inputText(field, 'type->"email")}</div>
+								<div class="col-sm-4">@fieldFloating(registerForm("phone"), 'label->"Téléphone portable", 'constraints->"false"){field => @inputText(field, 'type->"number")}</div>
 							</div>
 							<div class="row">
 								<div class="col-sm-6">@fieldFloating(registerForm("street"), 'label->"Adresse", 'constraints->"false"){field => @inputText(field)}</div>

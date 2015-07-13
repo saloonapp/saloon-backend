@@ -1,0 +1,19 @@
+.feature {
+	img {
+		height: 125px;
+		display: block;
+		margin: auto;
+	}
+	h2 {
+		font-size: 18px;
+		text-align: center;
+		small {
+			display: block;
+		}
+	}
+	&.inactive:not(:hover) {
+		img {
+			.dessaturate;
+		}
+	}
+}
