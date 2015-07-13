@@ -2,6 +2,9 @@ package backend.controllers
 
 import common.models.user.User
 import common.models.user.UserInfo
+import common.models.event.AttendeeRegistration
+import common.models.event.AttendeeRegistrationSurvey
+import common.models.event.AttendeeRegistrationQuestion
 import common.repositories.event.EventRepository
 import common.services.EventSrv
 import backend.forms.EventCreateData
@@ -15,6 +18,7 @@ import com.mohiva.play.silhouette.core.LoginInfo
 
 object Events extends SilhouetteEnvironment {
   val createForm: Form[EventCreateData] = Form(EventCreateData.fields)
+  val registerForm: Form[AttendeeRegistration] = Form(AttendeeRegistration.fields)
 
   def list = SecuredAction.async { implicit req =>
     implicit val user = req.identity
@@ -105,4 +109,33 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
+  val survey: AttendeeRegistrationSurvey = AttendeeRegistrationSurvey(List(
+    AttendeeRegistrationQuestion(question = "Niveau de formation", multiple = false, otherAllowed = false, answers = List("Bac / Bac+1", "Bac+2", "Bac+3", "Bac+4/5 et +")),
+    AttendeeRegistrationQuestion(question = "Diplôme", multiple = true, otherAllowed = true, answers = List("IADE", "IBODE", "IDE", "Masseur Kinésithérapeute", "Aide soignante", "Auxiliaire de périculture", "Certificat de capacité ambulancier", "Diplôme d'état de sage-femme", "Licence professionelle", "Auxiliaire de vie", "Responsable de structure d'enfance")),
+    AttendeeRegistrationQuestion(question = "Niveau d'expérience", multiple = false, otherAllowed = false, answers = List("Jeune diplômé", "1 à 2 ans", "3 à 5 ans", "> 5 ans")),
+    AttendeeRegistrationQuestion(question = "Situation professionnelle actuelle", multiple = false, otherAllowed = false, answers = List("En poste", "En recherche d'emploi")),
+    AttendeeRegistrationQuestion(question = "Poste recherché", multiple = true, otherAllowed = false, answers = List("CDD", "CDI", "Intérim", "Libérale")),
+    AttendeeRegistrationQuestion(question = "Dernier poste occupé, poste actuel ou recherché", multiple = true, otherAllowed = true, answers = List("IADE", "Kinésithérapeute", "Auxiliaire de périculture", "Manipulateur radio", "Infirmier d'entreprise", "Pédiatrie", "IBODE", "Cadre spécialisé", "Sage-femme", "Infirmier miliaire", "Puériculture", "Coordinatrice de crèche", "Etudiant IFSI", "IDE", "Auxiliaire de vie", "Educateur jeune enfant", "Aide - soignante", "Ergothérapeute", "Ambulancier", "Audioprothésiste", "Psychomotricien", "Orthoptiste", "Orthophoniste", "Ostéopathe", "Chriopracteur")),
+    AttendeeRegistrationQuestion(question = "Secteur", multiple = true, otherAllowed = true, answers = List("Etablissement privés", "Etablissements publics", "Libéral")),
+    AttendeeRegistrationQuestion(question = "Comment avez-vous été informé de la tenue de ce salon ?", multiple = true, otherAllowed = true, answers = List("les Métiers de la Petite Enfance", "Recrut.com", "A Nous Paris", "Le Marché du travail", "L'Aide Soignante", "Objectif Emploi", "La Revue de l'infirmière", "Soin spécial Emploi Salon", "L'Express", "Soins", "infirmier.com", "keljob.com", "letudiant.fr", "emploisoignant.fr", "cadresante.com", "lemarchedutravail.fr", "parisjob.com", "objectifemploi.fr", "aide-soignate.com", "actusoins.fr", "emploisante.com", "jobautonomie.com", "jobenfance.com", "jobintree.com", "capijobnew.com", "Panneau périphérique", "Pôle Emploi", "IFSI-CHU"))))
+
+  def register(uuid: String) = UserAwareAction.async { implicit req =>
+    implicit val user = req.identity
+    EventRepository.getByUuid(uuid).map {
+      _.map { elt =>
+        Ok(backend.views.html.Events.register(registerForm.fill(AttendeeRegistration.prepare(survey)), elt))
+      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    }
+  }
+
+  def doRegister(uuid: String) = UserAwareAction.async { implicit req =>
+    implicit val user = req.identity
+    EventRepository.getByUuid(uuid).map {
+      _.map { elt =>
+        registerForm.bindFromRequest.fold(
+          formWithErrors => BadRequest(backend.views.html.Events.register(formWithErrors, elt)),
+          formData => Ok(backend.views.html.Events.register(registerForm.fill(formData), elt)))
+      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    }
+  }
 }

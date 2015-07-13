@@ -1,0 +1,125 @@
+@import common.models.event.Event
+@import common.models.event.AttendeeRegistration
+@import common.models.user.User
+@import common.views._
+@import common.views.html._
+@import common.views.html.forms._
+@(registerForm: Form[AttendeeRegistration], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, userOpt: Option[User])
+@fieldCheckbox(field: Field, label: String) = {
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="@field.name" value="true" @if(field.value==Some("true")){checked}>
+			<i class="input-helper"></i>
+			@label
+		</label>
+	</div>
+}
+@fieldRadio(parentField: Field, field: Field) = {
+	<div class="radio">
+		<label>
+			<input type="radio" name="@parentField.name" value="@field.value" @if(parentField.value==field.value){checked}>
+			<i class="input-helper"></i>
+			@field.value
+		</label>
+	</div>
+}
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>@if(!App.isProd()){(@App.getEnv()) }Connexion à l'administration SalooN</title>
+	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+
+	<link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+	<style>
+		.radio, .checkbox {
+			margin-top: 0px;
+			margin-bottom: 0px;
+			padding-top: 7px;
+		}
+	</style>
+</head>
+<body class="event-register">
+	@notifications(flash)
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-header ch-alt">
+						<h2>Inscription à @event.name :</h2>
+					</div>
+					<div class="card-body card-padding">
+						@req.getQueryString("query")
+						<form method="POST" action="@backend.controllers.routes.Events.doRegister(event.uuid)">
+							<div class="row">
+								<div class="col-sm-2">@fieldFloating(registerForm("genre"), 'label->"Genre", 'constraints->"false"){field => @inputSelect2(registerForm("genre"), Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")}</div>
+								<div class="col-sm-4">@fieldFloating(registerForm("firstName"), 'label->"Prénom", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-4">@fieldFloating(registerForm("lastName"), 'label->"Nom", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-2">@fieldFloating(registerForm("birthYear"), 'label->"Année de naissance", 'constraints->"false"){field => @inputText(field)}</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-8">@fieldFloating(registerForm("email"), 'label->"Email", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-4">@fieldFloating(registerForm("phone"), 'label->"Téléphone portable", 'constraints->"false"){field => @inputText(field)}</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-6">@fieldFloating(registerForm("street"), 'label->"Adresse", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-2">@fieldFloating(registerForm("street"), 'label->"Code Postal", 'constraints->"false"){field => @inputText(field)}</div>
+								<div class="col-sm-4">@fieldFloating(registerForm("city"), 'label->"Code Postal", 'constraints->"false"){field => @inputText(field)}</div>
+							</div>
+							@helper.repeat(registerForm("answers")) { fieldQuestion =>
+								<p class="m-t-25 m-b-10 c-black f-500">@fieldQuestion("question").value</p>
+								<div class="form-group @if(fieldQuestion.hasErrors){has-error}">
+									@inputHidden(fieldQuestion("question"))
+									@inputHidden(fieldQuestion("multiple"))
+									@inputHidden(fieldQuestion("otherAllowed"))
+									<div class="row">
+										@helper.repeat(fieldQuestion("answers")) { fieldAnswer =>
+											<div class="col-sm-6 col-md-4">
+												@inputHidden(fieldAnswer("label"))
+												@if(fieldQuestion("multiple").value == Some("true")){ @fieldCheckbox(fieldAnswer("checked"), fieldAnswer("label").value.get) }
+												@if(fieldQuestion("multiple").value == Some("false")){ @fieldRadio(fieldQuestion("answer"), fieldAnswer("label")) }
+											</div>
+										}
+									</div>
+									@if(fieldQuestion("otherAllowed").value == Some("true")){
+										@fieldFloating(fieldQuestion("other"), 'label->"Autre", 'constraints->"false"){field => @inputText(field)}
+									}
+									@if(fieldQuestion.hasErrors && fieldQuestion.errors.length > 0){
+										@for(error <- fieldQuestion.errors) {
+											<p class="help-block error">Erreur: @Messages(error.message, error.args: _*)</p>
+										}
+									}
+								</div>
+							}
+							<div class="form-group" style="text-align: center; margin-top: 40px;">
+								<button type="submit" class="btn btn-lg btn-success" style="padding: 15px 25px;">S'inscrire</button>
+								<div class="clearfix"></div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Javascript Libraries -->
+	<script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/bootstrap/js/bootstrap.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/Waves/dist/waves.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/select2/select2.min.js")"></script>
+	<!-- Placeholder for IE9 -->
+	<!--[if IE 9 ]>
+		<script type="text/javascript" src="@routes.Assets.at("libs/jquery-placeholder/jquery.placeholder.min.js")"></script>
+	<![endif]-->
+	<script type="text/javascript" src="@routes.Assets.at("backend/scripts/eventRegister.js")"></script>
+</body>
+</html>

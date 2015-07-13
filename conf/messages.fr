@@ -1,0 +1,7 @@
+error.required=Ce champ est obligatoire
+error.email=L''email doit être valide
+error.number=Un nombre est attendu
+invalid.credentials=Mauvais login/mot de passe
+access.denied=Accès non autorisé
+user.exists=Il existe déjà un utilisateur avec cet email !
+could.not.authenticate=Impossible de s'autentifier avec ce provider! Merci de réessayer!

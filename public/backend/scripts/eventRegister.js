@@ -1,20 +1,28 @@
 $(document).ready(function(){
 	/*
-	 * Login
+	 * Form improvments
 	 */
-	if ($('.login-content')[0]) {
-		//Add class to HTML. This is used to center align the login box
-		$('html').addClass('login-content');
-		
-		$('body').on('click', '[data-block]', function(e){
-			e.preventDefault();
-			$(this).closest('.lc-block').removeClass('toggled');
-			var blockSelector = $(this).data('block');			
-			setTimeout(function(){
-				$(blockSelector).addClass('toggled');
-			});
-		})
-	}
+	$('.select2').each(function(){
+		$(this).select2({
+			theme: 'bootstrap',
+			minimumResultsForSearch: 5,
+			placeholder: $(this).attr('placeholder')
+		});
+		// Add blue animated border and remove depending on value
+		$(this).on('select2:select', function(e){
+			var p = $(this).closest('.form-group');
+			var i = p.find('.form-control').val();
+			if(i.length > 0){
+				$(this).closest('.fg-line').addClass('fg-toggled');
+			} else if(p.hasClass('fg-float')){
+				if(i.length == 0){
+					$(this).closest('.fg-line').removeClass('fg-toggled');
+				}
+			} else {
+				$(this).closest('.fg-line').removeClass('fg-toggled');
+			}
+		});
+	});
 
 	/*
 	 * Text Field
