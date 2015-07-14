@@ -1,0 +1,6 @@
+@(field: Field)
+@if(field.hasErrors && field.errors.length > 0){
+	@for(error <- field.errors) {
+		<p class="help-block error">@Messages(error.message, error.args: _*)</p>
+	}
+}

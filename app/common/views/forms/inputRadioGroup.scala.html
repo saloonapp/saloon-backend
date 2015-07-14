@@ -1,7 +1,5 @@
-@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
-
 @import common.views._
-
+@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
 @for((value, label) <- options) {
   <label class="radio-inline">
     <input

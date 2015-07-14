@@ -1,7 +1,5 @@
-@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
-
 @import common.views._
-
+@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
 @* probably not work... :( *@
 @for(((value, label), index) <- options.zipWithIndex) {
   @defining(if(field.indexes.isEmpty) field.value.toSet else field.indexes.map( i => field("[%s]".format(i)).value ).flatten.toSet){ values =>

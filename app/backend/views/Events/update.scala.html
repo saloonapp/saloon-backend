@@ -1,10 +1,11 @@
 @import common.models.event.Event
 @import backend.forms.EventCreateData
 @import common.models.user.User
+@import common.models.user.Organization
 @import common.views.html.forms._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(eventForm: Form[EventCreateData], event: Event, categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(eventForm: Form[EventCreateData], event: Event, organizations: List[Organization], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Modifier "+event.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
@@ -12,7 +13,7 @@
 		</div>
 		<div class="card-body card-padding">
 			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Events.doUpdate(event.uuid)">
-				@partials.form(eventForm, categories)
+				@partials.form(eventForm, organizations, categories)
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
 						<a href="@backend.controllers.routes.Events.details(event.uuid)" class="btn btn-default">Annuler</a>

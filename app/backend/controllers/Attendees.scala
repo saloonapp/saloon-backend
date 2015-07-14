@@ -81,7 +81,7 @@ object Attendees extends SilhouetteEnvironment {
             }.getOrElse {
               for {
                 roles <- AttendeeRepository.findEventRoles(eventId)
-              } yield InternalServerError(backend.views.html.Attendees.create(createForm.fill(formData), roles, event)).flashing("error" -> s"Impossible de créer le participant '${formData.name}'")
+              } yield InternalServerError(backend.views.html.Attendees.create(createForm.fill(formData), roles, event)).flashing("error" -> s"Impossible de créer le participant '${formData.info.firstName} ${formData.info.lastName}'")
             }
           })
       }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))

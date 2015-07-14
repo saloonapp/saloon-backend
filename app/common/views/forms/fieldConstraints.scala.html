@@ -1,0 +1,6 @@
+@(field: Field)
+@if(!field.hasErrors && field.constraints.length > 0){
+	@for(constraint <- field.constraints) {
+		<p class="help-block">@Messages(constraint._1, constraint._2)</p>
+	}
+}

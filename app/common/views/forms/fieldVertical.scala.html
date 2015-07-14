@@ -1,18 +1,8 @@
-@(field: Field, args: (Symbol, String)*)(input: Field => Html)
-
 @import common.views._
-
+@(field: Field, args: (Symbol, String)*)(input: Field => Html)
 <div class="form-group @if(field.hasErrors){has-error}">
-  <label for="@field.name" class="control-label">@Helpers.getArg(args, "label", field.name)</label>
-  @input(field)
-  @if(field.hasErrors && field.errors.length > 0){
-    @for(error <- field.errors) {
-      <p class="help-block error">@Messages(error.message, error.args: _*)</p>
-    }
-  }
-  @if(!field.hasErrors && field.constraints.length > 0 && !Helpers.hasArg(args, "constraints", "false")){
-    @for(constraint <- field.constraints) {
-      <p class="help-block">@Messages(constraint._1, constraint._2)</p>
-    }
-  }
+	<label for="@field.name" class="control-label">@Helpers.getArg(args, "label", field.name)</label>
+	@input(field)
+    @if(!Helpers.hasArg(args, "errors", "false")){@fieldErrors(field)}
+    @if(!Helpers.hasArg(args, "constraints", "false")){@fieldConstraints(field)}
 </div>

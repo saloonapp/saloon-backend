@@ -1,11 +1,8 @@
-@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
-
 @import common.views._
-
+@(field: Field, options: Seq[(String, String)], args: (Symbol, String)*)
 <select class="form-control @Helpers.getArg(args, "class")" id="@field.id" name="@field.name"
   @Helpers.toHtmlArgs(args, Seq("class", "emptyOption"))
   @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>
-  
   @if(Helpers.getArg(args, "emptyOption").length > 0){ <option class="blank" value="">@Helpers.getArg(args, "emptyOption")</option> }
   @for((value, label) <- options) {
     <option value="@value" @if(field.value == Some(value)) {selected}>@label</option>

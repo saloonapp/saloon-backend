@@ -1,9 +1,10 @@
 @import common.models.user.User
+@import common.models.user.Organization
 @import backend.forms.EventCreateData
 @import common.views.html.forms._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(eventForm: Form[EventCreateData], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(eventForm: Form[EventCreateData], organizations: List[Organization], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Créer un événement", "Créer un événement", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements")){
 	<div class="card">
 		<div class="card-header ch-alt">
@@ -11,7 +12,7 @@
 		</div>
 		<div class="card-body card-padding">
 			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Events.doCreate()">
-				@partials.form(eventForm, categories)
+				@partials.form(eventForm, organizations, categories)
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
 						<a href="@backend.controllers.routes.Events.list()" class="btn btn-default">Annuler</a>
