@@ -47,7 +47,12 @@ case class EventConfig(
   branding: Option[EventConfigBranding],
   options: Map[String, Boolean],
   attendeeSurvey: Option[EventConfigAttendeeSurvey],
-  published: Boolean)
+  published: Boolean) {
+  def hasTicketing(): Boolean = hasOption("ticketing")
+  def hasCVTheque(): Boolean = hasOption("cvtheque")
+  def hasScanQRCode(): Boolean = hasOption("scanqrcode")
+  private def hasOption(option: String): Boolean = this.options.get(option).getOrElse(false)
+}
 case class EventMeta(
   categories: List[String],
   refreshUrl: Option[String], // a get on this url will scrape original data of this event (used to update program)

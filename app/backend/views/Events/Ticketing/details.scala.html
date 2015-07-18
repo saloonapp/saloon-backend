@@ -1,0 +1,38 @@
+@import common.models.event.Event
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@import backend.views.html.partials._
+@(event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Ticketing pour "+event.name, "Ticketing", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
+	<div class="block-header">
+		<h2>Option Ticketing pour @event.name</h2>
+		<ul class="actions">
+			<li><a href="#"><i class="md md-edit"></i></a></li>
+			<li><a href="#"><i class="md md-delete"></i></a></li>
+		</ul>
+	</div>
+	<div class="card" id="profile-main">
+		<div class="pm-overview c-overflow">
+			<div class="pmo-pic"><img class="img-responsive" src="@routes.Assets.at("backend/images/features/ticketing.png")" alt=""></div>
+		</div>
+		<div class="pm-body clearfix" style="min-height: 650px;">
+			@if(event.config.hasTicketing()){
+				<div class="pmb-block">
+					<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Option activée</h2></div>
+					<div class="p-l-30">
+					</div>
+				</div>
+			}
+			@if(!event.config.hasTicketing()){
+				<div class="pmb-block">
+					<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Activer le ticketing !</h2></div>
+					<div class="p-l-30">
+						<button class="btn btn-lg btn-success">Activer</button>
+					</div>
+				</div>
+				
+			}
+		</div>
+	</div>
+}
