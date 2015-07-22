@@ -1,0 +1,89 @@
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@import backend.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Visiteurs scannés", "Visiteurs scannés", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Application.mockups(), "Mockups")){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header ch-alt">
+					<h2>
+						Visiteurs scannés :
+					</h2>
+				</div>
+				<div class="card-body card-padding">
+					<div class="timeline">
+						<div class="t-view" data-tv-type="text">
+							<div class="tv-header media">
+								<a href="" class="tvh-user pull-left"><img class="img-responsive" src="@routes.Assets.at("backend/sample/images/profile-pics/profile-pic-2.jpg")" alt=""></a>
+								<div class="media-body p-t-5">
+									<strong class="d-block">Malinda Hollaway</strong>
+									<small class="c-gray">Scanné à <a href="#">Mice Connect</a> le 4 février 2016 à 16:03</small>
+								</div>
+								<ul class="actions m-t-20 hidden-xs">
+									<li class="dropdown">
+										<a href="" data-toggle="dropdown"><i class="md md-more-vert"></i></a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li><a href="">Edit</a></li>
+											<li><a href="">Delete</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<div class="tv-body">
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sem dolor, posuere convallis blandit sit amet, aliquet in est. Ut condimentum magna enim, non venenatis elit interdum accumsan. In hac habitasse platea dictumst. Etiam molestie felis non mollis viverra. In ipsum lorem, fermentum vitae lectus in, accumsan malesuada neque.</p>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+						<div class="t-view" data-tv-type="text">
+							<div class="tv-header media">
+								<a href="" class="tvh-user pull-left"><img class="img-responsive" src="@routes.Assets.at("backend/sample/images/profile-pics/profile-pic-2.jpg")" alt=""></a>
+								<div class="media-body p-t-5">
+									<strong class="d-block">Malinda Hollaway</strong>
+									<small class="c-gray">Scanné à <a href="#">Mice Connect</a> le 4 février 2016 à 16:03</small>
+								</div>
+								<ul class="actions m-t-20 hidden-xs">
+									<li class="dropdown">
+										<a href="" data-toggle="dropdown"><i class="md md-more-vert"></i></a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li><a href="">Edit</a></li>
+											<li><a href="">Delete</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<div class="tv-body">
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sem dolor, posuere convallis blandit sit amet, aliquet in est. Ut condimentum magna enim, non venenatis elit interdum accumsan. In hac habitasse platea dictumst. Etiam molestie felis non mollis viverra. In ipsum lorem, fermentum vitae lectus in, accumsan malesuada neque.</p>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+						<div class="t-view" data-tv-type="text">
+							<div class="tv-header media">
+								<a href="" class="tvh-user pull-left"><img class="img-responsive" src="@routes.Assets.at("backend/sample/images/profile-pics/profile-pic-2.jpg")" alt=""></a>
+								<div class="media-body p-t-5">
+									<strong class="d-block">Malinda Hollaway</strong>
+									<small class="c-gray">Scanné à <a href="#">Mice Connect</a> le 4 février 2016 à 16:03</small>
+								</div>
+								<ul class="actions m-t-20 hidden-xs">
+									<li class="dropdown">
+										<a href="" data-toggle="dropdown"><i class="md md-more-vert"></i></a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li><a href="">Edit</a></li>
+											<li><a href="">Delete</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<div class="tv-body">
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sem dolor, posuere convallis blandit sit amet, aliquet in est. Ut condimentum magna enim, non venenatis elit interdum accumsan. In hac habitasse platea dictumst. Etiam molestie felis non mollis viverra. In ipsum lorem, fermentum vitae lectus in, accumsan malesuada neque.</p>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

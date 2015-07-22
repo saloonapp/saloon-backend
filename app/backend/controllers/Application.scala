@@ -17,4 +17,49 @@ object Application extends SilhouetteEnvironment {
     Redirect(backend.controllers.routes.Events.list())
   }
 
+  def mockups = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.list())
+  }
+
+  def mockupExponent = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.exponentForm())
+  }
+
+  def mockupRegister1 = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.register1())
+  }
+
+  def mockupRegister2 = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.register2())
+  }
+
+  def mockupRegister3 = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.register3())
+  }
+
+  def mockupActivityWall = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.activityWall())
+  }
+
+  def mockupScannedAttendees = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.scannedAttendees())
+  }
+
+  def mockupScannedDocuments = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.scannedDocuments())
+  }
+
+  def mockupLeads = Action { implicit req =>
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.mockups.leads())
+  }
+
 }

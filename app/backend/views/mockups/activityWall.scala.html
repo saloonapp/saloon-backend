@@ -1,0 +1,103 @@
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@import backend.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Activity Wall", "Activity Wall", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Application.mockups(), "Mockups")){
+	<div class="block-header">
+		<h2>Activity Wall</h2>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card">
+				<div class="listview">
+					<div class="lv-header">Activity Wall</div>
+					<div class="lv-body">
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="@routes.Assets.at("backend/sample/images/profile-pics/1.jpg")" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title"><a href="#"><b>David Belle</b></a> vient d'arriver, souhaitez-lui la bienvenue</div>
+									<small class="lv-small">16h40</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="@routes.Assets.at("backend/sample/images/profile-pics/2.jpg")" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title"><a href="#"><b>Jonathan Morris</b></a>, responsable des ventes chez EDF est disponible pour échanger avec vous sur son stand (A42)</div>
+									<small class="lv-small">16h12</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="https://lh5.googleusercontent.com/-zA_T4Q06xPg/AAAAAAAAAAI/AAAAAAAAAHY/GNJ2ISPHBVc/s100-p-k/photo.jpg" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title">Les plaquettes commerciales de <a href="#"><b>Nexeo</b></a> viennent d'être téléchargées</div>
+									<small class="lv-small">16h10</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="http://sparkline.fr/images/logo_sparkline.png" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title"><a href="#"><b>Sparkline</b></a> vient de décrocher son 5ème rendez-vous \o/</div>
+									<small class="lv-small">16h09</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="https://lh3.googleusercontent.com/8sO_1wuS_2grgNCtP9SUQyGH7JmlBuNsc672hG1_t1QTiJaV7dlo9qdkeiDcMFW_ecA=w300-rw" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title"><a href="#"><b>SalooN</b></a> vient d'avoir son 50ème favoris</div>
+									<small class="lv-small">15h23</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="@routes.Assets.at("backend/sample/images/profile-pics/4.jpg")" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title"><a href="#"><b>Bill Phillips</b></a> est maintenant le top-networker avec 32 mises en relation</div>
+									<small class="lv-small">15h02</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="https://media.glassdoor.com/sqll/316188/amundi-squarelogo-1401223124004.png" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title">Le gagnant du tirage au sort d'<a href="#"><b>Amundi</b></a> est <a href="#"><b>Jean-Luc Garnier</b></a> !</div>
+									<small class="lv-small">15h00</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="http://www.academiedelabresse.fr/wp-content/uploads/2015/01/conference-de-presse-stock-ilustrations_18-3271.jpg" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title">La conférence sur la <b>révolution numérique</b> est sur le point de commencer dans l'<b>Amphi bleu</b></div>
+									<small class="lv-small">14h50</small>
+								</div>
+							</div>
+						</div>
+						<div class="lv-item">
+							<div class="media">
+								<div class="pull-left"><img class="lv-img-sm" src="https://media.glassdoor.com/sqll/316188/amundi-squarelogo-1401223124004.png" alt=""></div>
+								<div class="media-body">
+									<div class="lv-title">Le tirage au sort d'<a href="#"><b>Amundi</b></a> aura lieu dans 30 minutes. Pensez à remplir leur questionnaire pour y participer.</div>
+									<small class="lv-small">14h30</small>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a class="lv-footer" href="">View All</a>
+				</div>
+			</div>
+		</div>
+	</div>
+}

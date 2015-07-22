@@ -1,0 +1,135 @@
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@import backend.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Modifier un exposant", "Modifier un exposant", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Application.mockups(), "Mockups")){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header ch-alt">
+					<h2>
+						Modifier un exposant:
+						<small>Une bonne fiche exposant est décisive pour le succès du salon !</small>
+					</h2>
+				</div>
+				<div class="card-body card-padding">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label for="name" class="control-label col-sm-2">Nom</label>
+							<div class="col-sm-10">
+								<div class="fg-line"><input type="text" class="form-control" name="name" id="name" value="SalooN" placeholder="ex: Best Of Web 2015"></div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="website" class="control-label col-sm-2">Site</label>
+							<div class="col-sm-10">
+								<div class="fg-line"><input type="text" class="form-control " name="website" id="website" value="http://www.saloonapp.co/" placeholder="ex: http://bestofweb.paris/"></div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="team" class="control-label col-sm-2">Équipe</label>
+							<div class="col-sm-10">
+								<select class="form-control select2" id="team" name="team[]" multiple="" size="1" tabindex="-1" aria-hidden="true">
+									<option value="83c419da-a94a-4939-bc69-e5085a523ed7">Philippe Bidaud</option>
+									<option value="a2f67d83-d3f7-4a52-a4be-40731c442f8e">Angelika Peer</option>
+									<option value="98d6c15c-22d3-4788-a545-a1ebd82bbfbe">Gwennaël Gâté</option>
+									<option value="7a7a37ec-443e-4830-a9f1-11b60c70ac72">Andre Wegner</option>
+									<option value="ea2deba1-f17e-47e5-b1f9-6d6cabbb7284">Blake McEldowney</option>
+									<option value="393e271d-46f0-46fc-a59a-a8b5c479874b">Marcelo H. Ang Jr</option>
+									<option value="c5a223a1-bede-4606-b63b-fac96a654f12">Joel Gibbard</option>
+									<option value="ea115a81-42f2-4a69-bec1-11fb0cfa1cd5">Carlo Ratti</option>
+									<option value="31d6ba55-4729-4fba-acc0-8ca9e943da68">Rodney Brooks</option>
+									<option value="da033114-85f5-4a97-bc5e-accacfadef5f">Shigeo Hirose</option>
+									<option value="02766c69-d61e-451a-83a4-c84c676073c4">Yuki Nakagawa</option>
+									<option value="f972d92f-02f0-4c71-9494-0e06174ebd87">Sergei Lupashin</option>
+									<option value="c1f21455-31b2-42ce-9bf0-ad3b6e3c6228">Fabien Bardinet</option>
+									<option value="125674f4-d8de-4a2e-bce4-e465ee7283bf">Pascal Lafourcade</option>
+									<option value="3c6a33c4-142e-4bdc-bdd2-a7590708162e">Martin Hägele</option>
+									<option value="4ef85b71-3055-4b83-9f96-33d82ea56a70">Joost Nijhoff</option>
+									<option value="04955455-c15b-4ec8-8965-f0eead518269">Jean-Paul Monet</option>
+									<option value="7694de36-f70c-419d-b1c2-5a1646b99e02">Oussama Khatib</option>
+									<option value="7a4fbe82-f337-482a-8cdb-ef3899fcf687">Jamie Paik</option>
+									<option value="dd017b8d-653a-4ee0-adcc-44ec1ff9706f">Bradley Nelson</option>
+									<option value="c5294622-81dd-4da9-b7ae-01ad97d0e2be">Barbara Mazzolai</option>
+									<option value="41683f2a-4a34-41f2-9aa7-f3fd19db00d2">Tuomas J. Lukka</option>
+									<option value="02873040-af27-4d0a-9686-8a68e8800ffa">Ramesh Caussy</option>
+									<option value="a91d1a77-b8de-4c5e-99a2-a50c915b211a">Oussama Ammar</option>
+									<option value="786ff16b-6ee8-4c58-8e18-5cac0d2232f4">Anastasia Emmanuel</option>
+								</select>
+								<p class="help-block">Personnes présentes sur le stand.</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="logo" class="control-label col-sm-2">Images</label>
+							<div class="col-sm-10">
+								<div class="row">
+									<div class="col-md-6">
+										<div class="cloudinary-upload">
+											<button class="btn btn-default" type="button" ratio="1" width="100">Upload logo</button>
+											<div class="preview"><img src="https://lh3.googleusercontent.com/8sO_1wuS_2grgNCtP9SUQyGH7JmlBuNsc672hG1_t1QTiJaV7dlo9qdkeiDcMFW_ecA=w300-rw" style="max-height: 150px;"></div>
+										</div>
+										<p class="help-block">Image carrée, largeur min: 100px</p>
+									</div>
+									<div class="col-md-6">
+										<div class="cloudinary-upload">
+											<button class="btn btn-default" type="button" ratio="2.5" width="400">Upload bannière</button>
+											<div class="preview"><img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_2000,w_5000,x_0,y_139/v1437230328/backend-images/opdiit9kjrbessfivcr5.png" style="max-height: 150px;"></div>
+										</div>
+										<p class="help-block">Image paysage, largeur min: 400px</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="name" class="control-label col-sm-2">Description</label>
+							<div class="col-sm-10">
+								<div role="tabpanel">
+									<ul class="tab-nav" role="tablist">
+										<li class="active"><a href="#tab1" aria-controls="tab1" role="tab" data-toggle="tab">Avancée</a></li>
+										<li><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">Simple</a></li>
+									</ul>
+									<div class="tab-content">
+										<div role="tabpanel" class="tab-pane active" id="tab1">
+											<div class="row">
+												<div class="col-md-8">
+													<p class="c-black f-500 m-b-0 m-t-10">Que fait votre société ?</p>
+													<div class="fg-line"><textarea class="form-control auto-size" placeholder="ex: SalooN propose une application pour dynamiser vos événements" data-autosize-on="true"></textarea></div>
+													<p class="c-black f-500 m-b-0 m-t-10">Pourquoi est-elle présente au salon ?</p>
+													<div class="fg-line"><textarea class="form-control auto-size" placeholder="ex: Nous sommes présents aujourd'hui pour faire découvrir notre offre" data-autosize-on="true"></textarea></div>
+													<p class="c-black f-500 m-b-0 m-t-10">Quelles sont ses nouveautés/actualités ?</p>
+													<div class="fg-line"><textarea class="form-control auto-size" placeholder="ex: Deux clients viennent d'être signés, qu'attendez-vous encore ?" data-autosize-on="true"></textarea></div>
+													<p class="c-black f-500 m-b-0 m-t-10">Quels produits/services vend-elle ?</p>
+													<div class="fg-line"><textarea class="form-control auto-size" placeholder="ex: Un programme numérique pour les événements, des services pour les exposants." data-autosize-on="true"></textarea></div>
+												</div>
+												<div class="col-md-4">
+													<p>Faire une description claire et précise est un élément clé de la réussite du salon.</p>
+													<p>Retrouvez quelques exemples de <a href="#">bonnes descriptions</a> pour vous inspirer.</p>
+												</div>
+											</div>
+										</div>
+										<div role="tabpanel" class="tab-pane" id="tab2">
+											<div class="row">
+												<div class="col-md-8">
+													<div class="wysiwyg">
+														<div class="editor" placeholder="Votre description ici, à votre image !"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<button type="submit" class="btn btn-success">Modifier</button>
+								<a href="#" class="btn btn-default">Annuler</a>
+							</div>
+						</div>
+					</form> 
+				</div>
+			</div>
+		</div>
+	</div>
+}

@@ -18,6 +18,15 @@ POST      /createAccount/:userId                                                
 
 # backend
 GET       /backend                                                                          backend.controllers.Application.index
+GET       /backend/mockups                                                                  backend.controllers.Application.mockups
+GET       /backend/mockups/exponent                                                         backend.controllers.Application.mockupExponent
+GET       /backend/mockups/register1                                                        backend.controllers.Application.mockupRegister1
+GET       /backend/mockups/register2                                                        backend.controllers.Application.mockupRegister2
+GET       /backend/mockups/register3                                                        backend.controllers.Application.mockupRegister3
+GET       /backend/mockups/activityWall                                                     backend.controllers.Application.mockupActivityWall
+GET       /backend/mockups/scannedAttendees                                                 backend.controllers.Application.mockupScannedAttendees
+GET       /backend/mockups/scannedDocuments                                                 backend.controllers.Application.mockupScannedDocuments
+GET       /backend/mockups/leads                                                            backend.controllers.Application.mockupLeads
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
 POST      /backend/events                                                                   backend.controllers.Events.doCreate

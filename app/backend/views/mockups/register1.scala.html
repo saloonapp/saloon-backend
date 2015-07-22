@@ -1,0 +1,80 @@
+@import common.views._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>@if(!App.isProd()){(@App.getEnv()) }Inscription I-connect</title>
+	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+
+	<link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/socicon/socicon.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("libs/summernote/dist/summernote.css")">
+	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+	<style>
+		.buttons a.btn-social, .buttons a.btn-skip {
+			display: block;
+			margin: 10px auto;
+			width: 150px;
+			color: white;
+		}
+		.buttons a.btn-skip {
+			color: #999;
+			text-align: right;
+		}
+	</style>
+</head>
+<body>
+	<div class="wrapper" style="background: url(http://www.mybadgeonline.com/3DPrint/Images/fond2015.jpg) no-repeat center top; margin: auto; background-color: #004274; position: absolute; top:0;bottom:0;left:0;right:0;">
+		<div class="container">
+			<div style="margin-top: 100px; margin-bottom: 40px;">
+				<img src="http://www.mybadgeonline.com/3DPrint/images/bandeauFR.png" style="display: block; margin: auto;">
+			</div>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<div class="card">
+						<div class="card-body card-padding">
+							<h1>Inscription à I-connect :</h1>
+							<p>Connectez-vous à un réseau social pour faciliter le processus d'inscription</p>
+							<div class="buttons">
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn btn-lg btn-social" style="background: #FF5722;">SalooN</a>
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn btn-lg btn-social" style="background: #0077B5;">Linkedin</a>
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn btn-lg btn-social" style="background: #FF7E00;">Viadeo</a>
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn btn-lg btn-social" style="background: #3b5998;">Facebook</a>
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn btn-lg btn-social" style="background: #00aced;">Twitter</a>
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn btn-lg btn-social" style="background: #c32f10;">Google+</a>
+								<a href="@backend.controllers.routes.Application.mockupRegister2()" class="btn-skip">> skip</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/bootstrap/js/bootstrap.min.js")"></script>
+	<script type="text/javascript" src="//widget.cloudinary.com/global/all.js"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/moment/moment.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/moment/fr.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/select2/select2.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/typeahead.js/typeahead.bundle.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/bootstrap-growl/bootstrap-growl.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/summernote/dist/summernote.min.js")"></script>
+	<!-- Placeholder for IE9 -->
+	<!--[if IE 9 ]>
+		<script type="text/javascript" src="@routes.Assets.at("libs/jquery-placeholder/jquery.placeholder.min.js")"></script>
+	<![endif]-->
+	<script type="text/javascript" src="@routes.Assets.at("backend/scripts/main.js")"></script>
+</body>
+</html>

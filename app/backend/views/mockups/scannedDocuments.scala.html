@@ -1,0 +1,120 @@
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@import backend.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Documents récoltés", "Documents récoltés", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Application.mockups(), "Mockups")){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header ch-alt">
+					<h2>Documents récoltés :</h2>
+				</div>
+				<div class="card-body card-padding">
+					<div class="contacts row">
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="https://lh3.googleusercontent.com/8sO_1wuS_2grgNCtP9SUQyGH7JmlBuNsc672hG1_t1QTiJaV7dlo9qdkeiDcMFW_ecA=w300-rw" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>SalooN</strong>
+									<small>Présentation de l'application mobile</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="http://res.cloudinary.com/saloon/image/upload/c_crop,h_360,w_360,x_20,y_20/v1436721952/backend-images/bjvl6oxppxbqlnkwfy0j.png" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Sparkline</strong>
+									<small>Chasseur de jobs, un nouveau métier</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="https://upload.wikimedia.org/wikipedia/fr/thumb/a/a1/Toyota_logo2.svg/langfr-220px-Toyota_logo2.svg.png" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Toyota</strong>
+									<small>Le futur des voitures</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="https://lh3.googleusercontent.com/-JFsd95-nkHw/VL7PSkfef1I/AAAAAAAAANQ/9GvXgeKL8gY/s160-k-no/photo.jpg" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Nexeo</strong>
+									<small>Une SSII pas comme les autres</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="https://cdn.downdetector.com/static/uploads/c/300/0a356/twitter-logo_19.png" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Twitter</strong>
+									<small>Gazouillez en travaillant</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="http://www.ghanacurrentjobs.com/wp-content/uploads/2013/04/Accor-Hotel-Jobs-in-Ghana.png" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Accor</strong>
+									<small>Nos chambres sur la côte d'azur</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="http://thejetsetpets.com/wp-content/uploads/2012/07/air-france-logo-abbreviated.jpg" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Air France</strong>
+									<small>Faites du ciel le plus bel endroit de la terre</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="https://lh3.googleusercontent.com/8sO_1wuS_2grgNCtP9SUQyGH7JmlBuNsc672hG1_t1QTiJaV7dlo9qdkeiDcMFW_ecA=w300-rw" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>SalooN</strong>
+									<small>Une nouvelle source de revenus pour l'industrie événementielle</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="https://pbs.twimg.com/profile_images/3083215459/ef91cc7348a1ad37ee3186da079c5448_400x400.png" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>TheFamily</strong>
+									<small>Un nouvel accélérateur débarque en ville!</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="c-item">
+								<a href="" class="ci-avatar"><img src="http://cf.juggle-images.com/matte/white/280x280/walt-disney-pictures-1-logo-primary.jpg" alt="" style="padding: 10px;"></a>
+								<div class="c-info">
+									<strong>Disney</strong>
+									<small>S'amuser en travaillant</small>
+								</div>
+								<div class="c-footer"><button class="waves-effect"><i class="md md-file-download"></i> Télécharger</button></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

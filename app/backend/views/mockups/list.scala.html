@@ -1,0 +1,18 @@
+@import common.models.user.User
+@import common.views.html.format._
+@import backend.views.html._
+@import backend.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Mockups", "Mockups", (backend.controllers.routes.Application.index(), "Accueil")){
+	<div class="block-header">
+		<h2>Mockups</h2>
+	</div>
+	<ul>
+		<li><a href="@backend.controllers.routes.Application.mockupExponent()">Formulaire exposant</a></li>
+		<li><a href="@backend.controllers.routes.Application.mockupRegister1()">Pré-enregistrement</a></li>
+		<li><a href="@backend.controllers.routes.Application.mockupActivityWall()">Activity Wall</a></li>
+		<li><a href="@backend.controllers.routes.Application.mockupScannedAttendees()">Visiteurs scannés</a></li>
+		<li><a href="@backend.controllers.routes.Application.mockupScannedDocuments()">Documents scannés</a></li>
+		<li><a href="@backend.controllers.routes.Application.mockupLeads()">Achat leads</a></li>
+	</ul>
+}
