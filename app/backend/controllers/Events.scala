@@ -32,9 +32,9 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def details(uuid: String) = Action.async { implicit req =>
-    //implicit val user = req.identity
-    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+  def details(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
