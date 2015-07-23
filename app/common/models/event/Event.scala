@@ -49,9 +49,11 @@ case class EventConfig(
   attendeeSurvey: Option[EventConfigAttendeeSurvey],
   published: Boolean) {
   def hasTicketing(): Boolean = hasOption("ticketing")
+  def setTicketing(activated: Boolean): EventConfig = setOption("ticketing", activated)
   def hasCVTheque(): Boolean = hasOption("cvtheque")
   def hasScanQRCode(): Boolean = hasOption("scanqrcode")
   private def hasOption(option: String): Boolean = this.options.get(option).getOrElse(false)
+  private def setOption(option: String, activated: Boolean): EventConfig = this.copy(options = options + (option -> activated))
 }
 case class EventMeta(
   categories: List[String],
@@ -278,4 +280,14 @@ object EventData {
   def fromModel(d: Event): EventData = EventData(d.ownerId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.email, fromModel(d.config), fromModel(d.meta))
   def merge(m: EventMeta, d: EventMetaData): EventMeta = toModel(d).copy(source = m.source, created = m.created)
   def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, ownerId = m.ownerId, meta = merge(m.meta, d.meta))
+}
+object EventConfigAttendeeSurvey {
+  val fields = mapping(
+    "fields" -> list(text),
+    "questions" -> list(mapping(
+      "question" -> nonEmptyText,
+      "multiple" -> boolean,
+      "required" -> boolean,
+      "otherAllowed" -> boolean,
+      "answers" -> list(text))(EventConfigAttendeeSurveyQuestion.apply)(EventConfigAttendeeSurveyQuestion.unapply)))(EventConfigAttendeeSurvey.apply)(EventConfigAttendeeSurvey.unapply)
 }

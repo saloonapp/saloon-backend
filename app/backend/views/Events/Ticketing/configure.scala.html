@@ -1,0 +1,47 @@
+@import common.models.event.Event
+@import common.models.event.EventConfigAttendeeSurvey
+@import common.models.user.User
+@import common.views.html.format._
+@import common.views.html.forms._
+@import backend.views.html._
+@import backend.views.html.partials._
+@(event: Event, configForm: Form[EventConfigAttendeeSurvey])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@fieldCheckbox(field: Field, label: String) = {
+	<div class="checkbox checkbox-inline">
+		<label>
+			<input type="checkbox" name="@field.name" value="true" @if(field.value==Some("true")){checked}>
+			<i class="input-helper"></i>
+			@label
+		</label>
+	</div>
+}
+@layout("Ticketing pour "+event.name, "Ticketing", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Configurer le ticketing de @event.name</h2>
+		</div>
+		<div class="card-body card-padding">
+			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Ticketing.doConfigure(event.uuid)">
+				@helper.repeat(configForm("questions"), min=1) { questionField =>
+					@fieldHorizontal(questionField("question"), 'label -> "Question"){field =>
+						<div class="row">
+							<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder -> "Question")</div></div>
+							<div class="col-md-6">
+								@fieldCheckbox(questionField("multiple"), "Réponses mutliples")
+								@fieldCheckbox(questionField("required"), "Question obligatoire")
+								@fieldCheckbox(questionField("otherAllowed"), "Réponse personnalisée")
+							</div>
+						</div>
+						@inputTags(questionField("answers"), Seq())
+					}
+				}
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@backend.controllers.routes.Ticketing.details(event.uuid)" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Activer</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+}

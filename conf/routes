@@ -63,8 +63,12 @@ POST      /backend/events/:eventId/exponents/:exponentId                        
 POST      /backend/events/:eventId/exponents/:exponentId/delete                             backend.controllers.Exponents.delete(eventId: String, exponentId: String)
 
 GET       /backend/events/:eventId/ticketing                                                backend.controllers.Ticketing.details(eventId: String)
-GET       /backend/events/:eventId/ticketing/register                                       backend.controllers.Ticketing.register(eventId: String)
-POST      /backend/events/:eventId/ticketing/register                                       backend.controllers.Ticketing.doRegister(eventId: String)
+GET       /backend/events/:eventId/ticketing/configure                                      backend.controllers.Ticketing.configure(eventId: String)
+POST      /backend/events/:eventId/ticketing/configure                                      backend.controllers.Ticketing.doConfigure(eventId: String)
+POST      /backend/events/:eventId/ticketing/activate                                       backend.controllers.Ticketing.activate(eventId: String, activated: Boolean = true)
+POST      /backend/events/:eventId/ticketing/desactivate                                    backend.controllers.Ticketing.activate(eventId: String, activated: Boolean = false)
+GET       /events/:eventId/register                                                         backend.controllers.Ticketing.register(eventId: String)
+POST      /events/:eventId/register                                                         backend.controllers.Ticketing.doRegister(eventId: String)
 
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)

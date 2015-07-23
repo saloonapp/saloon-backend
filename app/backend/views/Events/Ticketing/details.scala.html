@@ -7,10 +7,6 @@
 @layout("Ticketing pour "+event.name, "Ticketing", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
 	<div class="block-header">
 		<h2>Option Ticketing pour @event.name</h2>
-		<ul class="actions">
-			<li><a href="#"><i class="md md-edit"></i></a></li>
-			<li><a href="#"><i class="md md-delete"></i></a></li>
-		</ul>
 	</div>
 	<div class="card" id="profile-main">
 		<div class="pm-overview c-overflow">
@@ -19,19 +15,39 @@
 		<div class="pm-body clearfix" style="min-height: 650px;">
 			@if(event.config.hasTicketing()){
 				<div class="pmb-block">
-					<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Option activée</h2></div>
+					<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Le ticketing est activé !</h2></div>
 					<div class="p-l-30">
+						Vous pouvez visualiser le formulaire d'inscription ici :<br>
+						<a href="@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL()" target="_blank">@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL()</a><br>
+						<br>
+						Pour intégrer le formulaire dans votre site, utilisez le code suivant :<br>
+						<code>&lt;iframe src="@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL()">&lt;/iframe></code>
+						<br>
+						<br>
+						<div>
+							<form method="POST" action="@backend.controllers.routes.Ticketing.activate(event.uuid, false)" class="inline"><button type="submit" class="btn btn-lg btn-danger">Désactiver</button></form>
+						</div>
 					</div>
 				</div>
 			}
 			@if(!event.config.hasTicketing()){
-				<div class="pmb-block">
-					<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Activer le ticketing !</h2></div>
-					<div class="p-l-30">
-						<button class="btn btn-lg btn-success">Activer</button>
+				@if(event.config.attendeeSurvey.isDefined){
+					<div class="pmb-block">
+						<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Activer le ticketing !</h2></div>
+						<div class="p-l-30">
+							<form method="POST" action="@backend.controllers.routes.Ticketing.activate(event.uuid, true)" class="inline"><button type="submit" class="btn btn-lg btn-success">Activer</button></form>
+							<a href="@backend.controllers.routes.Ticketing.configure(event.uuid)" class="btn btn-lg btn-default">Configurer</a>
+						</div>
 					</div>
-				</div>
-				
+				}
+				@if(event.config.attendeeSurvey.isEmpty){
+					<div class="pmb-block">
+						<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Configurer le ticketing !</h2></div>
+						<div class="p-l-30">
+							<a href="@backend.controllers.routes.Ticketing.configure(event.uuid)" class="btn btn-lg btn-success">Configurer</a>
+						</div>
+					</div>
+				}
 			}
 		</div>
 	</div>
