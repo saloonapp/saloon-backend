@@ -96,7 +96,11 @@ object Ticketing extends SilhouetteEnvironment {
     implicit val user = req.identity
     EventRepository.getByUuid(uuid).map {
       _.map { elt =>
-        Ok(backend.views.html.Events.Ticketing.register(registerForm.fill(AttendeeRegistration.prepare(elt.config.attendeeSurvey.get)), elt))
+        if (elt.config.hasTicketing) {
+          Ok(backend.views.html.Events.Ticketing.register(registerForm.fill(AttendeeRegistration.prepare(elt.config.attendeeSurvey.get)), elt))
+        } else {
+          NotFound(backend.views.html.error("Oups", "No registration opened..."))
+        }
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
