@@ -31,14 +31,14 @@ object Application extends SilhouetteEnvironment {
     Ok(admin.views.html.sample())
   }
 
-  //def migrate = TODO
-  def migrate = Action.async {
+  def migrate = TODO
+  /*def migrate = Action.async {
     for {
       m1 <- migrateUsers()
-      /*m2 <- migrateEvents()
+      m2 <- migrateEvents()
       m3 <- migrateAttendees()
       m4 <- migrateExponents()
-      m5 <- migrateSessions()*/
+      m5 <- migrateSessions()
     } yield {
       Redirect(routes.Application.index).flashing("success" -> "Migrated !")
     }
@@ -48,7 +48,7 @@ object Application extends SilhouetteEnvironment {
       UserRepository.update(e.uuid, e.transform())
     }))
   }
-  /*private def migrateEvents(): Future[List[Option[Event]]] = {
+  private def migrateEvents(): Future[List[Option[Event]]] = {
     EventRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       EventRepository.update(e.uuid, e.transform())
     }))

@@ -8,32 +8,6 @@ import org.joda.time.DateTime
 import com.mohiva.play.silhouette.core.Identity
 import com.mohiva.play.silhouette.core.LoginInfo
 
-case class UserOld(
-  uuid: String = Repository.generateUuid(),
-  organizationId: Option[String] = None,
-  loginInfo: LoginInfo,
-  email: String,
-  info: UserInfo,
-  rights: Map[String, Boolean] = Map(),
-  meta: UserMeta = UserMeta(new DateTime(), new DateTime())) {
-  def transform(): User = User(
-    this.uuid,
-    List(),
-    this.loginInfo,
-    this.email,
-    this.info,
-    this.rights,
-    this.meta)
-}
-object UserOld {
-  implicit val formatUserOrganization = Json.format[UserOrganization]
-  implicit val formatLoginInfo = Json.format[LoginInfo]
-  implicit val formatUserInfo = Json.format[UserInfo]
-  implicit val formatUserRights = Json.format[UserRights]
-  implicit val formatUserMeta = Json.format[UserMeta]
-  implicit val format = Json.format[UserOld]
-}
-
 case class UserOrganization(
   organizationId: String,
   role: String)
