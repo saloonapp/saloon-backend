@@ -27,6 +27,7 @@ case class ExponentMeta(
 case class Exponent(
   uuid: String,
   eventId: String,
+  ownerId: Option[String], // Organization uuid
   name: String,
   description: String,
   descriptionHTML: String,
@@ -68,6 +69,7 @@ object Exponent {
   def merge(e1: Exponent, e2: Exponent): Exponent = Exponent(
     e1.uuid,
     e1.eventId,
+    merge(e1.ownerId, e2.ownerId),
     merge(e1.name, e2.name),
     merge(e1.description, e2.description),
     merge(e1.descriptionHTML, e2.descriptionHTML),
@@ -168,9 +170,9 @@ object ExponentData {
       "source" -> optional(DataSource.fields))(ExponentMetaData.apply)(ExponentMetaData.unapply))(ExponentData.apply)(ExponentData.unapply)
 
   def toModel(d: ExponentMetaData): ExponentMeta = ExponentMeta(d.source, new DateTime(), new DateTime())
-  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, toModel(d.meta))
+  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, None, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, toModel(d.meta))
   def fromModel(d: ExponentMeta): ExponentMetaData = ExponentMetaData(d.source)
   def fromModel(d: Exponent): ExponentData = ExponentData(d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, fromModel(d.meta))
   def merge(m: ExponentMeta, d: ExponentMetaData): ExponentMeta = toModel(d).copy(source = m.source, created = m.created)
-  def merge(m: Exponent, d: ExponentData): Exponent = toModel(d).copy(uuid = m.uuid, meta = merge(m.meta, d.meta))
+  def merge(m: Exponent, d: ExponentData): Exponent = toModel(d).copy(uuid = m.uuid, ownerId = m.ownerId, meta = merge(m.meta, d.meta))
 }

@@ -8,7 +8,7 @@ import play.api.libs.json._
 
 case class UserAction(
   uuid: String,
-  userId: String,
+  userId: String, // id of Device (TODO: should add type 'user' or 'device')
   action: UserActionContent,
   itemType: String,
   itemId: String,

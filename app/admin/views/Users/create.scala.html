@@ -1,7 +1,7 @@
 @import common.models.user.Organization
 @import common.models.user.UserData
 @import admin.views.html._
-@(userForm: Form[UserData], organizations: List[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(userForm: Form[UserData])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout("Créer un utilisateur"){
 	<div class="row">
@@ -10,7 +10,7 @@
 				<div class="widget-header">Créer un utilisateur</div>
 				<div class="widget-body">
 					<form class="form-horizontal" method="POST" action="@admin.controllers.routes.Users.doCreate()">
-						@partials.form(userForm, organizations)
+						@partials.form(userForm)
 						<div class="form-group">
 							<div class="col-md-offset-2 col-md-10">
 								<a href="@admin.controllers.routes.Users.list()" class="btn btn-default">Annuler</a>

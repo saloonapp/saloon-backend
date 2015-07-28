@@ -5,11 +5,13 @@ import common.models.event.Event
 import common.models.event.Attendee
 import common.models.event.Session
 import common.models.event.Exponent
+import common.models.user.User
 import common.models.user.Device
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
+import common.repositories.user.UserRepository
 import common.repositories.user.DeviceRepository
 import common.services.EmailSrv
 import common.services.MandrillSrv
@@ -29,18 +31,24 @@ object Application extends SilhouetteEnvironment {
     Ok(admin.views.html.sample())
   }
 
-  def migrate = TODO
-  /*def migrate = Action.async {
+  //def migrate = TODO
+  def migrate = Action.async {
     for {
-      m1 <- migrateEvents()
-      m2 <- migrateAttendees()
-      m3 <- migrateExponents()
-      m4 <- migrateSessions()
+      m1 <- migrateUsers()
+      /*m2 <- migrateEvents()
+      m3 <- migrateAttendees()
+      m4 <- migrateExponents()
+      m5 <- migrateSessions()*/
     } yield {
       Redirect(routes.Application.index).flashing("success" -> "Migrated !")
     }
   }
-  private def migrateEvents(): Future[List[Option[Event]]] = {
+  private def migrateUsers(): Future[List[Option[User]]] = {
+    UserRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
+      UserRepository.update(e.uuid, e.transform())
+    }))
+  }
+  /*private def migrateEvents(): Future[List[Option[Event]]] = {
     EventRepository.findAllOld().flatMap(list => Future.sequence(list.map { e =>
       EventRepository.update(e.uuid, e.transform())
     }))

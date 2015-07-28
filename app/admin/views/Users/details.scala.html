@@ -1,7 +1,7 @@
 @import common.models.user.Organization
 @import common.models.user.User
 @import admin.views.html._
-@(user: User, organizationOpt: Option[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(user: User, organizations: List[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @layout(user.email) {
 	<div class="row">
@@ -16,7 +16,7 @@
 					</div>
 				</div>
 				<div class="widget-body">
-					@partials.fullItem(user, organizationOpt)
+					@partials.fullItem(user, organizations)
 				</div>
 			</div>
 		</div>

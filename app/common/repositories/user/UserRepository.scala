@@ -1,6 +1,7 @@
 package common.repositories.user
 
 import common.models.user.User
+import common.models.user.UserOld
 import common.models.utils.Page
 import common.repositories.Repository
 import common.repositories.CollectionReferences
@@ -21,6 +22,7 @@ trait MongoDbUserRepository extends Repository[User] {
 
   private val crud = MongoDbCrudUtils(collection, User.format, List("email", "info.firstName", "info.lastName"), "uuid")
 
+  def findAllOld(): Future[List[UserOld]] = collection.find(Json.obj()).cursor[UserOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[User]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[User]] = crud.findPage(query, page, pageSize, sort, filter)
   override def getByUuid(uuid: String): Future[Option[User]] = crud.getByUuid(uuid)

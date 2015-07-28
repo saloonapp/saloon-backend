@@ -3,15 +3,13 @@
 @import common.models.user.UserData
 @import common.views.html.format._
 @import admin.views.html.format._
-@(user: User, organizationOpt: Option[Organization])
+@(user: User, organizations: List[Organization])
 
 <div>
 	<h2>
 		@user.info.firstName @user.info.lastName
-		@organizationOpt.map { organization =>
-			<small>(<a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a>)</small>
-		}.getOrElse {
-			@user.organizationId.map{id => <small>(@id)</small>}.getOrElse("")
+		@if(organizations.length > 0){
+			<small>(@organizations.map {organization =><a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a>}.mkString(", "))</small>
 		}
 		@user.loginInfo.providerID match {
 			case "" => {

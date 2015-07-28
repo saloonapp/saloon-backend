@@ -31,7 +31,7 @@
 							</thead>
 							<tbody>
 								@userPage.items.map { user =>
-									@partials.tableItem(user, user.organizationId.flatMap(id => organizations.find(_.uuid == id)))
+									@partials.tableItem(user, organizations.filter(o => user.organizationIds.find(uo => uo.organizationId == o.uuid).isDefined))
 								}
 							</tbody>
 						</table>

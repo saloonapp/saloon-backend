@@ -48,22 +48,18 @@ object Users extends SilhouetteEnvironment {
     }
   }
 
-  def create = SecuredAction.async { implicit req =>
-    for {
-      organizations <- OrganizationRepository.findAll()
-    } yield {
-      Ok(viewCreate(form, organizations))
-    }
+  def create = SecuredAction { implicit req =>
+    Ok(viewCreate(form))
   }
 
   def doCreate = SecuredAction.async { implicit req =>
     form.bindFromRequest.fold(
-      formWithErrors => OrganizationRepository.findAll().map { organizations => BadRequest(viewCreate(formWithErrors, organizations)) },
+      formWithErrors => Future(BadRequest(viewCreate(formWithErrors))),
       formData => repository.insert(createElt(formData)).flatMap {
         _.map { elt =>
           Future(Redirect(mainRoute.list()).flashing("success" -> successCreateFlash(elt)))
         }.getOrElse {
-          OrganizationRepository.findAll().map { organizations => InternalServerError(viewCreate(form.fill(formData), organizations)).flashing("error" -> errorCreateFlash(formData)) }
+          Future(InternalServerError(viewCreate(form.fill(formData))).flashing("error" -> errorCreateFlash(formData)))
         }
       })
   }
@@ -71,10 +67,10 @@ object Users extends SilhouetteEnvironment {
   def details(uuid: String) = SecuredAction.async { implicit req =>
     for {
       userOpt <- repository.getByUuid(uuid)
-      organizationOpt <- userOpt.flatMap { _.organizationId.map { organizationId => OrganizationRepository.getByUuid(organizationId) } }.getOrElse(Future(None))
+      organizations <- userOpt.map { u => OrganizationRepository.findByUuids(u.organizationIds.map(_.organizationId)) }.getOrElse(Future(List()))
     } yield {
       userOpt.map { elt =>
-        Ok(viewDetails(elt, organizationOpt))
+        Ok(viewDetails(elt, organizations))
       }.getOrElse(NotFound(admin.views.html.error404()))
     }
   }
@@ -82,10 +78,9 @@ object Users extends SilhouetteEnvironment {
   def update(uuid: String) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
-      organizations <- OrganizationRepository.findAll()
     } yield {
       eltOpt.map { elt =>
-        Ok(viewUpdate(form.fill(toData(elt)), organizations, elt))
+        Ok(viewUpdate(form.fill(toData(elt)), elt))
       }.getOrElse(NotFound(admin.views.html.error404()))
     }
   }
@@ -94,12 +89,12 @@ object Users extends SilhouetteEnvironment {
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
-          formWithErrors => OrganizationRepository.findAll().map { organizations => BadRequest(viewUpdate(formWithErrors, organizations, elt)) },
+          formWithErrors => Future(BadRequest(viewUpdate(formWithErrors, elt))),
           formData => repository.update(uuid, updateElt(elt, formData)).flatMap {
             _.map { updatedElt =>
               Future(Redirect(mainRoute.details(uuid)).flashing("success" -> successUpdateFlash(updatedElt)))
             }.getOrElse {
-              OrganizationRepository.findAll().map { organizations => InternalServerError(viewUpdate(form.fill(formData), organizations, elt)).flashing("error" -> errorUpdateFlash(elt)) }
+              Future(InternalServerError(viewUpdate(form.fill(formData), elt)).flashing("error" -> errorUpdateFlash(elt)))
             }
           })
       }.getOrElse(Future(NotFound(admin.views.html.error404())))

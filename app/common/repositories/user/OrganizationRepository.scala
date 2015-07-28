@@ -1,6 +1,7 @@
 package common.repositories.user
 
 import common.models.utils.Page
+import common.models.user.User
 import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
@@ -31,5 +32,6 @@ trait MongoDbOrganizationRepository extends Repository[Organization] {
   }
 
   def findByUuids(uuids: List[String]): Future[List[Organization]] = crud.findByUuids(uuids)
+  def findAllowed(user: User): Future[List[Organization]] = if (user.canAdministrateSaloon()) findAll() else findByUuids(user.organizationIds.map(_.organizationId))
 }
 object OrganizationRepository extends MongoDbOrganizationRepository

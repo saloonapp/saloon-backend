@@ -8,6 +8,35 @@ import org.joda.time.DateTime
 import com.mohiva.play.silhouette.core.Identity
 import com.mohiva.play.silhouette.core.LoginInfo
 
+case class UserOld(
+  uuid: String = Repository.generateUuid(),
+  organizationId: Option[String] = None,
+  loginInfo: LoginInfo,
+  email: String,
+  info: UserInfo,
+  rights: Map[String, Boolean] = Map(),
+  meta: UserMeta = UserMeta(new DateTime(), new DateTime())) {
+  def transform(): User = User(
+    this.uuid,
+    List(),
+    this.loginInfo,
+    this.email,
+    this.info,
+    this.rights,
+    this.meta)
+}
+object UserOld {
+  implicit val formatUserOrganization = Json.format[UserOrganization]
+  implicit val formatLoginInfo = Json.format[LoginInfo]
+  implicit val formatUserInfo = Json.format[UserInfo]
+  implicit val formatUserRights = Json.format[UserRights]
+  implicit val formatUserMeta = Json.format[UserMeta]
+  implicit val format = Json.format[UserOld]
+}
+
+case class UserOrganization(
+  organizationId: String,
+  role: String)
 case class UserInfo(
   firstName: String,
   lastName: String)
@@ -18,7 +47,7 @@ case class UserMeta(
   updated: DateTime)
 case class User(
   uuid: String = Repository.generateUuid(),
-  organizationId: Option[String] = None,
+  organizationIds: List[UserOrganization] = List(),
   loginInfo: LoginInfo,
   email: String,
   info: UserInfo,
@@ -29,6 +58,7 @@ case class User(
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)
 }
 object User {
+  implicit val formatUserOrganization = Json.format[UserOrganization]
   implicit val formatLoginInfo = Json.format[LoginInfo]
   implicit val formatUserInfo = Json.format[UserInfo]
   implicit val formatUserRights = Json.format[UserRights]
@@ -46,13 +76,11 @@ object UserRight {
 
 // mapping object for User Form
 case class UserData(
-  organizationId: Option[String],
   email: String,
   info: UserInfo,
   rights: List[String])
 object UserData {
   val fields = mapping(
-    "organizationId" -> optional(text),
     "email" -> email,
     "info" -> mapping(
       "firstName" -> text,
@@ -60,9 +88,9 @@ object UserData {
     "rights" -> list(text))(UserData.apply)(UserData.unapply)
   val rights: Seq[(String, String)] = UserRight.all.map(r => (r.key, r.label))
 
-  def toModel(d: UserData): User = User(Repository.generateUuid(), d.organizationId, LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
-  def fromModel(d: User): UserData = UserData(d.organizationId, d.email, d.info, fromRights(d.rights))
-  def merge(m: User, d: UserData): User = toModel(d).copy(uuid = m.uuid, loginInfo = m.loginInfo, meta = UserMeta(m.meta.created, new DateTime()))
+  def toModel(d: UserData): User = User(Repository.generateUuid(), List(), LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
+  def fromModel(d: User): UserData = UserData(d.email, d.info, fromRights(d.rights))
+  def merge(m: User, d: UserData): User = toModel(d).copy(uuid = m.uuid, organizationIds = m.organizationIds, loginInfo = m.loginInfo, meta = UserMeta(m.meta.created, new DateTime()))
 
   private def toRights(rights: List[String]): Map[String, Boolean] = rights.map(r => (r, true)).toMap
   private def fromRights(rights: Map[String, Boolean]): List[String] = rights.map(_._1).toList

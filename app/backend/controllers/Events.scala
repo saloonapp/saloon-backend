@@ -23,7 +23,7 @@ object Events extends SilhouetteEnvironment {
 
   def list = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    //implicit val user = User(organizationId = Some("64431896-2e41-4986-9290-4e5dd423377d"), loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.findAll(sort = "-info.start").flatMap { events =>
       val eventsNullFirst = events.filter(_.info.start.isEmpty) ++ events.filter(_.info.start.isDefined)
       EventSrv.addMetadata(eventsNullFirst).map { fullEvents =>
@@ -50,13 +50,13 @@ object Events extends SilhouetteEnvironment {
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
-      organizations <- OrganizationRepository.findAll()
+      organizations <- OrganizationRepository.findAllowed(user)
       categories <- EventRepository.getCategories()
     } yield {
-      if (user.canAdministrateSaloon() || user.organizationId.isDefined) {
+      if (organizations.length > 0) {
         Ok(backend.views.html.Events.create(createForm, organizations, categories))
       } else {
-        Redirect(backend.controllers.routes.Events.list()).flashing("error" -> s"Vous ne pouvez pas créer un événement !")
+        Redirect(backend.controllers.routes.Events.list()).flashing("error" -> s"Vous devez appartenir à une organisation pour créer un événement")
       }
     }
   }
@@ -66,7 +66,7 @@ object Events extends SilhouetteEnvironment {
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     createForm.bindFromRequest.fold(
       formWithErrors => for {
-        organizations <- OrganizationRepository.findAll()
+        organizations <- OrganizationRepository.findAllowed(user)
         categories <- EventRepository.getCategories()
       } yield BadRequest(backend.views.html.Events.create(formWithErrors, organizations, categories)),
       formData => EventRepository.insert(EventCreateData.toModel(formData)).flatMap {
@@ -74,7 +74,7 @@ object Events extends SilhouetteEnvironment {
           Future(Redirect(backend.controllers.routes.Events.details(elt.uuid)).flashing("success" -> s"Événement '${elt.name}' créé !"))
         }.getOrElse {
           for {
-            organizations <- OrganizationRepository.findAll()
+            organizations <- OrganizationRepository.findAllowed(user)
             categories <- EventRepository.getCategories()
           } yield InternalServerError(backend.views.html.Events.create(createForm.fill(formData), organizations, categories)).flashing("error" -> s"Impossible de créer l'événement '${formData.name}'")
         }
@@ -86,11 +86,15 @@ object Events extends SilhouetteEnvironment {
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eltOpt <- EventRepository.getByUuid(uuid)
-      organizations <- OrganizationRepository.findAll()
+      organizations <- OrganizationRepository.findAllowed(user)
       categories <- EventRepository.getCategories()
     } yield {
       eltOpt.map { elt =>
-        Ok(backend.views.html.Events.update(createForm.fill(EventCreateData.fromModel(elt)), elt, organizations, categories))
+        if (organizations.length > 0) {
+          Ok(backend.views.html.Events.update(createForm.fill(EventCreateData.fromModel(elt)), elt, organizations, categories))
+        } else {
+          Redirect(backend.controllers.routes.Events.details(uuid)).flashing("error" -> s"Vous devez appartenir à une organisation pour modifier un événement")
+        }
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -102,7 +106,7 @@ object Events extends SilhouetteEnvironment {
       _.map { elt =>
         createForm.bindFromRequest.fold(
           formWithErrors => for {
-            organizations <- OrganizationRepository.findAll()
+            organizations <- OrganizationRepository.findAllowed(user)
             categories <- EventRepository.getCategories()
           } yield BadRequest(backend.views.html.Events.update(formWithErrors, elt, organizations, categories)),
           formData => EventRepository.update(uuid, EventCreateData.merge(elt, formData)).flatMap {
@@ -110,7 +114,7 @@ object Events extends SilhouetteEnvironment {
               Future(Redirect(backend.controllers.routes.Events.details(updatedElt.uuid)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
             }.getOrElse {
               for {
-                organizations <- OrganizationRepository.findAll()
+                organizations <- OrganizationRepository.findAllowed(user)
                 categories <- EventRepository.getCategories()
               } yield InternalServerError(backend.views.html.Events.update(createForm.fill(formData), elt, organizations, categories)).flashing("error" -> s"Impossible de modifier l'événement '${elt.name}'")
             }
