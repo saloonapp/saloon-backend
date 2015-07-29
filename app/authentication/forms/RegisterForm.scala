@@ -9,6 +9,5 @@ object RegisterForm {
     mapping(
       "firstName" -> nonEmptyText,
       "lastName" -> nonEmptyText,
-      "email" -> email,
       "password" -> nonEmptyText)(RegisterInfo.apply)(RegisterInfo.unapply))
 }

@@ -2,7 +2,13 @@ package authentication.controllers
 
 import common.models.user.User
 import common.models.user.UserInfo
+import common.models.user.Request
+import common.models.user.AccountRequest
+import common.models.user.UserInvite
 import common.repositories.user.UserRepository
+import common.repositories.user.RequestRepository
+import common.services.EmailSrv
+import common.services.MandrillSrv
 import authentication.models.RegisterInfo
 import authentication.forms.LoginForm
 import authentication.forms.RegisterForm
@@ -21,33 +27,18 @@ import com.mohiva.play.silhouette.core.providers.Credentials
 import com.mohiva.play.silhouette.core.providers.CredentialsProvider
 import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
-/**
- * @param env The Silhouette environment.
- * @param userService The user service implementation.
- * @param authInfoService The auth info service implementation.
- * @param avatarService The avatar service implementation.
- * @param passwordHasher The password hasher implementation.
- */
 object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
-
-  /*def index = UserAwareAction { implicit request =>
-    val userName = request.identity match {
-      case Some(identity) => identity.username
-      case None => "Guest"
-    }
-    Ok(authentication.views.html.index(request.identity, s"Hello $userName"))
-  }*/
 
   def login = UserAwareAction { implicit request =>
     request.identity match {
       case Some(user) => Redirect(backend.controllers.routes.Application.index)
-      case None => Ok(authentication.views.html.login(LoginForm.form))
+      case None => Ok(authentication.views.html.login(LoginForm.credentials, LoginForm.email))
     }
   }
 
   def doLogin = Action.async { implicit request =>
-    LoginForm.form.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(authentication.views.html.login(formWithErrors))),
+    LoginForm.credentials.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(authentication.views.html.login(formWithErrors, LoginForm.email))),
       formData => {
         val r = for {
           loginInfo <- env.providers.get(CredentialsProvider.Credentials) match {
@@ -68,40 +59,83 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
       })
   }
 
-  def register = UserAwareAction { implicit request =>
-    request.identity match {
-      case Some(user) => Redirect(backend.controllers.routes.Application.index)
-      case None => Ok(authentication.views.html.register(RegisterForm.form))
+  def doAccountRequest = Action.async { implicit request =>
+    LoginForm.email.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(authentication.views.html.login(LoginForm.credentials, formWithErrors))),
+      formData => {
+        val email = formData
+        val res: Future[Future[Result]] = for {
+          userOpt <- UserRepository.getByEmail(email)
+          reqOpt <- RequestRepository.getPendingAccountRequestByEmail(email)
+        } yield {
+          userOpt.map { u =>
+            Future(Redirect(authentication.controllers.routes.Auth.login).flashing("error" -> s"L'email $email est déjà utilisé !"))
+          }.getOrElse {
+            reqOpt.map { req => Future(req.uuid) }.getOrElse {
+              val accountRequest = Request.accountRequest(email)
+              RequestRepository.insert(accountRequest).map { err => accountRequest.uuid }
+            }.flatMap { requestId =>
+              val emailData = EmailSrv.generateAccountRequestEmail(email, requestId)
+              MandrillSrv.sendEmail(emailData).map { res =>
+                Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Invitation envoyée à $email")
+              }
+            }
+          }
+        }
+        res.flatMap(identity)
+      })
+  }
+
+  def createAccount(requestId: String) = Action.async { implicit request =>
+    RequestRepository.getPending(requestId).map { reqOpt =>
+      reqOpt.map { req =>
+        req.content match {
+          case accountRequest: AccountRequest => {
+            RequestRepository.update(req.copy(content = accountRequest.copy(visited = accountRequest.visited + 1)))
+            Ok(authentication.views.html.createAccount(requestId, RegisterForm.form))
+          }
+          case userInvite: UserInvite => {
+            RequestRepository.update(req.copy(content = userInvite.copy(visited = userInvite.visited + 1)))
+            Ok(authentication.views.html.createAccount(requestId, RegisterForm.form))
+          }
+          case _ => BadRequest(backend.views.html.error("403", "Bad Request", false))
+        }
+      }.getOrElse(NotFound(backend.views.html.error("404", "Not found...", false)))
     }
   }
 
-  def doRegister = Action.async { implicit request =>
+  def doCreateAccount(requestId: String) = Action.async { implicit request =>
     RegisterForm.form.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(authentication.views.html.register(formWithErrors))),
+      formWithErrors => Future(BadRequest(authentication.views.html.createAccount(requestId, formWithErrors))),
       formData => {
-        val loginInfo = LoginInfo(CredentialsProvider.Credentials, formData.email)
-        val authInfo = passwordHasher.hash(formData.password)
-        val user = User(
-          loginInfo = loginInfo,
-          email = formData.email,
-          info = UserInfo(
-            formData.firstName,
-            formData.lastName))
-        val result = for {
-          user <- userRepository.save(user)
-          authInfo <- authInfoService.save(loginInfo, authInfo)
-          maybeAuthenticator <- env.authenticatorService.create(user)
-        } yield {
-          maybeAuthenticator match {
-            case Some(authenticator) =>
-              env.eventBus.publish(SignUpEvent(user, request, request2lang))
-              env.eventBus.publish(LoginEvent(user, request, request2lang))
-              env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
-            case None => throw new AuthenticationException("Couldn't create an authenticator")
-          }
-        }
-        result.recover {
-          case UserCreationException(msg, t) => Forbidden(msg)
+        RequestRepository.getPending(requestId).flatMap { reqOpt =>
+          reqOpt.map { req =>
+            val emailOpt: Option[String] = req.content match {
+              case accountRequest: AccountRequest => Some(accountRequest.email)
+              case userInvite: UserInvite => Some(userInvite.email)
+              case _ => None
+            }
+            emailOpt.map { email =>
+              val loginInfo = LoginInfo(CredentialsProvider.Credentials, email)
+              val authInfo = passwordHasher.hash(formData.password)
+              val user = User(loginInfo = loginInfo, email = email, info = UserInfo(formData.firstName, formData.lastName))
+
+              val result = for {
+                userOpt <- UserRepository.insert(user)
+                authInfo <- authInfoService.save(loginInfo, authInfo)
+                authenticatorOpt <- env.authenticatorService.create(user)
+                requestUpdated <- RequestRepository.setAccepted(requestId)
+              } yield authenticatorOpt.map { authenticator =>
+                env.eventBus.publish(SignUpEvent(user, request, request2lang))
+                env.eventBus.publish(LoginEvent(user, request, request2lang))
+                env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
+              }.getOrElse {
+                throw new AuthenticationException("Couldn't create an authenticator")
+              }
+
+              result.recover { case UserCreationException(msg, t) => Forbidden(msg) }
+            }.getOrElse(Future(BadRequest(backend.views.html.error("403", "Bad Request"))))
+          }.getOrElse(Future(NotFound(backend.views.html.error("404", "Not found..."))))
         }
       })
   }
@@ -111,49 +145,4 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
     env.authenticatorService.discard(Redirect("/"))
   }
 
-  def createAccount(userId: String) = UserAwareAction.async { implicit request =>
-    UserRepository.getByUuid(userId).map { userOpt =>
-      var registerForm = userOpt.map { user =>
-        RegisterForm.form.fill(RegisterInfo(user.info.firstName, user.info.lastName, user.email, ""))
-      }.getOrElse(RegisterForm.form)
-      Ok(authentication.views.html.createAccount(userOpt, registerForm))
-    }
-  }
-
-  def doCreateAccount(userId: String) = Action.async { implicit request =>
-    UserRepository.getByUuid(userId).flatMap { userOpt =>
-      RegisterForm.form.bindFromRequest.fold(
-        formWithErrors => Future(BadRequest(authentication.views.html.createAccount(userOpt, formWithErrors))),
-        formData => {
-          userOpt.map { user =>
-            val loginInfo = LoginInfo(CredentialsProvider.Credentials, formData.email)
-            val authInfo = passwordHasher.hash(formData.password)
-            val newUser = user.copy(
-              loginInfo = loginInfo,
-              email = formData.email,
-              info = UserInfo(
-                formData.firstName,
-                formData.lastName))
-            val result = for {
-              user <- UserRepository.update(userId, newUser)
-              authInfo <- authInfoService.save(loginInfo, authInfo)
-              maybeAuthenticator <- env.authenticatorService.create(newUser)
-            } yield {
-              maybeAuthenticator match {
-                case Some(authenticator) =>
-                  env.eventBus.publish(SignUpEvent(newUser, request, request2lang))
-                  env.eventBus.publish(LoginEvent(newUser, request, request2lang))
-                  env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
-                case None => throw new AuthenticationException("Couldn't create an authenticator")
-              }
-            }
-            result.recover {
-              case UserCreationException(msg, t) => Forbidden(msg)
-            }
-          }.getOrElse {
-            Future(Ok(authentication.views.html.createAccount(userOpt, RegisterForm.form)))
-          }
-        })
-    }
-  }
 }

@@ -7,16 +7,15 @@ GET       /                                                                     
 GET       /sample                                                                           website.controllers.Application.sample
 POST      /contact                                                                          common.controllers.Application.sendContactEmail
 
-#GET       /index                                                                            authentication.controllers.Auth.index
+# Authentication
 GET       /login                                                                            authentication.controllers.Auth.login
-GET       /register                                                                         authentication.controllers.Auth.register
-GET       /logout                                                                           authentication.controllers.Auth.logout
 POST      /login                                                                            authentication.controllers.Auth.doLogin
-POST      /register                                                                         authentication.controllers.Auth.doRegister
-GET       /createAccount/:userId                                                            authentication.controllers.Auth.createAccount(userId: String)
-POST      /createAccount/:userId                                                            authentication.controllers.Auth.doCreateAccount(userId: String)
+POST      /accountRequest                                                                   authentication.controllers.Auth.doAccountRequest
+GET       /createAccount/:requestId                                                         authentication.controllers.Auth.createAccount(requestId: String)
+POST      /createAccount/:requestId                                                         authentication.controllers.Auth.doCreateAccount(requestId: String)
+GET       /logout                                                                           authentication.controllers.Auth.logout
 
-# backend
+# Backend
 GET       /backend                                                                          backend.controllers.Application.index
 GET       /backend/mockups                                                                  backend.controllers.Application.mockups
 GET       /backend/mockups/exponent                                                         backend.controllers.Application.mockupExponent
@@ -27,6 +26,7 @@ GET       /backend/mockups/activityWall                                         
 GET       /backend/mockups/scannedAttendees                                                 backend.controllers.Application.mockupScannedAttendees
 GET       /backend/mockups/scannedDocuments                                                 backend.controllers.Application.mockupScannedDocuments
 GET       /backend/mockups/leads                                                            backend.controllers.Application.mockupLeads
+
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
 POST      /backend/events                                                                   backend.controllers.Events.doCreate
@@ -73,7 +73,7 @@ POST      /events/:eventId/register                                             
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
 
-# admin
+# Admin
 GET       /admin                                                                            admin.controllers.Application.index
 GET       /admin/sample                                                                     admin.controllers.Application.sample
 GET       /admin/migrate                                                                    admin.controllers.Application.migrate

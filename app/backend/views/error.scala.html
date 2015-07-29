@@ -1,5 +1,5 @@
 @import common.views._
-@(title: String = "Oooups", message: String = "Une erreur inattendue vient de se produire...")(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(title: String = "Oooups", message: String = "Une erreur inattendue vient de se produire...", backButton: Boolean = true)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 <!DOCTYPE html>
 <!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
@@ -22,7 +22,7 @@
         <h2>@title</h2>
         <small>@message</small>
         <footer>
-            <a href="javascript:history.back()"><i class="md md-arrow-back"></i></a>
+            @if(backButton){<a href="javascript:history.back()"><i class="md md-arrow-back"></i></a>}
             <a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i></a>
         </footer>
     </div>

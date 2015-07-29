@@ -40,6 +40,6 @@ object Request {
 }
 
 sealed trait RequestContent
-case class AccountRequest(email: String, accountRequest: Boolean = true) extends RequestContent
+case class AccountRequest(email: String, visited: Int = 0, accountRequest: Boolean = true) extends RequestContent
 case class PasswordReset(email: String, passwordReset: Boolean = true) extends RequestContent
-case class UserInvite(email: String, lastInviteSent: Option[DateTime], userInvite: Boolean = true) extends RequestContent
+case class UserInvite(email: String, lastInviteSent: Option[DateTime], visited: Int = 0, userInvite: Boolean = true) extends RequestContent

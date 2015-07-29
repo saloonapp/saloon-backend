@@ -1,20 +1,19 @@
 $(document).ready(function(){
+	//Add class to HTML. This is used to center align the login box
+	$('html').addClass('login-content');
+
 	/*
 	 * Login
 	 */
-	if ($('.login-content')[0]) {
-		//Add class to HTML. This is used to center align the login box
-		$('html').addClass('login-content');
-		
-		$('body').on('click', '[data-block]', function(e){
-			e.preventDefault();
-			$(this).closest('.lc-block').removeClass('toggled');
-			var blockSelector = $(this).data('block');			
-			setTimeout(function(){
-				$(blockSelector).addClass('toggled');
-			});
-		})
-	}
+	$('body').on('click', '[data-block]', function(e){
+		e.preventDefault();
+		$(this).closest('.lc-block').removeClass('toggled');
+		var blockSelector = $(this).data('block');
+		setTimeout(function(){
+			$(blockSelector).addClass('toggled');
+			$(blockSelector).find('input').first().focus();
+		});
+	});
 
 	/*
 	 * Text Field

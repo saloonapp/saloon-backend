@@ -26,3 +26,8 @@ Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
 
 - [play-autosource](https://github.com/mandubian/play-autosource) : automatic REST API :)
 - [Timepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
+
+## Design
+
+- [Material Admin](http://192.185.228.226/projects/ma/v1-4-1/jQuery/index.html)
+- [Materialism](http://www.theme-guys.com/materialism/html/index.html)

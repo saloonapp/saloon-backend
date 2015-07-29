@@ -1,3 +1,4 @@
+@import common.Defaults
 @import common.models.event.Event
 @import common.models.user.User
 @import common.views.html.format._
@@ -18,10 +19,10 @@
 					<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Le ticketing est activé !</h2></div>
 					<div class="p-l-30">
 						Vous pouvez visualiser le formulaire d'inscription ici :<br>
-						<a href="@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL()" target="_blank">@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL()</a><br>
+						<a href="@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL(Defaults.secureUrl)" target="_blank">@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL(Defaults.secureUrl)</a><br>
 						<br>
 						Pour intégrer le formulaire dans votre site, utilisez le code suivant :<br>
-						<code>&lt;iframe src="@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL()">&lt;/iframe></code>
+						<code>&lt;iframe src="@backend.controllers.routes.Ticketing.register(event.uuid).absoluteURL(Defaults.secureUrl)">&lt;/iframe></code>
 						<br>
 						<br>
 						<div>

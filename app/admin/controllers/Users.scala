@@ -128,8 +128,7 @@ object Users extends SilhouetteEnvironment {
     UserRepository.getByUuid(userId).flatMap { userOpt =>
       userOpt.map { user =>
         if (user.loginInfo.providerID == "") {
-          val inviteUrl = authentication.controllers.routes.Auth.createAccount(userId).absoluteURL(false)
-          val emailData = EmailSrv.generateUserInviteEmail(inviteUrl, user.email)
+          val emailData = EmailSrv.generateUserInviteEmail(userId, user.email)
           MandrillSrv.sendEmail(emailData).map { res =>
             Redirect(admin.controllers.routes.Users.details(userId)).flashing("success" -> "Email d'invitation envoyé :)")
           }

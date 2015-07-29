@@ -11,15 +11,13 @@ import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.user.UserActionRepository
 import scala.concurrent.Future
+import play.api.mvc.RequestHeader
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import org.jsoup.Jsoup
 
 case class EmailData(fromName: String, fromEmail: String, to: String, subject: String, html: String, text: String)
 
 object EmailSrv {
-  val senderName = "L'équipe SalooN"
-  val senderEmail = "contact@saloonapp.co"
-
   def generateEventReport(eventId: String, userId: String): Future[Option[EmailData]] = {
     UserActionRepository.findByUserEvent(userId, eventId).flatMap { actions =>
       val subscribeOpt = actions.find(_.action.isSubscribe())
@@ -38,7 +36,7 @@ object EmailSrv {
               val exponentsWithTeam = exponents.map(e => (e, attendees.filter(a => e.info.team.contains(a.uuid))))
               val html = admin.views.html.Email.eventAttendeeReport(eventOpt.get, sessionsWithSpeakers, exponentsWithTeam, actions, subscribe.filter).toString
               val text = Jsoup.parse(html).text()
-              Some(EmailData(senderName, senderEmail, subscribe.email, s"Bilan ${eventOpt.get.name} by SalooN", html, text))
+              Some(EmailData(Defaults.contactName, Defaults.contactEmail, subscribe.email, s"Bilan ${eventOpt.get.name} by SalooN", html, text))
             }
           }
           case _ => Future(None) // not subscribed
@@ -53,10 +51,19 @@ object EmailSrv {
     EmailData(name, email, Defaults.contactEmail, s"Contact SalooN depuis ${source}", html, text)
   }
 
-  def generateUserInviteEmail(inviteUrl: String, email: String): EmailData = {
+  def generateUserInviteEmail(userId: String, email: String)(implicit req: RequestHeader): EmailData = {
+    val inviteUrl = authentication.controllers.routes.Auth.createAccount(userId).absoluteURL(Defaults.secureUrl)
     val html = common.views.html.Email.userInvite(inviteUrl).toString
     val text = common.views.txt.Email.userInvite(inviteUrl).toString
-    EmailData(senderName, senderEmail, email, "Création de votre compte SalooN", html, text)
+    EmailData(Defaults.contactName, Defaults.contactEmail, email, "Création de votre compte SalooN", html, text)
+  }
+
+  def generateAccountRequestEmail(email: String, requestId: String)(implicit req: RequestHeader): EmailData = {
+    val saloonUrl = website.controllers.routes.Application.index().absoluteURL(Defaults.secureUrl)
+    val inviteUrl = authentication.controllers.routes.Auth.createAccount(requestId).absoluteURL(Defaults.secureUrl)
+    val html = authentication.views.html.Email.accountRequest(email, saloonUrl, inviteUrl).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, email, "Invitation à SalooN", html, text)
   }
 
 }

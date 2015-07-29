@@ -3,7 +3,7 @@
 @import common.views._
 @import common.views.html._
 @import common.views.html.forms._
-@(signInForm: Form[Credentials])(implicit lang: Lang, flash: Flash, request: RequestHeader, env: com.mohiva.play.silhouette.core.Environment[User, _])
+@(credentialsForm: Form[Credentials], emailForm: Form[String])(implicit lang: Lang, flash: Flash, request: RequestHeader, env: com.mohiva.play.silhouette.core.Environment[User, _])
 <!DOCTYPE html>
 <!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->
 <!--[if !IE]><!--> <html lang="fr"> <!--<![endif]-->
@@ -13,7 +13,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>@if(!App.isProd()){(@App.getEnv()) }Connexion à l'administration SalooN</title>
+	<title>@if(!App.isProd()){(@App.getEnv()) }Connexion à SalooN</title>
 	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
 
 	<link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
@@ -25,39 +25,56 @@
 	<!-- Login -->
 	<div class="lc-block toggled" id="l-login">
 		@helper.form(action = authentication.controllers.routes.Auth.doLogin()){
-			<div class="input-group m-b-20 @if(signInForm("identifier").hasErrors){has-error}"">
+			<div class="input-group m-b-20 @if(credentialsForm("identifier").hasErrors){has-error}">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
-				<div class="fg-line">
-					@inputText(signInForm("identifier"), 'placeholder->"Email", 'autofocus->"true")
-				</div>
+				<div class="fg-line">@inputText(credentialsForm("identifier"), 'type->"email", 'placeholder->"Email", 'autofocus->"true")</div>
 			</div>
-			<div class="input-group m-b-20 @if(signInForm("password").hasErrors){has-error}">
+			<div class="input-group m-b-20 @if(credentialsForm("password").hasErrors){has-error}">
 				<span class="input-group-addon"><i class="md md-lock"></i></span>
-				<div class="fg-line">
-					@inputText(signInForm("password"), 'type->"password", 'placeholder->"Mot de passe")
-				</div>
+				<div class="fg-line">@inputText(credentialsForm("password"), 'type->"password", 'placeholder->"Mot de passe")</div>
 			</div>
-			<!-- <a href="#" data-block="#l-forget-password">Mot de passe oublié ?</a> -->
 			<button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
 		}
+		<ul class="login-navigation">
+			<li data-block="#l-accountRequest" class="bgm-red">Demander une invitation</li>
+			<!-- <li data-block="#l-forget-password" class="bgm-orange">Mot de passe oublié ?</li> -->
+		</ul>
 	</div>
 
-	<!-- Forgot Password -->
-	<!-- <div class="lc-block" id="l-forget-password">
-		<p class="text-left">Entrez votre email pour réinitialiser votre mot de passe.</p>
-		<div class="input-group m-b-20">
-			<span class="input-group-addon"><i class="md md-email"></i></span>
-			<div class="fg-line">
-				<input type="text" class="form-control" placeholder="Email">
+	<!-- Account Request -->
+	<div class="lc-block left" id="l-accountRequest">
+		<p class="text-left">Demander une invitation à SalooN :</p>
+		@helper.form(action = authentication.controllers.routes.Auth.doAccountRequest()){
+			<div class="input-group m-b-20">
+				<span class="input-group-addon"><i class="md md-email"></i></span>
+				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'placeholder->"Votre email")</div>
 			</div>
-		</div>
-		<div class="text-left"><a href="#" data-block="#l-login"><i class="md  md-arrow-back"></i> Retour</a></div>
-		<a href="" class="btn btn-login btn-danger btn-float"><i class="md md-arrow-forward"></i></a>
-	</div> -->
+			<button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
+		}
+		<ul class="login-navigation">
+			<li data-block="#l-login" class="bgm-green">Se connecter</li>
+		</ul>
+	</div>
+
+	@*<!-- Forgot Password -->
+	<div class="lc-block left" id="l-forget-password">
+		<p class="text-left">Entrez votre email pour réinitialiser votre mot de passe.</p>
+		@helper.form(action = authentication.controllers.routes.Auth.doLogin()){
+			<div class="input-group m-b-20">
+				<span class="input-group-addon"><i class="md md-email"></i></span>
+				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'placeholder->"Votre email")</div>
+			</div>
+			<button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
+		}
+		<ul class="login-navigation">
+			<li data-block="#l-login" class="bgm-green">Se connecter</li>
+		</ul>
+	</div>*@
 
 	<!-- Javascript Libraries -->
 	<script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>
 	<script type="text/javascript" src="@routes.Assets.at("libs/bootstrap/js/bootstrap.min.js")"></script>
+	<script type="text/javascript" src="@routes.Assets.at("libs/bootstrap-growl/bootstrap-growl.min.js")"></script>
 	<script type="text/javascript" src="@routes.Assets.at("libs/Waves/dist/waves.min.js")"></script>
 	<!-- Placeholder for IE9 -->
 	<!--[if IE 9 ]>

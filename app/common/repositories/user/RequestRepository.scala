@@ -19,14 +19,17 @@ trait MongoDbRequestRepository {
 
   private val crud = MongoDbCrudUtils(collection, Request.format, List("action.text"), "uuid")
 
-  def getByUuid(uuid: String): Future[Option[Request]] = crud.getByUuid(uuid)
-  def getAccountRequest(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.accountRequest" -> true))
-  def getPasswordReset(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
-  def getUserInvite(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.userInvite" -> true))
+  //def get(uuid: String): Future[Option[Request]] = crud.getByUuid(uuid)
+  def getPending(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "status" -> Request.Status.pending))
+  def getPendingAccountRequestByEmail(email: String): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountRequest" -> true, "content.email" -> email))
+  //def getAccountRequest(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.accountRequest" -> true))
+  //def getPasswordReset(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
+  //def getUserInvite(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.userInvite" -> true))
 
   def insert(elt: Request): Future[LastError] = crud.insert(elt)
+  def update(elt: Request): Future[LastError] = crud.update(elt.uuid, elt)
   def setAccepted(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.accepted)
-  def setRejected(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.rejected)
+  //def setRejected(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.rejected)
   private def setStatus(uuid: String, status: String): Future[LastError] = crud.update(Json.obj("uuid" -> uuid), Json.obj("$set" -> Json.obj("status" -> status, "updated" -> new DateTime())))
 }
 object RequestRepository extends MongoDbRequestRepository
