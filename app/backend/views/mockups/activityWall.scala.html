@@ -3,7 +3,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Activity Wall", "Activity Wall", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Application.mockups(), "Mockups")){
+@layout("Activity Wall", "mockups_activityWall"){
 	<div class="block-header">
 		<h2>Activity Wall</h2>
 	</div>

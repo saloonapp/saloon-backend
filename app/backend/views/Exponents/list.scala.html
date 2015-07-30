@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(exponentPage: Page[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Exposants à "+event.name, "Exposants", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
+@layout("Exposants à "+event.name, "myEvents_"+event.uuid+"_exponents", Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>

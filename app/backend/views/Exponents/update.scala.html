@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(exponentForm: Form[ExponentCreateData], exponent: Exponent, allAttendees: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Modifier "+exponent.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Exponents.list(event.uuid), "Exposants"), (backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid), exponent.name)){
+@layout("Modifier "+exponent.name, "myEvents_"+event.uuid+"_exponents_"+exponent.uuid+"_edit", Map(event.uuid -> event.name, exponent.uuid -> exponent.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Modifier @exponent.name :</h2>

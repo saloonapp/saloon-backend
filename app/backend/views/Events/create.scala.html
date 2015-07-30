@@ -5,7 +5,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(eventForm: Form[EventCreateData], organizations: List[Organization], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Créer un événement", "Créer un événement", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements")){
+@layout("Créer un événement", "myEvents_create"){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Créer un événement :</h2>

@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(sessionForm: Form[SessionCreateData], session: Session, allAttendees: List[Attendee], formats: List[String], categories: List[String], places: List[String], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Modifier "+session.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name), (backend.controllers.routes.Sessions.list(event.uuid), "Sessions"), (backend.controllers.routes.Sessions.details(event.uuid, session.uuid), session.name)){
+@layout("Modifier "+session.name, "myEvents_"+event.uuid+"_sessions_"+session.uuid+"_edit", Map(event.uuid -> event.name, session.uuid -> session.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Modifier @session.name :</h2>

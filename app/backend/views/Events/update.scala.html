@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(eventForm: Form[EventCreateData], event: Event, organizations: List[Organization], categories: List[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Modifier "+event.name, "Modification", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
+@layout("Modifier "+event.name, "myEvents_"+event.uuid+"_edit", Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Modifier @event.name :</h2>

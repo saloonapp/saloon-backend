@@ -3,7 +3,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Visiteurs scannés", "Visiteurs scannés", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Application.mockups(), "Mockups")){
+@layout("Visiteurs scannés", "mockups_scannedAttendees"){
 	<div class="row">
 		<div class="col-md-12">
 			<div class="card">

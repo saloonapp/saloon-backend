@@ -1,12 +1,12 @@
 @import common.models.user.User
 @import common.views.html._
-@(title: String, breadcrumbTitle: String, breadcrumbList: (Call, String)*)(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(title: String, breadcrumb: String = "", titles: Map[String, String] = Map())(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main(if(title.length > 0) title+" | SalooN" else "SalooN"){
 	@notifications(flash)
 	@partials.header()
-	@partials.breadcrumb(breadcrumbTitle, breadcrumbList)
+	@partials.breadcrumb(breadcrumb, titles)
 	<section id="main">
-		@partials.sidebar(user)
+		@partials.sidebar(user, breadcrumb)
 		<section id="content">
 			<div class="container">
 				@content

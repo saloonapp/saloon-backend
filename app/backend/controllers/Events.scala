@@ -23,7 +23,7 @@ object Events extends SilhouetteEnvironment {
 
   def list = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(organizationId = Some("64431896-2e41-4986-9290-4e5dd423377d"), loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.findAll(sort = "-info.start").flatMap { events =>
       val eventsNullFirst = events.filter(_.info.start.isEmpty) ++ events.filter(_.info.start.isDefined)
       EventSrv.addMetadata(eventsNullFirst).map { fullEvents =>

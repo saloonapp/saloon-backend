@@ -5,7 +5,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Ticketing pour "+event.name, "Ticketing", (backend.controllers.routes.Application.index(), "Accueil"), (backend.controllers.routes.Events.list(), "Événements"), (backend.controllers.routes.Events.details(event.uuid), event.name)){
+@layout("Ticketing pour "+event.name, "myEvents_"+event.uuid+"_ticketing", Map(event.uuid -> event.name)){
 	<div class="block-header">
 		<h2>Option Ticketing pour @event.name</h2>
 	</div>

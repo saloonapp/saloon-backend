@@ -1,6 +1,9 @@
 @import play.api.mvc.Call
-@(current: String, args: Seq[(Call, String)])
-<ol class="breadcrumb" style="margin-bottom: 0px;">
-	@args.map { arg => <li><a href="@arg._1">@arg._2</a></li> }
-	<li class="active">@current</li>
-</ol>
+@import backend.views.partials.Breadcrumb
+@(breadcrumb: String, titles: Map[String, String])
+@Breadcrumb.buildBreadcrumb(breadcrumb, titles).map { case (list, current) =>
+	<ol class="breadcrumb" style="margin-bottom: 0px;">
+		@list.map { elt => <li><a href="@elt._1">@elt._2</a></li> }
+		<li class="active">@current</li>
+	</ol>
+}
