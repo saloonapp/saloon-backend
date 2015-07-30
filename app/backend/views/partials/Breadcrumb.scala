@@ -41,45 +41,45 @@ object Breadcrumb {
       case "exponents" => (backend.controllers.routes.Exponents.list(identifiers.get("event").get), "Exposants")
       case "sessions" => (backend.controllers.routes.Sessions.list(identifiers.get("event").get), "Sessions")
       case "ticketing" => (backend.controllers.routes.Ticketing.details(identifiers.get("event").get), "Ticketing")
-      case "create" => prev match {
-        case Some("myEvents") => (backend.controllers.routes.Events.create(), "Créer un événement")
-        case Some("attendees") => (backend.controllers.routes.Attendees.create(identifiers.get("event").get), "Nouveau participant")
-        case Some("exponents") => (backend.controllers.routes.Exponents.create(identifiers.get("event").get), "Nouvel exposant")
-        case Some("sessions") => (backend.controllers.routes.Sessions.create(identifiers.get("event").get), "Nouvelle session")
+      case "create" => prev.get match {
+        case "myEvents" => (backend.controllers.routes.Events.create(), "Créer un événement")
+        case "attendees" => (backend.controllers.routes.Attendees.create(identifiers.get("event").get), "Nouveau participant")
+        case "exponents" => (backend.controllers.routes.Exponents.create(identifiers.get("event").get), "Nouvel exposant")
+        case "sessions" => (backend.controllers.routes.Sessions.create(identifiers.get("event").get), "Nouvelle session")
       }
-      case "edit" => prev2 match {
-        case Some("myEvents") => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
-        case Some("attendees") => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
-        case Some("exponents") => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
-        case Some("sessions") => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
+      case "edit" => prev2.get match {
+        case "myEvents" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
+        case "attendees" => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
+        case "exponents" => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
+        case "sessions" => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
       }
-      case "config" => prev match {
-        case Some("ticketing") => (backend.controllers.routes.Ticketing.configure(identifiers.get("event").get), "Configuration")
+      case "config" => prev.get match {
+        case "ticketing" => (backend.controllers.routes.Ticketing.configure(identifiers.get("event").get), "Configuration")
       }
-      case identifier(id) => prev match {
-        case Some("myEvents") => {
+      case identifier(id) => prev.get match {
+        case "myEvents" => {
           identifiers.put("event", id)
           (backend.controllers.routes.Events.details(id), titles.get(id).get)
         }
-        case Some("attendees") => {
+        case "attendees" => {
           identifiers.put("attendee", id)
           (backend.controllers.routes.Attendees.details(identifiers.get("event").get, id), titles.get(id).get)
         }
-        case Some("exponents") => {
+        case "exponents" => {
           identifiers.put("exponent", id)
           (backend.controllers.routes.Exponents.details(identifiers.get("event").get, id), titles.get(id).get)
         }
-        case Some("sessions") => {
+        case "sessions" => {
           identifiers.put("session", id)
           (backend.controllers.routes.Sessions.details(identifiers.get("event").get, id), titles.get(id).get)
         }
       }
       case "mockups" => (backend.controllers.routes.Application.mockups(), "Mockups")
-      case "activityWall" => prev match { case Some("mockups") => (backend.controllers.routes.Application.mockupActivityWall(), "Activity Wall") }
-      case "exponentForm" => prev match { case Some("mockups") => (backend.controllers.routes.Application.mockupExponentForm(), "Modifier un exposant") }
-      case "leads" => prev match { case Some("mockups") => (backend.controllers.routes.Application.mockupLeads(), "Achat de leads") }
-      case "scannedAttendees" => prev match { case Some("mockups") => (backend.controllers.routes.Application.mockupScannedAttendees(), "Visiteurs scannés") }
-      case "scannedDocuments" => prev match { case Some("mockups") => (backend.controllers.routes.Application.mockupScannedDocuments(), "Documents récoltés") }
+      case "activityWall" => (backend.controllers.routes.Application.mockupActivityWall(), "Activity Wall")
+      case "exponentForm" => (backend.controllers.routes.Application.mockupExponentForm(), "Modifier un exposant")
+      case "leads" => (backend.controllers.routes.Application.mockupLeads(), "Achat de leads")
+      case "scannedAttendees" => (backend.controllers.routes.Application.mockupScannedAttendees(), "Visiteurs scannés")
+      case "scannedDocuments" => (backend.controllers.routes.Application.mockupScannedDocuments(), "Documents récoltés")
     }
   }
 }

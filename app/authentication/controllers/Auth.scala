@@ -128,7 +128,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
               } yield authenticatorOpt.map { authenticator =>
                 env.eventBus.publish(SignUpEvent(user, request, request2lang))
                 env.eventBus.publish(LoginEvent(user, request, request2lang))
-                env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
+                env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.welcome))
               }.getOrElse {
                 throw new AuthenticationException("Couldn't create an authenticator")
               }
