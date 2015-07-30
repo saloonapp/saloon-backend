@@ -16,7 +16,7 @@ object Profile extends SilhouetteEnvironment {
   def details = Action { implicit req =>
     //implicit val user = req.identity
     implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    Ok(backend.views.html.User.details())
+    Ok(backend.views.html.Profile.details())
   }
 
 }

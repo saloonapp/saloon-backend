@@ -1,0 +1,17 @@
+@import common.models.user.User
+@import backend.views.html._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Bienvenue sur SalooN", "welcome"){
+	<div class="card">
+		<div class="card-body card-padding">
+			<h2>Bienvenue sur SalooN !</h2>
+			<p>SalooN est une plateforme permettant de gérer et publier vos événements.</p>
+			<p>
+				Tu peux dès à présent <a href="#">créer une organisation</a> ou en <a href="#">rejoindre une</a> pour gérer les événements.<br>
+				En tant qu'exposant tu peux gérer ta fiche exposant et inviter les autres personnes qui seront sur le stand<br>
+				<br>
+				N'oublie pas de compléter <a href="@backend.controllers.routes.Profile.details()">ton profil</a> aussi afin de ne pas avoir à le faire sur chaque événement !
+			</p>
+		</div>
+	</div>
+}

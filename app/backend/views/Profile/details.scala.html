@@ -1,0 +1,17 @@
+@import common.models.user.User
+@import backend.views.html._
+@import backend.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Bienvenue sur SalooN", "profile"){
+	<div class="card">
+		<div class="card-body card-padding">
+			<div class="media">
+				<div class="pull-left">@avatar("", user.info.firstName)</div>
+				<div class="media-body">
+					<h4 class="media-heading">@user.name()</h4>
+					<button class="btn btn-default" style="margin-bottom: 13px; margin-left: 10px;">Modifier</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}

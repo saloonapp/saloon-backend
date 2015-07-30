@@ -27,6 +27,7 @@ case class User(
   info: UserInfo,
   rights: Map[String, Boolean] = Map(),
   meta: UserMeta = UserMeta(new DateTime(), new DateTime())) extends Identity {
+  def name(): String = this.info.firstName + " " + this.info.lastName
   def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
   def canCreateEvent(): Boolean = hasRight(UserRight.createEvent)
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)

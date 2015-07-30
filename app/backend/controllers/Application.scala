@@ -20,7 +20,8 @@ object Application extends SilhouetteEnvironment {
   def welcome = SecuredAction { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    Ok(backend.views.html.User.welcome())
+    // TODO : customiser le welcome en fonction du profil : orga, exposant, speaker, visiteur
+    Ok(backend.views.html.Profile.welcome())
   }
 
   def mockups = Action { implicit req =>

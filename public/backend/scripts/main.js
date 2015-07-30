@@ -39,6 +39,15 @@ $(document).ready(function(){
 	});
 
 	/*
+	 * Waves Animation
+	 */
+	Waves.attach('.btn:not(.btn-icon):not(.btn-float)');
+	Waves.attach('.btn-icon, .btn-float', ['waves-circle', 'waves-float']);
+	Waves.attach('.main-menu li, .card-event', ['waves-block']); // for sidebar
+	// problem for a.btn (ex: Cancel buttons)
+	Waves.init();
+
+	/*
 	 * Text Field
 	 */
 	// Add blue animated border and remove with condition when focus and blur
