@@ -44,7 +44,7 @@ $(document).ready(function(){
 	Waves.attach('.btn:not(.btn-icon):not(.btn-float)');
 	Waves.attach('.btn-icon, .btn-float', ['waves-circle', 'waves-float']);
 	Waves.attach('.main-menu li, .card-event', ['waves-block']); // for sidebar
-	// problem for a.btn (ex: Cancel buttons)
+	Waves.attach('.feature img', ['waves-circle']); // for event features
 	Waves.init();
 
 	/*
