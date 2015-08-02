@@ -14,21 +14,23 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
+import play.api.data.Forms._
 import com.mohiva.play.silhouette.core.LoginInfo
 
 object Profile extends SilhouetteEnvironment {
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
+  val accessRequestForm = Form(single("organizationId" -> nonEmptyText))
 
-  def details = Action.async { implicit req =>
-    //implicit val user = req.identity
-    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+  def details = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     OrganizationRepository.findAll().map { organizations =>
       val organizationsWithRole = organizations.map(o => (o, user.organizationIds.find(uo => uo.organizationId == o.uuid)))
       val notMemberOrganizations = organizationsWithRole.filter(_._2.isEmpty).map(_._1)
       val memberOrganizationsWithRole = organizationsWithRole.filter(_._2.isDefined).map { case (o, rOpt) => (o, rOpt.get.role) }.sortBy {
         case (orga, role) => UserOrganization.getPriority(role)
       }
-      Ok(backend.views.html.Profile.details(memberOrganizationsWithRole, notMemberOrganizations, organizationForm))
+      Ok(backend.views.html.Profile.details(memberOrganizationsWithRole, notMemberOrganizations, organizationForm, accessRequestForm))
     }
   }
 
@@ -56,4 +58,6 @@ object Profile extends SilhouetteEnvironment {
         }
       })
   }
+
+  def doOrganizationRequestAccess = TODO
 }

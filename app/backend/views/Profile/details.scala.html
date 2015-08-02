@@ -4,7 +4,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @import common.views.html.forms._
-@(userOrganizations: List[(Organization, String)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(userOrganizations: List[(Organization, String)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Bienvenue sur SalooN", "profile"){
 	<div class="row">
 		<div class="col-md-8">
@@ -47,14 +47,11 @@
 					<div class="body-alt body-btn-block bgm-blue">
 						<span class="body-alt-btn">Rejoindre une organisation</span>
 						<div class="body-alt-content">
-							@helper.form(action = backend.controllers.routes.Profile.doCreateOrganization(), 'class->"form-horizontal") {
+							@helper.form(action = backend.controllers.routes.Profile.doOrganizationRequestAccess(), 'class->"form-horizontal") {
 								<div style="padding: 10px;">
-									<h4>Créez une organisation :</h4>
-									<p>Tous les événements sont reliés à une organisation. Vous devez en créer une pour pouvoir créer vos premiers événements.</p>
-									@fieldHorizontal(organizationForm("name"), 'label->"Nom", 'constraints->"false"){field =>
-										<div class="fg-line">@inputText(field, 'placeholder->"ex: SalooN")</div>
-										<p class="help-block">Le nom doit être unique</p>
-									}
+									<h4>Demandez à rejoindre une organisation</h4>
+									<p>Rejoignez vos collègues dans leur organisation pour partager les événements</p>
+									@inputSelect2(accessRequestForm("organizationId"), otherOrganizations.map(o => (o.uuid,o.name)), 'emptyOption->"--")
 								</div>
 								<div class="body-alt-actions">
 									<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>

@@ -31,6 +31,7 @@ GET       /backend/welcome                                                      
 
 GET       /backend/profile                                                                  backend.controllers.Profile.details
 POST      /backend/profile/organization/create                                              backend.controllers.Profile.doCreateOrganization
+POST      /backend/profile/organization/requestAccess                                       backend.controllers.Profile.doOrganizationRequestAccess
 
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
