@@ -18,6 +18,108 @@
 	margin-bottom: 0px;
 }
 
+.card .card-header .btn-float + .btn-float {
+	right: 90px;
+}
+
+.card .card-body {
+	position: relative;
+}
+.card .card-body .body-alt {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	position: absolute;
+	background: @m-red;
+	top: -25px;
+	right: 23px;
+	.transition(all);
+	.backface-visibility(hidden);
+	.transition-duration(200ms);
+	.body-alt-btn {
+		.transition(all);
+		.transition-duration(200ms);
+		.scale(1);
+		&:hover {
+			.rotate(360deg);
+		}
+	}
+	.body-alt-content {
+		overflow: hidden;
+		color: @m-white;
+		.opacity(0);
+		.transition(all);
+		.transition-duration(300ms);
+	}
+	&:not(.toggled){
+		overflow: hidden;
+		.body-alt-btn {
+			position: relative;
+			z-index: 1;
+			display: inline-block;
+			width: 50px;
+			height: 50px;
+			.bg-option();
+			cursor: pointer;
+			text-align: center;
+			font-size: 23px;
+			color: @m-white;
+			line-height: 50px;
+		}
+		&:hover {
+			box-shadow: 0 2px 7px rgba(0, 0, 0, 0.18);
+		}
+	}
+	&.toggled {
+		width: ~"calc(100% - 47px)";
+		height: ~"calc(100% - 25px)";
+		border-radius: 2px;
+		top: 0;
+		z-index: 1;
+		box-shadow: 0 5px 8px rgba(0,0,0,0.2);
+		max-height: 300px;
+		overflow: visible;
+		.body-alt-btn {
+			.scale(0);
+			height: 0;
+			overflow: hidden;
+			float: left;
+		}
+		.body-alt-content {
+			.opacity(1);
+			.body-alt-actions {
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				padding: 5px 10px;
+				border-top: 1px solid rgba(0,0,0,0.1);
+				z-index: 1;
+				& > [body-alt-action] {
+					font-size: 25px;
+					padding: 0 6px;
+					border-radius: 50%;
+					text-align: center;
+					height: 40px;
+					width: 40px;
+					display: inline-block;
+					line-height: 41px;
+					background: none;
+					border: none;
+					color: @m-white;
+					border-radius: 50%;
+					.transition(background-color);
+					.transition-duration(300ms);
+					&:hover {
+					    background-color: rgba(0,0,0,0.1);
+					}
+				}
+			}
+		}
+		&.bgm-white .body-alt-content .body-alt-actions [body-alt-action="dismiss"] { color: @m-red;   }
+		&.bgm-white .body-alt-content .body-alt-actions [body-alt-action="save"]    { color: @m-green; }
+	}
+}
+
 .media {
 	display: block;
 	color: #5e5e5e;

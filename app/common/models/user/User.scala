@@ -11,6 +11,17 @@ import com.mohiva.play.silhouette.core.LoginInfo
 case class UserOrganization(
   organizationId: String,
   role: String)
+object UserOrganization {
+  val owner = "owner"
+  val admin = "admin"
+  val member = "member"
+  val guest = "guest"
+  val all = List(owner, admin, member, guest)
+  def getPriority(role: String): Int = {
+    val index = all.indexOf(role)
+    if (index == -1) all.length + 1 else index + 1
+  }
+}
 case class UserInfo(
   firstName: String,
   lastName: String)

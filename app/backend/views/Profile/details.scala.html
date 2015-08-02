@@ -1,15 +1,53 @@
 @import common.models.user.User
+@import common.models.user.Organization
 @import backend.views.html._
 @import backend.views.html.partials._
-@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(organizations: List[(Organization, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Bienvenue sur SalooN", "profile"){
-	<div class="card">
-		<div class="card-body card-padding">
-			<div class="media">
-				<div class="pull-left">@avatar("", user.info.firstName)</div>
-				<div class="media-body">
-					<h4 class="media-heading">@user.name()</h4>
-					<button class="btn btn-default" style="margin-bottom: 13px; margin-left: 10px;">Modifier</button>
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header">
+					<h2>@user.name()</h2>
+					<ul class="actions">
+						<li><a href=""><i class="md md-edit"></i></a></li>
+					</ul>
+				</div>
+				<div class="card-body card-padding">
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header ch-alt">
+					<h2>Mes organisations</h2>
+				</div>
+				<div class="card-body card-padding">
+					<div class="body-alt">
+						<i class="body-alt-btn md md-add"></i>
+						<div class="body-alt-content">
+							<form>
+								<div style="padding: 10px;">
+									Yo !
+								</div>
+								<div class="body-alt-actions">
+									<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>
+									<button type="submit" body-alt-action="save"><i class="md md-check"></i></button>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="min-height: 200px;">
+						@if(organizations.length == 0){
+							Vous ne faites parti d'aucune organisation.
+						}
+						@organizations.map { case (orga, roleOpt) =>
+							<div>
+								@orga.name @roleOpt.map{r => (@r)}
+							</div>
+						}
+					</div>
+					<button class="btn btn-primary btn-block">Rejoindre une organisation</button>
 				</div>
 			</div>
 		</div>

@@ -194,6 +194,25 @@ $(document).ready(function(){
 	});
 
 	/*
+	 * Body alt for cards (like todo-list)
+	 */
+	if($('.card .body-alt')[0]){
+		// handle click on button
+		$('body').on('click', '.card .body-alt > .body-alt-btn', function(){
+			$(this).parent().addClass('toggled');
+		});
+
+		// dismiss
+		$('body').on('click', '.body-alt.toggled [body-alt-action]', function(e){
+			e.preventDefault();
+			var action = $(this).attr('body-alt-action');
+			if(action == 'dismiss'){
+				$(this).closest('.body-alt.toggled').removeClass('toggled');
+			}
+		});
+	}
+
+	/*
 	 * Cloudinary upload (cf http://cloudinary.com/documentation/upload_widget#upload_widget_options)
 	 */
 	$('.cloudinary-upload').each(function(){
