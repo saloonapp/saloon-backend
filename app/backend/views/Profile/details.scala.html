@@ -1,8 +1,10 @@
 @import common.models.user.User
 @import common.models.user.Organization
+@import common.models.user.OrganizationData
 @import backend.views.html._
 @import backend.views.html.partials._
-@(organizations: List[(Organization, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@import common.views.html.forms._
+@(userOrganizations: List[(Organization, String)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Bienvenue sur SalooN", "profile"){
 	<div class="row">
 		<div class="col-md-8">
@@ -23,27 +25,32 @@
 					<h2>Mes organisations</h2>
 				</div>
 				<div class="card-body card-padding">
-					<div class="body-alt">
+					<div class="body-alt bgm-red">
 						<i class="body-alt-btn md md-add"></i>
 						<div class="body-alt-content">
-							<form>
+							@helper.form(action = backend.controllers.routes.Profile.doCreateOrganization(), 'class->"form-horizontal") {
 								<div style="padding: 10px;">
-									Yo !
+									<h4>Créez une organisation :</h4>
+									<p>Tous les événements sont reliés à une organisation. Vous devez en créer une pour pouvoir créer vos premiers événements.</p>
+									@fieldHorizontal(organizationForm("name"), 'label->"Nom", 'constraints->"false"){field =>
+										<div class="fg-line">@inputText(field, 'placeholder->"ex: SalooN")</div>
+										<p class="help-block">Le nom doit être unique</p>
+									}
 								</div>
 								<div class="body-alt-actions">
 									<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>
 									<button type="submit" body-alt-action="save"><i class="md md-check"></i></button>
 								</div>
-							</form>
+							}
 						</div>
 					</div>
 					<div style="min-height: 200px;">
-						@if(organizations.length == 0){
+						@if(userOrganizations.length == 0){
 							Vous ne faites parti d'aucune organisation.
 						}
-						@organizations.map { case (orga, roleOpt) =>
+						@userOrganizations.map { case (orga, role) =>
 							<div>
-								@orga.name @roleOpt.map{r => (@r)}
+								@orga.name (@role)
 							</div>
 						}
 					</div>

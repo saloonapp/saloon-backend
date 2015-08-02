@@ -31,6 +31,7 @@ trait MongoDbOrganizationRepository extends Repository[Organization] {
     } // TODO : return deleted elt !
   }
 
+  def getByName(name: String): Future[Option[Organization]] = crud.getBy("name", name)
   def findByUuids(uuids: List[String]): Future[List[Organization]] = crud.findByUuids(uuids)
   def findAllowed(user: User): Future[List[Organization]] = if (user.canAdministrateSaloon()) findAll() else findByUuids(user.organizationIds.map(_.organizationId))
 }

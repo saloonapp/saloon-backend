@@ -47,6 +47,9 @@
 	.body-alt-content {
 		overflow: hidden;
 		color: @m-white;
+		h4, .form-control {
+			color: @m-white;
+		}
 		.opacity(0);
 		.transition(all);
 		.transition-duration(300ms);
@@ -151,6 +154,31 @@
 	}
 }
 
+@colored-background-text: rgba(255,255,255,0.5); /* rgba(255,255,255,0.5) / rgba(0,0,0,0.2) */
+.bgm-red, .bgm-pink, .bgm-purple, .bgm-deeppurple, .bgm-indigo, .bgm-blue, .bgm-lightblue, .bgm-cyan, .bgm-teal, .bgm-green, .bgm-lightgreen, .bgm-lime, .bgm-yellow, .bgm-amber, .bgm-orange, .bgm-deeporange, .bgm-brown, .bgm-gray, .bgm-bluegray, .bgm-black {
+	.form-control {
+		background-color: transparent;
+		border-color: @colored-background-text;
+	}
+	.form-control::-webkit-input-placeholder {
+		color: @colored-background-text;
+	}
+	.form-control:-moz-placeholder {
+		color: @colored-background-text;
+	}
+	.form-control::-moz-placeholder {
+		color: @colored-background-text;
+	}
+	.form-control:-ms-input-placeholder {
+		color: @colored-background-text;
+	}
+	.fg-line:not([class*=has-]):after {
+		background: @colored-background-text;
+	}
+	.help-block {
+		color: @colored-background-text;
+	}
+}
 .actions > li > form > button, .actions > form > button {
 	background: none;
 	border: none;

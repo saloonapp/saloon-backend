@@ -204,9 +204,9 @@ $(document).ready(function(){
 
 		// dismiss
 		$('body').on('click', '.body-alt.toggled [body-alt-action]', function(e){
-			e.preventDefault();
 			var action = $(this).attr('body-alt-action');
 			if(action == 'dismiss'){
+				e.preventDefault();
 				$(this).closest('.body-alt.toggled').removeClass('toggled');
 			}
 		});
