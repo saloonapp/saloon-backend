@@ -19,9 +19,9 @@ import com.mohiva.play.silhouette.core.LoginInfo
 object Profile extends SilhouetteEnvironment {
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
 
-  def details = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+  def details = Action.async { implicit req =>
+    //implicit val user = req.identity
+    implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     OrganizationRepository.findAll().map { organizations =>
       val organizationsWithRole = organizations.map(o => (o, user.organizationIds.find(uo => uo.organizationId == o.uuid)))
       val notMemberOrganizations = organizationsWithRole.filter(_._2.isEmpty).map(_._1)

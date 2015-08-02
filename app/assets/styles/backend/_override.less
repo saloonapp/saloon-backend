@@ -26,23 +26,15 @@
 	position: relative;
 }
 .card .card-body .body-alt {
-	width: 50px;
-	height: 50px;
-	border-radius: 50%;
 	position: absolute;
 	background: @m-red;
-	top: -25px;
-	right: 23px;
+	color: @m-white;
 	.transition(all);
 	.backface-visibility(hidden);
 	.transition-duration(200ms);
 	.body-alt-btn {
 		.transition(all);
 		.transition-duration(200ms);
-		.scale(1);
-		&:hover {
-			.rotate(360deg);
-		}
 	}
 	.body-alt-content {
 		overflow: hidden;
@@ -58,38 +50,30 @@
 		overflow: hidden;
 		.body-alt-btn {
 			position: relative;
+			display: block;
 			z-index: 1;
-			display: inline-block;
-			width: 50px;
-			height: 50px;
-			.bg-option();
 			cursor: pointer;
 			text-align: center;
-			font-size: 23px;
-			color: @m-white;
-			line-height: 50px;
 		}
-		&:hover {
-			box-shadow: 0 2px 7px rgba(0, 0, 0, 0.18);
+		.body-alt-content {
+			height: 0px;
 		}
 	}
 	&.toggled {
-		width: ~"calc(100% - 47px)";
-		height: ~"calc(100% - 25px)";
 		border-radius: 2px;
 		top: 0;
-		z-index: 1;
+		z-index: 2;
 		box-shadow: 0 5px 8px rgba(0,0,0,0.2);
 		max-height: 300px;
 		overflow: visible;
 		.body-alt-btn {
-			.scale(0);
 			height: 0;
 			overflow: hidden;
 			float: left;
 		}
 		.body-alt-content {
 			.opacity(1);
+			height: initial;
 			.body-alt-actions {
 				position: absolute;
 				bottom: 0;
@@ -120,6 +104,50 @@
 		}
 		&.bgm-white .body-alt-content .body-alt-actions [body-alt-action="dismiss"] { color: @m-red;   }
 		&.bgm-white .body-alt-content .body-alt-actions [body-alt-action="save"]    { color: @m-green; }
+	}
+	&.body-btn-float {
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		top: -25px;
+		right: 23px;
+		.body-alt-btn {
+			&:hover {
+				.rotate(360deg);
+			}
+		}
+		&:not(.toggled){
+			&:hover {
+				box-shadow: 0 2px 7px rgba(0, 0, 0, 0.18);
+			}
+			.body-alt-btn {
+				font-size: 23px;
+				color: @m-white;
+				line-height: 50px;
+			}
+		}
+		&.toggled {
+			width: ~"calc(100% - 47px)";
+			height: ~"calc(100% - 25px)";
+			border-radius: 2px;
+			top: 0;
+		}
+	}
+	&.body-btn-block {
+		width: ~"calc(100% - 47px)";
+		bottom: 23px;
+		&:not(.toggled){
+			text-transform: uppercase;
+			border: 1px solid transparent;
+			white-space: nowrap;
+			padding: 6px 12px;
+			border-radius: 2px;
+			.user-select(none);
+			box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+			&:hover {
+				box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+			}
+		}
 	}
 }
 
