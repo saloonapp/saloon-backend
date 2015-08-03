@@ -6,6 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @import common.views.html.forms._
+@import common.views.html.format._
 @(userOrganizations: List[(Organization, String)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Mon profil", "profile"){
 	<div class="row">
@@ -69,7 +70,16 @@
 						}
 						@userPendingOrganizationRequests.map { case (orga, request) =>
 							<div>
-								Demande d'accès à @orga.name le @request.created
+								Demande d'accès à <b>@orga.name</b> depuis le @date(request.created, "dd MMM à hh'h")
+								<ul class="actions" style="float: right">
+									<li class="dropdown">
+										<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li>@helper.form(action = backend.controllers.routes.Requests.reminder(request.uuid)){<button type="submit">Relancer</button>}</li>
+											<li><a href="">Annuler</a></li>
+										</ul>
+									</li>
+								</ul>
 							</div>
 						}
 						@userOrganizations.map { case (orga, role) =>

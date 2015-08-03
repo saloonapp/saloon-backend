@@ -19,8 +19,9 @@ trait MongoDbRequestRepository {
 
   private val crud = MongoDbCrudUtils(collection, Request.format, List("action.text"), "uuid")
 
-  //def get(uuid: String): Future[Option[Request]] = crud.getByUuid(uuid)
+  //def getByUuid(uuid: String): Future[Option[Request]] = crud.getByUuid(uuid)
   def getPending(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "status" -> Request.Status.pending))
+  def getPendingByUser(uuid: String, userId: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "status" -> Request.Status.pending, "userId" -> userId))
   def getPendingAccountRequestByEmail(email: String): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountRequest" -> true, "content.email" -> email))
   //def getAccountRequest(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.accountRequest" -> true))
   //def getPasswordReset(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))

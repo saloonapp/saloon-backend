@@ -74,7 +74,7 @@ object EmailSrv {
     val rejectUrl = ""
     val html = backend.views.html.Emails.organizationRequest(user, organization, request, acceptUrl, rejectUrl).toString
     val text = Jsoup.parse(html).text()
-    EmailData(user.name(), user.email, organizationOwner.email, s"Demande d'accès à ${organization.name} sur SalooN", html, text)
+    EmailData(user.name(), user.email, organizationOwner.email, s"Demande d'accès à l'organisation ${organization.name} sur SalooN", html, text)
   }
 
 }
