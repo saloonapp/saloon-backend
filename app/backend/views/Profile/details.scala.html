@@ -1,11 +1,13 @@
 @import common.models.user.User
 @import common.models.user.Organization
 @import common.models.user.OrganizationData
+@import common.models.user.Request
+@import org.joda.time.DateTime
 @import backend.views.html._
 @import backend.views.html.partials._
 @import common.views.html.forms._
-@(userOrganizations: List[(Organization, String)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Bienvenue sur SalooN", "profile"){
+@(userOrganizations: List[(Organization, String)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Mon profil", "profile"){
 	<div class="row">
 		<div class="col-md-8">
 			<div class="card">
@@ -52,6 +54,7 @@
 									<h4>Demandez à rejoindre une organisation</h4>
 									<p>Rejoignez vos collègues dans leur organisation pour partager les événements</p>
 									@inputSelect2(accessRequestForm("organizationId"), otherOrganizations.map(o => (o.uuid,o.name)), 'emptyOption->"--")
+									<div class="fg-line" style="margin-top: 10px;">@inputTextarea(accessRequestForm("comment"), 'placeholder->"Raison de votre demande...")</div>
 								</div>
 								<div class="body-alt-actions">
 									<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>
@@ -61,8 +64,13 @@
 						</div>
 					</div>
 					<div style="min-height: 200px; padding-bottom: 10px; margin-bottom: 30px;">
-						@if(userOrganizations.length == 0){
+						@if(userOrganizations.length == 0 && userPendingOrganizationRequests.length == 0){
 							Vous ne faites parti d'aucune organisation.
+						}
+						@userPendingOrganizationRequests.map { case (orga, request) =>
+							<div>
+								Demande d'accès à @orga.name le @request.created
+							</div>
 						}
 						@userOrganizations.map { case (orga, role) =>
 							<div>

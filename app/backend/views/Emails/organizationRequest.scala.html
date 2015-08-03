@@ -1,0 +1,21 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@import common.models.user.OrganizationRequest
+@import common.models.user.Request
+@(user: User, organization: Organization, request: Request, acceptUrl: String, rejectUrl: String)
+
+Bonjour,<br>
+<br>
+@user.name() &lt;<a href="mailto:@user.email">@user.email</a>>, demande un accès à l'organisation <b>@organization.name</b> sur SalooN
+@request.content match {
+	case OrganizationRequest(_, commentOpt, _) => {
+		@commentOpt.map{comment => :<br><blockquote>@comment</blockquote>} 
+	}
+	case _ => {.}
+}
+<br>
+<br>
+Vous pouvez <a href="@acceptUrl" target="_blank">ACCEPTER</a> ou <a href="@rejectUrl" target="_blank">REFUSER</a> cette demande.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

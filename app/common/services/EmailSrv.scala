@@ -4,6 +4,8 @@ import common.Defaults
 import common.models.event.Session
 import common.models.event.Exponent
 import common.models.user.User
+import common.models.user.Organization
+import common.models.user.Request
 import common.models.user.SubscribeUserAction
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
@@ -64,6 +66,15 @@ object EmailSrv {
     val html = authentication.views.html.Email.accountRequest(email, saloonUrl, inviteUrl).toString
     val text = Jsoup.parse(html).text()
     EmailData(Defaults.contactName, Defaults.contactEmail, email, "Invitation à SalooN", html, text)
+  }
+
+  def generateOrganizationRequestEmail(user: User, organization: Organization, organizationOwner: User, request: Request)(implicit req: RequestHeader): EmailData = {
+    // val saloonUrl = website.controllers.routes.Application.index().absoluteURL(Defaults.secureUrl)
+    val acceptUrl = ""
+    val rejectUrl = ""
+    val html = backend.views.html.Emails.organizationRequest(user, organization, request, acceptUrl, rejectUrl).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(user.name(), user.email, organizationOwner.email, s"Demande d'accès à ${organization.name} sur SalooN", html, text)
   }
 
 }

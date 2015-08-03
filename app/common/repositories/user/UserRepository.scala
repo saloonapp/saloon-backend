@@ -1,6 +1,7 @@
 package common.repositories.user
 
 import common.models.user.User
+import common.models.user.UserOrganization
 import common.models.utils.Page
 import common.repositories.Repository
 import common.repositories.CollectionReferences
@@ -40,6 +41,7 @@ trait MongoDbUserRepository extends Repository[User] {
 
   def getByEmail(email: String): Future[Option[User]] = crud.get(Json.obj("email" -> email))
   def findByUuids(uuids: List[String]): Future[List[User]] = crud.findByUuids(uuids)
-  def findByOrganization(organizationId: String): Future[List[User]] = crud.findBy("organizationId", organizationId)
+  def getOrganizationOwner(organizationId: String): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserOrganization.owner)))
+  def findByOrganization(organizationId: String): Future[List[User]] = crud.find(Json.obj("organizationIds.organizationId" -> organizationId))
 }
 object UserRepository extends MongoDbUserRepository
