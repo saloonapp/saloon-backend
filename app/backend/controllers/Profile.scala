@@ -38,15 +38,15 @@ object Profile extends SilhouetteEnvironment {
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       organizations <- OrganizationRepository.findAll()
-      pendingRequests <- RequestRepository.findPendingOrganizationRequests(user.uuid)
-      pendingRequestsForOwnedOrganizations <- RequestRepository.countPendingOrganizationRequestsFor(user.organizationIds.filter(_.role == UserOrganization.owner).map(_.organizationId))
+      pendingRequests <- RequestRepository.findPendingOrganizationRequestsByUser(user.uuid)
+      pendingRequestsForOwnedOrganizations <- RequestRepository.countPendingOrganizationRequestsFor(user.organizationIds.map(_.organizationId).filter(id => user.canAdministrateOrganization(id)))
     } yield {
       // split organizations
-      val (memberOrganizations, notMemberOrganizations) = organizations.partition(o => user.organizationIds.find(uo => uo.organizationId == o.uuid).isDefined)
+      val (memberOrganizations, notMemberOrganizations) = organizations.partition(o => user.organizationRole(o.uuid).isDefined)
       val (pendingOrganizations, otherOrganizations) = notMemberOrganizations.partition(o => findOrganizationRequest(pendingRequests, o.uuid).isDefined)
 
       // transform collections
-      val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationIds.find(uo => uo.organizationId == o.uuid).get.role, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
+      val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationRole(o.uuid).get, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
         case (orga, role, pending) => UserOrganization.getPriority(role)
       }
       val pendingOrganizationsWithDate = pendingOrganizations.map(o => (o, findOrganizationRequest(pendingRequests, o.uuid).get)).sortBy(_._2.created.getMillis())

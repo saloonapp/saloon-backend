@@ -39,6 +39,8 @@ case class User(
   rights: Map[String, Boolean] = Map(),
   meta: UserMeta = UserMeta(new DateTime(), new DateTime())) extends Identity {
   def name(): String = this.info.firstName + " " + this.info.lastName
+  def organizationRole(uuid: String): Option[String] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
+  def canAdministrateOrganization(uuid: String): Boolean = this.organizationRole(uuid).map(_ == UserOrganization.owner).getOrElse(false)
   def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
   def canCreateEvent(): Boolean = hasRight(UserRight.createEvent)
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)

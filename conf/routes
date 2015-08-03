@@ -30,8 +30,9 @@ GET       /backend                                                              
 GET       /backend/welcome                                                                  backend.controllers.Application.welcome
 
 GET       /backend/profile                                                                  backend.controllers.Profile.details
-POST      /backend/profile/organization/create                                              backend.controllers.Profile.doCreateOrganization
-POST      /backend/profile/organization/requestAccess                                       backend.controllers.Profile.doOrganizationRequestAccess
+POST      /backend/profile/organizations/create                                             backend.controllers.Profile.doCreateOrganization
+POST      /backend/profile/organizations/requestAccess                                      backend.controllers.Profile.doOrganizationRequestAccess
+GET       /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.details(organizationId: String)
 
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create

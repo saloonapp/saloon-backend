@@ -36,6 +36,7 @@ object Breadcrumb {
     current match {
       case "home" => (backend.controllers.routes.Application.index(), "Accueil")
       case "profile" => (backend.controllers.routes.Profile.details(), "Profil")
+      case "organizations" => (backend.controllers.routes.Profile.details(), "Organisations")
       case "myEvents" => (backend.controllers.routes.Events.list(), "Mes événements")
       case "attendees" => (backend.controllers.routes.Attendees.list(identifiers.get("event").get), "Participants")
       case "exponents" => (backend.controllers.routes.Exponents.list(identifiers.get("event").get), "Exposants")
@@ -57,6 +58,10 @@ object Breadcrumb {
         case "ticketing" => (backend.controllers.routes.Ticketing.configure(identifiers.get("event").get), "Configuration")
       }
       case identifier(id) => prev.get match {
+        case "organizations" => {
+          identifiers.put("organization", id)
+          (backend.controllers.routes.Organizations.details(id), titles.get(id).get)
+        }
         case "myEvents" => {
           identifiers.put("event", id)
           (backend.controllers.routes.Events.details(id), titles.get(id).get)

@@ -26,7 +26,8 @@ trait MongoDbRequestRepository {
   //def getAccountRequest(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.accountRequest" -> true))
   //def getPasswordReset(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
   //def getUserInvite(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.userInvite" -> true))
-  def findPendingOrganizationRequests(userId: String): Future[List[Request]] = crud.find(Json.obj("userId" -> userId, "status" -> Request.Status.pending, "content.organizationRequest" -> true))
+  def findPendingOrganizationRequestsByUser(userId: String): Future[List[Request]] = crud.find(Json.obj("userId" -> userId, "status" -> Request.Status.pending, "content.organizationRequest" -> true))
+  def findPendingOrganizationRequestsByOrganization(organizationId: String): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> organizationId))
   def countPendingOrganizationRequestsFor(organizationIds: List[String]): Future[Map[String, Int]] = crud.count(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> Json.obj("$in" -> organizationIds)), "content.organizationId")
 
   def insert(elt: Request): Future[LastError] = crud.insert(elt)

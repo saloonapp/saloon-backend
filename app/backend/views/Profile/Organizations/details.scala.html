@@ -1,0 +1,59 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@import common.models.user.Request
+@import backend.views.html._
+@import backend.views.html.partials._
+@import common.views.html.format._
+@(organization: Organization, members: List[User], accessRequests: List[(User, Request)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout(organization.name, "profile_organizations_"+organization.uuid, Map(organization.uuid -> organization.name)){
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header">
+					<h2>@organization.name</h2>
+					<ul class="actions">
+						<li><a href=""><i class="md md-edit"></i></a></li>
+					</ul>
+				</div>
+				<div class="card-body card-padding">
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header ch-alt">
+					<h2>Membres</h2>
+				</div>
+				<div class="card-body card-padding">
+					@if(accessRequests.length > 0){
+						<ul class="list-group">
+							<li class="list-group-item divider">Demandes d'accès :</li>
+							@accessRequests.map { case (user, request) =>
+								<li class="list-group-item">
+									<ul class="actions" style="float: right; margin-top: -6px;">
+										<li class="dropdown">
+											<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
+											<ul class="dropdown-menu dropdown-menu-right">
+												<li>@helper.form(action = backend.controllers.routes.Requests.reminder(request.uuid)){<button type="submit">Accepter</button>}</li>
+												<li>@helper.form(action = backend.controllers.routes.Requests.cancel(request.uuid)){<button type="submit">Refuser</button>}</li>
+											</ul>
+										</li>
+									</ul>
+									<b>@user.name()</b> - le @date(request.created, "dd MMM à HH'h")
+								</li>
+							}
+						</ul>
+					}
+					@members.map { member =>
+						<div class="media">
+							<div class="pull-left">@avatar("", user.info.firstName)</div>
+							<div class="media-body">
+								<h4 class="media-heading">@member.name() @member.organizationRole(organization.uuid).map{role => <small>@role</small>}</h4>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

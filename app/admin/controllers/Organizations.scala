@@ -58,7 +58,7 @@ object Organizations extends SilhouetteEnvironment {
   def details(uuid: String) = SecuredAction.async { implicit req =>
     for {
       organizationOpt <- repository.getByUuid(uuid)
-      users <- UserRepository.findByOrganization(uuid)
+      users <- UserRepository.findOrganizationMembers(uuid)
     } yield {
       organizationOpt.map { elt =>
         Ok(viewDetails(elt, users))
