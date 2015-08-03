@@ -7,7 +7,7 @@
 @import backend.views.html.partials._
 @import common.views.html.forms._
 @import common.views.html.format._
-@(userOrganizations: List[(Organization, String)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(userOrganizations: List[(Organization, String, Int)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Mon profil", "profile"){
 	<div class="row">
 		<div class="col-md-8">
@@ -27,7 +27,7 @@
 				<div class="card-header ch-alt">
 					<h2>Mes organisations</h2>
 				</div>
-				<div class="card-body card-padding">
+				<div class="card-body card-padding" style="padding-top: 30px;">
 					<div class="body-alt body-btn-float bgm-red">
 						<i class="body-alt-btn md md-add"></i>
 						<div class="body-alt-content">
@@ -82,11 +82,11 @@
 								</ul>
 							</div>
 						}
-						@userOrganizations.map { case (orga, role) =>
-							<div>
-								@orga.name (@role)
-							</div>
-						}
+						<ul class="list-group">
+							@userOrganizations.map { case (orga, role, pending) =>
+								<a href="#" class="list-group-item">@if(pending>0){<span class="badge bgm-red" title="Demandes en attente">@pending</span>} @orga.name (@role)</a>
+							}
+						</ul>
 					</div>
 				</div>
 			</div>

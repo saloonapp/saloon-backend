@@ -39,14 +39,15 @@ object Profile extends SilhouetteEnvironment {
     for {
       organizations <- OrganizationRepository.findAll()
       pendingRequests <- RequestRepository.findPendingOrganizationRequests(user.uuid)
+      pendingRequestsForOwnedOrganizations <- RequestRepository.countPendingOrganizationRequestsFor(user.organizationIds.filter(_.role == UserOrganization.owner).map(_.organizationId))
     } yield {
       // split organizations
       val (memberOrganizations, notMemberOrganizations) = organizations.partition(o => user.organizationIds.find(uo => uo.organizationId == o.uuid).isDefined)
       val (pendingOrganizations, otherOrganizations) = notMemberOrganizations.partition(o => findOrganizationRequest(pendingRequests, o.uuid).isDefined)
 
       // transform collections
-      val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationIds.find(uo => uo.organizationId == o.uuid).get.role)).sortBy {
-        case (orga, role) => UserOrganization.getPriority(role)
+      val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationIds.find(uo => uo.organizationId == o.uuid).get.role, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
+        case (orga, role, pending) => UserOrganization.getPriority(role)
       }
       val pendingOrganizationsWithDate = pendingOrganizations.map(o => (o, findOrganizationRequest(pendingRequests, o.uuid).get)).sortBy(_._2.created.getMillis())
 

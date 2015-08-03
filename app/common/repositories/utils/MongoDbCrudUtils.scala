@@ -43,6 +43,7 @@ case class MongoDbCrudUtils[T](
   def getBy(fieldName: String, fieldValue: String): Future[Option[T]] = MongoDbCrudUtils.getBy(fieldValue, collection, fieldName)
   def findBy(fieldName: String, fieldValues: Seq[String]): Future[List[T]] = MongoDbCrudUtils.findByList(fieldValues, collection, fieldName)
   def countFor(fieldName: String, fieldValues: Seq[String]): Future[Map[String, Int]] = MongoDbCrudUtils.countForList(fieldValues, collection, fieldName)
+  def count(filter: JsObject, group: String): Future[Map[String, Int]] = MongoDbCrudUtils.count(filter, group, collection)
   def distinct(field: String, filter: JsObject = Json.obj()): Future[List[String]] = MongoDbCrudUtils.distinct(field, filter, collection)
   def update(uuid: String, elt: T): Future[LastError] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
   def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
@@ -127,12 +128,15 @@ object MongoDbCrudUtils {
   }
 
   def countForList[T](values: Seq[String], collection: JSONCollection, fieldName: String = "uuid"): Future[Map[String, Int]] = {
-    val matchPredicate = Json.obj(fieldName -> Json.obj("$in" -> values))
-    val groupPredicate = Json.obj("_id" -> ("$" + fieldName), "count" -> Json.obj("$sum" -> 1))
+    count(Json.obj(fieldName -> Json.obj("$in" -> values)), fieldName, collection)
+  }
+
+  def count[T](filter: JsObject, group: String, collection: JSONCollection): Future[Map[String, Int]] = {
+    val groupPredicate = Json.obj("_id" -> ("$" + group), "count" -> Json.obj("$sum" -> 1))
     val commandDoc = BSONDocument(
       "aggregate" -> collection.name,
       "pipeline" -> BSONArray(
-        BSONDocument("$match" -> BSONFormats.BSONDocumentFormat.reads(matchPredicate).get),
+        BSONDocument("$match" -> BSONFormats.BSONDocumentFormat.reads(filter).get),
         BSONDocument("$group" -> BSONFormats.BSONDocumentFormat.reads(groupPredicate).get)))
 
     collection.db.command(RawCommand(commandDoc)).map { result =>
