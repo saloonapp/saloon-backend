@@ -28,8 +28,6 @@ object Profile extends SilhouetteEnvironment {
 
   /*
    * TODO :
-   * 	- renvoyer la demande d'invitation
-   * 	- annuler la demande d'invitation
    * 	- voir toutes les demandes d'invitation qu'on a reçue
    * 	- accepter la demande d'invitation
    * 	- refuser la demande d'invitation

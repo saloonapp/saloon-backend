@@ -42,4 +42,22 @@ object Requests extends SilhouetteEnvironment {
       }
     }
   }
+
+  def cancel(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    RequestRepository.getPendingByUser(uuid, user.uuid).flatMap { requestOpt =>
+      requestOpt.map { request =>
+        RequestRepository.setCanceled(uuid).map { err =>
+          request.content match {
+            case OrganizationRequest(_, _, _) => Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Demande annulée !")
+            case _ => Redirect(backend.controllers.routes.Application.index()).flashing("success" -> s"Demande annulée !")
+          }
+        }
+      }.getOrElse {
+        Future(Redirect(backend.controllers.routes.Application.index()).flashing("error" -> "Aucune demande correspondante :("))
+      }
+    }
+  }
+
 }

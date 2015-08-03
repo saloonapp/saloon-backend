@@ -77,6 +77,7 @@ GET       /events/:eventId/register                                             
 POST      /events/:eventId/register                                                         backend.controllers.Ticketing.doRegister(eventId: String)
 
 POST      /backend/requests/:requestId/reminder                                             backend.controllers.Requests.reminder(requestId: String)
+POST      /backend/requests/:requestId/cancel                                               backend.controllers.Requests.cancel(requestId: String)
 
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)

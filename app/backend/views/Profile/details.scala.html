@@ -70,13 +70,13 @@
 						}
 						@userPendingOrganizationRequests.map { case (orga, request) =>
 							<div>
-								Demande d'accès à <b>@orga.name</b> depuis le @date(request.created, "dd MMM à hh'h")
+								Demande d'accès à <b>@orga.name</b> depuis le @date(request.created, "dd MMM à HH'h")
 								<ul class="actions" style="float: right">
 									<li class="dropdown">
 										<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 										<ul class="dropdown-menu dropdown-menu-right">
 											<li>@helper.form(action = backend.controllers.routes.Requests.reminder(request.uuid)){<button type="submit">Relancer</button>}</li>
-											<li><a href="">Annuler</a></li>
+											<li>@helper.form(action = backend.controllers.routes.Requests.cancel(request.uuid)){<button type="submit">Annuler</button>}</li>
 										</ul>
 									</li>
 								</ul>

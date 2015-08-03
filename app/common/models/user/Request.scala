@@ -8,7 +8,7 @@ case class Request(
   uuid: String,
   userId: Option[String], // id of user who initiated the request
   content: RequestContent,
-  status: String, // pending, accepted, rejected
+  status: String, // pending, accepted, rejected, canceled
   created: DateTime,
   updated: DateTime)
 object Request {
@@ -16,6 +16,7 @@ object Request {
     val pending = "pending"
     val accepted = "accepted"
     val rejected = "rejected"
+    val canceled = "canceled"
   }
 
   def accountRequest(email: String): Request = build(AccountRequest(email))
