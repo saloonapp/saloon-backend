@@ -49,6 +49,7 @@
 							<div class="pull-left">@avatar("", user.info.firstName)</div>
 							<div class="media-body">
 								<h4 class="media-heading">@member.name() @member.organizationRole(organization.uuid).map{role => <small>@role</small>}</h4>
+								<a href="mailto:@member.email">@member.email</a>
 							</div>
 						</div>
 					}

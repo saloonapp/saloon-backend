@@ -17,9 +17,12 @@ object UserOrganization {
   val member = "member"
   val guest = "guest"
   val all = List(owner, admin, member, guest)
-  def getPriority(role: String): Int = {
-    val index = all.indexOf(role)
-    if (index == -1) all.length + 1 else index + 1
+  def getPriority(role: String): Int = getPriority(Some(role))
+  def getPriority(roleOpt: Option[String]): Int = {
+    roleOpt.map { role =>
+      val index = all.indexOf(role)
+      if (index == -1) all.length + 1 else index + 1
+    }.getOrElse(all.length + 2)
   }
 }
 case class UserInfo(

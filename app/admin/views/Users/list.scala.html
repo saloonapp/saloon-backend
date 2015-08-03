@@ -31,7 +31,7 @@
 							</thead>
 							<tbody>
 								@userPage.items.map { user =>
-									@partials.tableItem(user, organizations.filter(o => user.organizationIds.find(uo => uo.organizationId == o.uuid).isDefined))
+									@partials.tableItem(user, organizations.filter(o => user.organizationRole(o.uuid).isDefined))
 								}
 							</tbody>
 						</table>

@@ -34,7 +34,7 @@ trait MongoDbRequestRepository {
   def update(elt: Request): Future[LastError] = crud.update(elt.uuid, elt)
   def setAccepted(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.accepted)
   def setCanceled(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.canceled)
-  //def setRejected(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.rejected)
+  def setRejected(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.rejected)
   private def setStatus(uuid: String, status: String): Future[LastError] = crud.update(Json.obj("uuid" -> uuid), Json.obj("$set" -> Json.obj("status" -> status, "updated" -> new DateTime())))
 }
 object RequestRepository extends MongoDbRequestRepository

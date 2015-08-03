@@ -10,7 +10,7 @@
 	<td>@user.email</td>
 	<td>
 		@if(organizations.length > 0){
-			@organizations.map {organization =><a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a>}.mkString(", ")
+			@organizations.map {organization =><a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a>}
 		}
 	</td>
 	<td>

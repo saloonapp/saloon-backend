@@ -69,12 +69,23 @@ object EmailSrv {
   }
 
   def generateOrganizationRequestEmail(user: User, organization: Organization, organizationOwner: User, request: Request)(implicit req: RequestHeader): EmailData = {
-    // val saloonUrl = website.controllers.routes.Application.index().absoluteURL(Defaults.secureUrl)
-    val acceptUrl = ""
-    val rejectUrl = ""
+    val acceptUrl = backend.controllers.routes.Requests.accept(request.uuid).absoluteURL(Defaults.secureUrl)
+    val rejectUrl = backend.controllers.routes.Requests.reject(request.uuid).absoluteURL(Defaults.secureUrl)
     val html = backend.views.html.Emails.organizationRequest(user, organization, request, acceptUrl, rejectUrl).toString
     val text = Jsoup.parse(html).text()
     EmailData(user.name(), user.email, organizationOwner.email, s"Demande d'accès à l'organisation ${organization.name} sur SalooN", html, text)
+  }
+
+  def generateOrganizationRequestAcceptedEmail(user: User, organization: Organization, organizationOwner: User): EmailData = {
+    val html = backend.views.html.Emails.organizationRequestAccepted(organization, organizationOwner).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, user.email, s"Accès accordé à l'organisation ${organization.name} sur SalooN", html, text)
+  }
+
+  def generateOrganizationRequestRejectedEmail(user: User, organization: Organization): EmailData = {
+    val html = backend.views.html.Emails.organizationRequestRejected(organization).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, user.email, s"Accès à l'organisation ${organization.name} refusé :(", html, text)
   }
 
 }

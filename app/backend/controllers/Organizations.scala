@@ -16,9 +16,9 @@ import com.mohiva.play.silhouette.core.LoginInfo
 
 object Organizations extends SilhouetteEnvironment {
 
-  def details(uuid: String) = Action.async { implicit req =>
-    //implicit val user = req.identity
-    implicit val user = User(organizationIds = List(UserOrganization("9fe5b3d4-714c-4c87-821a-677d57a314b7", "owner")), loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+  def details(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(organizationIds = List(UserOrganization("9fe5b3d4-714c-4c87-821a-677d57a314b7", "owner")), loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     user.organizationRole(uuid).map { role =>
       for {
         organizationOpt <- OrganizationRepository.getByUuid(uuid)
@@ -26,7 +26,7 @@ object Organizations extends SilhouetteEnvironment {
         requests <- if (user.canAdministrateOrganization(uuid)) getOrganizationRequests(uuid) else Future(List())
       } yield {
         organizationOpt.map { organization =>
-          Ok(backend.views.html.Profile.Organizations.details(organization, members, requests))
+          Ok(backend.views.html.Profile.Organizations.details(organization, members.sortBy(m => UserOrganization.getPriority(m.organizationRole(uuid))), requests))
         }.getOrElse {
           Redirect(backend.controllers.routes.Profile.details())
         }

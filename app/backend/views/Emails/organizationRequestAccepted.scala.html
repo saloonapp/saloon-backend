@@ -1,0 +1,12 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@(organization: Organization, organizationOwner: User)
+
+Félicitations,<br>
+<br>
+Votre demande d'accès à l'organisation <b>@organization.name</b> sur SalooN vient d'être acceptée par @organizationOwner.name()<br>
+<br>
+Vous pouvez maintenant accéder à l'ensemble des événements appartenant à cette organisation.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN
