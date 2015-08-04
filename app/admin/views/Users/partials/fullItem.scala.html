@@ -11,13 +11,6 @@
 		@if(organizations.length > 0){
 			<small>(@organizations.map {organization => <a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a>})</small>
 		}
-		@user.loginInfo.providerID match {
-			case "" => {
-				<small>En attente...</small>
-				<a class="btn btn-default" href="@admin.controllers.routes.Users.sendInviteEmail(user.uuid)">Envoyer une invitation</a>
-			}
-			case _ => {}
-		}
 	</h2>
 	<a href="mailto:@user.email">@user.email</a><br>
 	<h2>Droits</h2>

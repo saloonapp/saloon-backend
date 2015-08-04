@@ -18,12 +18,6 @@
 			<span class="label label-primary">@UserData.rights.find(_._1 == right).map(_._2).getOrElse("Droit {"+right+"} inconnu...")</span>
 		}
 	</td>
-	<td>
-		@user.loginInfo.providerID match {
-			case "" => {En attente...}
-			case _ => {Créé}
-		}
-	</td>
 	<td>@date(user.meta.created)</td>
 	<td>
 		<a href="@admin.controllers.routes.Users.details(user.uuid)" class="btn btn-default">Détails</a>

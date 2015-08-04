@@ -53,13 +53,6 @@ object EmailSrv {
     EmailData(name, email, Defaults.contactEmail, s"Contact SalooN depuis ${source}", html, text)
   }
 
-  def generateUserInviteEmail(userId: String, email: String)(implicit req: RequestHeader): EmailData = {
-    val inviteUrl = authentication.controllers.routes.Auth.createAccount(userId).absoluteURL(Defaults.secureUrl)
-    val html = common.views.html.Email.userInvite(inviteUrl).toString
-    val text = common.views.txt.Email.userInvite(inviteUrl).toString
-    EmailData(Defaults.contactName, Defaults.contactEmail, email, "Création de votre compte SalooN", html, text)
-  }
-
   def generateAccountRequestEmail(email: String, requestId: String)(implicit req: RequestHeader): EmailData = {
     val saloonUrl = website.controllers.routes.Application.index().absoluteURL(Defaults.secureUrl)
     val inviteUrl = authentication.controllers.routes.Auth.createAccount(requestId).absoluteURL(Defaults.secureUrl)

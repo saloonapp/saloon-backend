@@ -4,7 +4,6 @@ import common.models.user.User
 import common.models.user.UserInfo
 import common.models.user.Request
 import common.models.user.AccountRequest
-import common.models.user.UserInvite
 import common.repositories.user.UserRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
@@ -94,10 +93,6 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             RequestRepository.update(req.copy(content = accountRequest.copy(visited = accountRequest.visited + 1)))
             Ok(authentication.views.html.createAccount(requestId, RegisterForm.form))
           }
-          case userInvite: UserInvite => {
-            RequestRepository.update(req.copy(content = userInvite.copy(visited = userInvite.visited + 1)))
-            Ok(authentication.views.html.createAccount(requestId, RegisterForm.form))
-          }
           case _ => BadRequest(backend.views.html.error("403", "Bad Request", false))
         }
       }.getOrElse(NotFound(backend.views.html.error("404", "Not found...", false)))
@@ -112,7 +107,6 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
           reqOpt.map { req =>
             val emailOpt: Option[String] = req.content match {
               case accountRequest: AccountRequest => Some(accountRequest.email)
-              case userInvite: UserInvite => Some(userInvite.email)
               case _ => None
             }
             emailOpt.map { email =>

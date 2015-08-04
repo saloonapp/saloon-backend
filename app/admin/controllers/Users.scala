@@ -123,21 +123,4 @@ object Users extends SilhouetteEnvironment {
       }.getOrElse(Future(NotFound(admin.views.html.error404())))
     }
   }
-
-  def sendInviteEmail(userId: String) = SecuredAction.async { implicit request =>
-    UserRepository.getByUuid(userId).flatMap { userOpt =>
-      userOpt.map { user =>
-        if (user.loginInfo.providerID == "") {
-          val emailData = EmailSrv.generateUserInviteEmail(userId, user.email)
-          MandrillSrv.sendEmail(emailData).map { res =>
-            Redirect(admin.controllers.routes.Users.details(userId)).flashing("success" -> "Email d'invitation envoyé :)")
-          }
-        } else {
-          Future(Redirect(admin.controllers.routes.Users.details(userId)).flashing("error" -> "L'invitation a déjà été acceptée"))
-        }
-      }.getOrElse {
-        Future(Redirect(admin.controllers.routes.Users.details(userId)).flashing("error" -> s"L'utilisateur $userId n'existe pas"))
-      }
-    }
-  }
 }
