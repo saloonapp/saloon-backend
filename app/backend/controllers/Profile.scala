@@ -28,9 +28,8 @@ object Profile extends SilhouetteEnvironment {
 
   /*
    * TODO :
-   * 	- voir toutes les demandes d'invitation qu'on a reçue
-   * 	- accepter la demande d'invitation
-   * 	- refuser la demande d'invitation
+   * 	- une organisation peut être publique ou privée, on peut demander d'accéder uniquement aux organisations publiques
+   * 	- inviter des utilisateurs dans une organisation
    */
 
   def details = SecuredAction.async { implicit req =>

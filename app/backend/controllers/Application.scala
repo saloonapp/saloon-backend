@@ -14,7 +14,7 @@ import com.mohiva.play.silhouette.core.LoginInfo
 object Application extends SilhouetteEnvironment {
 
   def index = SecuredAction { implicit req =>
-    Redirect(backend.controllers.routes.Events.list())
+    Redirect(backend.controllers.routes.Events.list()).flashing(req.flash)
   }
 
   def welcome = SecuredAction { implicit req =>
