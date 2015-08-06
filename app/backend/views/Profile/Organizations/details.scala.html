@@ -27,28 +27,30 @@
 					<h2>Membres</h2>
 				</div>
 				<div class="card-body card-padding" style="min-height: 350px; padding-top: 30px;">
-					<div class="body-alt body-btn-float bgm-red">
-						<i class="body-alt-btn md md-add"></i>
-						<div class="body-alt-content">
-							@helper.form(action = backend.controllers.routes.Organizations.doOrganizationInvite(organization.uuid), 'class->"form-horizontal") {
-								<div style="padding: 10px;">
-									<h4>Inviter un membre :</h4>
-									<p>Invitez des personnes à vous rejoindre dans cette organisation.</p>
-									@fieldHorizontal(inviteForm("email"), 'label->"Email", 'constraints->"false"){field =>
-										<div class="fg-line">@inputText(field, 'placeholder->"ex: loic@saloonapp.co")</div>
-										<p class="help-block">Email de la personne à inviter.</p>
-									}
-									@fieldHorizontal(inviteForm("comment"), 'label->"", 'constraints->"false"){field =>
-										<div class="fg-line">@inputTextarea(field, 'placeholder->"Message d'invitation ...")</div>
-									}
-								</div>
-								<div class="body-alt-actions">
-									<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>
-									<button type="submit" body-alt-action="save"><i class="md md-check"></i></button>
-								</div>
-							}
+					@if(user.canAdministrateOrganization(organization.uuid)){
+						<div class="body-alt body-btn-float bgm-red">
+							<i class="body-alt-btn md md-add"></i>
+							<div class="body-alt-content">
+								@helper.form(action = backend.controllers.routes.Organizations.doOrganizationInvite(organization.uuid), 'class->"form-horizontal") {
+									<div style="padding: 10px;">
+										<h4>Inviter un membre :</h4>
+										<p>Invitez des personnes à vous rejoindre dans cette organisation.</p>
+										@fieldHorizontal(inviteForm("email"), 'label->"Email", 'constraints->"false"){field =>
+											<div class="fg-line">@inputText(field, 'placeholder->"ex: loic@saloonapp.co")</div>
+											<p class="help-block">Email de la personne à inviter.</p>
+										}
+										@fieldHorizontal(inviteForm("comment"), 'label->"", 'constraints->"false"){field =>
+											<div class="fg-line">@inputTextarea(field, 'placeholder->"Message d'invitation ...")</div>
+										}
+									</div>
+									<div class="body-alt-actions">
+										<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>
+										<button type="submit" body-alt-action="save"><i class="md md-check"></i></button>
+									</div>
+								}
+							</div>
 						</div>
-					</div>
+					}
 					@if(pendingInvites.length > 0){
 						<ul class="list-group">
 							<li class="list-group-item divider">Invitations en attente :</li>

@@ -13,9 +13,12 @@
 		<div class="col-md-8">
 			<div class="card">
 				<div class="card-header">
-					<h2>@user.name()</h2>
+					<h2>
+						@user.name()
+						<small><a href="mailto:@user.email">@user.email</a></small>
+					</h2>
 					<ul class="actions">
-						<li><a href=""><i class="md md-edit"></i></a></li>
+						<li><a href="@backend.controllers.routes.Profile.update()"><i class="md md-edit"></i></a></li>
 					</ul>
 				</div>
 				<div class="card-body card-padding">

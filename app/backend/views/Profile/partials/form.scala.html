@@ -1,0 +1,11 @@
+@import common.models.user.User
+@import backend.forms.UserData
+@import common.views.html.forms._
+@(userForm: Form[UserData])
+
+@fieldHorizontal(userForm("firstName"), 'label -> "Nom"){field =>
+	<div class="row">
+		<div class="col-md-3"><div class="fg-line">@inputText(field, 'placeholder -> "Prénom (ex: Loïc)")</div></div>
+		<div class="col-md-3"><div class="fg-line">@inputText(userForm("lastName"), 'placeholder -> "Nom (ex: Knuchel)")</div></div>
+	</div>
+}

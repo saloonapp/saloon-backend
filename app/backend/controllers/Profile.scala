@@ -13,6 +13,7 @@ import common.repositories.event.EventRepository
 import common.services.EventSrv
 import common.services.EmailSrv
 import common.services.MandrillSrv
+import backend.forms.UserData
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -23,14 +24,9 @@ import play.api.data.Forms._
 import com.mohiva.play.silhouette.core.LoginInfo
 
 object Profile extends SilhouetteEnvironment {
+  val userForm: Form[UserData] = Form(UserData.fields)
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
   val accessRequestForm = Form(tuple("organizationId" -> nonEmptyText, "comment" -> optional(text)))
-
-  /*
-   * TODO :
-   * 	- une organisation peut être publique ou privée, on peut demander d'accéder uniquement aux organisations publiques
-   * 	- inviter des utilisateurs dans une organisation
-   */
 
   def details = SecuredAction.async { implicit req =>
     implicit val user = req.identity
@@ -43,6 +39,7 @@ object Profile extends SilhouetteEnvironment {
       // split organizations
       val (memberOrganizations, notMemberOrganizations) = organizations.partition(o => user.organizationRole(o.uuid).isDefined)
       val (pendingOrganizations, otherOrganizations) = notMemberOrganizations.partition(o => findOrganizationRequest(pendingRequests, o.uuid).isDefined)
+      // val (publicOrganizations, privateOrganizations) = otherOrganizations.partitien(_.public)
 
       // transform collections
       val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationRole(o.uuid).get, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
@@ -54,13 +51,24 @@ object Profile extends SilhouetteEnvironment {
     }
   }
 
-  private def findOrganizationRequest(requests: List[Request], organizationId: String): Option[Request] = {
-    requests.find { r =>
-      r.content match {
-        case OrganizationRequest(id, _, _) => id == organizationId
-        case _ => false
-      }
-    }
+  def update = SecuredAction { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    Ok(backend.views.html.Profile.update(userForm.fill(UserData.fromModel(user))))
+  }
+
+  def doUpdate = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    userForm.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(backend.views.html.Profile.update(formWithErrors))),
+      formData => UserRepository.update(user.uuid, UserData.merge(user, formData)).map {
+        _.map { updatedElt =>
+          Redirect(backend.controllers.routes.Profile.details).flashing("success" -> "Profil mis à jour avec succès")
+        }.getOrElse {
+          InternalServerError(backend.views.html.Profile.update(userForm.fill(formData))).flashing("error" -> "Erreur lors de la modification de votre profil")
+        }
+      })
   }
 
   def doCreateOrganization = SecuredAction.async { implicit req =>
@@ -81,6 +89,15 @@ object Profile extends SilhouetteEnvironment {
       formData => requestOrganisation(formData._1, formData._2, user).map {
         case (category, message) => Redirect(backend.controllers.routes.Profile.details()).flashing(category -> message)
       })
+  }
+
+  private def findOrganizationRequest(requests: List[Request], organizationId: String): Option[Request] = {
+    requests.find { r =>
+      r.content match {
+        case OrganizationRequest(id, _, _) => id == organizationId
+        case _ => false
+      }
+    }
   }
 
   /*

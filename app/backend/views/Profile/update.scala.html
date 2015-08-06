@@ -1,0 +1,28 @@
+@import common.models.user.User
+@import backend.forms.UserData
+@import common.views.html.forms._
+@import backend.views.html._
+@import backend.views.html.partials._
+@(userForm: Form[UserData])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Modifier mon profil", "profile_edit"){
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header">
+					<h2>Modifier mon profil</h2>
+				</div>
+				<div class="card-body card-padding">
+					@helper.form(action = backend.controllers.routes.Profile.doUpdate(), 'class->"form-horizontal") {
+						@partials.form(userForm)
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<a href="@backend.controllers.routes.Profile.details" class="btn btn-default">Annuler</a>
+								<button type="submit" class="btn btn-success">Modifier</button>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

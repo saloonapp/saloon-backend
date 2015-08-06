@@ -48,11 +48,15 @@ object Breadcrumb {
         case "exponents" => (backend.controllers.routes.Exponents.create(identifiers.get("event").get), "Nouvel exposant")
         case "sessions" => (backend.controllers.routes.Sessions.create(identifiers.get("event").get), "Nouvelle session")
       }
-      case "edit" => prev2.get match {
-        case "myEvents" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
-        case "attendees" => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
-        case "exponents" => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
-        case "sessions" => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
+      case "edit" => prev.get match {
+        case "profile" => (backend.controllers.routes.Profile.details, "Modification")
+        case _ =>
+          prev2.get match {
+            case "myEvents" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
+            case "attendees" => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
+            case "exponents" => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
+            case "sessions" => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
+          }
       }
       case "config" => prev.get match {
         case "ticketing" => (backend.controllers.routes.Ticketing.configure(identifiers.get("event").get), "Configuration")

@@ -30,6 +30,8 @@ GET       /backend                                                              
 GET       /backend/welcome                                                                  backend.controllers.Application.welcome
 
 GET       /backend/profile                                                                  backend.controllers.Profile.details
+GET       /backend/profile/edit                                                             backend.controllers.Profile.update
+POST      /backend/profile                                                                  backend.controllers.Profile.doUpdate
 POST      /backend/profile/organizations/create                                             backend.controllers.Profile.doCreateOrganization
 POST      /backend/profile/organizations/requestAccess                                      backend.controllers.Profile.doOrganizationRequestAccess
 GET       /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.details(organizationId: String)
