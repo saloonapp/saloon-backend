@@ -1,0 +1,11 @@
+@import common.models.user.Organization
+@(invitedEmail: String, organization: Organization)
+
+Bonjour,<br>
+<br>
+<a href="mailto:@invitedEmail">@invitedEmail</a> n'a pas accepté votre invitation à rejoindre l'organisation <b>@organization.name</b> sur SalooN.<br>
+<br>
+Si c'est une erreur, vous pouvez l'inviter à nouveau, pensez à bien décrire la raison de cette invitation dans la description pour éviter tout problème.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

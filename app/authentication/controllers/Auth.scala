@@ -4,6 +4,7 @@ import common.models.user.User
 import common.models.user.UserInfo
 import common.models.user.Request
 import common.models.user.AccountRequest
+import common.models.user.AccountInvite
 import common.repositories.user.UserRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
@@ -28,14 +29,14 @@ import com.mohiva.play.silhouette.contrib.services.CachedCookieAuthenticator
 
 object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteEnvironment {
 
-  def login = UserAwareAction { implicit request =>
-    request.identity match {
+  def login = UserAwareAction { implicit req =>
+    req.identity match {
       case Some(user) => Redirect(backend.controllers.routes.Application.index)
       case None => Ok(authentication.views.html.login(LoginForm.credentials, LoginForm.email))
     }
   }
 
-  def doLogin = Action.async { implicit request =>
+  def doLogin = Action.async { implicit req =>
     LoginForm.credentials.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(authentication.views.html.login(formWithErrors, LoginForm.email))),
       formData => {
@@ -47,7 +48,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
           resp <- userRepository.retrieve(loginInfo).flatMap {
             case Some(user) => env.authenticatorService.create(user).map {
               case Some(authenticator) =>
-                env.eventBus.publish(LoginEvent(user, request, request2lang))
+                env.eventBus.publish(LoginEvent(user, req, request2lang))
                 env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
               case None => throw new AuthenticationException("Couldn't create an authenticator")
             }
@@ -58,19 +59,19 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
       })
   }
 
-  def doAccountRequest = Action.async { implicit request =>
+  def doAccountRequest = Action.async { implicit req =>
     LoginForm.email.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(authentication.views.html.login(LoginForm.credentials, formWithErrors))),
       formData => {
         val email = formData
         val res: Future[Future[Result]] = for {
           userOpt <- UserRepository.getByEmail(email)
-          reqOpt <- RequestRepository.getPendingAccountRequestByEmail(email)
+          requestOpt <- RequestRepository.getPendingAccountRequestByEmail(email)
         } yield {
           userOpt.map { u =>
             Future(Redirect(authentication.controllers.routes.Auth.login).flashing("error" -> s"L'email $email est déjà utilisé !"))
           }.getOrElse {
-            reqOpt.map { req => Future(req.uuid) }.getOrElse {
+            requestOpt.map { request => Future(request.uuid) }.getOrElse {
               val accountRequest = Request.accountRequest(email)
               RequestRepository.insert(accountRequest).map { err => accountRequest.uuid }
             }.flatMap { requestId =>
@@ -85,12 +86,16 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
       })
   }
 
-  def createAccount(requestId: String) = Action.async { implicit request =>
-    RequestRepository.getPending(requestId).map { reqOpt =>
-      reqOpt.map { req =>
-        req.content match {
+  def createAccount(requestId: String) = Action.async { implicit req =>
+    RequestRepository.getPending(requestId).map { requestOpt =>
+      requestOpt.map { request =>
+        request.content match {
           case accountRequest: AccountRequest => {
-            RequestRepository.update(req.copy(content = accountRequest.copy(visited = accountRequest.visited + 1)))
+            RequestRepository.update(request.copy(content = accountRequest.copy(visited = accountRequest.visited + 1))) // TODO : replace with : RequestRepository.incrementVisited(requestId)
+            Ok(authentication.views.html.createAccount(requestId, RegisterForm.form))
+          }
+          case accountInvite: AccountInvite => {
+            RequestRepository.update(request.copy(content = accountInvite.copy(visited = accountInvite.visited + 1))) // TODO : replace with : RequestRepository.incrementVisited(requestId)
             Ok(authentication.views.html.createAccount(requestId, RegisterForm.form))
           }
           case _ => BadRequest(backend.views.html.error("403", "Bad Request", false))
@@ -99,15 +104,16 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
     }
   }
 
-  def doCreateAccount(requestId: String) = Action.async { implicit request =>
+  def doCreateAccount(requestId: String) = Action.async { implicit req =>
     RegisterForm.form.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(authentication.views.html.createAccount(requestId, formWithErrors))),
       formData => {
-        RequestRepository.getPending(requestId).flatMap { reqOpt =>
-          reqOpt.map { req =>
-            val emailOpt: Option[String] = req.content match {
-              case accountRequest: AccountRequest => Some(accountRequest.email)
-              case _ => None
+        RequestRepository.getPending(requestId).flatMap { requestOpt =>
+          requestOpt.map { request =>
+            val (emailOpt, redirect) = request.content match {
+              case AccountRequest(email, _, _) => (Some(email), Redirect(backend.controllers.routes.Application.welcome))
+              case AccountInvite(email, nextOpt, _, _) => (Some(email), nextOpt.map(next => Redirect(backend.controllers.routes.Requests.details(next))).getOrElse(Redirect(backend.controllers.routes.Application.welcome)))
+              case _ => (None, Redirect(backend.controllers.routes.Application.welcome))
             }
             emailOpt.map { email =>
               val loginInfo = LoginInfo(CredentialsProvider.Credentials, email)
@@ -120,9 +126,9 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
                 authenticatorOpt <- env.authenticatorService.create(user)
                 requestUpdated <- RequestRepository.setAccepted(requestId)
               } yield authenticatorOpt.map { authenticator =>
-                env.eventBus.publish(SignUpEvent(user, request, request2lang))
-                env.eventBus.publish(LoginEvent(user, request, request2lang))
-                env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.welcome))
+                env.eventBus.publish(SignUpEvent(user, req, request2lang))
+                env.eventBus.publish(LoginEvent(user, req, request2lang))
+                env.authenticatorService.send(authenticator, redirect)
               }.getOrElse {
                 throw new AuthenticationException("Couldn't create an authenticator")
               }
@@ -134,8 +140,8 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
       })
   }
 
-  def logout = SecuredAction { implicit request =>
-    env.eventBus.publish(LogoutEvent(request.identity, request, request2lang))
+  def logout = SecuredAction { implicit req =>
+    env.eventBus.publish(LogoutEvent(req.identity, req, request2lang))
     env.authenticatorService.discard(Redirect("/"))
   }
 

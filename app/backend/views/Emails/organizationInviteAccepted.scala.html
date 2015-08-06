@@ -1,0 +1,12 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@(invitedUser: User, organization: Organization)
+
+Bonjour,<br>
+<br>
+@invitedUser.name() vient d'accepter votre invitation à rejoindre l'organisation <b>@organization.name</b> sur SalooN.<br>
+<br>
+Les données liées à cette organisation lui sont maintenant accessibles.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

@@ -1,0 +1,28 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@import common.models.user.Request
+@import backend.views.html._
+@(request: Request, organization: Organization, organizationOwner: User, commentOpt: Option[String])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Invitation dans l'organisation "+organization.name){
+	<div class="card">
+		<div class="card-body card-padding">
+			<h2>Invitation dans l'organisation @organization.name</h2>
+			<p>@organizationOwner.name() vous à invité danns l'organisation @organization.name</p>
+			@commentOpt.map{comment => <blockquote>@comment</blockquote>}
+			<br><br>
+			<p>Souhaitez-vous accepter cette invitation ?</p>
+			<div class="row">
+				<div class="col-md-6">
+					@helper.form(action = backend.controllers.routes.Requests.reject(request.uuid, Some("welcome")), 'style->"margin: auto;") {
+						<button type="submit" class="btn btn-lg btn-danger">Refuser</button>
+					}
+				</div>
+				<div class="col-md-6">
+					@helper.form(action = backend.controllers.routes.Requests.accept(request.uuid, Some("welcome")), 'style->"margin: auto;") {
+						<button type="submit" class="btn btn-lg btn-success">Accepter</button>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

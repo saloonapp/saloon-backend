@@ -81,4 +81,37 @@ object EmailSrv {
     EmailData(Defaults.contactName, Defaults.contactEmail, user.email, s"Accès à l'organisation ${organization.name} refusé :(", html, text)
   }
 
+  def generateOrganizationInviteEmail(user: User, organization: Organization, invitedUser: User, request: Request)(implicit req: RequestHeader): EmailData = {
+    val acceptUrl = backend.controllers.routes.Requests.accept(request.uuid).absoluteURL(Defaults.secureUrl)
+    val rejectUrl = backend.controllers.routes.Requests.reject(request.uuid).absoluteURL(Defaults.secureUrl)
+    val html = backend.views.html.Emails.organizationInvite(organization, user, request, acceptUrl, rejectUrl).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(user.name(), user.email, invitedUser.email, s"Invitation à l'organisation ${organization.name} sur SalooN", html, text)
+  }
+
+  def generateOrganizationAndSalooNInviteEmail(user: User, organization: Organization, invitedEmail: String, request: Request)(implicit req: RequestHeader): EmailData = {
+    val inviteUrl = authentication.controllers.routes.Auth.createAccount(request.uuid).absoluteURL(Defaults.secureUrl)
+    val html = backend.views.html.Emails.organizationAndSalooNInvite(organization, user, request, inviteUrl).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(user.name(), user.email, invitedEmail, s"Invitation à l'organisation ${organization.name} sur SalooN", html, text)
+  }
+
+  def generateOrganizationInviteAcceptedEmail(invitedUser: User, organization: Organization, organizationOwner: User): EmailData = {
+    val html = backend.views.html.Emails.organizationInviteAccepted(invitedUser, organization).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, organizationOwner.email, s"Invitation à SalooN acceptée par ${invitedUser.name()}", html, text)
+  }
+
+  def generateOrganizationInviteRejectedEmail(invitedEmail: String, organization: Organization, organizationOwner: User): EmailData = {
+    val html = backend.views.html.Emails.organizationInviteRejected(invitedEmail, organization).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, organizationOwner.email, s"Invitation à l'organisation ${organization.name} refusée :(", html, text)
+  }
+
+  def generateOrganizationInviteCanceledEmail(invitedEmail: String, organization: Organization): EmailData = {
+    val html = backend.views.html.Emails.organizationInviteCanceled(organization).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, invitedEmail, s"Invitation à ${organization.name} annulée :(", html, text)
+  }
+
 }

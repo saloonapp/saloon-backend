@@ -41,6 +41,7 @@ trait MongoDbUserRepository extends Repository[User] {
 
   def getByEmail(email: String): Future[Option[User]] = crud.get(Json.obj("email" -> email))
   def findByUuids(uuids: List[String]): Future[List[User]] = crud.findByUuids(uuids)
+  def findByEmails(emails: List[String]): Future[List[User]] = crud.findBy("email", emails)
   def getOrganizationOwner(organizationId: String): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserOrganization.owner)))
   def findOrganizationMembers(organizationId: String): Future[List[User]] = crud.find(Json.obj("organizationIds.organizationId" -> organizationId))
 }

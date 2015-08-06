@@ -9,7 +9,7 @@ Bonjour,<br>
 @user.name() &lt;<a href="mailto:@user.email">@user.email</a>>, demande un accès à l'organisation <b>@organization.name</b> sur SalooN
 @request.content match {
 	case OrganizationRequest(_, commentOpt, _) => {
-		@commentOpt.map{comment => :<br><blockquote>@comment</blockquote>} 
+		@commentOpt.map{comment => :<br><blockquote>@comment</blockquote>}
 	}
 	case _ => {.}
 }

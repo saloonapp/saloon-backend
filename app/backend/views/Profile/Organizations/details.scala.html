@@ -1,10 +1,12 @@
 @import common.models.user.User
 @import common.models.user.Organization
+@import common.models.user.OrganizationInvite
 @import common.models.user.Request
 @import backend.views.html._
 @import backend.views.html.partials._
+@import common.views.html.forms._
 @import common.views.html.format._
-@(organization: Organization, members: List[User], accessRequests: List[(User, Request)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(organization: Organization, members: List[User], pendingRequests: List[(Request, User)], pendingInvites: List[(Request, Option[User])], inviteForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout(organization.name, "profile_organizations_"+organization.uuid, Map(organization.uuid -> organization.name)){
 	<div class="row">
 		<div class="col-md-8">
@@ -24,18 +26,66 @@
 				<div class="card-header ch-alt">
 					<h2>Membres</h2>
 				</div>
-				<div class="card-body card-padding">
-					@if(accessRequests.length > 0){
+				<div class="card-body card-padding" style="min-height: 350px; padding-top: 30px;">
+					<div class="body-alt body-btn-float bgm-red">
+						<i class="body-alt-btn md md-add"></i>
+						<div class="body-alt-content">
+							@helper.form(action = backend.controllers.routes.Organizations.doOrganizationInvite(organization.uuid), 'class->"form-horizontal") {
+								<div style="padding: 10px;">
+									<h4>Inviter un membre :</h4>
+									<p>Invitez des personnes à vous rejoindre dans cette organisation.</p>
+									@fieldHorizontal(inviteForm("email"), 'label->"Email", 'constraints->"false"){field =>
+										<div class="fg-line">@inputText(field, 'placeholder->"ex: loic@saloonapp.co")</div>
+										<p class="help-block">Email de la personne à inviter.</p>
+									}
+									@fieldHorizontal(inviteForm("comment"), 'label->"", 'constraints->"false"){field =>
+										<div class="fg-line">@inputTextarea(field, 'placeholder->"Message d'invitation ...")</div>
+									}
+								</div>
+								<div class="body-alt-actions">
+									<a href="" body-alt-action="dismiss"><i class="md md-close"></i></a>
+									<button type="submit" body-alt-action="save"><i class="md md-check"></i></button>
+								</div>
+							}
+						</div>
+					</div>
+					@if(pendingInvites.length > 0){
 						<ul class="list-group">
-							<li class="list-group-item divider">Demandes d'accès :</li>
-							@accessRequests.map { case (user, request) =>
+							<li class="list-group-item divider">Invitations en attente :</li>
+							@pendingInvites.map { case (request, userOpt) =>
 								<li class="list-group-item">
 									<ul class="actions" style="float: right; margin-top: -6px;">
 										<li class="dropdown">
 											<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 											<ul class="dropdown-menu dropdown-menu-right">
-												<li>@helper.form(action = backend.controllers.routes.Requests.reminder(request.uuid)){<button type="submit">Accepter</button>}</li>
-												<li>@helper.form(action = backend.controllers.routes.Requests.cancel(request.uuid)){<button type="submit">Refuser</button>}</li>
+												<li>@helper.form(action = backend.controllers.routes.Requests.reminder(request.uuid)){<button type="submit">Relancer</button>}</li>
+												<li>@helper.form(action = backend.controllers.routes.Requests.cancel(request.uuid)){<button type="submit">Annuler</button>}</li>
+											</ul>
+										</li>
+									</ul>
+									<b>
+										@userOpt.map(_.name()).getOrElse{
+											@request.content match {
+												case OrganizationInvite(_, email, _, _) => {<a href="mailto:@email">@email</a>}
+												case _ => {Inconnu}
+											}
+										}
+									</b> - le @date(request.created, "dd MMM à HH'h")
+								</li>
+							}
+						</ul>
+					}
+					@if(pendingRequests.length > 0){
+						<ul class="list-group">
+							<li class="list-group-item divider">Demandes d'accès en attente :</li>
+							@pendingRequests.map { case (request, user) =>
+								<li class="list-group-item">
+									<ul class="actions" style="float: right; margin-top: -6px;">
+										<li class="dropdown">
+											<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
+											<ul class="dropdown-menu dropdown-menu-right">
+												<li>@helper.form(action = backend.controllers.routes.Requests.accept(request.uuid)){<button type="submit">Accepter</button>}</li>
+												<li>@helper.form(action = backend.controllers.routes.Requests.reject(request.uuid)){<button type="submit">Refuser</button>}</li>
 											</ul>
 										</li>
 									</ul>

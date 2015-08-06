@@ -24,9 +24,11 @@ trait MongoDbRequestRepository {
   def getPendingByUser(uuid: String, userId: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "status" -> Request.Status.pending, "userId" -> userId))
   def getPendingAccountRequestByEmail(email: String): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountRequest" -> true, "content.email" -> email))
   //def getAccountRequest(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.accountRequest" -> true))
+  def getPendingInviteForRequest(requestId: String): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountInvite" -> true, "content.next" -> requestId))
   //def getPasswordReset(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
   def findPendingOrganizationRequestsByUser(userId: String): Future[List[Request]] = crud.find(Json.obj("userId" -> userId, "status" -> Request.Status.pending, "content.organizationRequest" -> true))
   def findPendingOrganizationRequestsByOrganization(organizationId: String): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> organizationId))
+  def findPendingOrganizationInvitesByOrganization(organizationId: String): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationInvite" -> true, "content.organizationId" -> organizationId))
   def countPendingOrganizationRequestsFor(organizationIds: List[String]): Future[Map[String, Int]] = crud.count(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> Json.obj("$in" -> organizationIds)), "content.organizationId")
 
   def insert(elt: Request): Future[LastError] = crud.insert(elt)
@@ -35,5 +37,7 @@ trait MongoDbRequestRepository {
   def setCanceled(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.canceled)
   def setRejected(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.rejected)
   private def setStatus(uuid: String, status: String): Future[LastError] = crud.update(Json.obj("uuid" -> uuid), Json.obj("$set" -> Json.obj("status" -> status, "updated" -> new DateTime())))
+
+  // TODO : def incrementVisited(requestId: String): Future[LastError] cf Auth.createAccount
 }
 object RequestRepository extends MongoDbRequestRepository

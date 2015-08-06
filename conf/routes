@@ -33,6 +33,7 @@ GET       /backend/profile                                                      
 POST      /backend/profile/organizations/create                                             backend.controllers.Profile.doCreateOrganization
 POST      /backend/profile/organizations/requestAccess                                      backend.controllers.Profile.doOrganizationRequestAccess
 GET       /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.details(organizationId: String)
+POST      /backend/profile/organizations/:organizationId/invite                             backend.controllers.Organizations.doOrganizationInvite(organizationId: String)
 
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
@@ -77,10 +78,11 @@ POST      /backend/events/:eventId/ticketing/desactivate                        
 GET       /events/:eventId/register                                                         backend.controllers.Ticketing.register(eventId: String)
 POST      /events/:eventId/register                                                         backend.controllers.Ticketing.doRegister(eventId: String)
 
+GET       /backend/requests/:requestId                                                      backend.controllers.Requests.details(requestId: String)
 POST      /backend/requests/:requestId/reminder                                             backend.controllers.Requests.reminder(requestId: String)
 POST      /backend/requests/:requestId/cancel                                               backend.controllers.Requests.cancel(requestId: String)
-GET       /backend/requests/:requestId/accept                                               backend.controllers.Requests.accept(requestId: String)
-GET       /backend/requests/:requestId/reject                                               backend.controllers.Requests.reject(requestId: String)
+GET       /backend/requests/:requestId/accept                                               backend.controllers.Requests.accept(requestId: String, dest: Option[String] ?= None)
+GET       /backend/requests/:requestId/reject                                               backend.controllers.Requests.reject(requestId: String, dest: Option[String] ?= None)
 
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
