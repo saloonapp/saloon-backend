@@ -79,7 +79,11 @@ object Profile extends SilhouetteEnvironment {
     organizationForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "Votre organisation n'est pas correcte :(")),
       formData => createOrganization(formData, user).map {
-        case (category, message) => Redirect(backend.controllers.routes.Profile.details()).flashing(category -> message)
+        case (category, message, organizationIdOpt) => organizationIdOpt.map { organizationId =>
+          Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing(category -> message)
+        }.getOrElse {
+          Redirect(backend.controllers.routes.Profile.details()).flashing(category -> message)
+        }
       })
   }
 
@@ -107,19 +111,19 @@ object Profile extends SilhouetteEnvironment {
    * Methods to externalize in a service
    */
 
-  private def createOrganization(formData: OrganizationData, user: User): Future[(String, String)] = {
+  private def createOrganization(formData: OrganizationData, user: User): Future[(String, String, Option[String])] = {
     OrganizationRepository.getByName(formData.name).flatMap { orgOpt =>
       orgOpt.map { org =>
-        Future(("error", s"L'organisation ${formData.name} existe déjà !"))
+        Future(("error", s"L'organisation ${formData.name} existe déjà !", None))
       }.getOrElse {
         OrganizationRepository.insert(OrganizationData.toModel(formData)).flatMap { createdOpt =>
           createdOpt.map { created =>
             val userWithOrg = user.copy(organizationIds = user.organizationIds ++ List(UserOrganization(created.uuid, UserOrganization.owner)))
             UserRepository.update(userWithOrg.uuid, userWithOrg).map { userUpdatedOpt =>
-              ("success", s"Votre organisation ${formData.name} vient d'être créée. Invitez d'autres personnes à vous rejoindre :)")
+              ("success", s"Votre organisation ${formData.name} vient d'être créée. Invitez d'autres personnes à vous rejoindre :)", Some(created.uuid))
             }
           }.getOrElse {
-            Future(("error", s"Erreur lors de la création :("))
+            Future(("error", s"Erreur lors de la création :(", None))
           }
         }
       }
