@@ -1,0 +1,10 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@(leavingUser: User, organization: Organization)
+
+Bonjour,<br>
+<br>
+@leavingUser.name() vient de quitter l'organisation <b>@organization.name</b> sur SalooN.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

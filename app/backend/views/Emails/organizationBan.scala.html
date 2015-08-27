@@ -1,0 +1,10 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@(organization: Organization, organizationOwner: User)
+
+Bonjour,<br>
+<br>
+@organizationOwner.name() vient de révoquer vos accès à l'organisation <b>@organization.name</b> sur SalooN.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

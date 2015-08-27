@@ -13,12 +13,20 @@
 			<div class="card">
 				<div class="card-header">
 					<h2>@organization.name</h2>
-					@if(user.canAdministrateOrganization(organization.uuid)){
-						<ul class="actions">
+					<ul class="actions">
+						@if(user.canAdministrateOrganization(organization.uuid)){
 							<li><a href=""><i class="md md-edit"></i></a></li>
 							<li><a href="@backend.controllers.routes.Organizations.delete(organization.uuid)"><i class="md md-delete"></i></a></li>
-						</ul>
-					}
+						}
+						@if(!user.canAdministrateOrganization(organization.uuid)){
+							<li class="dropdown">
+								<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
+								<ul class="dropdown-menu dropdown-menu-right">
+									<li>@helper.form(action = backend.controllers.routes.Organizations.leave(organization.uuid)){<button type="submit">Quitter l'organisation</button>}</li>
+								</ul>
+							</li>
+						}
+					</ul>
 				</div>
 				<div class="card-body card-padding">
 				</div>
@@ -102,8 +110,18 @@
 					@members.map { member =>
 						<div class="media">
 							<div class="pull-left">@avatar("", user.info.firstName)</div>
+							@if(user.canAdministrateOrganization(organization.uuid) && !member.canAdministrateOrganization(organization.uuid)){
+								<ul class="actions" style="float: right; margin-top: -6px;">
+									<li class="dropdown">
+										<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li>@helper.form(action = backend.controllers.routes.Organizations.ban(organization.uuid, member.uuid)){<button type="submit">Retirer de l'organisation</button>}</li>
+										</ul>
+									</li>
+								</ul>
+							}
 							<div class="media-body">
-								<h4 class="media-heading">@member.name() @member.organizationRole(organization.uuid).map{role => <small>@role</small>}</h4>
+								<h4 class="media-heading">@member.name() @member.organizationRole(organization.uuid).map{role => <small>@organizationRole(role)</small>}</h4>
 								<a href="mailto:@member.email">@member.email</a>
 							</div>
 						</div>

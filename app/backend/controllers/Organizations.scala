@@ -43,22 +43,6 @@ object Organizations extends SilhouetteEnvironment {
     }
   }
 
-  def doOrganizationInvite(uuid: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    organizationInviteForm.bindFromRequest.fold(
-      formWithErrors => Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Email non valide.")),
-      formData => {
-        if (user.canAdministrateOrganization(uuid)) {
-          organizationInvite(uuid, formData._1, formData._2, user).map {
-            case (category, message) => Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing(category -> message)
-          }
-        } else {
-          Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour inviter des personnes dans cette organisation :("))
-        }
-      })
-  }
-
   /*
    * TODO :
    * 	- what to do for events related to this organization ?
@@ -91,6 +75,80 @@ object Organizations extends SilhouetteEnvironment {
       }
     } else {
       Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour supprimer cette organisation :("))
+    }
+  }
+
+  def doOrganizationInvite(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    organizationInviteForm.bindFromRequest.fold(
+      formWithErrors => Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Email non valide.")),
+      formData => {
+        if (user.canAdministrateOrganization(uuid)) {
+          organizationInvite(uuid, formData._1, formData._2, user).map {
+            case (category, message) => Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing(category -> message)
+          }
+        } else {
+          Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour inviter des personnes dans cette organisation :("))
+        }
+      })
+  }
+
+  // when the user leave an organization
+  def leave(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    if (user.canAdministrateOrganization(uuid)) {
+      Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Impossible de quitter une organisation dont vous êtes le responsable."))
+    } else if (user.organizationRole(uuid).isDefined) {
+      val userWithoutOrg = user.copy(organizationIds = user.organizationIds.filter(_.organizationId != uuid))
+      for {
+        organizationOpt <- OrganizationRepository.getByUuid(uuid)
+        organizationOwnerOpt <- UserRepository.getOrganizationOwner(uuid)
+        updatedUserOpt <- UserRepository.update(userWithoutOrg.uuid, userWithoutOrg)
+      } yield {
+        for {
+          organization <- organizationOpt
+          organizationOwner <- organizationOwnerOpt
+        } yield {
+          val emailData = EmailSrv.generateOrganizationLeaveEmail(user, organization, organizationOwner)
+          MandrillSrv.sendEmail(emailData)
+        }
+        Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Vous ne faites plus parti de l'organisation ${organizationOpt.map(_.name).getOrElse("")}")
+      }
+    } else {
+      Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "Vous ne faites pas parti de cette organisation."))
+    }
+  }
+
+  // when the organization owner ban a member
+  def ban(uuid: String, userId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    if (user.canAdministrateOrganization(uuid)) {
+      val res: Future[Future[Result]] = for {
+        organizationOpt <- OrganizationRepository.getByUuid(uuid)
+        bannedUserOpt <- UserRepository.getByUuid(userId)
+      } yield {
+        if (bannedUserOpt.isDefined && bannedUserOpt.get.organizationRole(uuid).isDefined) {
+          val bannedUser = bannedUserOpt.get
+          val userWithoutOrg = bannedUser.copy(organizationIds = bannedUser.organizationIds.filter(_.organizationId != uuid))
+          UserRepository.update(userWithoutOrg.uuid, userWithoutOrg).map { updatedUserOpt =>
+            for {
+              organization <- organizationOpt
+            } yield {
+              val emailData = EmailSrv.generateOrganizationBanEmail(bannedUser, organization, user)
+              MandrillSrv.sendEmail(emailData)
+            }
+            Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("success" -> s"${userWithoutOrg.name()} ne fait plus parti de l'organisation ${organizationOpt.map(_.name).getOrElse("")}")
+          }
+        } else {
+          Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "L'utilisateur ciblé n'existe pas où ne fait pas parti de l'organisation."))
+        }
+      }
+      res.flatMap(identity)
+    } else {
+      Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits nécessaires."))
     }
   }
 

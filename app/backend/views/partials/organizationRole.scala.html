@@ -1,0 +1,8 @@
+@(role: String)
+@role match {
+	case "owner" => { responsable }
+	case "admin" => { administrateur}
+	case "member" => { membre }
+	case "guest" => { invité }
+	case _ => { @role }
+}

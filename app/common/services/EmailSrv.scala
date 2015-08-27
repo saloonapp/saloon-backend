@@ -114,4 +114,16 @@ object EmailSrv {
     EmailData(Defaults.contactName, Defaults.contactEmail, invitedEmail, s"Invitation à ${organization.name} annulée :(", html, text)
   }
 
+  def generateOrganizationLeaveEmail(leavingUser: User, organization: Organization, organizationOwner: User): EmailData = {
+    val html = backend.views.html.Emails.organizationLeave(leavingUser, organization).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, organizationOwner.email, s"${leavingUser.name()} quitte l'organisation ${organization.name}", html, text)
+  }
+
+  def generateOrganizationBanEmail(bannedUser: User, organization: Organization, organizationOwner: User): EmailData = {
+    val html = backend.views.html.Emails.organizationBan(organization, organizationOwner).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, bannedUser.email, s"Vos accès à l'organisation ${organization.name} sont révoqués", html, text)
+  }
+
 }

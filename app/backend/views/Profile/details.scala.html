@@ -111,7 +111,7 @@
 						<ul class="list-group">
 							@userOrganizations.map { case (orga, role, pending) =>
 								<a href="@backend.controllers.routes.Organizations.details(orga.uuid)" class="list-group-item">
-									@if(pending>0){<span class="badge bgm-red" title="Demandes en attente">@pending</span>} @orga.name (@role)
+									@if(pending>0){<span class="badge bgm-red" title="Demandes en attente">@pending</span>} @orga.name (@organizationRole(role))
 								</a>
 							}
 						</ul>

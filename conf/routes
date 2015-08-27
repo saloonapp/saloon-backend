@@ -38,6 +38,8 @@ GET       /backend/profile/organizations/:organizationId                        
 POST      /backend/profile/organizations/:organizationId/invite                             backend.controllers.Organizations.doOrganizationInvite(organizationId: String)
 GET       /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.delete(organizationId: String)
 POST      /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.doDelete(organizationId: String)
+POST      /backend/profile/organizations/:organizationId/leave                              backend.controllers.Organizations.leave(organizationId: String)
+POST      /backend/profile/organizations/:organizationId/ban/:userId                        backend.controllers.Organizations.ban(organizationId: String, userId: String)
 
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
