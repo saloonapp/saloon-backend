@@ -125,7 +125,7 @@ object Requests extends SilhouetteEnvironment {
                 organizationOpt.map { organization =>
                   val emailData = EmailSrv.generateOrganizationInviteCanceledEmail(email, organization)
                   MandrillSrv.sendEmail(emailData).map { _ =>
-                    Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Invitation annulée !")
+                    Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("success" -> s"Invitation annulée !")
                   }
                 }.getOrElse(Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> s"L'organisation n'existe plus :(")))
               }

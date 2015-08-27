@@ -200,7 +200,7 @@ object Organizations extends SilhouetteEnvironment {
           EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, comment, requestInvite)
         }
         MandrillSrv.sendEmail(emailData).map { res =>
-          ("success", s"Demande d'accès à ${organization.name} envoyée !")
+          ("success", s"Invitation à ${organization.name} envoyée !")
         }
       }.getOrElse(Future(("error", "L'organisation demandée n'existe pas :(")))
     }

@@ -20,7 +20,7 @@ object Breadcrumb {
 
   private def prepare(breadcrumb: String): Option[List[String]] = {
     val list = breadcrumb.split("_").toList
-    if (list.length > 0 && !breadcrumb.startsWith("welcome")) {
+    if (breadcrumb != "" && list.length > 0 && !breadcrumb.startsWith("welcome")) {
       if (breadcrumb.startsWith("home")) {
         Some(list)
       } else {
