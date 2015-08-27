@@ -1,0 +1,4 @@
+@import backend.forms.OrganizationData
+@import common.views.html.forms._
+@(organizationForm: Form[OrganizationData])
+@fieldHorizontal(organizationForm("name"), 'label -> "Nom"){field => <div class="fg-line">@inputText(field, 'placeholder -> "Nom (ex: SalooN)")</div>}

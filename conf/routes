@@ -36,6 +36,8 @@ POST      /backend/profile/organizations/create                                 
 POST      /backend/profile/organizations/requestAccess                                      backend.controllers.Profile.doOrganizationRequestAccess
 GET       /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.details(organizationId: String)
 POST      /backend/profile/organizations/:organizationId/invite                             backend.controllers.Organizations.doOrganizationInvite(organizationId: String)
+GET       /backend/profile/organizations/:organizationId/edit                               backend.controllers.Organizations.update(organizationId: String)
+POST      /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.doUpdate(organizationId: String)
 GET       /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.delete(organizationId: String)
 POST      /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.doDelete(organizationId: String)
 POST      /backend/profile/organizations/:organizationId/leave                              backend.controllers.Organizations.leave(organizationId: String)

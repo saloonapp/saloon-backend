@@ -15,7 +15,7 @@
 					<h2>@organization.name</h2>
 					<ul class="actions">
 						@if(user.canAdministrateOrganization(organization.uuid)){
-							<li><a href=""><i class="md md-edit"></i></a></li>
+							<li><a href="@backend.controllers.routes.Organizations.update(organization.uuid)"><i class="md md-edit"></i></a></li>
 							<li><a href="@backend.controllers.routes.Organizations.delete(organization.uuid)"><i class="md md-delete"></i></a></li>
 						}
 						@if(!user.canAdministrateOrganization(organization.uuid)){

@@ -10,6 +10,7 @@ import common.repositories.user.OrganizationRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
 import common.services.MandrillSrv
+import backend.forms.OrganizationData
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -20,6 +21,7 @@ import play.api.data.Forms._
 import com.mohiva.play.silhouette.core.LoginInfo
 
 object Organizations extends SilhouetteEnvironment {
+  val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
   val organizationInviteForm = Form(tuple("email" -> email, "comment" -> optional(text)))
 
   def details(uuid: String) = SecuredAction.async { implicit req =>
@@ -40,6 +42,44 @@ object Organizations extends SilhouetteEnvironment {
       }
     }.getOrElse {
       Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "Vous n'êtes pas membre de cette organisation."))
+    }
+  }
+
+  def update(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    OrganizationRepository.getByUuid(uuid).map { organizationOpt =>
+      organizationOpt.map { organization =>
+        Ok(backend.views.html.Profile.Organizations.update(organizationForm.fill(OrganizationData.fromModel(organization)), organization))
+      }.getOrElse {
+        Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas.")
+      }
+    }
+  }
+
+  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
+    OrganizationRepository.getByUuid(uuid).flatMap { organizationOpt =>
+      organizationOpt.map { organization =>
+        organizationForm.bindFromRequest.fold(
+          formWithErrors => Future(BadRequest(backend.views.html.Profile.Organizations.update(formWithErrors, organization))),
+          formData => OrganizationRepository.getByName(formData.name).flatMap { orgOpt =>
+            orgOpt.map { org =>
+              Future(BadRequest(backend.views.html.Profile.Organizations.update(organizationForm.fill(formData), organization)))
+            }.getOrElse {
+              OrganizationRepository.update(uuid, OrganizationData.merge(organization, formData)).map {
+                _.map { updatedElt =>
+                  Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("success" -> "Organisation mise à jour avec succès")
+                }.getOrElse {
+                  InternalServerError(backend.views.html.Profile.Organizations.update(organizationForm.fill(formData), organization)).flashing("error" -> "Erreur lors de la modification de l'organisation")
+                }
+              }
+            }
+          })
+      }.getOrElse {
+        Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas."))
+      }
     }
   }
 

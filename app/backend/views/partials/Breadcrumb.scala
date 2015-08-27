@@ -52,6 +52,7 @@ object Breadcrumb {
         case "profile" => (backend.controllers.routes.Profile.details, "Modification")
         case _ =>
           prev2.get match {
+            case "organizations" => (backend.controllers.routes.Organizations.update(identifiers.get("organization").get), "Modification")
             case "myEvents" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
             case "attendees" => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
             case "exponents" => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
