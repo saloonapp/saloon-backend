@@ -89,9 +89,9 @@ object EmailSrv {
     EmailData(user.name(), user.email, invitedUser.email, s"Invitation à l'organisation ${organization.name} sur SalooN", html, text)
   }
 
-  def generateOrganizationAndSalooNInviteEmail(user: User, organization: Organization, invitedEmail: String, request: Request)(implicit req: RequestHeader): EmailData = {
+  def generateOrganizationAndSalooNInviteEmail(user: User, organization: Organization, invitedEmail: String, commentOpt: Option[String], request: Request)(implicit req: RequestHeader): EmailData = {
     val inviteUrl = authentication.controllers.routes.Auth.createAccount(request.uuid).absoluteURL(Defaults.secureUrl)
-    val html = backend.views.html.Emails.organizationAndSalooNInvite(organization, user, request, inviteUrl).toString
+    val html = backend.views.html.Emails.organizationAndSalooNInvite(organization, user, commentOpt, request, inviteUrl).toString
     val text = Jsoup.parse(html).text()
     EmailData(user.name(), user.email, invitedEmail, s"Invitation à l'organisation ${organization.name} sur SalooN", html, text)
   }

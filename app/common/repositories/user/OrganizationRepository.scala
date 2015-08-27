@@ -27,8 +27,9 @@ trait MongoDbOrganizationRepository extends Repository[Organization] {
   override def update(uuid: String, elt: Organization): Future[Option[Organization]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(uuid: String): Future[Option[Organization]] = {
     crud.delete(uuid).map { err =>
+      UserRepository.removeOrganization(uuid)
       None
-    } // TODO : return deleted elt !
+    }
   }
 
   def getByName(name: String): Future[Option[Organization]] = crud.getBy("name", name)

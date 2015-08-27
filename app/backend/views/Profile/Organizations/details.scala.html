@@ -13,9 +13,12 @@
 			<div class="card">
 				<div class="card-header">
 					<h2>@organization.name</h2>
-					<ul class="actions">
-						<li><a href=""><i class="md md-edit"></i></a></li>
-					</ul>
+					@if(user.canAdministrateOrganization(organization.uuid)){
+						<ul class="actions">
+							<li><a href=""><i class="md md-edit"></i></a></li>
+							<li><a href="@backend.controllers.routes.Organizations.delete(organization.uuid)"><i class="md md-delete"></i></a></li>
+						</ul>
+					}
 				</div>
 				<div class="card-body card-padding">
 				</div>

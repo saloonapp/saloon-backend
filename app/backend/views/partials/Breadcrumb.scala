@@ -58,6 +58,9 @@ object Breadcrumb {
             case "sessions" => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
           }
       }
+      case "delete" => prev2.get match {
+        case "organizations" => (backend.controllers.routes.Organizations.delete(identifiers.get("organization").get), "Suppression")
+      }
       case "config" => prev.get match {
         case "ticketing" => (backend.controllers.routes.Ticketing.configure(identifiers.get("event").get), "Configuration")
       }
@@ -83,6 +86,7 @@ object Breadcrumb {
           (backend.controllers.routes.Sessions.details(identifiers.get("event").get, id), titles.get(id).get)
         }
       }
+
       case "mockups" => (backend.controllers.routes.Application.mockups(), "Mockups")
       case "activityWall" => (backend.controllers.routes.Application.mockupActivityWall(), "Activity Wall")
       case "exponentForm" => (backend.controllers.routes.Application.mockupExponentForm(), "Modifier un exposant")

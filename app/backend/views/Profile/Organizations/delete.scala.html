@@ -1,0 +1,28 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@import common.models.user.OrganizationInvite
+@import common.models.user.Request
+@import backend.views.html._
+@import backend.views.html.partials._
+@import common.views.html.forms._
+@import common.views.html.format._
+@(organization: Organization)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Suppression de l'organisation "+organization.name, "profile_organizations_"+organization.uuid+"_delete", Map(organization.uuid -> organization.name)){
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">
+					<h2>Supprimer l'organisation @organization.name ?</h2>
+				</div>
+				<div class="card-body card-padding">
+					@helper.form(action = backend.controllers.routes.Organizations.doDelete(organization.uuid)) {
+						<div class="form-group">
+							<a href="@backend.controllers.routes.Organizations.details(organization.uuid)" class="btn btn-lg btn-default">Annuler</a>
+							<button type="submit" class="btn btn-lg btn-danger m-l-30 confirm">Supprimer</button>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

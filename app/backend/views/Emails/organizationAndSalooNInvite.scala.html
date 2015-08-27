@@ -2,20 +2,16 @@
 @import common.models.user.Organization
 @import common.models.user.OrganizationInvite
 @import common.models.user.Request
-@(organization: Organization, organizationOwner: User, request: Request, inviteUrl: String)
+@(organization: Organization, organizationOwner: User, commentOpt: Option[String], request: Request, inviteUrl: String)
 
 Bonjour,<br>
 <br>
 @organizationOwner.name() vient de vous inviter à rejoindre l'organisation <b>@organization.name</b> sur SalooN
-@request.content match {
-	case OrganizationInvite(_, _, commentOpt, _) => {
-		@commentOpt.map{comment => :<br><blockquote>@comment</blockquote>}
-	}
-	case _ => {.}
-}
+@commentOpt.map{comment => :<br><blockquote>@comment</blockquote>}.getOrElse{.}
 <br>
 <br>
 Pour rejoindre cette organisation, vous devez d'abord <a href="@inviteUrl" target="_blank">créer votre compte SalooN</a>.
+<br>
 <br>
 Bonne journée et à bientôt,<br>
 L'équipe SalooN

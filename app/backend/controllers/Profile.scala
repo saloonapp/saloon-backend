@@ -6,6 +6,7 @@ import common.models.user.UserOrganization
 import common.models.user.OrganizationData
 import common.models.user.Request
 import common.models.user.OrganizationRequest
+import common.models.user.OrganizationInvite
 import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.RequestRepository
@@ -34,18 +35,19 @@ object Profile extends SilhouetteEnvironment {
     for {
       organizations <- OrganizationRepository.findAll()
       pendingRequests <- RequestRepository.findPendingOrganizationRequestsByUser(user.uuid)
+      pendingInvites <- RequestRepository.findPendingOrganizationInvitesByEmail(user.email)
       pendingRequestsForOwnedOrganizations <- RequestRepository.countPendingOrganizationRequestsFor(user.organizationIds.map(_.organizationId).filter(id => user.canAdministrateOrganization(id)))
     } yield {
       // split organizations
       val (memberOrganizations, notMemberOrganizations) = organizations.partition(o => user.organizationRole(o.uuid).isDefined)
-      val (pendingOrganizations, otherOrganizations) = notMemberOrganizations.partition(o => findOrganizationRequest(pendingRequests, o.uuid).isDefined)
+      val (pendingOrganizations, otherOrganizations) = notMemberOrganizations.partition(o => findOrganizationRequest(pendingRequests ++ pendingInvites, o.uuid).isDefined)
       // val (publicOrganizations, privateOrganizations) = otherOrganizations.partitien(_.public)
 
       // transform collections
       val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationRole(o.uuid).get, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
         case (orga, role, pending) => UserOrganization.getPriority(role)
       }
-      val pendingOrganizationsWithDate = pendingOrganizations.map(o => (o, findOrganizationRequest(pendingRequests, o.uuid).get)).sortBy(_._2.created.getMillis())
+      val pendingOrganizationsWithDate = pendingOrganizations.map(o => (o, findOrganizationRequest(pendingRequests ++ pendingInvites, o.uuid).get)).sortBy(_._2.created.getMillis())
 
       Ok(backend.views.html.Profile.details(memberOrganizationsWithRole, pendingOrganizationsWithDate, otherOrganizations, organizationForm, accessRequestForm))
     }
@@ -95,6 +97,7 @@ object Profile extends SilhouetteEnvironment {
     requests.find { r =>
       r.content match {
         case OrganizationRequest(id, _, _) => id == organizationId
+        case OrganizationInvite(id, _, _, _) => id == organizationId
         case _ => false
       }
     }

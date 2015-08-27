@@ -29,7 +29,7 @@ object Requests extends SilhouetteEnvironment {
           case OrganizationInvite(organizationId, email, comment, _) => {
             if (user.email == email) {
               for {
-                organizationOpt <- OrganizationRepository.getByUuid(uuid)
+                organizationOpt <- OrganizationRepository.getByUuid(organizationId)
                 organizationOwnerOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse { Future(None) }
               } yield {
                 val res = for {
@@ -86,7 +86,7 @@ object Requests extends SilhouetteEnvironment {
                 val emailDataOpt = userOpt.map { invitedUser =>
                   Some(EmailSrv.generateOrganizationInviteEmail(user, organization, invitedUser, request))
                 }.getOrElse {
-                  requestInviteOpt.map { requestInvite => EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, requestInvite) }
+                  requestInviteOpt.map { requestInvite => EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, None, requestInvite) }
                 }
                 emailDataOpt.map { emailData =>
                   MandrillSrv.sendEmail(emailData).map { res =>
@@ -96,7 +96,7 @@ object Requests extends SilhouetteEnvironment {
               }.getOrElse(Future(("error", "L'organisation demandée n'existe pas :(")))
             }
             res.flatMap(identity).map {
-              case (category, message) => Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing(category -> message)
+              case (category, message) => Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing(category -> message)
             }
           }
           case _ => Future(Redirect(backend.controllers.routes.Application.index()).flashing("error" -> "Aucune action correspondante à cette demande :("))
@@ -139,7 +139,7 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def accept(uuid: String, dest: Option[String]) = SecuredAction.async { implicit req =>
+  def accept(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
@@ -154,7 +154,7 @@ object Requests extends SilhouetteEnvironment {
             }
           }
           case OrganizationInvite(organizationId, email, _, _) => {
-            val redirect = dest match {
+            val redirect = redirection match {
               case Some("welcome") => Redirect(backend.controllers.routes.Application.welcome)
               case _ => Redirect(backend.controllers.routes.Organizations.details(organizationId))
             }
@@ -172,7 +172,7 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def reject(uuid: String, dest: Option[String]) = SecuredAction.async { implicit req =>
+  def reject(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
@@ -187,9 +187,9 @@ object Requests extends SilhouetteEnvironment {
             }
           }
           case OrganizationInvite(organizationId, email, _, _) => {
-            val redirect = dest match {
+            val redirect = redirection match {
               case Some("welcome") => Redirect(backend.controllers.routes.Application.welcome)
-              case _ => Redirect(backend.controllers.routes.Organizations.details(organizationId))
+              case _ => Redirect(backend.controllers.routes.Profile.details())
             }
             if (user.email == email) {
               rejectOrganizationInvite(request, organizationId, email).map { case (category, message) => redirect.flashing(category -> message) }
@@ -206,27 +206,28 @@ object Requests extends SilhouetteEnvironment {
   }
 
   private def acceptOrganizationRequest(request: Request, organizationId: String, organizationOwner: User): Future[(String, String)] = {
-    val res: Future[Future[(String, String)]] = for {
+    val res: Future[Future[Future[(String, String)]]] = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)
-      requestUserOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
+      userOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
     } yield {
-      val resOpt: Option[Future[(String, String)]] = for {
+      val res2: Option[Future[Future[(String, String)]]] = for {
         organization <- organizationOpt
-        requestUser <- requestUserOpt
+        user <- userOpt
       } yield {
-        val requestUserWithOrg = requestUser.copy(organizationIds = requestUser.organizationIds ++ List(UserOrganization(organization.uuid, UserOrganization.member)))
-        UserRepository.update(requestUserWithOrg.uuid, requestUserWithOrg).flatMap { userUpdatedOpt =>
-          RequestRepository.setAccepted(organizationId).flatMap { _ =>
-            val emailData = EmailSrv.generateOrganizationRequestAcceptedEmail(requestUser, organization, organizationOwner)
-            MandrillSrv.sendEmail(emailData).map { _ =>
-              ("success", "Demande acceptée !")
-            }
+        val userWithOrg = if (user.organizationRole(organization.uuid).isDefined) { user } else { user.copy(organizationIds = user.organizationIds ++ List(UserOrganization(organization.uuid, UserOrganization.member))) }
+        for {
+          userUpdatedOpt <- UserRepository.update(userWithOrg.uuid, userWithOrg)
+          acceptErr <- RequestRepository.setAccepted(request.uuid)
+        } yield {
+          val emailData = EmailSrv.generateOrganizationRequestAcceptedEmail(user, organization, organizationOwner)
+          MandrillSrv.sendEmail(emailData).map { _ =>
+            ("success", "Demande acceptée !")
           }
         }
       }
-      resOpt.getOrElse(Future(("error", "Impossible d'accepter cette demande :(")))
+      res2.getOrElse(Future(Future(("error", "Impossible d'accepter cette demande :("))))
     }
-    res.flatMap(identity)
+    res.flatMap(identity).flatMap(identity)
   }
 
   private def rejectOrganizationRequest(request: Request, organizationId: String): Future[(String, String)] = {
