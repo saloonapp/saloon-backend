@@ -5,6 +5,7 @@ import common.models.event.Attendee
 import common.models.event.Session
 import common.models.event.Exponent
 import common.models.event.EventItem
+import common.models.user.User
 import common.models.user.Device
 import common.models.user.UserActionFull
 import common.models.user.SubscribeUserAction
@@ -27,6 +28,13 @@ import reactivemongo.core.commands.LastError
 import org.joda.time.DateTime
 
 object EventSrv {
+  def findVisibleEvents(user: User): Future[List[Event]] = {
+    //EventRepository.findAll(sort = "-info.start")
+    EventRepository.findForOrganizations(user.organizationIds.map(_.organizationId)).map { events =>
+      events.sortBy(-_.info.start.map(_.getMillis()).getOrElse(9999999999999L))
+    }
+  }
+
   def addMetadata(event: Event): Future[(Event, Int, Int, Int, Int)] = {
     for {
       attendeeCount <- AttendeeRepository.countForEvent(event.uuid)

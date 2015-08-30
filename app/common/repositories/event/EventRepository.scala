@@ -54,6 +54,7 @@ trait MongoDbEventRepository extends Repository[Event] {
   }
 
   def findByUuids(uuids: List[String]): Future[List[Event]] = crud.findByUuids(uuids)
+  def findForOrganizations(uuids: List[String]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> uuids)))
   def bulkInsert(elts: List[Event]): Future[Int] = crud.bulkInsert(elts)
   def drop(): Future[Boolean] = crud.drop()
 }
