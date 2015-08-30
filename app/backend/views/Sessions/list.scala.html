@@ -31,7 +31,7 @@
 	@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
 	@if(!session.info.theme.isEmpty){<span class="label label-danger">@session.info.theme</span>}
 }
-@layout("Sessions à "+event.name, "myEvents_"+event.uuid+"_sessions", Map(event.uuid -> event.name)){
+@layout("Sessions à "+event.name, "events_"+event.uuid+"_sessions", Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>

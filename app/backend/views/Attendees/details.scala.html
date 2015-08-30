@@ -7,7 +7,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(attendee.name+", "+event.name, "myEvents_"+event.uuid+"_attendees_"+attendee.uuid, Map(event.uuid -> event.name, attendee.uuid -> attendee.name)){
+@layout(attendee.name+", "+event.name, "events_"+event.uuid+"_attendees_"+attendee.uuid, Map(event.uuid -> event.name, attendee.uuid -> attendee.name)){
 	<div class="block-header">
 		<h2>
 			@attendee.name

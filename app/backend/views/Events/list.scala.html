@@ -5,7 +5,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(events: List[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Événements", "myEvents"){
+@layout("Événements", "events"){
 	<div class="block-header">
 		<h2>Événements organisés</h2>
 		<ul class="actions">

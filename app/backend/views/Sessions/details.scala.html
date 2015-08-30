@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(session: Session, sessionSpeakers: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(session.name+", "+event.name, "myEvents_"+event.uuid+"_sessions_"+session.uuid, Map(event.uuid -> event.name, session.uuid -> session.name)){
+@layout(session.name+", "+event.name, "events_"+event.uuid+"_sessions_"+session.uuid, Map(event.uuid -> event.name, session.uuid -> session.name)){
 	<div class="block-header">
 		<h2>
 			@session.name

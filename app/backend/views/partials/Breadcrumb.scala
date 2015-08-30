@@ -37,13 +37,13 @@ object Breadcrumb {
       case "home" => (backend.controllers.routes.Application.index(), "Accueil")
       case "profile" => (backend.controllers.routes.Profile.details(), "Profil")
       case "organizations" => (backend.controllers.routes.Profile.details(), "Organisations")
-      case "myEvents" => (backend.controllers.routes.Events.list(), "Mes événements")
+      case "events" => (backend.controllers.routes.Events.list(), "Mes événements")
       case "attendees" => (backend.controllers.routes.Attendees.list(identifiers.get("event").get), "Participants")
       case "exponents" => (backend.controllers.routes.Exponents.list(identifiers.get("event").get), "Exposants")
       case "sessions" => (backend.controllers.routes.Sessions.list(identifiers.get("event").get), "Sessions")
       case "ticketing" => (backend.controllers.routes.Ticketing.details(identifiers.get("event").get), "Ticketing")
       case "create" => prev.get match {
-        case "myEvents" => (backend.controllers.routes.Events.create(), "Créer un événement")
+        case "events" => (backend.controllers.routes.Events.create(), "Créer un événement")
         case "attendees" => (backend.controllers.routes.Attendees.create(identifiers.get("event").get), "Nouveau participant")
         case "exponents" => (backend.controllers.routes.Exponents.create(identifiers.get("event").get), "Nouvel exposant")
         case "sessions" => (backend.controllers.routes.Sessions.create(identifiers.get("event").get), "Nouvelle session")
@@ -53,7 +53,7 @@ object Breadcrumb {
         case _ =>
           prev2.get match {
             case "organizations" => (backend.controllers.routes.Organizations.update(identifiers.get("organization").get), "Modification")
-            case "myEvents" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
+            case "events" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
             case "attendees" => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
             case "exponents" => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
             case "sessions" => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
@@ -70,7 +70,7 @@ object Breadcrumb {
           identifiers.put("organization", id)
           (backend.controllers.routes.Organizations.details(id), titles.get(id).get)
         }
-        case "myEvents" => {
+        case "events" => {
           identifiers.put("event", id)
           (backend.controllers.routes.Events.details(id), titles.get(id).get)
         }

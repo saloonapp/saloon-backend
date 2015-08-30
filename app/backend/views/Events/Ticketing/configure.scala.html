@@ -15,7 +15,7 @@
 		</label>
 	</div>
 }
-@layout("Ticketing pour "+event.name, "myEvents_"+event.uuid+"_ticketing_config", Map(event.uuid -> event.name)){
+@layout("Ticketing pour "+event.name, "events_"+event.uuid+"_ticketing_config", Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Configurer le ticketing de @event.name</h2>
