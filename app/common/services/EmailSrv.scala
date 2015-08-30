@@ -126,4 +126,10 @@ object EmailSrv {
     EmailData(Defaults.contactName, Defaults.contactEmail, bannedUser.email, s"Vos accès à l'organisation ${organization.name} sont révoqués", html, text)
   }
 
+  def generateOrganizationDeleteEmail(user: User, organization: Organization, deletingUser: User): EmailData = {
+    val html = backend.views.html.Emails.organizationDelete(deletingUser, organization).toString
+    val text = Jsoup.parse(html).text()
+    EmailData(Defaults.contactName, Defaults.contactEmail, user.email, s"${deletingUser.name()} supprime l'organisation ${organization.name}", html, text)
+  }
+
 }

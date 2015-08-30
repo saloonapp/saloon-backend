@@ -1,0 +1,11 @@
+@import common.models.user.User
+@import common.models.user.Organization
+@(deletingUser: User, organization: Organization)
+
+Bonjour,<br>
+<br>
+@deletingUser.name() vient de supprimer l'organisation <b>@organization.name</b> sur SalooN.<br>
+Vous n'en faites donc plus parti et son contenu est supprimé.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

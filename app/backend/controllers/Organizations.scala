@@ -110,9 +110,23 @@ object Organizations extends SilhouetteEnvironment {
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     if (user.canAdministrateOrganization(uuid)) {
-      OrganizationRepository.delete(uuid).map { res =>
-        Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> "Organisation supprimée !")
+      val res: Future[Future[Result]] = for {
+        organizationOpt <- OrganizationRepository.getByUuid(uuid)
+        members <- UserRepository.findOrganizationMembers(uuid)
+      } yield {
+        organizationOpt.map { organization =>
+          members.filter(_.uuid != user.uuid).map { u =>
+            val emailData = EmailSrv.generateOrganizationDeleteEmail(u, organization, user)
+            MandrillSrv.sendEmail(emailData)
+          }
+          OrganizationRepository.delete(uuid).map { r =>
+            Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> "Organisation supprimée !")
+          }
+        }.getOrElse {
+          Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas."))
+        }
       }
+      res.flatMap(identity)
     } else {
       Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour supprimer cette organisation :("))
     }
