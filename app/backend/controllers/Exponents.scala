@@ -31,7 +31,7 @@ object Exponents extends SilhouetteEnvironment {
         Redirect(backend.controllers.routes.Exponents.list(eventId, query, Some(eltPage.totalPages), pageSize, sort))
       } else {
         eventOpt
-          .map { event => Ok(backend.views.html.Exponents.list(eltPage, event)) }
+          .map { event => Ok(backend.views.html.Events.Exponents.list(eltPage, event)) }
           .getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
       }
     }
@@ -48,7 +48,7 @@ object Exponents extends SilhouetteEnvironment {
       case (eltOpt, eventOpt) =>
         eltOpt.flatMap { elt =>
           eventOpt.map { event =>
-            AttendeeRepository.findByUuids(elt.info.team).map { team => Ok(backend.views.html.Exponents.details(elt, team, event)) }
+            AttendeeRepository.findByUuids(elt.info.team).map { team => Ok(backend.views.html.Events.Exponents.details(elt, team, event)) }
           }
         }.getOrElse { Future(NotFound(backend.views.html.error("404", "Event not found..."))) }
     }
@@ -62,7 +62,7 @@ object Exponents extends SilhouetteEnvironment {
       allAttendees <- AttendeeRepository.findByEvent(eventId)
     } yield {
       eventOpt
-        .map { event => Ok(backend.views.html.Exponents.create(createForm, allAttendees, event)) }
+        .map { event => Ok(backend.views.html.Events.Exponents.create(createForm, allAttendees, event)) }
         .getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -73,13 +73,13 @@ object Exponents extends SilhouetteEnvironment {
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         createForm.bindFromRequest.fold(
-          formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(backend.views.html.Exponents.create(formWithErrors, allAttendees, event)) },
+          formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(backend.views.html.Events.Exponents.create(formWithErrors, allAttendees, event)) },
           formData => ExponentRepository.insert(ExponentCreateData.toModel(formData)).flatMap {
             _.map { elt =>
               Future(Redirect(backend.controllers.routes.Exponents.details(eventId, elt.uuid)).flashing("success" -> s"Exposant '${elt.name}' créé !"))
             }.getOrElse {
               AttendeeRepository.findByEvent(eventId).map { allAttendees =>
-                InternalServerError(backend.views.html.Exponents.create(createForm.fill(formData), allAttendees, event)).flashing("error" -> s"Impossible de créer l'exposant '${formData.name}'")
+                InternalServerError(backend.views.html.Events.Exponents.create(createForm.fill(formData), allAttendees, event)).flashing("error" -> s"Impossible de créer l'exposant '${formData.name}'")
               }
             }
           })
@@ -96,7 +96,7 @@ object Exponents extends SilhouetteEnvironment {
       allAttendees <- AttendeeRepository.findByEvent(eventId)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Exponents.update(createForm.fill(ExponentCreateData.fromModel(elt)), elt, allAttendees, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(elt)), elt, allAttendees, event)) }
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -113,13 +113,13 @@ object Exponents extends SilhouetteEnvironment {
       data._1.flatMap { elt =>
         data._2.map { event =>
           createForm.bindFromRequest.fold(
-            formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(backend.views.html.Exponents.update(formWithErrors, elt, allAttendees, event)) },
+            formWithErrors => AttendeeRepository.findByEvent(eventId).map { allAttendees => BadRequest(backend.views.html.Events.Exponents.update(formWithErrors, elt, allAttendees, event)) },
             formData => ExponentRepository.update(uuid, ExponentCreateData.merge(elt, formData)).flatMap {
               _.map { updatedElt =>
                 Future(Redirect(backend.controllers.routes.Exponents.details(eventId, updatedElt.uuid)).flashing("success" -> s"L'exposant '${updatedElt.name}' a bien été modifié"))
               }.getOrElse {
                 AttendeeRepository.findByEvent(eventId).map { allAttendees =>
-                  InternalServerError(backend.views.html.Exponents.update(createForm.fill(formData), elt, allAttendees, event)).flashing("error" -> s"Impossible de modifier l'exposant '${elt.name}'")
+                  InternalServerError(backend.views.html.Events.Exponents.update(createForm.fill(formData), elt, allAttendees, event)).flashing("error" -> s"Impossible de modifier l'exposant '${elt.name}'")
                 }
               }
             })

@@ -32,7 +32,7 @@ object Attendees extends SilhouetteEnvironment {
         Redirect(backend.controllers.routes.Attendees.list(eventId, query, Some(eltPage.totalPages), pageSize, sort))
       } else {
         eventOpt
-          .map { event => Ok(backend.views.html.Attendees.list(eltPage, event)) }
+          .map { event => Ok(backend.views.html.Events.Attendees.list(eltPage, event)) }
           .getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
       }
     }
@@ -48,7 +48,7 @@ object Attendees extends SilhouetteEnvironment {
       exponents <- ExponentRepository.findByEventAttendee(eventId, uuid)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Attendees.details(elt, sessions, exponents, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Events.Attendees.details(elt, sessions, exponents, event)) }
       }.getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
     }
   }
@@ -61,7 +61,7 @@ object Attendees extends SilhouetteEnvironment {
       roles <- AttendeeRepository.findEventRoles(eventId)
     } yield {
       eventOpt
-        .map { event => Ok(backend.views.html.Attendees.create(createForm, roles, event)) }
+        .map { event => Ok(backend.views.html.Events.Attendees.create(createForm, roles, event)) }
         .getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -74,14 +74,14 @@ object Attendees extends SilhouetteEnvironment {
         createForm.bindFromRequest.fold(
           formWithErrors => for {
             roles <- AttendeeRepository.findEventRoles(eventId)
-          } yield BadRequest(backend.views.html.Attendees.create(formWithErrors, roles, event)),
+          } yield BadRequest(backend.views.html.Events.Attendees.create(formWithErrors, roles, event)),
           formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
             _.map { elt =>
               Future(Redirect(backend.controllers.routes.Attendees.details(eventId, elt.uuid)).flashing("success" -> s"Participant '${elt.name}' créé !"))
             }.getOrElse {
               for {
                 roles <- AttendeeRepository.findEventRoles(eventId)
-              } yield InternalServerError(backend.views.html.Attendees.create(createForm.fill(formData), roles, event)).flashing("error" -> s"Impossible de créer le participant '${formData.info.firstName} ${formData.info.lastName}'")
+              } yield InternalServerError(backend.views.html.Events.Attendees.create(createForm.fill(formData), roles, event)).flashing("error" -> s"Impossible de créer le participant '${formData.info.firstName} ${formData.info.lastName}'")
             }
           })
       }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
@@ -97,7 +97,7 @@ object Attendees extends SilhouetteEnvironment {
       roles <- AttendeeRepository.findEventRoles(eventId)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(elt)), elt, roles, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Events.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(elt)), elt, roles, event)) }
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -116,14 +116,14 @@ object Attendees extends SilhouetteEnvironment {
           createForm.bindFromRequest.fold(
             formWithErrors => for {
               roles <- AttendeeRepository.findEventRoles(eventId)
-            } yield BadRequest(backend.views.html.Attendees.update(formWithErrors, elt, roles, event)),
+            } yield BadRequest(backend.views.html.Events.Attendees.update(formWithErrors, elt, roles, event)),
             formData => AttendeeRepository.update(uuid, AttendeeCreateData.merge(elt, formData)).flatMap {
               _.map { updatedElt =>
                 Future(Redirect(backend.controllers.routes.Attendees.details(eventId, updatedElt.uuid)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
               }.getOrElse {
                 for {
                   roles <- AttendeeRepository.findEventRoles(eventId)
-                } yield InternalServerError(backend.views.html.Attendees.update(createForm.fill(formData), elt, roles, event)).flashing("error" -> s"Impossible de modifier le participant '${elt.name}'")
+                } yield InternalServerError(backend.views.html.Events.Attendees.update(createForm.fill(formData), elt, roles, event)).flashing("error" -> s"Impossible de modifier le participant '${elt.name}'")
               }
             })
         }

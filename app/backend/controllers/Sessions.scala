@@ -31,7 +31,7 @@ object Sessions extends SilhouetteEnvironment {
       eventOpt
         .map { event =>
           val sessionsByDay: List[(DateTime, List[Session])] = elts.groupBy(startDate).toList.sortWith(sortByDate)
-          Ok(backend.views.html.Sessions.list(sessionsByDay, event))
+          Ok(backend.views.html.Events.Sessions.list(sessionsByDay, event))
         }.getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
     }
   }
@@ -47,7 +47,7 @@ object Sessions extends SilhouetteEnvironment {
       case (eltOpt, eventOpt) =>
         eltOpt.flatMap { elt =>
           eventOpt.map { event =>
-            AttendeeRepository.findByUuids(elt.info.speakers).map { speakers => Ok(backend.views.html.Sessions.details(elt, speakers, event)) }
+            AttendeeRepository.findByUuids(elt.info.speakers).map { speakers => Ok(backend.views.html.Events.Sessions.details(elt, speakers, event)) }
           }
         }.getOrElse { Future(NotFound(backend.views.html.error("404", "Event not found..."))) }
     }
@@ -64,7 +64,7 @@ object Sessions extends SilhouetteEnvironment {
       places <- SessionRepository.findEventPlaces(eventId)
     } yield {
       eventOpt
-        .map { event => Ok(backend.views.html.Sessions.create(createForm, allAttendees, formats, categories, places, event)) }
+        .map { event => Ok(backend.views.html.Events.Sessions.create(createForm, allAttendees, formats, categories, places, event)) }
         .getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -80,7 +80,7 @@ object Sessions extends SilhouetteEnvironment {
             formats <- SessionRepository.findEventFormats(eventId)
             categories <- SessionRepository.findEventCategories(eventId)
             places <- SessionRepository.findEventPlaces(eventId)
-          } yield BadRequest(backend.views.html.Sessions.create(formWithErrors, allAttendees, formats, categories, places, event)),
+          } yield BadRequest(backend.views.html.Events.Sessions.create(formWithErrors, allAttendees, formats, categories, places, event)),
           formData => SessionRepository.insert(SessionCreateData.toModel(formData)).flatMap {
             _.map { elt =>
               Future(Redirect(backend.controllers.routes.Sessions.details(eventId, elt.uuid)).flashing("success" -> s"Session '${elt.name}' créée !"))
@@ -90,7 +90,7 @@ object Sessions extends SilhouetteEnvironment {
                 formats <- SessionRepository.findEventFormats(eventId)
                 categories <- SessionRepository.findEventCategories(eventId)
                 places <- SessionRepository.findEventPlaces(eventId)
-              } yield InternalServerError(backend.views.html.Sessions.create(createForm.fill(formData), allAttendees, formats, categories, places, event)).flashing("error" -> s"Impossible de créer la session '${formData.name}'")
+              } yield InternalServerError(backend.views.html.Events.Sessions.create(createForm.fill(formData), allAttendees, formats, categories, places, event)).flashing("error" -> s"Impossible de créer la session '${formData.name}'")
             }
           })
       }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
@@ -109,7 +109,7 @@ object Sessions extends SilhouetteEnvironment {
       places <- SessionRepository.findEventPlaces(eventId)
     } yield {
       eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Sessions.update(createForm.fill(SessionCreateData.fromModel(elt)), elt, allAttendees, formats, categories, places, event)) }
+        eventOpt.map { event => Ok(backend.views.html.Events.Sessions.update(createForm.fill(SessionCreateData.fromModel(elt)), elt, allAttendees, formats, categories, places, event)) }
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
   }
@@ -131,7 +131,7 @@ object Sessions extends SilhouetteEnvironment {
               formats <- SessionRepository.findEventFormats(eventId)
               categories <- SessionRepository.findEventCategories(eventId)
               places <- SessionRepository.findEventPlaces(eventId)
-            } yield BadRequest(backend.views.html.Sessions.update(formWithErrors, elt, allAttendees, formats, categories, places, event)),
+            } yield BadRequest(backend.views.html.Events.Sessions.update(formWithErrors, elt, allAttendees, formats, categories, places, event)),
             formData => SessionRepository.update(uuid, SessionCreateData.merge(elt, formData)).flatMap {
               _.map { updatedElt =>
                 Future(Redirect(backend.controllers.routes.Sessions.details(eventId, updatedElt.uuid)).flashing("success" -> s"La session '${updatedElt.name}' a bien été modifiée"))
@@ -141,7 +141,7 @@ object Sessions extends SilhouetteEnvironment {
                   formats <- SessionRepository.findEventFormats(eventId)
                   categories <- SessionRepository.findEventCategories(eventId)
                   places <- SessionRepository.findEventPlaces(eventId)
-                } yield InternalServerError(backend.views.html.Sessions.update(createForm.fill(formData), elt, allAttendees, formats, categories, places, event)).flashing("error" -> s"Impossible de modifier la session '${elt.name}'")
+                } yield InternalServerError(backend.views.html.Events.Sessions.update(createForm.fill(formData), elt, allAttendees, formats, categories, places, event)).flashing("error" -> s"Impossible de modifier la session '${elt.name}'")
               }
             })
         }
