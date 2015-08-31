@@ -1,6 +1,6 @@
 @import common.views._
 @(field: Field, args: (Symbol, String)*)
 <div class="wysiwyg">
-	<div class="editor @Helpers.getArg(args, "class")" @Helpers.toHtmlArgs(args, Seq("class"))>@field.value</div>
+	<div class="editor @Helpers.getArg(args, "class")" @Helpers.toHtmlArgs(args, Seq("class"))>@field.value.map(v => Html(v)).getOrElse("")</div>
 	<input type="hidden" value="@field.value" name="@field.name" id="@field.id">
 </div>

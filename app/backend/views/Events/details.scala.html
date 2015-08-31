@@ -9,7 +9,7 @@
 		<h2>@event.name</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Events.update(event.uuid)"><i class="md md-edit"></i></a></li>
-			<li><form method="POST" action="@backend.controllers.routes.Events.delete(event.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
+			<li><form method="POST" action="@backend.controllers.routes.Events.delete(event.uuid)"><button type="submit" class="confirm" title="Supprimer l'événement @event.name"><i class="md md-delete"></i></button></form></li>
 		</ul>
 	</div>
 	<div class="row">
@@ -33,8 +33,8 @@
 			<div class="pmo-block pmo-contact hidden-xs">
 				<h2>Informations générales</h2>
 				<ul>
-					@if(event.info.start.isDefined){<li><i class="md md-event"></i> @period(event.info.start, event.info.end)</li>}
-					@if(!(event.info.address.name.isEmpty && event.info.address.street.isEmpty)){<li><i class="md md-location-on"></i> @address(event.info.address, true)</li>}
+					<li><i class="md md-event"></i> @event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</li>
+					<li><i class="md md-location-on"></i> @event.info.address.map{a => @address(a, true)}.getOrElse{Pas de lieu !}</li>
 					@if(event.info.website != ""){<li><i class="md md-link"></i> <a href="@event.info.website" target="_blank">@event.info.website</a></li>}
 					@if(event.info.price.url != "" || event.info.price.label != ""){
 						<li>
@@ -66,8 +66,8 @@
 			<div class="pmb-block visible-xs">
 				<div class="pmbb-header"><h2><i class="md md-person m-r-5"></i> Informations générales</h2></div>
 				<div class="p-l-30">
-					@if(event.info.start.isDefined){<dl class="dl-horizontal"><dt>Date</dt><dd>@period(event.info.start, event.info.end)</dd></dl>}
-					@if(!(event.info.address.name.isEmpty && event.info.address.street.isEmpty)){<dl class="dl-horizontal"><dt>Adresse</dt><dd>@address(event.info.address, true)</dd></dl>}
+					<dl class="dl-horizontal"><dt>Date</dt><dd>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</dd></dl>
+					<dl class="dl-horizontal"><dt>Adresse</dt><dd>@event.info.address.map{a => @address(a, true)}.getOrElse{Pas de lieu !}</dd></dl>
 					@if(event.info.website != ""){<dl class="dl-horizontal"><dt>Site web</dt><dd><a href="@event.info.website" target="_blank">@event.info.website</a></dd></dl>}
 					@if(event.info.price.url != "" || event.info.price.label != ""){
 						<dl class="dl-horizontal">
@@ -97,7 +97,7 @@
 					}
 				</div>
 			</div>
-			<div class="pmb-block">
+			@*<div class="pmb-block">
 				<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Options</h2></div>
 				<div class="p-l-30">
 					<div class="row">
@@ -121,7 +121,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div>*@
 		</div>
 	</div>
 }

@@ -52,6 +52,6 @@ object EventCreateData {
   def toInfo(d: EventCreateData): EventInfo = EventInfo(d.website, d.start, d.end, d.address, d.price, toSocial(d))
   def toImages(d: EventCreateData): EventImages = EventImages(d.logo, d.landing)
   def toModel(d: EventCreateData): Event = Event(Repository.generateUuid(), d.ownerId, d.name, Jsoup.parse(d.descriptionHTML).text(), d.descriptionHTML, toImages(d), toInfo(d), EventEmail(None), toConfig(d), toMeta(d))
-  def fromModel(d: Event): EventCreateData = EventCreateData(d.ownerId, d.name, d.meta.categories, d.info.start, d.info.end, d.info.address, d.info.website, d.info.price, d.description, d.images.logo, d.images.landing, d.info.social.twitter.hashtag, d.info.social.twitter.account)
+  def fromModel(d: Event): EventCreateData = EventCreateData(d.ownerId, d.name, d.meta.categories, d.info.start, d.info.end, d.info.address, d.info.website, d.info.price, d.descriptionHTML, d.images.logo, d.images.landing, d.info.social.twitter.hashtag, d.info.social.twitter.account)
   def merge(m: Event, d: EventCreateData): Event = m.copy(ownerId = d.ownerId, name = d.name, description = Jsoup.parse(d.descriptionHTML).text(), descriptionHTML = d.descriptionHTML, images = toImages(d), info = toInfo(d), meta = m.meta.copy(categories = d.categories, updated = new DateTime()))
 }

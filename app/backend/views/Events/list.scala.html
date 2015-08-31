@@ -6,28 +6,51 @@
 @import backend.views.html.partials._
 @(events: List[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Événements", "events"){
-	<div class="block-header">
-		<h2>Événements organisés</h2>
-		<ul class="actions">
-			<li><a href="@backend.controllers.routes.Events.create()" title="Créer un nouvel événement"><i class="md md-add"></i></a></li>
-		</ul>
-	</div>
-	@events.sliding(3, 3).map { row =>
-		<div class="row">
-			@row.map { case (event, attendeeCount, sessionCount, exponentCount, actionCount) =>
-				<a class="col-sm-4" href="@backend.controllers.routes.Events.details(event.uuid)">
-					<div class="card card-event blog-post @if(event.info.end.map(_.isBefore(new DateTime())).getOrElse(false)){done}">
-						<div class="bp-header">
-							<div data-aspect-ratio="5:2"><img src="@event.images.landing" alt=""></div>
-							@if(event.config.published){<span class="badge-corner badge-corner-green" title="publié"><span class="md md-public"></span></span>}
-							<div class="bp-title">
-								<h2 class="one-line">@event.name</h2>
-								<small>@period(event.info.start, event.info.end) - @attendeeCount participants, @sessionCount sessions, @exponentCount exposants, @actionCount actions</small>
-							</div>
-						</div>
-					</div>
-				</a>
-			}
+	<div class="block-header"><h2>Mes événements</h2></div>
+	@if(events.length == 0 && user.organizationIds.length == 0){
+		<div class="card">
+			<div class="card-header">
+				<h2>Vous n'avez aucun événement :(</h2>
+			</div>
+			<div class="card-body card-padding">
+				Pour accéder aux événements ou en créer vous devez faire parti d'une organisation.<br>
+				Vous pouvez <a href="@backend.controllers.routes.Profile.details()">rejoindre une organisation</a> existante pour accéder à ses événements ou en <a href="@backend.controllers.routes.Profile.details()">créer une</a>.<br>
+			</div>
 		</div>
+	}
+	@defining(if(user.organizationIds.length > 0){None +: events.map(Some(_))}else{events.map(Some(_))}) { blocks =>
+		@blocks.sliding(3, 3).map { row =>
+			<div class="row">
+				@row.map { l => @l match {
+					case None => {
+						<a class="col-sm-4" href="@backend.controllers.routes.Events.create()" title="Créer un nouvel événement">
+							<div class="card card-event blog-post done">
+								<div class="bp-header">
+									<div data-aspect-ratio="5:2"><img src="@routes.Assets.at("backend/images/add-event.png")" alt=""></div>
+									<div class="bp-title">
+										<h2 class="one-line">Créer un événement</h2>
+										<small>L'événement sera lié à une organisation et visible par ses membres.</small>
+									</div>
+								</div>
+							</div>
+						</a>
+					}
+					case Some((event, attendeeCount, sessionCount, exponentCount, actionCount)) => {
+						<a class="col-sm-4" href="@backend.controllers.routes.Events.details(event.uuid)">
+							<div class="card card-event blog-post @if(event.info.end.map(_.isBefore(new DateTime())).getOrElse(false)){done}">
+								<div class="bp-header">
+									<div data-aspect-ratio="5:2"><img src="@event.images.landing" alt=""></div>
+									@if(event.config.published){<span class="badge-corner badge-corner-green" title="publié"><span class="md md-public"></span></span>}
+									<div class="bp-title">
+										<h2 class="one-line">@event.name</h2>
+										<small>@period(event.info.start, event.info.end) - @attendeeCount participants, @sessionCount sessions, @exponentCount exposants, @actionCount actions</small>
+									</div>
+								</div>
+							</div>
+						</a>
+					}
+				}}
+			</div>
+		}
 	}
 }

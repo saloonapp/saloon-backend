@@ -33,7 +33,8 @@ $(document).ready(function(){
 		});
 	});
 	$('.confirm').click(function(e){
-		if(!confirm('Confirmer ?')){
+		var title = $(this).attr('title') || 'Confirmer';
+		if(!confirm(title+' ?')){
 			e.preventDefault();
 		}
 	});
