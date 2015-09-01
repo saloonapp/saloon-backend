@@ -22,7 +22,6 @@ object Attendees extends SilhouetteEnvironment {
 
   def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val curPage = page.getOrElse(1)
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -40,7 +39,6 @@ object Attendees extends SilhouetteEnvironment {
 
   def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- AttendeeRepository.getByUuid(uuid)
@@ -55,7 +53,6 @@ object Attendees extends SilhouetteEnvironment {
 
   def create(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
       roles <- AttendeeRepository.findEventRoles(eventId)
@@ -104,7 +101,6 @@ object Attendees extends SilhouetteEnvironment {
 
   def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val res: Future[Future[Result]] = for {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- AttendeeRepository.getByUuid(uuid)
@@ -132,9 +128,9 @@ object Attendees extends SilhouetteEnvironment {
     res.flatMap(identity)
   }
 
+  // TODO : force to manually remove from all exponents/sessions to delete ?
   def delete(eventId: String, uuid: String, redirectOpt: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     AttendeeRepository.getByUuid(uuid).flatMap {
       _.map { attendee =>
         for {

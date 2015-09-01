@@ -22,7 +22,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val curPage = page.getOrElse(1)
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -38,7 +37,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val futureData = for {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- SessionRepository.getByUuid(uuid)
@@ -55,7 +53,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def create(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
       allAttendees <- AttendeeRepository.findByEvent(eventId)
@@ -71,7 +68,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def doCreate(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         createForm.bindFromRequest.fold(
@@ -99,7 +95,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def update(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eltOpt <- SessionRepository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -116,7 +111,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val dataFuture = for {
       eltOpt <- SessionRepository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -151,7 +145,6 @@ object Sessions extends SilhouetteEnvironment {
 
   def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     SessionRepository.getByUuid(uuid).map {
       _.map { elt =>
         SessionRepository.delete(uuid)

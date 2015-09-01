@@ -22,7 +22,6 @@ object Requests extends SilhouetteEnvironment {
 
   def details(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
@@ -54,7 +53,6 @@ object Requests extends SilhouetteEnvironment {
 
   def reminder(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPendingByUser(uuid, user.uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
@@ -109,7 +107,6 @@ object Requests extends SilhouetteEnvironment {
 
   def cancel(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPendingInviteForRequest(uuid).map { // cancel linked invite request if it exists
       _.map { inviteRequest =>
         RequestRepository.setCanceled(inviteRequest.uuid)
@@ -141,7 +138,6 @@ object Requests extends SilhouetteEnvironment {
 
   def accept(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
@@ -174,7 +170,6 @@ object Requests extends SilhouetteEnvironment {
 
   def reject(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {

@@ -31,7 +31,6 @@ object Profile extends SilhouetteEnvironment {
 
   def details = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       organizations <- OrganizationRepository.findAll()
       pendingRequests <- RequestRepository.findPendingOrganizationRequestsByUser(user.uuid)
@@ -41,7 +40,6 @@ object Profile extends SilhouetteEnvironment {
       // split organizations
       val (memberOrganizations, notMemberOrganizations) = organizations.partition(o => user.organizationRole(o.uuid).isDefined)
       val (pendingOrganizations, otherOrganizations) = notMemberOrganizations.partition(o => findOrganizationRequest(pendingRequests ++ pendingInvites, o.uuid).isDefined)
-      // val (publicOrganizations, privateOrganizations) = otherOrganizations.partitien(_.public)
 
       // transform collections
       val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationRole(o.uuid).get, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
@@ -55,13 +53,11 @@ object Profile extends SilhouetteEnvironment {
 
   def update = SecuredAction { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     Ok(backend.views.html.Profile.update(userForm.fill(UserData.fromModel(user))))
   }
 
   def doUpdate = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     userForm.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(backend.views.html.Profile.update(formWithErrors))),
       formData => UserRepository.update(user.uuid, UserData.merge(user, formData)).map {
@@ -75,7 +71,6 @@ object Profile extends SilhouetteEnvironment {
 
   def doCreateOrganization = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     organizationForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "Votre organisation n'est pas correcte :(")),
       formData => createOrganization(formData, user).map {
@@ -89,7 +84,6 @@ object Profile extends SilhouetteEnvironment {
 
   def doOrganizationRequestAccess = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     accessRequestForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "Impossible de demander l'accès à cette organisation :(")),
       formData => requestOrganisation(formData._1, formData._2, user).map {

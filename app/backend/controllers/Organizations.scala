@@ -26,7 +26,6 @@ object Organizations extends SilhouetteEnvironment {
 
   def details(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(organizationIds = List(UserOrganization("9fe5b3d4-714c-4c87-821a-677d57a314b7", "owner")), loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     user.organizationRole(uuid).map { role =>
       for {
         organizationOpt <- OrganizationRepository.getByUuid(uuid)
@@ -47,7 +46,6 @@ object Organizations extends SilhouetteEnvironment {
 
   def update(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     OrganizationRepository.getByUuid(uuid).map { organizationOpt =>
       organizationOpt.map { organization =>
         Ok(backend.views.html.Profile.Organizations.update(organizationForm.fill(OrganizationData.fromModel(organization)), organization))
@@ -59,7 +57,6 @@ object Organizations extends SilhouetteEnvironment {
 
   def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     OrganizationRepository.getByUuid(uuid).flatMap { organizationOpt =>
       organizationOpt.map { organization =>
         organizationForm.bindFromRequest.fold(
@@ -92,7 +89,6 @@ object Organizations extends SilhouetteEnvironment {
    */
   def delete(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     if (user.canAdministrateOrganization(uuid)) {
       OrganizationRepository.getByUuid(uuid).map { organizationOpt =>
         organizationOpt.map { organization =>
@@ -108,7 +104,6 @@ object Organizations extends SilhouetteEnvironment {
 
   def doDelete(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     if (user.canAdministrateOrganization(uuid)) {
       val res: Future[Future[Result]] = for {
         organizationOpt <- OrganizationRepository.getByUuid(uuid)
@@ -134,7 +129,6 @@ object Organizations extends SilhouetteEnvironment {
 
   def doOrganizationInvite(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     organizationInviteForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Email non valide.")),
       formData => {
@@ -151,7 +145,6 @@ object Organizations extends SilhouetteEnvironment {
   // when the user leave an organization
   def leave(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     if (user.canAdministrateOrganization(uuid)) {
       Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Impossible de quitter une organisation dont vous êtes le responsable."))
     } else if (user.organizationRole(uuid).isDefined) {
@@ -178,7 +171,6 @@ object Organizations extends SilhouetteEnvironment {
   // when the organization owner ban a member
   def ban(uuid: String, userId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     if (user.canAdministrateOrganization(uuid)) {
       val res: Future[Future[Result]] = for {
         organizationOpt <- OrganizationRepository.getByUuid(uuid)

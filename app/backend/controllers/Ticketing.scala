@@ -23,7 +23,6 @@ object Ticketing extends SilhouetteEnvironment {
 
   def details(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).map {
       _.map { elt =>
         Ok(backend.views.html.Events.Ticketing.details(elt))
@@ -33,7 +32,6 @@ object Ticketing extends SilhouetteEnvironment {
 
   def configure(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).map {
       _.map { elt =>
         val form = elt.config.attendeeSurvey.map(s => configForm.fill(s)).getOrElse(configForm)
@@ -44,7 +42,6 @@ object Ticketing extends SilhouetteEnvironment {
 
   def doConfigure(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).flatMap {
       _.map { elt =>
         configForm.bindFromRequest.fold(
@@ -65,7 +62,6 @@ object Ticketing extends SilhouetteEnvironment {
 
   def activate(uuid: String, activated: Boolean) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).flatMap {
       _.map { elt =>
         val eventCfg = elt.copy(config = elt.config.setTicketing(activated))

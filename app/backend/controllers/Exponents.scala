@@ -24,7 +24,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val curPage = page.getOrElse(1)
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -42,7 +41,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val res: Future[Future[Result]] = for {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- ExponentRepository.getByUuid(uuid)
@@ -62,7 +60,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def create(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eventOpt <- EventRepository.getByUuid(eventId)
     } yield {
@@ -74,7 +71,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def doCreate(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         createForm.bindFromRequest.fold(
@@ -92,7 +88,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def update(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eltOpt <- ExponentRepository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -105,7 +100,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     val dataFuture = for {
       eltOpt <- ExponentRepository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -130,7 +124,6 @@ object Exponents extends SilhouetteEnvironment {
 
   def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     ExponentRepository.getByUuid(uuid).map {
       _.map { elt =>
         ExponentRepository.delete(uuid)

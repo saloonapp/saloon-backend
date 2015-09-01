@@ -23,7 +23,6 @@ object Events extends SilhouetteEnvironment {
 
   def list = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventSrv.findVisibleEvents(user).flatMap { events =>
       EventSrv.addMetadata(events).map { fullEvents =>
         Ok(backend.views.html.Events.list(fullEvents.toList))
@@ -33,7 +32,6 @@ object Events extends SilhouetteEnvironment {
 
   def details(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
@@ -47,7 +45,6 @@ object Events extends SilhouetteEnvironment {
 
   def create = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       organizations <- OrganizationRepository.findAllowed(user)
       categories <- EventRepository.getCategories()
@@ -62,7 +59,6 @@ object Events extends SilhouetteEnvironment {
 
   def doCreate = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     createForm.bindFromRequest.fold(
       formWithErrors => for {
         organizations <- OrganizationRepository.findAllowed(user)
@@ -82,7 +78,6 @@ object Events extends SilhouetteEnvironment {
 
   def update(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     for {
       eltOpt <- EventRepository.getByUuid(uuid)
       organizations <- OrganizationRepository.findAllowed(user)
@@ -100,7 +95,6 @@ object Events extends SilhouetteEnvironment {
 
   def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).flatMap {
       _.map { elt =>
         createForm.bindFromRequest.fold(
@@ -124,7 +118,6 @@ object Events extends SilhouetteEnvironment {
 
   def delete(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     EventRepository.getByUuid(uuid).map {
       _.map { elt =>
         EventRepository.delete(uuid)
