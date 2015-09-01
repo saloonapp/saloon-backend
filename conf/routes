@@ -58,7 +58,7 @@ POST      /backend/events/:eventId/attendees/fileExport                         
 GET       /backend/events/:eventId/attendees/:attendeeId                                    backend.controllers.Attendees.details(eventId: String, attendeeId: String)
 GET       /backend/events/:eventId/attendees/:attendeeId/edit                               backend.controllers.Attendees.update(eventId: String, attendeeId: String)
 POST      /backend/events/:eventId/attendees/:attendeeId                                    backend.controllers.Attendees.doUpdate(eventId: String, attendeeId: String)
-POST      /backend/events/:eventId/attendees/:attendeeId/delete                             backend.controllers.Attendees.delete(eventId: String, attendeeId: String)
+POST      /backend/events/:eventId/attendees/:attendeeId/delete                             backend.controllers.Attendees.delete(eventId: String, attendeeId: String, redirectOpt: Option[String] ?= None)
 
 GET       /backend/events/:eventId/sessions                                                 backend.controllers.Sessions.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /backend/events/:eventId/sessions/create                                          backend.controllers.Sessions.create(eventId: String)

@@ -31,7 +31,7 @@ case class MongoDbCrudUtils[T](
   def get(filter: JsObject = Json.obj()): Future[Option[T]] = MongoDbCrudUtils.get(collection, filter)
   def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(collection, elt)
   def update(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
-  def update(filter: JsObject, elt: JsObject): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
+  def update(filter: JsObject, elt: JsObject, multi: Boolean = false): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt, false, multi)
   def upsert(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.upsert(collection, filter, elt)
   def delete(filter: JsObject = Json.obj()): Future[LastError] = MongoDbCrudUtils.delete(collection, filter)
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)
@@ -71,8 +71,8 @@ object MongoDbCrudUtils {
     collection.update(filter, elt)
   }
 
-  def update[T](collection: JSONCollection, filter: JsObject, elt: JsObject): Future[LastError] = {
-    collection.update(filter, elt)
+  def update[T](collection: JSONCollection, query: JsObject, update: JsObject, upsert: Boolean, multi: Boolean): Future[LastError] = {
+    collection.update(query, update)
   }
 
   def upsert[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T]): Future[LastError] = {

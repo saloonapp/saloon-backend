@@ -132,14 +132,20 @@ object Attendees extends SilhouetteEnvironment {
     res.flatMap(identity)
   }
 
-  def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def delete(eventId: String, uuid: String, redirectOpt: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    AttendeeRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        AttendeeRepository.delete(uuid)
-        Redirect(backend.controllers.routes.Attendees.list(eventId)).flashing("success" -> s"Suppression du participant '${elt.name}'")
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    AttendeeRepository.getByUuid(uuid).flatMap {
+      _.map { attendee =>
+        for {
+          res <- AttendeeRepository.delete(uuid)
+          res2 <- ExponentRepository.removeFromAllTeams(uuid)
+        } yield {
+          redirectOpt.map { redirect => Redirect(redirect) }
+            .getOrElse { Redirect(backend.controllers.routes.Attendees.list(eventId)) }
+            .flashing("success" -> s"Suppression du profil ${attendee.name}")
+        }
+      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
     }
   }
 
