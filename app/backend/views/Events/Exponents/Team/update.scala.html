@@ -16,7 +16,7 @@
 				@partials.form(attendeeForm, event)
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
-						<a href="@backend.controllers.routes.Exponents.teamDetails(event.uuid, exponent.uuid, attendee.uuid)" class="btn btn-default">Annuler</a>
+						<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
 						<button type="submit" class="btn btn-success">Modifier</button>
 					</div>
 				</div>

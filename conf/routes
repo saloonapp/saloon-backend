@@ -84,6 +84,7 @@ POST      /backend/events/:eventId/exponents/:exponentId/team/join              
 GET       /backend/events/:eventId/exponents/:exponentId/team/:attendeeId                   backend.controllers.Exponents.teamDetails(eventId: String, exponentId: String, attendeeId: String)
 GET       /backend/events/:eventId/exponents/:exponentId/team/:attendeeId/edit              backend.controllers.Exponents.teamUpdate(eventId: String, exponentId: String, attendeeId: String)
 POST      /backend/events/:eventId/exponents/:exponentId/team/:attendeeId                   backend.controllers.Exponents.doTeamUpdate(eventId: String, exponentId: String, attendeeId: String)
+POST      /backend/events/:eventId/exponents/:exponentId/team/:attendeeId/leave             backend.controllers.Exponents.doTeamLeave(eventId: String, exponentId: String, attendeeId: String)
 
 GET       /backend/events/:eventId/ticketing                                                backend.controllers.Ticketing.details(eventId: String)
 GET       /backend/events/:eventId/ticketing/configure                                      backend.controllers.Ticketing.configure(eventId: String)

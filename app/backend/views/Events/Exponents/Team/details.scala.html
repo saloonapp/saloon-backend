@@ -15,6 +15,7 @@
 		</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Exponents.teamUpdate(event.uuid, exponent.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
+			<li><a href="" class="confirm" title="Supprimer le profil de @attendee.name ?"><i class="md md-delete"></i></a></li>
 		</ul>
 	</div>
 	<div class="card" id="profile-main">
@@ -45,7 +46,12 @@
 				<div class="pmb-block">
 					<div class="pmbb-header"><h2><i class="md md-schedule m-r-5"></i> Sessions</h2></div>
 					<div class="pmbb-body p-l-30 media-list">
-						@attendeeSessions.map { session => @sessionMedia(session, event) }
+						@attendeeSessions.map { session =>
+							<ul class="actions pull-right">
+								<li><a href="" title="Retirer @attendee.name de la session '@exponent.name'"><i class="md md-visibility-off"></i></a></li>
+							</ul>
+							@sessionMedia(session, event)
+						}
 					</div>
 				</div>
 			}
@@ -53,7 +59,12 @@
 				<div class="pmb-block">
 					<div class="pmbb-header"><h2><i class="md md-wallet-travel m-r-5"></i> Exposants</h2></div>
 					<div class="pmbb-body p-l-30 media-list">
-						@attendeeExponents.map { exponent => @exponentMedia(exponent, event) }
+						@attendeeExponents.map { exponent =>
+							<ul class="actions pull-right">
+								<li><form method="POST" action="@backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)"><button type="submit" class="confirm" title="Retirer @attendee.name de l'exposant @exponent.name"><i class="md md-visibility-off"></i></button></form></li>
+							</ul>
+							@exponentMedia(exponent, event)
+						}
 					</div>
 				</div>
 			}

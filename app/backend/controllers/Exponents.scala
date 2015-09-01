@@ -43,18 +43,21 @@ object Exponents extends SilhouetteEnvironment {
   def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    val futureData = for {
+    val res: Future[Future[Result]] = for {
       eventOpt <- EventRepository.getByUuid(eventId)
       eltOpt <- ExponentRepository.getByUuid(uuid)
-    } yield (eltOpt, eventOpt)
-    futureData.flatMap {
-      case (eltOpt, eventOpt) =>
-        eltOpt.flatMap { elt =>
-          eventOpt.map { event =>
-            AttendeeRepository.findByUuids(elt.info.team).map { team => Ok(backend.views.html.Events.Exponents.details(elt, team, event)) }
-          }
-        }.getOrElse { Future(NotFound(backend.views.html.error("404", "Event not found..."))) }
+    } yield {
+      val res2: Option[Future[Result]] = for {
+        event <- eventOpt
+        elt <- eltOpt
+      } yield {
+        AttendeeRepository.findByUuids(elt.info.team).map { team =>
+          Ok(backend.views.html.Events.Exponents.details(elt, team, event))
+        }
+      }
+      res2.getOrElse { Future(NotFound(backend.views.html.error("404", "Event not found..."))) }
     }
+    res.flatMap(identity)
   }
 
   def create(eventId: String) = SecuredAction.async { implicit req =>
@@ -125,13 +128,15 @@ object Exponents extends SilhouetteEnvironment {
     }
   }
 
-  // TODO : ask to delete related attendees
   def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
     ExponentRepository.getByUuid(uuid).map {
       _.map { elt =>
         ExponentRepository.delete(uuid)
+        // TODO : What to do with linked attendees ?
+        // 	- delete thoses who are not linked with other elts (exponents / sessions)
+        //	- ask which one to delete (showing other links)
         Redirect(backend.controllers.routes.Exponents.list(eventId)).flashing("success" -> s"Suppression de l'exposant '${elt.name}'")
       }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
     }
@@ -276,7 +281,11 @@ object Exponents extends SilhouetteEnvironment {
         exponent <- exponentOpt
         attendee <- attendeeOpt
       } yield {
-        Ok(backend.views.html.Events.Exponents.Team.details(attendee, attendeeSessions, attendeeExponents, event, exponent))
+        if (exponent.hasMember(attendee)) {
+          Ok(backend.views.html.Events.Exponents.Team.details(attendee, attendeeSessions, attendeeExponents, event, exponent))
+        } else {
+          Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event))
+        }
       }
       res.getOrElse(NotFound(backend.views.html.error("404", "Not found...")))
     }
@@ -327,7 +336,12 @@ object Exponents extends SilhouetteEnvironment {
     res.flatMap(identity)
   }
 
-  // def doTeamRemove(eventId: String, exponentId: String, attendeeId: String, delete: Boolean) = SecuredAction.async { implicit req =>
+  def doTeamLeave(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+    ExponentRepository.removeTeamMember(exponentId, attendeeId).map { r =>
+      Redirect(req.headers("referer"))
+    }
+  }
+
   // def doTeamInvite(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
   // def doTeamBan(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
 
