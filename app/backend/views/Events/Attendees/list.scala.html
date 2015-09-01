@@ -43,22 +43,7 @@
 				</li>
 			</ul>
 			<div class="media-list">
-				@attendeePage.items.map { attendee =>
-					<div class="media media-avatar">
-						<div class="pull-left"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@avatar(attendee.images.avatar, attendee.name, 'class->"media-object")</a></div>
-						<div class="media-body">
-							<h4 class="media-heading"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@attendee.name</a> @role(attendee.info.role)</h4>
-							@List(attendee.info.job, attendee.info.company).filter(_!="").mkString(" chez ")
-							<br>
-							@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
-							@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="md md-messenger"></i></a> }.getOrElse("")
-							@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-facebook"></i></a> }.getOrElse("")
-							@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-twitter"></i></a> }.getOrElse("")
-							@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-linkedin"></i></a> }.getOrElse("")
-							@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-github"></i></a> }.getOrElse("")
-						</div>
-					</div>
-				}
+				@attendeePage.items.map { attendee => @attendeeMedia(attendee, Some(backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid))) }
 			</div>
 			@pagination(attendeePage, (p: Int) => backend.controllers.routes.Attendees.list(event.uuid, req.getQueryString("query"), Some(p), req.getQueryString("pageSize").map(_.toInt), req.getQueryString("sort")))
 		</div>

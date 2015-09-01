@@ -1,0 +1,28 @@
+@import common.models.event.Event
+@import common.models.event.AttendeeRole
+@import backend.forms.AttendeeCreateData
+@import common.views.html.forms._
+@(attendeeForm: Form[AttendeeCreateData], event: Event)
+@inputHidden(attendeeForm("eventId"), 'value -> event.uuid)
+@inputHidden(attendeeForm("avatar"), 'value -> "")
+@inputHidden(attendeeForm("descriptionHTML"), 'value -> "")
+@inputHidden(attendeeForm("info.role"), 'value -> AttendeeRole.exposant)
+@inputHidden(attendeeForm("info.phone"), 'value -> "")
+@inputHidden(attendeeForm("info.address.name"), 'value -> "")
+@inputHidden(attendeeForm("info.address.street"), 'value -> "")
+@inputHidden(attendeeForm("info.address.zipCode"), 'value -> "")
+@inputHidden(attendeeForm("info.address.city"), 'value -> "")
+@inputHidden(attendeeForm("info.job"), 'value -> "")
+@inputHidden(attendeeForm("info.company"), 'value -> "")
+@fieldHorizontal(attendeeForm("info.genre"), 'label -> "Nom", 'constraints -> "false"){field =>
+	<div class="row">
+		<div class="col-md-2">@inputSelect2(field, Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")@fieldErrors(field)</div>
+		<div class="col-md-4"><div class="fg-line">@inputText(attendeeForm("info.firstName"), 'placeholder -> "Prénom")</div>@fieldErrors(attendeeForm("info.firstName"))</div>
+		<div class="col-md-6"><div class="fg-line">@inputText(attendeeForm("info.lasName"), 'placeholder -> "Nom")</div>@fieldErrors(attendeeForm("info.lasName"))</div>
+	</div>
+}
+@fieldHorizontal(attendeeForm("info.email"), 'label -> "Coordonnées", 'constraints -> "false"){field =>
+	<div class="row">
+		<div class="col-md-6"><div class="fg-line">@inputText(field, 'type->"email", 'placeholder->"Email (ex: loic@saloonapp.co)", 'required->"true")</div>@fieldErrors(field)</div>
+	</div>
+}

@@ -1,0 +1,67 @@
+@import common.models.event.Event
+@import common.models.event.Exponent
+@import common.models.event.Attendee
+@import common.models.event.AttendeeRole
+@import common.models.user.User
+@import backend.forms.AttendeeCreateData
+@import common.views._
+@import common.views.html.forms._
+@import backend.views.html._
+@import backend.views.html.partials._
+@(attendeeForm: Form[AttendeeCreateData], joinForm: Form[String], allAttendees: List[Attendee], event: Event, exponent: Exponent, tab: String = "inviteuser")(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Ajouter à l'équipe de "+exponent.name, "events_"+event.uuid+"_exponents_"+exponent.uuid+"_team_create", Map(event.uuid -> event.name, exponent.uuid -> exponent.name)){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Nouveau membre pour @exponent.name :</h2>
+		</div>
+		<div class="card-body">
+			<div role="tabpanel">
+				<ul class="tab-nav tn-justified" role="tablist">
+					<li @if(tab=="inviteuser"){class="active"}><a href="#inviteuser" aria-controls="inviteuser" role="tab" data-toggle="tab">Inviter sur SalooN</a></li>
+					<li @if(tab=="fullform"){class="active"}><a href="#fullform" aria-controls="fullform" role="tab" data-toggle="tab">Créer profil</a></li>
+					@if(allAttendees.length > 0){<li @if(tab=="fromattendees"){class="active"}><a href="#fromattendees" aria-controls="fromattendees" role="tab" data-toggle="tab">Depuis les participants</a></li>}
+				</ul>
+			  
+				<div class="tab-content p-20">
+					<div role="tabpanel" class="tab-pane @if(tab=="inviteuser"){active}" id="inviteuser">
+						@helper.form(action = backend.controllers.routes.Exponents.doTeamCreateInvite(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+							@partials.inviteForm(attendeeForm, event)
+							<div class="form-group">
+								<div class="col-md-offset-2 col-md-10">
+									<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+									<button type="submit" class="btn btn-success">Inviter</button>
+								</div>
+							</div>
+						}
+					</div>
+					<div role="tabpanel" class="tab-pane @if(tab=="fullform"){active}" id="fullform">
+						@helper.form(action = backend.controllers.routes.Exponents.doTeamCreateFull(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+							@partials.form(attendeeForm, event)
+							<div class="form-group">
+								<div class="col-md-offset-2 col-md-10">
+									<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+									<button type="submit" class="btn btn-success">Ajouter</button>
+								</div>
+							</div>
+						}
+					</div>
+					@if(allAttendees.length > 0){
+						<div role="tabpanel" class="tab-pane @if(tab=="fromattendees"){active}" id="fromattendees">
+							@helper.form(action = backend.controllers.routes.Exponents.doTeamJoin(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+								@fieldHorizontal(joinForm("attendeeId"), 'label -> "Nouveau membre"){field =>
+									@inputSelect2(field, allAttendees.map(a => (a.uuid, a.name+a.position().map(" ("+_+")").getOrElse(""))))
+								}
+								<div class="form-group">
+									<div class="col-md-offset-2 col-md-10">
+										<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+										<button type="submit" class="btn btn-success">Ajouter</button>
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

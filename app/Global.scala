@@ -28,7 +28,7 @@ object Global extends GlobalSettings with SecuredSettings {
   override def onNotAuthenticated(request: RequestHeader, lang: Lang) = {
     implicit val flash = Flash()
     implicit val header = request
-    Some(Future(Redirect(website.controllers.routes.Application.index).flashing("error" -> "Vous devez être authentifié !")))
+    Some(Future(Redirect(authentication.controllers.routes.Auth.login).flashing("error" -> "Vous devez être authentifié !")))
   }
 
   override def onNotAuthorized(request: RequestHeader, lang: Lang) = {

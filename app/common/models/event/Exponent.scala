@@ -35,6 +35,8 @@ case class Exponent(
   info: ExponentInfo,
   config: ExponentConfig,
   meta: ExponentMeta) extends EventItem {
+  def hasMember(attendee: Attendee): Boolean = this.hasMember(attendee.uuid)
+  def hasMember(attendeeId: String): Boolean = this.info.team.contains(attendeeId)
   def merge(e: Exponent): Exponent = Exponent.merge(this, e)
   def toBackendExport(): Map[String, String] = Exponent.toBackendExport(this)
   //def toMap(): Map[String, String] = Exponent.toMap(this)

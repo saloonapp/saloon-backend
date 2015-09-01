@@ -2,31 +2,27 @@
 @import common.models.event.AttendeeRole
 @import backend.forms.AttendeeCreateData
 @import common.views.html.forms._
-@(attendeeForm: Form[AttendeeCreateData], roles: List[String], event: Event)
+@(attendeeForm: Form[AttendeeCreateData], event: Event)
 @inputHidden(attendeeForm("eventId"), 'value -> event.uuid)
+@inputHidden(attendeeForm("info.role"), 'value -> AttendeeRole.exposant)
+@inputHidden(attendeeForm("info.address.name"), 'value -> "")
+@inputHidden(attendeeForm("info.address.street"), 'value -> "")
+@inputHidden(attendeeForm("info.address.zipCode"), 'value -> "")
+@inputHidden(attendeeForm("info.address.city"), 'value -> "")
+@inputHidden(attendeeForm("info.birthYear"))
 @fieldHorizontal(attendeeForm("info.genre"), 'label -> "Nom", 'constraints -> "false"){field =>
 	<div class="row">
 		<div class="col-md-2">@inputSelect2(field, Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")@fieldErrors(field)</div>
-		<div class="col-md-5"><div class="fg-line">@inputText(attendeeForm("info.firstName"), 'placeholder -> "Prénom")</div>@fieldErrors(attendeeForm("info.firstName"))</div>
-		<div class="col-md-5"><div class="fg-line">@inputText(attendeeForm("info.lasName"), 'placeholder -> "Nom")</div>@fieldErrors(attendeeForm("info.lasName"))</div>
+		<div class="col-md-4"><div class="fg-line">@inputText(attendeeForm("info.firstName"), 'placeholder -> "Prénom")</div>@fieldErrors(attendeeForm("info.firstName"))</div>
+		<div class="col-md-6"><div class="fg-line">@inputText(attendeeForm("info.lasName"), 'placeholder -> "Nom")</div>@fieldErrors(attendeeForm("info.lasName"))</div>
 	</div>
 }
 @fieldHorizontal(attendeeForm("info.email"), 'label -> "Coordonnées", 'constraints -> "false"){field =>
 	<div class="row">
 		<div class="col-md-6"><div class="fg-line">@inputText(field, 'type->"email", 'placeholder->"Email (ex: loic@saloonapp.co)")</div>@fieldErrors(field)</div>
-		<div class="col-md-4"><div class="fg-line">@inputText(attendeeForm("info.phone"), 'placeholder -> "Téléphone (ex: 06 01 02 03 04)")</div>@fieldErrors(attendeeForm("info.phone"))</div>
-		<div class="col-md-2"><div class="fg-line">@inputText(attendeeForm("info.birthYear"), 'type->"number", 'placeholder -> "Année de naissance")</div>@fieldErrors(attendeeForm("info.birthYear"))</div>
+		<div class="col-md-6"><div class="fg-line">@inputText(attendeeForm("info.phone"), 'placeholder -> "Téléphone (ex: 06 01 02 03 04)")</div>@fieldErrors(attendeeForm("info.phone"))</div>
 	</div>
 }
-@fieldHorizontal(attendeeForm("info.address.street"), 'label -> "Adresse", 'constraints -> "false", 'errors -> "false"){field =>
-	@inputHidden(attendeeForm("info.address.name"), 'value -> "")
-	<div class="row">
-		<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder->"Rue")</div>@fieldErrors(field)</div>
-		<div class="col-md-2"><div class="fg-line">@inputText(attendeeForm("info.address.zipCode"), 'placeholder -> "Code postal")</div>@fieldErrors(attendeeForm("info.address.zipCode"))</div>
-		<div class="col-md-4"><div class="fg-line">@inputText(attendeeForm("info.address.city"), 'placeholder -> "Ville")</div>@fieldErrors(attendeeForm("info.address.city"))</div>
-	</div>
-}
-@fieldHorizontal(attendeeForm("info.role"), 'label -> "Role"){field => <div class="fg-line">@inputTypeahead(field, (roles++AttendeeRole.all).distinct.sorted, 'placeholder->("ex: "+AttendeeRole.all.mkString(", ")))</div>}
 @fieldHorizontal(attendeeForm("info.job"), 'label -> "Emploi"){field => 
 	<div class="row">
 		<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder -> "Poste (ex: Développeur)")</div></div>

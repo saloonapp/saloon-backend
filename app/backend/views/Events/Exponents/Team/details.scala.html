@@ -6,16 +6,15 @@
 @import common.views.html.format._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(attendee.name+", "+event.name, "events_"+event.uuid+"_attendees_"+attendee.uuid, Map(event.uuid -> event.name, attendee.uuid -> attendee.name)){
+@(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event, exponent: Exponent)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout(attendee.name+", "+exponent.name, "events_"+event.uuid+"_exponents_"+exponent.uuid+"_team_"+attendee.uuid, Map(event.uuid -> event.name, exponent.uuid -> exponent.name, attendee.uuid -> attendee.name)){
 	<div class="block-header">
 		<h2>
 			@attendee.name
-			<small>@attendee.position().getOrElse("") @role(attendee.info.role)</small>
+			<small>@attendee.position().getOrElse("")</small>
 		</h2>
 		<ul class="actions">
-			<li><a href="@backend.controllers.routes.Attendees.update(event.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
-			<li><form method="POST" action="@backend.controllers.routes.Attendees.delete(event.uuid, attendee.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
+			<li><a href="@backend.controllers.routes.Exponents.teamUpdate(event.uuid, exponent.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
 		</ul>
 	</div>
 	<div class="card" id="profile-main">

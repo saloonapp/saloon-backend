@@ -30,7 +30,7 @@
 			@if(sessionSpeakers.length > 0){
 				<div class="pmo-block pmo-contact hidden-xs">
 					<h2><i class="md md-people m-r-5"></i> Speakers</h2>
-					@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
+					@sessionSpeakers.map { attendee => @attendeeMedia(attendee, Some(backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid))) }
 				</div>
 			}
 		</div>
@@ -45,7 +45,7 @@
 				<div class="pmb-block visible-xs">
 					<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Speakers</h2></div>
 					<div class="p-l-30">
-						@sessionSpeakers.map { attendee => @attendeeMedia(attendee, event) }
+						@sessionSpeakers.map { attendee => @attendeeMedia(attendee, Some(backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid))) }
 					</div>
 				</div>
 			}

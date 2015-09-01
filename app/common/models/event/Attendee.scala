@@ -1,5 +1,6 @@
 package common.models.event
 
+import common.views.Helpers
 import common.Utils
 import common.models.values.Address
 import common.repositories.Repository
@@ -14,7 +15,7 @@ import org.jsoup.Jsoup
 case class AttendeeImages(
   avatar: String)
 case class AttendeeInfo(
-  role: String, // staff, exposant, speaker, participant
+  role: String, // cf AttendeeRole
   genre: String,
   firstName: String,
   lastName: String,
@@ -55,6 +56,17 @@ case class Attendee(
   social: AttendeeSocial,
   survey: List[AttendeeQuestion],
   meta: AttendeeMeta) extends EventItem {
+  def links(): List[(String, String, String)] = {
+    List(
+      this.info.website.map(url => (url, "Site", "md md-link")),
+      this.social.blogUrl.map(url => (url, "Blog", "md md-messenger")),
+      this.social.facebookUrl.map(url => (url, "Facebook", "socicon socicon-facebook")),
+      this.social.twitterUrl.map(url => (url, "Twitter", "socicon socicon-twitter")),
+      this.social.linkedinUrl.map(url => (url, "Linkedin", "socicon socicon-linkedin")),
+      this.social.viadeoUrl.map(url => (url, "Viadeo", "socicon socicon-viadeo")),
+      this.social.githubUrl.map(url => (url, "Github", "socicon socicon-github"))).flatten
+  }
+  def position(): Option[String] = Helpers.strOpt(List(this.info.job, this.info.company).filter(_!="").mkString(" chez "))
   def merge(e: Attendee): Attendee = Attendee.merge(this, e)
   def toBackendExport(): Map[String, String] = Attendee.toBackendExport(this)
   //def toMap(): Map[String, String] = Attendee.toMap(this)
@@ -184,6 +196,14 @@ object Attendee {
     "meta.created" -> e.meta.created.toString(FileImporter.dateFormat),
     "meta.updated" -> e.meta.updated.toString(FileImporter.dateFormat))
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)*/
+}
+
+object AttendeeRole {
+  val staff = "staff"
+  val exposant = "exposant"
+  val speaker = "speaker"
+  val visiteur = "visiteur"
+  val all = List(staff, exposant, speaker, visiteur)
 }
 
 // mapping object for Attendee Form

@@ -77,6 +77,13 @@ GET       /backend/events/:eventId/exponents/:exponentId                        
 GET       /backend/events/:eventId/exponents/:exponentId/edit                               backend.controllers.Exponents.update(eventId: String, exponentId: String)
 POST      /backend/events/:eventId/exponents/:exponentId                                    backend.controllers.Exponents.doUpdate(eventId: String, exponentId: String)
 POST      /backend/events/:eventId/exponents/:exponentId/delete                             backend.controllers.Exponents.delete(eventId: String, exponentId: String)
+GET       /backend/events/:eventId/exponents/:exponentId/team/create                        backend.controllers.Exponents.teamCreate(eventId: String, exponentId: String)
+POST      /backend/events/:eventId/exponents/:exponentId/team/createFull                    backend.controllers.Exponents.doTeamCreateFull(eventId: String, exponentId: String)
+POST      /backend/events/:eventId/exponents/:exponentId/team/createInvite                  backend.controllers.Exponents.doTeamCreateInvite(eventId: String, exponentId: String)
+POST      /backend/events/:eventId/exponents/:exponentId/team/join                          backend.controllers.Exponents.doTeamJoin(eventId: String, exponentId: String)
+GET       /backend/events/:eventId/exponents/:exponentId/team/:attendeeId                   backend.controllers.Exponents.teamDetails(eventId: String, exponentId: String, attendeeId: String)
+GET       /backend/events/:eventId/exponents/:exponentId/team/:attendeeId/edit              backend.controllers.Exponents.teamUpdate(eventId: String, exponentId: String, attendeeId: String)
+POST      /backend/events/:eventId/exponents/:exponentId/team/:attendeeId                   backend.controllers.Exponents.doTeamUpdate(eventId: String, exponentId: String, attendeeId: String)
 
 GET       /backend/events/:eventId/ticketing                                                backend.controllers.Ticketing.details(eventId: String)
 GET       /backend/events/:eventId/ticketing/configure                                      backend.controllers.Ticketing.configure(eventId: String)

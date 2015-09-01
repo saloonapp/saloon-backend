@@ -2,42 +2,54 @@ $(document).ready(function(){
 	/*
 	 * Form improvments
 	 */
-	$('[data-toggle="tooltip"]').tooltip();
-	$('.datetimepicker').datetimepicker();
-	$('.select2').each(function(){
-		$(this).select2({
-			theme: 'bootstrap',
-			minimumResultsForSearch: 5,
-			placeholder: $(this).attr('placeholder')
-		});
-		// Add blue animated border and remove depending on value
-		$(this).on('select2:select', function(e){
-			var p = $(this).closest('.form-group');
-			var i = p.find('.form-control').val();
-			if(i.length > 0){
-				$(this).closest('.fg-line').addClass('fg-toggled');
-			} else if(p.hasClass('fg-float')){
-				if(i.length == 0){
+	if($('[data-toggle="tooltip"]')[0]){
+		$('[data-toggle="tooltip"]').tooltip();
+	}
+	if($('.datetimepicker')[0]){
+		$('.datetimepicker').datetimepicker();
+	}
+	if($('.select2')[0]){
+		$('.select2').each(function(){
+			$(this).select2({
+				width: '100%',
+				theme: 'bootstrap',
+				placeholder: $(this).attr('placeholder'),
+				minimumResultsForSearch: 5
+			});
+			// Add blue animated border and remove depending on value
+			$(this).on('select2:select', function(e){
+				var p = $(this).closest('.form-group');
+				var i = p.find('.form-control').val();
+				if(i.length > 0){
+					$(this).closest('.fg-line').addClass('fg-toggled');
+				} else if(p.hasClass('fg-float')){
+					if(i.length == 0){
+						$(this).closest('.fg-line').removeClass('fg-toggled');
+					}
+				} else {
 					$(this).closest('.fg-line').removeClass('fg-toggled');
 				}
-			} else {
-				$(this).closest('.fg-line').removeClass('fg-toggled');
+			});
+		});
+	}
+	if($('.select2-tags')[0]){
+		$('.select2-tags').each(function(){
+			$(this).select2({
+				width: '100%',
+				theme: 'bootstrap',
+				placeholder: $(this).attr('placeholder'),
+				tags: true
+			});
+		});
+	}
+	if($('.confirm')[0]){
+		$('.confirm').click(function(e){
+			var title = $(this).attr('title') || 'Confirmer';
+			if(!confirm(title+' ?')){
+				e.preventDefault();
 			}
 		});
-	});
-	$('.select2-tags').each(function(){
-		$(this).select2({
-			theme: 'bootstrap',
-			placeholder: $(this).attr('placeholder'),
-			tags: true
-		});
-	});
-	$('.confirm').click(function(e){
-		var title = $(this).attr('title') || 'Confirmer';
-		if(!confirm(title+' ?')){
-			e.preventDefault();
-		}
-	});
+	}
 
 	/*
 	 * Waves Animation

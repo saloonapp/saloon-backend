@@ -2,12 +2,11 @@
 @import common.models.event.Attendee
 @import backend.forms.ExponentCreateData
 @import common.views.html.forms._
-@(exponentForm: Form[ExponentCreateData], allAttendees: List[Attendee], event: Event)
+@(exponentForm: Form[ExponentCreateData], event: Event)
 @inputHidden(exponentForm("eventId"), 'value -> event.uuid)
 @fieldHorizontal(exponentForm("name"), 'label -> "Nom"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: SalooN")</div>}
 @fieldHorizontal(exponentForm("place"), 'label -> "Emplacement"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: A1")</div>}
 @fieldHorizontal(exponentForm("level"), 'label -> "Sponsor"){field => <div class="fg-line">@inputSelect(field, Seq(("1", "Gold"),("2", "Silver"),("3", "Bronze")), 'emptyOption->"-- Non")</div><p class="help-block">Si l'exposant est sponsor et doit être affiché sur la page info du l'événement</p>}
-@fieldHorizontal(exponentForm("team"), 'label -> "Équipe"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid, a.name)))<p class="help-block">Personnes présentes sur le stand.</p>}
 @fieldHorizontal(exponentForm("website"), 'label -> "Site"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: http://saloonapp.co/")</div>}
 @fieldHorizontal(exponentForm("descriptionHTML"), 'label -> "Description"){field => @inputWysiwyg(field, 'placeholder -> "ex: Startup éditrice de SalooN, une application web/mobile permettant de générer plus de valeur et de revenus lors de salons")}
 @fieldHorizontal(exponentForm("logo"), 'label -> "Images"){field =>

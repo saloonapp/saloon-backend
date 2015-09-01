@@ -23,12 +23,6 @@
 	<div class="card" id="profile-main">
 		<div class="pm-overview c-overflow">
 			<div class="pmo-pic">@avatar(exponent.images.logo, exponent.name, 'class->"img-responsive")</div>
-			@if(exponentTeam.length > 0){
-				<div class="pmo-block pmo-contact hidden-xs">
-					<h2><i class="md md-people m-r-5"></i> Équipe</h2>
-					@exponentTeam.map { attendee => @attendeeMedia(attendee, event) }
-				</div>
-			}
 			<div class="pmo-block pmo-contact hidden-xs">
 				<ul>
 					<li><i class="md md-create"></i> enregistré le @datetime(exponent.meta.created)</li>
@@ -43,7 +37,7 @@
 					@Html(exponent.descriptionHTML)
 				</div>
 			</div>
-			<div class="pmb-block">
+			@*<div class="pmb-block">
 				<div class="pmbb-header"><h2><i class="md md-wallet-giftcard m-r-5"></i> Options</h2></div>
 				<div class="pmbb-body p-l-30">
 					<dl class="dl-horizontal">
@@ -65,7 +59,7 @@
 						</dd>
 					</dl>
 				</div>
-			</div>
+			</div>*@
 			@if(!exponent.info.website.isEmpty){
 				<div class="pmb-block">
 					<div class="pmbb-header"><h2><i class="md md-phone m-r-5"></i> Contact</h2></div>
@@ -74,14 +68,33 @@
 					</div>
 				</div>
 			}
-			@if(exponentTeam.length > 0){
-				<div class="pmb-block visible-xs">
-					<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Équipe</h2></div>
-					<div class="pmbb-body p-l-30">
-						@exponentTeam.map { attendee => @attendeeMedia(attendee, event) }
-					</div>
+			<div class="pmb-block">
+				<div class="pmbb-header">
+					<h2><i class="md md-people m-r-5"></i> Équipe</h2>
+					<ul class="actions">
+						<li><a href="@backend.controllers.routes.Exponents.teamCreate(event.uuid, exponent.uuid)" title="Ajouter une personne à l'équipe"><i class="md md-add"></i></a></li>
+					</ul>
 				</div>
-			}
+				<div class="pmbb-body p-l-30">
+					@if(exponentTeam.length == 0){
+						L'équipe est vide.
+					}
+					@exponentTeam.map { attendee =>
+						<ul class="actions pull-right">
+							<!--
+								block:      can't invite user (no email set)
+								email:      invite user
+								email-open: re-invite user
+								eye-off:    remove user access
+							-->
+							<li><a href=""><i class="md md-email"></i></a></li>
+							<li><a href="@backend.controllers.routes.Exponents.teamUpdate(event.uuid, exponent.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
+							<li><a href=""><i class="md md-delete"></i></a></li>
+						</ul>
+						@attendeeMedia(attendee, Some(backend.controllers.routes.Exponents.teamDetails(event.uuid, exponent.uuid, attendee.uuid)))
+					}
+				</div>
+			</div>
 		</div>
 	</div>
 }

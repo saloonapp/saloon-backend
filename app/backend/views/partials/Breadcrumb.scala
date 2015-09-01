@@ -40,12 +40,14 @@ object Breadcrumb {
       case "events" => (backend.controllers.routes.Events.list(), "Mes événements")
       case "attendees" => (backend.controllers.routes.Attendees.list(identifiers.get("event").get), "Participants")
       case "exponents" => (backend.controllers.routes.Exponents.list(identifiers.get("event").get), "Exposants")
+      case "team" => (backend.controllers.routes.Exponents.details(identifiers.get("event").get, identifiers.get("exponent").get), "Équipe")
       case "sessions" => (backend.controllers.routes.Sessions.list(identifiers.get("event").get), "Sessions")
       case "ticketing" => (backend.controllers.routes.Ticketing.details(identifiers.get("event").get), "Ticketing")
       case "create" => prev.get match {
         case "events" => (backend.controllers.routes.Events.create(), "Créer un événement")
         case "attendees" => (backend.controllers.routes.Attendees.create(identifiers.get("event").get), "Nouveau participant")
         case "exponents" => (backend.controllers.routes.Exponents.create(identifiers.get("event").get), "Nouvel exposant")
+        case "team" => (backend.controllers.routes.Exponents.teamCreate(identifiers.get("event").get, identifiers.get("exponent").get), "Nouveau membre")
         case "sessions" => (backend.controllers.routes.Sessions.create(identifiers.get("event").get), "Nouvelle session")
       }
       case "edit" => prev.get match {
@@ -56,6 +58,7 @@ object Breadcrumb {
             case "events" => (backend.controllers.routes.Events.update(identifiers.get("event").get), "Modification")
             case "attendees" => (backend.controllers.routes.Attendees.update(identifiers.get("event").get, identifiers.get("attendee").get), "Modification")
             case "exponents" => (backend.controllers.routes.Exponents.update(identifiers.get("event").get, identifiers.get("exponent").get), "Modification")
+            case "team" => (backend.controllers.routes.Exponents.teamUpdate(identifiers.get("event").get, identifiers.get("exponent").get, identifiers.get("attendee").get), "Modification")
             case "sessions" => (backend.controllers.routes.Sessions.update(identifiers.get("event").get, identifiers.get("session").get), "Modification")
           }
       }
@@ -81,6 +84,10 @@ object Breadcrumb {
         case "exponents" => {
           identifiers.put("exponent", id)
           (backend.controllers.routes.Exponents.details(identifiers.get("event").get, id), titles.get(id).get)
+        }
+        case "team" => {
+          identifiers.put("attendee", id)
+          (backend.controllers.routes.Exponents.teamDetails(identifiers.get("event").get, identifiers.get("exponent").get, id), titles.get(id).get)
         }
         case "sessions" => {
           identifiers.put("session", id)

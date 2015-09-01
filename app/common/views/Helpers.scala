@@ -28,6 +28,8 @@ object Helpers {
       .filter(e => !exclude.contains(e._1.name))
       .map { case (symbol, value) => symbol.name + "=\"" + value + "\"" }
       .mkString(" "))
+
+  def strOpt(str: String): Option[String] = if (str.isEmpty()) None else Some(str)
 }
 
 object App {

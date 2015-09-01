@@ -1,20 +1,15 @@
-@import common.models.event.Event
 @import common.models.event.Attendee
-@(attendee: Attendee, event: Event)
+@(attendee: Attendee, link: Option[Call] = None)
 <div class="media media-avatar">
 	<div class="pull-left">
-		<a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)"><img class="media-object" src="@attendee.images.avatar" alt=""></a>
+		<a href="@link">@avatar(attendee.images.avatar, attendee.name, 'class->"media-object")</a>
 	</div>
 	<div class="media-body">
-		<h4 class="media-heading"><a href="@backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid)">@attendee.name</a></h4>
+		<h4 class="media-heading">
+			<a href="@link">@attendee.name</a>
+			<small>@attendee.position().getOrElse("")</small>
+		</h4>
 		<p class="media-line" title="@attendee.description">@attendee.description</p>
-		<p class="media-line">
-			@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }.getOrElse("")
-			@attendee.social.blogUrl.map { url => <a href="@url" target="_blank"><i class="md md-messenger"></i></a> }.getOrElse("")
-			@attendee.social.facebookUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-facebook"></i></a> }.getOrElse("")
-			@attendee.social.twitterUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-twitter"></i></a> }.getOrElse("")
-			@attendee.social.linkedinUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-linkedin"></i></a> }.getOrElse("")
-			@attendee.social.githubUrl.map { url => <a href="@url" target="_blank"><i class="socicon socicon-github"></i></a> }.getOrElse("")
-		</p>
+		<p class="media-line">@attendee.links().map { case (url, name, icon) => <a href="@url" target="_blank" title="@name"><i class="@icon"></i></a> }</p>
 	</div>
 </div>

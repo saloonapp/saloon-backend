@@ -105,30 +105,31 @@ object Attendees extends SilhouetteEnvironment {
   def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     //implicit val user = User(loginInfo = LoginInfo("", ""), email = "loicknuchel@gmail.com", info = UserInfo("Loïc", "Knuchel"), rights = Map("administrateSaloon" -> true))
-    val dataFuture = for {
-      eltOpt <- AttendeeRepository.getByUuid(uuid)
+    val res: Future[Future[Result]] = for {
       eventOpt <- EventRepository.getByUuid(eventId)
-    } yield (eltOpt, eventOpt)
-
-    dataFuture.flatMap { data =>
-      data._1.flatMap { elt =>
-        data._2.map { event =>
-          createForm.bindFromRequest.fold(
-            formWithErrors => for {
-              roles <- AttendeeRepository.findEventRoles(eventId)
-            } yield BadRequest(backend.views.html.Events.Attendees.update(formWithErrors, elt, roles, event)),
-            formData => AttendeeRepository.update(uuid, AttendeeCreateData.merge(elt, formData)).flatMap {
-              _.map { updatedElt =>
-                Future(Redirect(backend.controllers.routes.Attendees.details(eventId, updatedElt.uuid)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
-              }.getOrElse {
-                for {
-                  roles <- AttendeeRepository.findEventRoles(eventId)
-                } yield InternalServerError(backend.views.html.Events.Attendees.update(createForm.fill(formData), elt, roles, event)).flashing("error" -> s"Impossible de modifier le participant '${elt.name}'")
-              }
-            })
-        }
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+      eltOpt <- AttendeeRepository.getByUuid(uuid)
+    } yield {
+      val res2: Option[Future[Result]] = for {
+        event <- eventOpt
+        elt <- eltOpt
+      } yield {
+        createForm.bindFromRequest.fold(
+          formWithErrors => for {
+            roles <- AttendeeRepository.findEventRoles(eventId)
+          } yield BadRequest(backend.views.html.Events.Attendees.update(formWithErrors, elt, roles, event)),
+          formData => AttendeeRepository.update(uuid, AttendeeCreateData.merge(elt, formData)).flatMap {
+            _.map { updatedElt =>
+              Future(Redirect(backend.controllers.routes.Attendees.details(eventId, updatedElt.uuid)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
+            }.getOrElse {
+              for {
+                roles <- AttendeeRepository.findEventRoles(eventId)
+              } yield InternalServerError(backend.views.html.Events.Attendees.update(createForm.fill(formData), elt, roles, event)).flashing("error" -> s"Impossible de modifier le participant '${elt.name}'")
+            }
+          })
+      }
+      res2.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
     }
+    res.flatMap(identity)
   }
 
   def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>

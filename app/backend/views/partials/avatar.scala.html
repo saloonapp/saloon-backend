@@ -22,4 +22,4 @@
 	}
 }
 @if(!avatar.isEmpty){<img src="@avatar" @Helpers.toHtmlArgs(args)>}
-@if(avatar.isEmpty){<div class="lv-avatar @avatarColor(name.head) @Helpers.getArg(args, "class")", @Helpers.toHtmlArgs(args, Seq("class"))>@name.head</div>}
+@if(avatar.isEmpty){<div class="lv-avatar @avatarColor(name.head) @Helpers.getArg(args, "class")" @Helpers.toHtmlArgs(args, Seq("class"))>@name.head</div>}
