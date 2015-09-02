@@ -16,7 +16,7 @@
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Exponents.teamUpdate(event.uuid, exponent.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
 			<li>
-				@helper.form(action=backend.controllers.routes.Attendees.delete(event.uuid, attendee.uuid, Some(backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid).url))) {
+				@helper.form(action=backend.controllers.routes.Attendees.doDelete(event.uuid, attendee.uuid, Some(backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid).url))) {
 					<button type="submit" class="confirm" title="Supprimer le profil de @attendee.name"><i class="md md-delete"></i></button>
 				}
 			</li>
