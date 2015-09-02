@@ -9,15 +9,14 @@ import common.models.event.EventConfigAttendeeSurveyQuestion
 import common.repositories.user.OrganizationRepository
 import common.repositories.event.EventRepository
 import common.services.EventSrv
-import backend.utils.ControllerHelpers
 import backend.forms.EventCreateData
+import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
-import com.mohiva.play.silhouette.core.LoginInfo
 
 object Events extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[EventCreateData] = Form(EventCreateData.fields)

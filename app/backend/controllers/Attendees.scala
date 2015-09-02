@@ -1,16 +1,15 @@
 package backend.controllers
 
-import common.models.event.Event
 import common.models.event.Attendee
 import common.models.user.User
 import common.models.utils.Page
 import common.services.FileExporter
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
-import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
-import backend.utils.ControllerHelpers
+import common.repositories.event.SessionRepository
 import backend.forms.AttendeeCreateData
+import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -51,49 +50,41 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
 
   def create(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withEvent(eventId) { event =>
-      createView(createForm, event)
-    }
+    createView(createForm, eventId)
   }
 
   def doCreate(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withEvent(eventId) { event =>
-      createForm.bindFromRequest.fold(
-        formWithErrors => createView(formWithErrors, event, BadRequest),
-        formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
-          _.map { attendee =>
-            Future(Redirect(backend.controllers.routes.Attendees.details(eventId, attendee.uuid)).flashing("success" -> s"Participant '${attendee.name}' créé !"))
-          }.getOrElse {
-            createView(createForm.fill(formData), event, InternalServerError)
-          }
-        })
-    }
+    createForm.bindFromRequest.fold(
+      formWithErrors => createView(formWithErrors, eventId, BadRequest),
+      formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
+        _.map { attendee =>
+          Future(Redirect(backend.controllers.routes.Attendees.details(eventId, attendee.uuid)).flashing("success" -> s"Participant '${attendee.name}' créé !"))
+        }.getOrElse {
+          createView(createForm.fill(formData), eventId, InternalServerError)
+        }
+      })
   }
 
   def update(eventId: String, attendeeId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withEvent(eventId) { event =>
-      withAttendee(attendeeId) { attendee =>
-        updateView(createForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, event)
-      }
+    withAttendee(attendeeId) { attendee =>
+      updateView(createForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, eventId)
     }
   }
 
   def doUpdate(eventId: String, attendeeId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withEvent(eventId) { event =>
-      withAttendee(attendeeId) { attendee =>
-        createForm.bindFromRequest.fold(
-          formWithErrors => updateView(formWithErrors, attendee, event, BadRequest),
-          formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).flatMap {
-            _.map { updatedElt =>
-              Future(Redirect(backend.controllers.routes.Attendees.details(eventId, attendeeId)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
-            }.getOrElse {
-              updateView(createForm.fill(formData), attendee, event, InternalServerError)
-            }
-          })
-      }
+    withAttendee(attendeeId) { attendee =>
+      createForm.bindFromRequest.fold(
+        formWithErrors => updateView(formWithErrors, attendee, eventId, BadRequest),
+        formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).flatMap {
+          _.map { updatedElt =>
+            Future(Redirect(backend.controllers.routes.Attendees.details(eventId, attendeeId)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
+          }.getOrElse {
+            updateView(createForm.fill(formData), attendee, eventId, InternalServerError)
+          }
+        })
     }
   }
 
@@ -112,9 +103,9 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
 
   def fileExport(eventId: String) = SecuredAction.async { implicit req =>
     withEvent(eventId) { event =>
-      AttendeeRepository.findByEvent(eventId).map { elts =>
+      AttendeeRepository.findByEvent(eventId).map { attendees =>
         val filename = event.name + "_attendees.csv"
-        val content = FileExporter.makeCsv(elts.map(_.toBackendExport))
+        val content = FileExporter.makeCsv(attendees.map(_.toBackendExport))
         Ok(content)
           .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
           .as("text/csv")
@@ -126,15 +117,19 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
    * Private methods
    */
 
-  private def createView(createForm: Form[AttendeeCreateData], event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
-    AttendeeRepository.findEventRoles(event.uuid).map { roles =>
-      status(backend.views.html.Events.Attendees.create(createForm, roles, event))
+  private def createView(createForm: Form[AttendeeCreateData], eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+    withEvent(eventId) { event =>
+      AttendeeRepository.findEventRoles(event.uuid).map { roles =>
+        status(backend.views.html.Events.Attendees.create(createForm, roles, event))
+      }
     }
   }
 
-  private def updateView(createForm: Form[AttendeeCreateData], attendee: Attendee, event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
-    AttendeeRepository.findEventRoles(event.uuid).map { roles =>
-      status(backend.views.html.Events.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, roles, event))
+  private def updateView(createForm: Form[AttendeeCreateData], attendee: Attendee, eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+    withEvent(eventId) { event =>
+      AttendeeRepository.findEventRoles(event.uuid).map { roles =>
+        status(backend.views.html.Events.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, roles, event))
+      }
     }
   }
 

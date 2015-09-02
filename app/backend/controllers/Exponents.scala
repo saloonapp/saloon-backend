@@ -1,15 +1,16 @@
 package backend.controllers
 
+import common.models.event.Attendee
+import common.models.event.Exponent
 import common.models.user.User
-import common.models.user.UserInfo
 import common.models.utils.Page
 import common.services.FileExporter
-import common.repositories.event.EventRepository
+import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.event.SessionRepository
-import common.repositories.event.AttendeeRepository
 import backend.forms.ExponentCreateData
 import backend.forms.AttendeeCreateData
+import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -17,316 +18,196 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import com.mohiva.play.silhouette.core.LoginInfo
 
-object Exponents extends SilhouetteEnvironment {
+object Exponents extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[ExponentCreateData] = Form(ExponentCreateData.fields)
 
   def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     val curPage = page.getOrElse(1)
-    for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      eltPage <- ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("name"))
-    } yield {
-      if (curPage > 1 && eltPage.totalPages < curPage) {
-        Redirect(backend.controllers.routes.Exponents.list(eventId, query, Some(eltPage.totalPages), pageSize, sort))
-      } else {
-        eventOpt
-          .map { event => Ok(backend.views.html.Events.Exponents.list(eltPage, event)) }
-          .getOrElse { NotFound(backend.views.html.error("404", "Event not found...")) }
+    withEvent(eventId) { event =>
+      ExponentRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("name")).map { exponentPage =>
+        if (1 < curPage && exponentPage.totalPages < curPage) {
+          Redirect(backend.controllers.routes.Exponents.list(eventId, query, Some(exponentPage.totalPages), pageSize, sort))
+        } else {
+          Ok(backend.views.html.Events.Exponents.list(exponentPage, event))
+        }
       }
     }
   }
 
-  def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def details(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    val res: Future[Future[Result]] = for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      eltOpt <- ExponentRepository.getByUuid(uuid)
-    } yield {
-      val res2: Option[Future[Result]] = for {
-        event <- eventOpt
-        elt <- eltOpt
-      } yield {
-        AttendeeRepository.findByUuids(elt.info.team).map { team =>
-          Ok(backend.views.html.Events.Exponents.details(elt, team, event))
+    withEvent(eventId) { event =>
+      withExponent(exponentId) { exponent =>
+        AttendeeRepository.findByUuids(exponent.info.team).map { team =>
+          Ok(backend.views.html.Events.Exponents.details(exponent, team, event))
         }
       }
-      res2.getOrElse { Future(NotFound(backend.views.html.error("404", "Event not found..."))) }
     }
-    res.flatMap(identity)
   }
 
   def create(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-    } yield {
-      eventOpt
-        .map { event => Ok(backend.views.html.Events.Exponents.create(createForm, event)) }
-        .getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
-    }
+    createView(createForm, eventId)
   }
 
   def doCreate(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
-      eventOpt.map { event =>
+    createForm.bindFromRequest.fold(
+      formWithErrors => createView(formWithErrors, eventId, BadRequest),
+      formData => ExponentRepository.insert(ExponentCreateData.toModel(formData)).flatMap {
+        _.map { exponent =>
+          Future(Redirect(backend.controllers.routes.Exponents.details(eventId, exponent.uuid)).flashing("success" -> s"Exposant '${exponent.name}' créé !"))
+        }.getOrElse {
+          createView(createForm.fill(formData), eventId, InternalServerError)
+        }
+      })
+  }
+
+  def update(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withExponent(exponentId) { exponent =>
+      updateView(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, eventId)
+    }
+  }
+
+  def doUpdate(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      withExponent(exponentId) { exponent =>
         createForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Events.Exponents.create(formWithErrors, event))),
-          formData => ExponentRepository.insert(ExponentCreateData.toModel(formData)).map {
-            _.map { elt =>
-              Redirect(backend.controllers.routes.Exponents.details(eventId, elt.uuid)).flashing("success" -> s"Exposant '${elt.name}' créé !")
+          formWithErrors => updateView(formWithErrors, exponent, eventId, BadRequest),
+          formData => ExponentRepository.update(exponentId, ExponentCreateData.merge(exponent, formData)).flatMap {
+            _.map { updatedElt =>
+              Future(Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> s"L'exposant '${updatedElt.name}' a bien été modifié"))
             }.getOrElse {
-              InternalServerError(backend.views.html.Events.Exponents.create(createForm.fill(formData), event)).flashing("error" -> s"Impossible de créer l'exposant '${formData.name}'")
+              updateView(createForm.fill(formData), exponent, eventId, InternalServerError)
             }
           })
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+      }
     }
   }
 
-  def update(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def doDelete(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    for {
-      eltOpt <- ExponentRepository.getByUuid(uuid)
-      eventOpt <- EventRepository.getByUuid(eventId)
-    } yield {
-      eltOpt.flatMap { elt =>
-        eventOpt.map { event => Ok(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(elt)), elt, event)) }
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
-    }
-  }
-
-  def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    val dataFuture = for {
-      eltOpt <- ExponentRepository.getByUuid(uuid)
-      eventOpt <- EventRepository.getByUuid(eventId)
-    } yield (eltOpt, eventOpt)
-
-    dataFuture.flatMap { data =>
-      data._1.flatMap { elt =>
-        data._2.map { event =>
-          createForm.bindFromRequest.fold(
-            formWithErrors => Future(BadRequest(backend.views.html.Events.Exponents.update(formWithErrors, elt, event))),
-            formData => ExponentRepository.update(uuid, ExponentCreateData.merge(elt, formData)).map {
-              _.map { updatedElt =>
-                Redirect(backend.controllers.routes.Exponents.details(eventId, updatedElt.uuid)).flashing("success" -> s"L'exposant '${updatedElt.name}' a bien été modifié")
-              }.getOrElse {
-                InternalServerError(backend.views.html.Events.Exponents.update(createForm.fill(formData), elt, event)).flashing("error" -> s"Impossible de modifier l'exposant '${elt.name}'")
-              }
-            })
-        }
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
-    }
-  }
-
-  def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    ExponentRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        ExponentRepository.delete(uuid)
-        // TODO : What to do with linked attendees ?
-        // 	- delete thoses who are not linked with other elts (exponents / sessions)
-        //	- ask which one to delete (showing other links)
-        Redirect(backend.controllers.routes.Exponents.list(eventId)).flashing("success" -> s"Suppression de l'exposant '${elt.name}'")
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    withExponent(exponentId) { exponent =>
+      // TODO : What to do with linked attendees ?
+      // 	- delete thoses who are not linked with other elts (exponents / sessions)
+      //	- ask which one to delete (showing other links)
+      ExponentRepository.delete(exponentId).map { res =>
+        Redirect(backend.controllers.routes.Exponents.list(eventId)).flashing("success" -> s"Suppression de l'exposant '${exponent.name}'")
+      }
     }
   }
 
   def fileExport(eventId: String) = SecuredAction.async { implicit req =>
-    EventRepository.getByUuid(eventId).flatMap { eventOpt =>
-      eventOpt.map { event =>
-        ExponentRepository.findByEvent(eventId).map { elts =>
-          val filename = event.name + "_exponents.csv"
-          val content = FileExporter.makeCsv(elts.map(_.toBackendExport))
-          Ok(content)
-            .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
-            .as("text/csv")
-        }
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+    withEvent(eventId) { event =>
+      ExponentRepository.findByEvent(eventId).map { exponents =>
+        val filename = event.name + "_exponents.csv"
+        val content = FileExporter.makeCsv(exponents.map(_.toBackendExport))
+        Ok(content)
+          .withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\""))
+          .as("text/csv")
+      }
     }
   }
 
   /*
-   *
    * Team
-   *
    */
 
   val teamCreateForm: Form[AttendeeCreateData] = Form(AttendeeCreateData.fields)
-  val teamJoinForm = Form(single("attendeeId" -> nonEmptyText))
+  val teamJoinForm: Form[String] = Form(single("attendeeId" -> nonEmptyText))
 
-  def teamCreate(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def teamDetails(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      allAttendees <- AttendeeRepository.findByEvent(eventId)
-    } yield {
-      val res: Option[Result] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-      } yield {
-        Ok(backend.views.html.Events.Exponents.Team.create(teamCreateForm, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent))
+    withEvent(eventId) { event =>
+      withAttendee(attendeeId) { attendee =>
+        for {
+          exponentOpt <- ExponentRepository.getByUuid(exponentId)
+          attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
+          attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
+        } yield {
+          if (exponentOpt.isDefined && exponentOpt.get.hasMember(attendee)) {
+            Ok(backend.views.html.Events.Exponents.Team.details(attendee, attendeeSessions, attendeeExponents, event, exponentOpt.get))
+          } else {
+            Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event))
+          }
+        }
       }
-      res.getOrElse(NotFound(backend.views.html.error("404", "Not found...")))
     }
   }
 
-  def doTeamCreateFull(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def teamCreate(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    val res: Future[Future[Result]] = for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      allAttendees <- AttendeeRepository.findByEvent(eventId)
-    } yield {
-      val res2: Option[Future[Result]] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-      } yield {
-        teamCreateForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Events.Exponents.Team.create(formWithErrors, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, "fullform"))),
-          formData => {
-            val attendee = AttendeeCreateData.toModel(formData)
-            AttendeeRepository.insert(attendee).flatMap {
-              _.map { elt =>
-                ExponentRepository.addTeamMember(exponentId, attendee.uuid).map { r =>
-                  Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre créé !")
-                }
-              }.getOrElse {
-                Future(InternalServerError(backend.views.html.Events.Exponents.Team.create(teamCreateForm.fill(formData), teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, "fullform")))
-              }
-            }
-          })
-      }
-      res2.getOrElse(Future(NotFound(backend.views.html.error("404", "Not found..."))))
-    }
-    res.flatMap(identity)
+    teamCreateView(teamCreateForm, teamJoinForm, eventId, exponentId)
   }
 
   def doTeamCreateInvite(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    val res: Future[Future[Result]] = for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      allAttendees <- AttendeeRepository.findByEvent(eventId)
-    } yield {
-      val res2: Option[Future[Result]] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-      } yield {
-        teamCreateForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Events.Exponents.Team.create(formWithErrors, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, "inviteuser"))),
-          formData => {
-            val attendee = AttendeeCreateData.toModel(formData)
-            AttendeeRepository.insert(attendee).flatMap {
-              _.map { elt =>
-                ExponentRepository.addTeamMember(exponentId, attendee.uuid).map { r =>
-                  // TODO : create ExponentInvite & send invite email
-                  Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre invité !")
-                }
-              }.getOrElse {
-                Future(InternalServerError(backend.views.html.Events.Exponents.Team.create(teamCreateForm.fill(formData), teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, "inviteuser")))
-              }
-            }
-          })
-      }
-      res2.getOrElse(Future(NotFound(backend.views.html.error("404", "Not found..."))))
-    }
-    res.flatMap(identity)
+    teamCreateForm.bindFromRequest.fold(
+      formWithErrors => teamCreateView(formWithErrors, teamJoinForm, eventId, exponentId, "inviteuser", BadRequest),
+      formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
+        _.map { attendee =>
+          ExponentRepository.addTeamMember(exponentId, attendee.uuid).map { r =>
+            // TODO : create ExponentInvite & send invite email
+            Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre invité !")
+          }
+        }.getOrElse {
+          teamCreateView(teamCreateForm.fill(formData), teamJoinForm, eventId, exponentId, "inviteuser", InternalServerError)
+        }
+      })
+  }
+
+  def doTeamCreateFull(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    teamCreateForm.bindFromRequest.fold(
+      formWithErrors => teamCreateView(formWithErrors, teamJoinForm, eventId, exponentId, "fullform", BadRequest),
+      formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
+        _.map { attendee =>
+          ExponentRepository.addTeamMember(exponentId, attendee.uuid).map { r =>
+            Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre créé !")
+          }
+        }.getOrElse {
+          teamCreateView(teamCreateForm.fill(formData), teamJoinForm, eventId, exponentId, "fullform", InternalServerError)
+        }
+      })
   }
 
   def doTeamJoin(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    val res: Future[Future[Result]] = for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      allAttendees <- AttendeeRepository.findByEvent(eventId)
-    } yield {
-      val res2: Option[Future[Result]] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-      } yield {
-        teamJoinForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Events.Exponents.Team.create(teamCreateForm, formWithErrors, allAttendees.filter(!exponent.hasMember(_)), event, exponent, "fromattendees"))),
-          formData => ExponentRepository.addTeamMember(exponentId, formData).map { r =>
-            Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre ajouté !")
-          })
-      }
-      res2.getOrElse(Future(NotFound(backend.views.html.error("404", "Not found..."))))
-    }
-    res.flatMap(identity)
-  }
-
-  def teamDetails(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      attendeeOpt <- AttendeeRepository.getByUuid(attendeeId)
-      attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
-      attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
-    } yield {
-      val res: Option[Result] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-        attendee <- attendeeOpt
-      } yield {
-        if (exponent.hasMember(attendee)) {
-          Ok(backend.views.html.Events.Exponents.Team.details(attendee, attendeeSessions, attendeeExponents, event, exponent))
+    teamJoinForm.bindFromRequest.fold(
+      formWithErrors => teamCreateView(teamCreateForm, formWithErrors, eventId, exponentId, "fromattendees", BadRequest),
+      formData => ExponentRepository.addTeamMember(exponentId, formData).flatMap { err =>
+        if (err.ok) {
+          Future(Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre ajouté !"))
         } else {
-          Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event))
+          teamCreateView(teamCreateForm, teamJoinForm.fill(formData), eventId, exponentId, "fromattendees", InternalServerError)
         }
-      }
-      res.getOrElse(NotFound(backend.views.html.error("404", "Not found...")))
-    }
+      })
   }
 
   def teamUpdate(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      attendeeOpt <- AttendeeRepository.getByUuid(attendeeId)
-    } yield {
-      val res: Option[Result] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-        attendee <- attendeeOpt
-      } yield {
-        Ok(backend.views.html.Events.Exponents.Team.update(teamCreateForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, event, exponent))
-      }
-      res.getOrElse(NotFound(backend.views.html.error("404", "Not found...")))
+    withAttendee(eventId) { attendee =>
+      teamUpdateView(teamCreateForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, eventId, exponentId)
     }
   }
 
   def doTeamUpdate(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    val res: Future[Future[Result]] = for {
-      eventOpt <- EventRepository.getByUuid(eventId)
-      exponentOpt <- ExponentRepository.getByUuid(exponentId)
-      attendeeOpt <- AttendeeRepository.getByUuid(attendeeId)
-    } yield {
-      val res2: Option[Future[Result]] = for {
-        event <- eventOpt
-        exponent <- exponentOpt
-        attendee <- attendeeOpt
-      } yield {
-        teamCreateForm.bindFromRequest.fold(
-          formWithErrors => Future(Ok(backend.views.html.Events.Exponents.Team.update(formWithErrors, attendee, event, exponent))),
-          formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).map {
-            _.map { updatedElt =>
-              Redirect(backend.controllers.routes.Exponents.teamDetails(eventId, exponentId, attendeeId)).flashing("success" -> s"${updatedElt.name} a été modifié")
-            }.getOrElse {
-              InternalServerError(backend.views.html.Events.Exponents.Team.update(teamCreateForm.fill(formData), attendee, event, exponent)).flashing("error" -> s"Impossible de modifier ${attendee.name}")
-            }
-          })
-      }
-      res2.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+    withAttendee(eventId) { attendee =>
+      teamCreateForm.bindFromRequest.fold(
+        formWithErrors => teamUpdateView(formWithErrors, attendee, eventId, exponentId, BadRequest),
+        formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).flatMap {
+          _.map { attendeeUpdated =>
+            Future(Redirect(backend.controllers.routes.Exponents.teamDetails(eventId, exponentId, attendeeId)).flashing("success" -> s"${attendeeUpdated.name} a été modifié"))
+          }.getOrElse {
+            teamUpdateView(teamCreateForm.fill(formData), attendee, eventId, exponentId, InternalServerError)
+          }
+        })
     }
-    res.flatMap(identity)
   }
 
   def doTeamLeave(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
@@ -337,5 +218,39 @@ object Exponents extends SilhouetteEnvironment {
 
   // def doTeamInvite(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
   // def doTeamBan(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+
+  /*
+   * Private methods
+   */
+
+  private def createView(createForm: Form[ExponentCreateData], eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+    withEvent(eventId) { event =>
+      Future(Ok(backend.views.html.Events.Exponents.create(createForm, event)))
+    }
+  }
+
+  private def updateView(createForm: Form[ExponentCreateData], exponent: Exponent, eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+    withEvent(eventId) { event =>
+      Future(Ok(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, event)))
+    }
+  }
+
+  private def teamCreateView(teamCreateForm: Form[AttendeeCreateData], teamJoinForm: Form[String], eventId: String, exponentId: String, tab: String = "inviteuser", status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+    withEvent(eventId) { event =>
+      withExponent(exponentId) { exponent =>
+        AttendeeRepository.findByEvent(eventId).map { allAttendees =>
+          Ok(backend.views.html.Events.Exponents.Team.create(teamCreateForm, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, tab))
+        }
+      }
+    }
+  }
+
+  private def teamUpdateView(teamCreateForm: Form[AttendeeCreateData], attendee: Attendee, eventId: String, exponentId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+    withEvent(eventId) { event =>
+      withExponent(exponentId) { exponent =>
+        Future(Ok(backend.views.html.Events.Exponents.Team.update(teamCreateForm, attendee, event, exponent)))
+      }
+    }
+  }
 
 }
