@@ -101,7 +101,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+  def doFileExport(eventId: String) = SecuredAction.async { implicit req =>
     withEvent(eventId) { event =>
       ExponentRepository.findByEvent(eventId).map { exponents =>
         val filename = event.name + "_exponents.csv"

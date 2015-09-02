@@ -1,7 +1,6 @@
 package backend.controllers
 
 import common.models.user.User
-import common.models.user.UserInfo
 import common.models.user.UserOrganization
 import common.models.user.OrganizationData
 import common.models.user.Request
@@ -22,7 +21,6 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import com.mohiva.play.silhouette.core.LoginInfo
 
 object Profile extends SilhouetteEnvironment {
   val userForm: Form[UserData] = Form(UserData.fields)
@@ -74,11 +72,12 @@ object Profile extends SilhouetteEnvironment {
     organizationForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "Votre organisation n'est pas correcte :(")),
       formData => createOrganization(formData, user).map {
-        case (category, message, organizationIdOpt) => organizationIdOpt.map { organizationId =>
-          Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing(category -> message)
-        }.getOrElse {
-          Redirect(backend.controllers.routes.Profile.details()).flashing(category -> message)
-        }
+        case (category, message, organizationIdOpt) =>
+          organizationIdOpt.map { organizationId =>
+            Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing(category -> message)
+          }.getOrElse {
+            Redirect(backend.controllers.routes.Profile.details()).flashing(category -> message)
+          }
       })
   }
 
@@ -91,6 +90,10 @@ object Profile extends SilhouetteEnvironment {
       })
   }
 
+  /*
+   * Private methods
+   */
+
   private def findOrganizationRequest(requests: List[Request], organizationId: String): Option[Request] = {
     requests.find { r =>
       r.content match {
@@ -100,10 +103,6 @@ object Profile extends SilhouetteEnvironment {
       }
     }
   }
-
-  /*
-   * Methods to externalize in a service
-   */
 
   private def createOrganization(formData: OrganizationData, user: User): Future[(String, String, Option[String])] = {
     OrganizationRepository.getByName(formData.name).flatMap { orgOpt =>

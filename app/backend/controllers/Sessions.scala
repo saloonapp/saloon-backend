@@ -89,7 +89,7 @@ object Sessions extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+  def doFileExport(eventId: String) = SecuredAction.async { implicit req =>
     withEvent(eventId) { event =>
       SessionRepository.findByEvent(eventId).map { sessions =>
         val filename = event.name + "_sessions.csv"

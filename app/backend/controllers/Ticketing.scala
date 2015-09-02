@@ -1,78 +1,69 @@
 package backend.controllers
 
 import common.models.user.User
-import common.models.user.UserInfo
 import common.models.event.AttendeeRegistration
 import common.models.event.EventConfigAttendeeSurvey
 import common.models.event.EventConfigAttendeeSurveyQuestion
 import common.repositories.user.OrganizationRepository
 import common.repositories.event.EventRepository
-import common.services.EventSrv
-import backend.forms.EventCreateData
+import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
-import com.mohiva.play.silhouette.core.LoginInfo
 
-object Ticketing extends SilhouetteEnvironment {
+object Ticketing extends SilhouetteEnvironment with ControllerHelpers {
   val configForm: Form[EventConfigAttendeeSurvey] = Form(EventConfigAttendeeSurvey.fields)
   val registerForm: Form[AttendeeRegistration] = Form(AttendeeRegistration.fields)
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        Ok(backend.views.html.Events.Ticketing.details(elt))
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    withEvent(eventId) { event =>
+      Future(Ok(backend.views.html.Events.Ticketing.details(event)))
     }
   }
 
-  def configure(uuid: String) = SecuredAction.async { implicit req =>
+  def configure(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        val form = elt.config.attendeeSurvey.map(s => configForm.fill(s)).getOrElse(configForm)
-        Ok(backend.views.html.Events.Ticketing.configure(elt, form))
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    withEvent(eventId) { event =>
+      val form = event.config.attendeeSurvey.map(s => configForm.fill(s)).getOrElse(configForm)
+      Future(Ok(backend.views.html.Events.Ticketing.configure(event, form)))
     }
   }
 
-  def doConfigure(uuid: String) = SecuredAction.async { implicit req =>
+  def doConfigure(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).flatMap {
-      _.map { elt =>
-        configForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Events.Ticketing.configure(elt, formWithErrors))),
-          formData => {
-            val eventCfg = elt.copy(config = elt.config.copy(attendeeSurvey = Some(formData)))
-            EventRepository.update(uuid, eventCfg).map {
-              _.map { updatedElt =>
-                Redirect(backend.controllers.routes.Ticketing.details(updatedElt.uuid)).flashing("success" -> s"Configuration bien prise en compte")
-              }.getOrElse {
-                InternalServerError(backend.views.html.Events.Ticketing.configure(elt, configForm.fill(formData))).flashing("error" -> s"Problème lors de la mise à jour :(")
-              }
+    withEvent(eventId) { event =>
+      configForm.bindFromRequest.fold(
+        formWithErrors => Future(BadRequest(backend.views.html.Events.Ticketing.configure(event, formWithErrors))),
+        formData => {
+          // TODO : create specific method in EventRepository
+          val eventWithCfg = event.copy(config = event.config.copy(attendeeSurvey = Some(formData)))
+          EventRepository.update(eventId, eventWithCfg).map {
+            _.map { eventUpdated =>
+              Redirect(backend.controllers.routes.Ticketing.details(eventId)).flashing("success" -> s"Configuration bien prise en compte")
+            }.getOrElse {
+              InternalServerError(backend.views.html.Events.Ticketing.configure(event, configForm.fill(formData))).flashing("error" -> s"Problème lors de la mise à jour :(")
             }
-          })
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+          }
+        })
     }
   }
 
-  def activate(uuid: String, activated: Boolean) = SecuredAction.async { implicit req =>
+  def doActivate(eventId: String, activated: Boolean) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).flatMap {
-      _.map { elt =>
-        val eventCfg = elt.copy(config = elt.config.setTicketing(activated))
-        EventRepository.update(uuid, eventCfg).map { eltOpt =>
-          if (activated) {
-            Redirect(backend.controllers.routes.Ticketing.details(uuid)).flashing("success" -> "Ticketing activé !")
-          } else {
-            Redirect(backend.controllers.routes.Ticketing.details(uuid)).flashing("error" -> "Ticketing désactivé !")
-          }
+    withEvent(eventId) { event =>
+      // TODO : create specific method in EventRepository.toggleOption("ticketing", activated)
+      val eventWithCfg = event.copy(config = event.config.setTicketing(activated))
+      EventRepository.update(eventId, eventWithCfg).map { eventUpdatedOpt =>
+        if (activated) {
+          Redirect(backend.controllers.routes.Ticketing.details(eventId)).flashing("success" -> "Ticketing activé !")
+        } else {
+          Redirect(backend.controllers.routes.Ticketing.details(eventId)).flashing("success" -> "Ticketing désactivé !")
         }
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+      }
     }
   }
 
@@ -88,27 +79,23 @@ object Ticketing extends SilhouetteEnvironment {
     EventConfigAttendeeSurveyQuestion(multiple = true, required = false, otherAllowed = true, question = "Comment avez-vous été informé de la tenue de ce salon ?", answers = List("les Métiers de la Petite Enfance", "Recrut.com", "A Nous Paris", "Le Marché du travail", "L'Aide Soignante", "Objectif Emploi", "La Revue de l'infirmière", "Soin spécial Emploi Salon", "L'Express", "Soins", "infirmier.com", "keljob.com", "letudiant.fr", "emploisoignant.fr", "cadresante.com", "lemarchedutravail.fr", "parisjob.com", "objectifemploi.fr", "aide-soignate.com", "actusoins.fr", "emploisante.com", "jobautonomie.com", "jobenfance.com", "jobintree.com", "capijobnew.com", "Panneau périphérique", "Pôle Emploi", "IFSI-CHU"))))
     */
 
-  def register(uuid: String) = UserAwareAction.async { implicit req =>
+  def register(eventId: String) = UserAwareAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        if (elt.config.hasTicketing) {
-          Ok(backend.views.html.Events.Ticketing.register(registerForm.fill(AttendeeRegistration.prepare(elt.config.attendeeSurvey.get)), elt))
-        } else {
-          NotFound(backend.views.html.error("Oups", "No registration opened..."))
-        }
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    withEvent(eventId) { event =>
+      if (event.config.hasTicketing) {
+        Future(Ok(backend.views.html.Events.Ticketing.register(registerForm.fill(AttendeeRegistration.prepare(event.config.attendeeSurvey.get)), event)))
+      } else {
+        Future(NotFound(backend.views.html.error("Oups", "No registration opened...")))
+      }
     }
   }
 
-  def doRegister(uuid: String) = UserAwareAction.async { implicit req =>
+  def doRegister(eventId: String) = UserAwareAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        registerForm.bindFromRequest.fold(
-          formWithErrors => BadRequest(backend.views.html.Events.Ticketing.register(formWithErrors, elt)),
-          formData => Ok(backend.views.html.Events.Ticketing.register(registerForm.fill(formData), elt)))
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+    withEvent(eventId) { event =>
+      registerForm.bindFromRequest.fold(
+        formWithErrors => Future(BadRequest(backend.views.html.Events.Ticketing.register(formWithErrors, event))),
+        formData => Future(Ok(backend.views.html.Events.Ticketing.register(registerForm.fill(formData), event))))
     }
   }
 }

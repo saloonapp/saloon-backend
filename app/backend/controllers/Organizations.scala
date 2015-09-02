@@ -121,7 +121,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   }
 
   // when the user leave an organization
-  def leave(organizationId: String) = SecuredAction.async { implicit req =>
+  def doLeave(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateOrganization(organizationId)) {
       Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Impossible de quitter une organisation dont vous êtes le responsable."))
@@ -147,7 +147,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   }
 
   // when the organization owner ban a member
-  def ban(organizationId: String, userId: String) = SecuredAction.async { implicit req =>
+  def doBan(organizationId: String, userId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateOrganization(organizationId)) {
       val res: Future[Future[Result]] = for {

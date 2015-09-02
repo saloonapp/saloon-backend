@@ -62,8 +62,8 @@ object EmailSrv {
   }
 
   def generateOrganizationRequestEmail(user: User, organization: Organization, organizationOwner: User, request: Request)(implicit req: RequestHeader): EmailData = {
-    val acceptUrl = backend.controllers.routes.Requests.accept(request.uuid).absoluteURL(Defaults.secureUrl)
-    val rejectUrl = backend.controllers.routes.Requests.reject(request.uuid).absoluteURL(Defaults.secureUrl)
+    val acceptUrl = backend.controllers.routes.Requests.doAccept(request.uuid).absoluteURL(Defaults.secureUrl)
+    val rejectUrl = backend.controllers.routes.Requests.doReject(request.uuid).absoluteURL(Defaults.secureUrl)
     val html = backend.views.html.Emails.organizationRequest(user, organization, request, acceptUrl, rejectUrl).toString
     val text = Jsoup.parse(html).text()
     EmailData(user.name(), user.email, organizationOwner.email, s"Demande d'accès à l'organisation ${organization.name} sur SalooN", html, text)
@@ -82,8 +82,8 @@ object EmailSrv {
   }
 
   def generateOrganizationInviteEmail(user: User, organization: Organization, invitedUser: User, request: Request)(implicit req: RequestHeader): EmailData = {
-    val acceptUrl = backend.controllers.routes.Requests.accept(request.uuid).absoluteURL(Defaults.secureUrl)
-    val rejectUrl = backend.controllers.routes.Requests.reject(request.uuid).absoluteURL(Defaults.secureUrl)
+    val acceptUrl = backend.controllers.routes.Requests.doAccept(request.uuid).absoluteURL(Defaults.secureUrl)
+    val rejectUrl = backend.controllers.routes.Requests.doReject(request.uuid).absoluteURL(Defaults.secureUrl)
     val html = backend.views.html.Emails.organizationInvite(organization, user, request, acceptUrl, rejectUrl).toString
     val text = Jsoup.parse(html).text()
     EmailData(user.name(), user.email, invitedUser.email, s"Invitation à l'organisation ${organization.name} sur SalooN", html, text)

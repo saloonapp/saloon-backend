@@ -26,7 +26,7 @@
 						<br>
 						<br>
 						<div>
-							<form method="POST" action="@backend.controllers.routes.Ticketing.activate(event.uuid, false)" class="inline"><button type="submit" class="btn btn-lg btn-danger">Désactiver</button></form>
+							<form method="POST" action="@backend.controllers.routes.Ticketing.doActivate(event.uuid, false)" class="inline"><button type="submit" class="btn btn-lg btn-danger">Désactiver</button></form>
 						</div>
 					</div>
 				</div>
@@ -36,7 +36,7 @@
 					<div class="pmb-block">
 						<div class="pmbb-header"><h2><i class="md md-done-all m-r-5"></i> Activer le ticketing !</h2></div>
 						<div class="p-l-30">
-							<form method="POST" action="@backend.controllers.routes.Ticketing.activate(event.uuid, true)" class="inline"><button type="submit" class="btn btn-lg btn-success">Activer</button></form>
+							<form method="POST" action="@backend.controllers.routes.Ticketing.doActivate(event.uuid, true)" class="inline"><button type="submit" class="btn btn-lg btn-success">Activer</button></form>
 							<a href="@backend.controllers.routes.Ticketing.configure(event.uuid)" class="btn btn-lg btn-default">Configurer</a>
 						</div>
 					</div>

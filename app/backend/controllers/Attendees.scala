@@ -101,7 +101,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+  def doFileExport(eventId: String) = SecuredAction.async { implicit req =>
     withEvent(eventId) { event =>
       AttendeeRepository.findByEvent(eventId).map { attendees =>
         val filename = event.name + "_attendees.csv"

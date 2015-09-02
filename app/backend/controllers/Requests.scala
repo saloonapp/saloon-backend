@@ -1,7 +1,6 @@
 package backend.controllers
 
 import common.models.user.User
-import common.models.user.UserInfo
 import common.models.user.UserOrganization
 import common.models.user.OrganizationRequest
 import common.models.user.OrganizationInvite
@@ -16,7 +15,6 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
-import com.mohiva.play.silhouette.core.LoginInfo
 
 object Requests extends SilhouetteEnvironment {
 
@@ -51,7 +49,7 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def reminder(uuid: String) = SecuredAction.async { implicit req =>
+  def doReminder(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     RequestRepository.getPendingByUser(uuid, user.uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
@@ -105,7 +103,7 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def cancel(uuid: String) = SecuredAction.async { implicit req =>
+  def doCancel(uuid: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     RequestRepository.getPendingInviteForRequest(uuid).map { // cancel linked invite request if it exists
       _.map { inviteRequest =>
@@ -136,7 +134,7 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def accept(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
+  def doAccept(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
@@ -168,7 +166,7 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def reject(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
+  def doReject(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     RequestRepository.getPending(uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
@@ -199,6 +197,10 @@ object Requests extends SilhouetteEnvironment {
       }
     }
   }
+
+  /*
+   * Private methods
+   */
 
   private def acceptOrganizationRequest(request: Request, organizationId: String, organizationOwner: User): Future[(String, String)] = {
     val res: Future[Future[Future[(String, String)]]] = for {
