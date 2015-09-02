@@ -1,5 +1,6 @@
 package backend.controllers
 
+import common.models.event.Event
 import common.models.user.User
 import common.models.user.UserInfo
 import common.models.event.AttendeeRegistration
@@ -8,6 +9,7 @@ import common.models.event.EventConfigAttendeeSurveyQuestion
 import common.repositories.user.OrganizationRepository
 import common.repositories.event.EventRepository
 import common.services.EventSrv
+import backend.utils.ControllerHelpers
 import backend.forms.EventCreateData
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
@@ -17,7 +19,7 @@ import play.api.mvc._
 import play.api.data.Form
 import com.mohiva.play.silhouette.core.LoginInfo
 
-object Events extends SilhouetteEnvironment {
+object Events extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[EventCreateData] = Form(EventCreateData.fields)
   val registerForm: Form[AttendeeRegistration] = Form(AttendeeRegistration.fields)
 
@@ -30,99 +32,93 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(eventId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    EventRepository.getByUuid(uuid).flatMap {
-      _.map { elt =>
-        for {
-          (event, attendeeCount, sessionCount, exponentCount, actionCount) <- EventSrv.addMetadata(elt)
-        } yield {
+    withEvent(eventId) { event =>
+      EventSrv.addMetadata(event).map {
+        case (_, attendeeCount, sessionCount, exponentCount, actionCount) =>
           Ok(backend.views.html.Events.details(event, attendeeCount, sessionCount, exponentCount, actionCount))
-        }
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
+      }
     }
   }
 
   def create = SecuredAction.async { implicit req =>
     implicit val user = req.identity
+    createView(createForm)
+  }
+
+  def doCreate = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    createForm.bindFromRequest.fold(
+      formWithErrors => createView(formWithErrors, BadRequest),
+      formData => EventRepository.insert(EventCreateData.toModel(formData)).flatMap {
+        _.map { event =>
+          Future(Redirect(backend.controllers.routes.Events.details(event.uuid)).flashing("success" -> s"Événement '${event.name}' créé !"))
+        }.getOrElse {
+          createView(createForm.fill(formData), InternalServerError)
+        }
+      })
+  }
+
+  def update(eventId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      updateView(createForm.fill(EventCreateData.fromModel(event)), event)
+    }
+  }
+
+  def doUpdate(eventId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      createForm.bindFromRequest.fold(
+        formWithErrors => updateView(formWithErrors, event, BadRequest),
+        formData => EventRepository.update(eventId, EventCreateData.merge(event, formData)).flatMap {
+          _.map { updatedElt =>
+            Future(Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
+          }.getOrElse {
+            updateView(createForm.fill(formData), event, InternalServerError)
+          }
+        })
+    }
+  }
+
+  def doDelete(eventId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      EventRepository.delete(eventId).map { res =>
+        Redirect(backend.controllers.routes.Events.list()).flashing("success" -> s"Suppression de l'événement '${event.name}'")
+      }
+    }
+  }
+
+  /*
+   * Private methods
+   */
+
+  private def createView(createForm: Form[EventCreateData], status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     for {
       organizations <- OrganizationRepository.findAllowed(user)
       categories <- EventRepository.getCategories()
     } yield {
       if (organizations.length > 0) {
-        Ok(backend.views.html.Events.create(createForm, organizations, categories))
+        status(backend.views.html.Events.create(createForm, organizations, categories))
       } else {
         Redirect(backend.controllers.routes.Events.list()).flashing("error" -> s"Vous devez appartenir à une organisation pour créer un événement")
       }
     }
   }
 
-  def doCreate = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    createForm.bindFromRequest.fold(
-      formWithErrors => for {
-        organizations <- OrganizationRepository.findAllowed(user)
-        categories <- EventRepository.getCategories()
-      } yield BadRequest(backend.views.html.Events.create(formWithErrors, organizations, categories)),
-      formData => EventRepository.insert(EventCreateData.toModel(formData)).flatMap {
-        _.map { elt =>
-          Future(Redirect(backend.controllers.routes.Events.details(elt.uuid)).flashing("success" -> s"Événement '${elt.name}' créé !"))
-        }.getOrElse {
-          for {
-            organizations <- OrganizationRepository.findAllowed(user)
-            categories <- EventRepository.getCategories()
-          } yield InternalServerError(backend.views.html.Events.create(createForm.fill(formData), organizations, categories)).flashing("error" -> s"Impossible de créer l'événement '${formData.name}'")
-        }
-      })
-  }
-
-  def update(uuid: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
+  private def updateView(createForm: Form[EventCreateData], event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     for {
-      eltOpt <- EventRepository.getByUuid(uuid)
       organizations <- OrganizationRepository.findAllowed(user)
       categories <- EventRepository.getCategories()
     } yield {
-      eltOpt.map { elt =>
-        if (organizations.length > 0) {
-          Ok(backend.views.html.Events.update(createForm.fill(EventCreateData.fromModel(elt)), elt, organizations, categories))
-        } else {
-          Redirect(backend.controllers.routes.Events.details(uuid)).flashing("error" -> s"Vous devez appartenir à une organisation pour modifier un événement")
-        }
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
+      if (organizations.length > 0) {
+        status(backend.views.html.Events.update(createForm, event, organizations, categories))
+      } else {
+        Redirect(backend.controllers.routes.Events.list()).flashing("error" -> s"Vous devez appartenir à une organisation pour créer un événement")
+      }
     }
   }
 
-  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    EventRepository.getByUuid(uuid).flatMap {
-      _.map { elt =>
-        createForm.bindFromRequest.fold(
-          formWithErrors => for {
-            organizations <- OrganizationRepository.findAllowed(user)
-            categories <- EventRepository.getCategories()
-          } yield BadRequest(backend.views.html.Events.update(formWithErrors, elt, organizations, categories)),
-          formData => EventRepository.update(uuid, EventCreateData.merge(elt, formData)).flatMap {
-            _.map { updatedElt =>
-              Future(Redirect(backend.controllers.routes.Events.details(updatedElt.uuid)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
-            }.getOrElse {
-              for {
-                organizations <- OrganizationRepository.findAllowed(user)
-                categories <- EventRepository.getCategories()
-              } yield InternalServerError(backend.views.html.Events.update(createForm.fill(formData), elt, organizations, categories)).flashing("error" -> s"Impossible de modifier l'événement '${elt.name}'")
-            }
-          })
-      }.getOrElse(Future(NotFound(backend.views.html.error("404", "Event not found..."))))
-    }
-  }
-
-  def delete(uuid: String) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    EventRepository.getByUuid(uuid).map {
-      _.map { elt =>
-        EventRepository.delete(uuid)
-        Redirect(backend.controllers.routes.Events.list()).flashing("success" -> s"Suppression de l'événement '${elt.name}'")
-      }.getOrElse(NotFound(backend.views.html.error("404", "Event not found...")))
-    }
-  }
 }

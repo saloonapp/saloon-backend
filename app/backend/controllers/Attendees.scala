@@ -88,7 +88,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
           formWithErrors => updateView(formWithErrors, attendee, event, BadRequest),
           formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).flatMap {
             _.map { updatedElt =>
-              Future(Redirect(backend.controllers.routes.Attendees.details(eventId, updatedElt.uuid)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
+              Future(Redirect(backend.controllers.routes.Attendees.details(eventId, attendeeId)).flashing("success" -> s"Le participant '${updatedElt.name}' a bien été modifié"))
             }.getOrElse {
               updateView(createForm.fill(formData), attendee, event, InternalServerError)
             }

@@ -49,7 +49,7 @@ POST      /backend/events                                                       
 GET       /backend/events/:eventId                                                          backend.controllers.Events.details(eventId: String)
 GET       /backend/events/:eventId/edit                                                     backend.controllers.Events.update(eventId: String)
 POST      /backend/events/:eventId                                                          backend.controllers.Events.doUpdate(eventId: String)
-POST      /backend/events/:eventId/delete                                                   backend.controllers.Events.delete(eventId: String)
+POST      /backend/events/:eventId/delete                                                   backend.controllers.Events.doDelete(eventId: String)
 
 GET       /backend/events/:eventId/attendees                                                backend.controllers.Attendees.list(eventId: String, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /backend/events/:eventId/attendees/create                                         backend.controllers.Attendees.create(eventId: String)
