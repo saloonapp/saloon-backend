@@ -15,7 +15,7 @@
 					<h2>Supprimer l'organisation @organization.name ?</h2>
 				</div>
 				<div class="card-body card-padding">
-					@helper.form(action = backend.controllers.routes.Organizations.doDelete(organization.uuid)) {
+					@helper.form(action=backend.controllers.routes.Organizations.doDelete(organization.uuid)) {
 						<div class="form-group">
 							<a href="@backend.controllers.routes.Organizations.details(organization.uuid)" class="btn btn-lg btn-default">Annuler</a>
 							<button type="submit" class="btn btn-lg btn-danger m-l-30 confirm">Supprimer</button>

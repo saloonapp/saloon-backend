@@ -25,7 +25,7 @@
 				<li class="dropdown">
 					<a href="#" data-toggle="dropdown" title="Exporter"><i class="md md-file-download"></i></a>
 					<ul class="dropdown-menu dropdown-menu-right">
-						<li><form method="POST" action="@backend.controllers.routes.Attendees.doFileExport(event.uuid)"><button type="submit">Exporter tout</button></form></li>
+						<li>@helper.form(action=backend.controllers.routes.Attendees.doFileExport(event.uuid)){<button type="submit">Exporter tout</button>}</li>
 					</ul>
 				</li>
 			</ul>
@@ -34,12 +34,13 @@
 		<div class="card-body card-padding">
 			<ul class="p-menu">
 				<li class="pm-search">
-					<form class="pms-inner">
+					@helper.form(action=backend.controllers.routes.Attendees.list(event.uuid), 'class->"pms-inner"){
 						<i class="md md-search"></i>
 						<input type="text" name="query" value="@req.getQueryString("query")" placeholder="Search..." class="form-control @if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){open}">
 						@if(req.getQueryString("page").isDefined){ <input type="hidden" name="page" value="@req.getQueryString("page")"> }
+						@if(req.getQueryString("pageSize").isDefined){ <input type="hidden" name="pageSize" value="@req.getQueryString("pageSize")"> }
 						@if(req.getQueryString("sort").isDefined){ <input type="hidden" name="sort" value="@req.getQueryString("sort")"> }
-					</form>
+					}
 				</li>
 			</ul>
 			<div class="media-list">

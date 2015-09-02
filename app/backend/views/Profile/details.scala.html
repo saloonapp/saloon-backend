@@ -36,7 +36,7 @@
 					<div class="body-alt body-btn-float bgm-red">
 						<i class="body-alt-btn md md-add"></i>
 						<div class="body-alt-content">
-							@helper.form(action = backend.controllers.routes.Profile.doCreateOrganization(), 'class->"form-horizontal") {
+							@helper.form(action=backend.controllers.routes.Profile.doCreateOrganization(), 'class->"form-horizontal") {
 								<div style="padding: 10px;">
 									<h4>Créez une organisation :</h4>
 									<p>Tous les événements sont reliés à une organisation. Vous devez en créer une pour pouvoir créer vos premiers événements.</p>
@@ -56,7 +56,7 @@
 						<div class="body-alt body-btn-block bgm-blue">
 							<span class="body-alt-btn">Rejoindre une organisation</span>
 							<div class="body-alt-content">
-								@helper.form(action = backend.controllers.routes.Profile.doOrganizationRequestAccess(), 'class->"form-horizontal") {
+								@helper.form(action=backend.controllers.routes.Profile.doOrganizationRequestAccess(), 'class->"form-horizontal") {
 									<div style="padding: 10px;">
 										<h4>Demandez à rejoindre une organisation</h4>
 										<p>Rejoignez vos collègues dans leur organisation pour partager les événements</p>
@@ -84,8 +84,8 @@
 											<li class="dropdown">
 												<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 												<ul class="dropdown-menu dropdown-menu-right">
-													<li>@helper.form(action = backend.controllers.routes.Requests.doReminder(request.uuid)){<button type="submit">Relancer</button>}</li>
-													<li>@helper.form(action = backend.controllers.routes.Requests.doCancel(request.uuid)){<button type="submit">Annuler</button>}</li>
+													<li>@helper.form(action=backend.controllers.routes.Requests.doReminder(request.uuid)){<button type="submit">Relancer</button>}</li>
+													<li>@helper.form(action=backend.controllers.routes.Requests.doCancel(request.uuid)){<button type="submit">Annuler</button>}</li>
 												</ul>
 											</li>
 										</ul>
@@ -98,8 +98,8 @@
 											<li class="dropdown">
 												<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 												<ul class="dropdown-menu dropdown-menu-right">
-													<li>@helper.form(action = backend.controllers.routes.Requests.doAccept(request.uuid)){<button type="submit">Accepter</button>}</li>
-													<li>@helper.form(action = backend.controllers.routes.Requests.doReject(request.uuid)){<button type="submit">Refuser</button>}</li>
+													<li>@helper.form(action=backend.controllers.routes.Requests.doAccept(request.uuid)){<button type="submit">Accepter</button>}</li>
+													<li>@helper.form(action=backend.controllers.routes.Requests.doReject(request.uuid)){<button type="submit">Refuser</button>}</li>
 												</ul>
 											</li>
 										</ul>

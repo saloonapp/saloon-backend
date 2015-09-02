@@ -13,12 +13,12 @@
 			<p>Souhaitez-vous accepter cette invitation ?</p>
 			<div class="row">
 				<div class="col-md-6">
-					@helper.form(action = backend.controllers.routes.Requests.doReject(request.uuid, Some("welcome")), 'style->"margin: auto;") {
+					@helper.form(action=backend.controllers.routes.Requests.doReject(request.uuid, Some("welcome")), 'style->"margin: auto;") {
 						<button type="submit" class="btn btn-lg btn-danger">Refuser</button>
 					}
 				</div>
 				<div class="col-md-6">
-					@helper.form(action = backend.controllers.routes.Requests.doAccept(request.uuid, Some("welcome")), 'style->"margin: auto;") {
+					@helper.form(action=backend.controllers.routes.Requests.doAccept(request.uuid, Some("welcome")), 'style->"margin: auto;") {
 						<button type="submit" class="btn btn-lg btn-success">Accepter</button>
 					}
 				</div>

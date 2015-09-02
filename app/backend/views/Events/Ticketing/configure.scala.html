@@ -21,7 +21,7 @@
 			<h2>Configurer le ticketing de @event.name</h2>
 		</div>
 		<div class="card-body card-padding">
-			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Ticketing.doConfigure(event.uuid)">
+			@helper.form(action=backend.controllers.routes.Ticketing.doConfigure(event.uuid), 'class->"form-horizontal"){
 				@helper.repeat(configForm("questions"), min=1) { questionField =>
 					@fieldHorizontal(questionField("question"), 'label -> "Question"){field =>
 						<div class="row">
@@ -41,7 +41,7 @@
 						<button type="submit" class="btn btn-success">Activer</button>
 					</div>
 				</div>
-			</form>
+			}
 		</div>
 	</div>
 }

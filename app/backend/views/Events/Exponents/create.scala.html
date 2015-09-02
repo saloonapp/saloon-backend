@@ -11,7 +11,7 @@
 			<h2>Nouvel exposant :</h2>
 		</div>
 		<div class="card-body card-padding">
-			<form class="form-horizontal" method="POST" action="@backend.controllers.routes.Exponents.doCreate(event.uuid)">
+			@helper.form(action=backend.controllers.routes.Exponents.doCreate(event.uuid), 'class->"form-horizontal"){
 				@partials.form(exponentForm, event)
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
@@ -19,7 +19,7 @@
 						<button type="submit" class="btn btn-success">Créer</button>
 					</div>
 				</div>
-			</form>
+			}
 		</div>
 	</div>
 }

@@ -24,7 +24,7 @@
 	@notifications(flash)
 	<!-- Login -->
 	<div class="lc-block toggled" id="l-login">
-		@helper.form(action = authentication.controllers.routes.Auth.doLogin()){
+		@helper.form(action=authentication.controllers.routes.Auth.doLogin()){
 			<div class="input-group m-b-20 @if(credentialsForm("identifier").hasErrors){has-error}">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
 				<div class="fg-line">@inputText(credentialsForm("identifier"), 'type->"email", 'placeholder->"Email", 'autofocus->"true")</div>
@@ -44,7 +44,7 @@
 	<!-- Account Request -->
 	<div class="lc-block left" id="l-accountRequest">
 		<p class="text-left">Demander une invitation à SalooN :</p>
-		@helper.form(action = authentication.controllers.routes.Auth.doAccountRequest()){
+		@helper.form(action=authentication.controllers.routes.Auth.doAccountRequest()){
 			<div class="input-group m-b-20">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
 				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'placeholder->"Votre email")</div>
@@ -59,7 +59,7 @@
 	@*<!-- Forgot Password -->
 	<div class="lc-block left" id="l-forget-password">
 		<p class="text-left">Entrez votre email pour réinitialiser votre mot de passe.</p>
-		@helper.form(action = authentication.controllers.routes.Auth.doLogin()){
+		@helper.form(action=authentication.controllers.routes.Auth.doLogin()){
 			<div class="input-group m-b-20">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
 				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'placeholder->"Votre email")</div>

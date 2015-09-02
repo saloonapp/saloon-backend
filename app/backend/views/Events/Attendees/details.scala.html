@@ -15,7 +15,7 @@
 		</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Attendees.update(event.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
-			<li><form method="POST" action="@backend.controllers.routes.Attendees.doDelete(event.uuid, attendee.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
+			<li>@helper.form(action=backend.controllers.routes.Attendees.doDelete(event.uuid, attendee.uuid)){<button type="submit" class="confirm"><i class="md md-delete"></i></button>}</li>
 		</ul>
 	</div>
 	<div class="card" id="profile-main">

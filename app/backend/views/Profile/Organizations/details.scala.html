@@ -22,7 +22,7 @@
 							<li class="dropdown">
 								<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 								<ul class="dropdown-menu dropdown-menu-right">
-									<li>@helper.form(action = backend.controllers.routes.Organizations.doLeave(organization.uuid)){<button type="submit">Quitter l'organisation</button>}</li>
+									<li>@helper.form(action=backend.controllers.routes.Organizations.doLeave(organization.uuid)){<button type="submit">Quitter l'organisation</button>}</li>
 								</ul>
 							</li>
 						}
@@ -42,7 +42,7 @@
 						<div class="body-alt body-btn-float bgm-red">
 							<i class="body-alt-btn md md-add"></i>
 							<div class="body-alt-content">
-								@helper.form(action = backend.controllers.routes.Organizations.doOrganizationInvite(organization.uuid), 'class->"form-horizontal") {
+								@helper.form(action=backend.controllers.routes.Organizations.doOrganizationInvite(organization.uuid), 'class->"form-horizontal") {
 									<div style="padding: 10px;">
 										<h4>Inviter un membre :</h4>
 										<p>Invitez des personnes à vous rejoindre dans cette organisation.</p>
@@ -71,8 +71,8 @@
 										<li class="dropdown">
 											<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 											<ul class="dropdown-menu dropdown-menu-right">
-												<li>@helper.form(action = backend.controllers.routes.Requests.doReminder(request.uuid)){<button type="submit">Relancer</button>}</li>
-												<li>@helper.form(action = backend.controllers.routes.Requests.doCancel(request.uuid)){<button type="submit">Annuler</button>}</li>
+												<li>@helper.form(action=backend.controllers.routes.Requests.doReminder(request.uuid)){<button type="submit">Relancer</button>}</li>
+												<li>@helper.form(action=backend.controllers.routes.Requests.doCancel(request.uuid)){<button type="submit">Annuler</button>}</li>
 											</ul>
 										</li>
 									</ul>
@@ -97,8 +97,8 @@
 										<li class="dropdown">
 											<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 											<ul class="dropdown-menu dropdown-menu-right">
-												<li>@helper.form(action = backend.controllers.routes.Requests.doAccept(request.uuid)){<button type="submit">Accepter</button>}</li>
-												<li>@helper.form(action = backend.controllers.routes.Requests.doReject(request.uuid)){<button type="submit">Refuser</button>}</li>
+												<li>@helper.form(action=backend.controllers.routes.Requests.doAccept(request.uuid)){<button type="submit">Accepter</button>}</li>
+												<li>@helper.form(action=backend.controllers.routes.Requests.doReject(request.uuid)){<button type="submit">Refuser</button>}</li>
 											</ul>
 										</li>
 									</ul>
@@ -115,7 +115,7 @@
 									<li class="dropdown">
 										<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
 										<ul class="dropdown-menu dropdown-menu-right">
-											<li>@helper.form(action = backend.controllers.routes.Organizations.doBan(organization.uuid, member.uuid)){<button type="submit">Retirer de l'organisation</button>}</li>
+											<li>@helper.form(action=backend.controllers.routes.Organizations.doBan(organization.uuid, member.uuid)){<button type="submit">Retirer de l'organisation</button>}</li>
 										</ul>
 									</li>
 								</ul>

@@ -59,7 +59,7 @@
 					</div>
 					<div class="card-body card-padding">
 						@req.getQueryString("query")
-						<form method="POST" action="@backend.controllers.routes.Ticketing.doRegister(event.uuid)">
+						@helper.form(action=backend.controllers.routes.Ticketing.doRegister(event.uuid)){
 							<div class="row">
 								<div class="col-sm-2">@fieldFloating(registerForm("genre"), 'label->"Genre", 'constraints->"false"){field => @inputSelect2(registerForm("genre"), Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")}</div>
 								<div class="col-sm-4">@fieldFloating(registerForm("firstName"), 'label->"Prénom", 'constraints->"false"){field => @inputText(field)}</div>
@@ -104,7 +104,7 @@
 								<button type="submit" class="btn btn-lg btn-success" style="padding: 15px 25px;">S'inscrire</button>
 								<div class="clearfix"></div>
 							</div>
-						</form>
+						}
 					</div>
 				</div>
 			</div>

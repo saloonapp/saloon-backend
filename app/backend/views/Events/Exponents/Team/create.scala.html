@@ -24,7 +24,7 @@
 			  
 				<div class="tab-content p-20">
 					<div role="tabpanel" class="tab-pane @if(tab=="inviteuser"){active}" id="inviteuser">
-						@helper.form(action = backend.controllers.routes.Exponents.doTeamCreateInvite(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+						@helper.form(action=backend.controllers.routes.Exponents.doTeamCreateInvite(event.uuid, exponent.uuid), 'class->"form-horizontal") {
 							@partials.inviteForm(attendeeForm, event)
 							<div class="form-group">
 								<div class="col-md-offset-2 col-md-10">
@@ -35,7 +35,7 @@
 						}
 					</div>
 					<div role="tabpanel" class="tab-pane @if(tab=="fullform"){active}" id="fullform">
-						@helper.form(action = backend.controllers.routes.Exponents.doTeamCreateFull(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+						@helper.form(action=backend.controllers.routes.Exponents.doTeamCreateFull(event.uuid, exponent.uuid), 'class->"form-horizontal") {
 							@partials.form(attendeeForm, event)
 							<div class="form-group">
 								<div class="col-md-offset-2 col-md-10">
@@ -47,7 +47,7 @@
 					</div>
 					@if(allAttendees.length > 0){
 						<div role="tabpanel" class="tab-pane @if(tab=="fromattendees"){active}" id="fromattendees">
-							@helper.form(action = backend.controllers.routes.Exponents.doTeamJoin(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+							@helper.form(action=backend.controllers.routes.Exponents.doTeamJoin(event.uuid, exponent.uuid), 'class->"form-horizontal") {
 								@fieldHorizontal(joinForm("attendeeId"), 'label -> "Nouveau membre"){field =>
 									@inputSelect2(field, allAttendees.map(a => (a.uuid, a.name+a.position().map(" ("+_+")").getOrElse(""))))
 								}

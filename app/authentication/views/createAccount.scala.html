@@ -24,7 +24,7 @@
 <body class="login-content">
 	<div class="lc-block toggled">
 		<h2 class="m-t-0 m-b-20">Créez votre compte SalooN :</h2>
-		@helper.form(action = authentication.controllers.routes.Auth.doCreateAccount(requestId)){
+		@helper.form(action=authentication.controllers.routes.Auth.doCreateAccount(requestId)){
 			<div class="row">
 				<div class="col-sm-6">
 					<div class="input-group m-b-20 @if(registerForm("firstName").hasErrors){has-error}">

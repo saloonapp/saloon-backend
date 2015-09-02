@@ -17,7 +17,7 @@
 		</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Exponents.update(event.uuid, exponent.uuid)"><i class="md md-edit"></i></a></li>
-			<li><form method="POST" action="@backend.controllers.routes.Exponents.doDelete(event.uuid, exponent.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
+			<li>@helper.form(action=backend.controllers.routes.Exponents.doDelete(event.uuid, exponent.uuid)){<button type="submit" class="confirm"><i class="md md-delete"></i></button>}</li>
 		</ul>
 	</div>
 	<div class="card" id="profile-main">
@@ -88,7 +88,7 @@
 								eye-off:    remove user access
 							-->
 							<li><a href="" title="Inviter @attendee.name à compléter son profil et l'exposant"><i class="md md-email"></i></a></li>
-							<li><form method="POST" action="@backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)"><button type="submit" class="confirm" title="Retirer @attendee.name de l'équipe"><i class="md md-visibility-off"></i></button></form></li>
+							<li>@helper.form(action=backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'équipe"><i class="md md-visibility-off"></i></button>}</li>
 						</ul>
 						@attendeeMedia(attendee, Some(backend.controllers.routes.Exponents.teamDetails(event.uuid, exponent.uuid, attendee.uuid)))
 					}
