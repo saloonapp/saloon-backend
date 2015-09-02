@@ -1,9 +1,14 @@
 package backend.utils
 
+import common.models.user.User
+import common.models.user.Organization
 import common.models.event.Event
 import common.models.event.Attendee
 import common.models.event.Exponent
 import common.models.event.Session
+import common.repositories.Repository
+import common.repositories.user.UserRepository
+import common.repositories.user.OrganizationRepository
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
@@ -18,31 +23,17 @@ import play.api.mvc.Results._
 
 trait ControllerHelpers {
 
-  def withEvent(eventId: String)(block: Event => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = {
-    EventRepository.getByUuid(eventId).flatMap {
-      case Some(event) => block(event)
-      case None => Future(NotFound(backend.views.html.error("404", "Event not found...")))
-    }
-  }
+  def withUser(userId: String)(block: User => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = withData(UserRepository, "User")(userId)(block)
+  def withOrganization(organizationId: String)(block: Organization => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = withData(OrganizationRepository, "Organization")(organizationId)(block)
+  def withEvent(eventId: String)(block: Event => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = withData(EventRepository, "Event")(eventId)(block)
+  def withAttendee(attendeeId: String)(block: Attendee => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = withData(AttendeeRepository, "Attendee")(attendeeId)(block)
+  def withExponent(exponentId: String)(block: Exponent => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = withData(ExponentRepository, "Exponent")(exponentId)(block)
+  def withSession(sessionId: String)(block: Session => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = withData(SessionRepository, "Session")(sessionId)(block)
 
-  def withAttendee(attendeeId: String)(block: Attendee => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = {
-    AttendeeRepository.getByUuid(attendeeId).flatMap {
-      case Some(attendee) => block(attendee)
-      case None => Future(NotFound(backend.views.html.error("404", "Attendee not found...")))
-    }
-  }
-
-  def withExponent(exponentId: String)(block: Exponent => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = {
-    ExponentRepository.getByUuid(exponentId).flatMap {
-      case Some(exponent) => block(exponent)
-      case None => Future(NotFound(backend.views.html.error("404", "Exponent not found...")))
-    }
-  }
-
-  def withSession(sessionId: String)(block: Session => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = {
-    SessionRepository.getByUuid(sessionId).flatMap {
-      case Some(session) => block(session)
-      case None => Future(NotFound(backend.views.html.error("404", "Session not found...")))
+  private def withData[T](repository: Repository[T], name: String)(uuid: String)(block: T => Future[Result])(implicit flash: Flash, req: RequestHeader): Future[Result] = {
+    repository.getByUuid(uuid).flatMap {
+      case Some(data) => block(data)
+      case None => Future(NotFound(backend.views.html.error("404", s"$name not found...")))
     }
   }
 

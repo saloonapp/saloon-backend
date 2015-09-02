@@ -1,7 +1,6 @@
 package backend.controllers
 
 import common.models.user.User
-import common.models.user.UserInfo
 import common.models.user.UserOrganization
 import common.models.user.Request
 import common.models.user.OrganizationInvite
@@ -11,6 +10,7 @@ import common.repositories.user.RequestRepository
 import common.services.EmailSrv
 import common.services.MandrillSrv
 import backend.forms.OrganizationData
+import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -18,25 +18,21 @@ import play.api._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import com.mohiva.play.silhouette.core.LoginInfo
 
-object Organizations extends SilhouetteEnvironment {
+object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
   val organizationInviteForm = Form(tuple("email" -> email, "comment" -> optional(text)))
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    user.organizationRole(uuid).map { role =>
-      for {
-        organizationOpt <- OrganizationRepository.getByUuid(uuid)
-        members <- UserRepository.findOrganizationMembers(uuid)
-        requests <- if (user.canAdministrateOrganization(uuid)) getOrganizationRequests(uuid) else Future(List())
-        invites <- if (user.canAdministrateOrganization(uuid)) getOrganizationInvites(uuid) else Future(List())
-      } yield {
-        organizationOpt.map { organization =>
-          Ok(backend.views.html.Profile.Organizations.details(organization, members.sortBy(m => UserOrganization.getPriority(m.organizationRole(uuid))), requests, invites, organizationInviteForm))
-        }.getOrElse {
-          Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas.")
+    user.organizationRole(organizationId).map { role =>
+      withOrganization(organizationId) { organization =>
+        for {
+          members <- UserRepository.findOrganizationMembers(organizationId)
+          requests <- if (user.canAdministrateOrganization(organizationId)) getOrganizationRequests(organizationId) else Future(List())
+          invites <- if (user.canAdministrateOrganization(organizationId)) getOrganizationInvites(organizationId) else Future(List())
+        } yield {
+          Ok(backend.views.html.Profile.Organizations.details(organization, members.sortBy(m => UserOrganization.getPriority(m.organizationRole(organizationId))), requests, invites, organizationInviteForm))
         }
       }
     }.getOrElse {
@@ -44,39 +40,31 @@ object Organizations extends SilhouetteEnvironment {
     }
   }
 
-  def update(uuid: String) = SecuredAction.async { implicit req =>
+  def update(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    OrganizationRepository.getByUuid(uuid).map { organizationOpt =>
-      organizationOpt.map { organization =>
-        Ok(backend.views.html.Profile.Organizations.update(organizationForm.fill(OrganizationData.fromModel(organization)), organization))
-      }.getOrElse {
-        Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas.")
-      }
+    withOrganization(organizationId) { organization =>
+      Future(Ok(backend.views.html.Profile.Organizations.update(organizationForm.fill(OrganizationData.fromModel(organization)), organization)))
     }
   }
 
-  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
+  def doUpdate(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    OrganizationRepository.getByUuid(uuid).flatMap { organizationOpt =>
-      organizationOpt.map { organization =>
-        organizationForm.bindFromRequest.fold(
-          formWithErrors => Future(BadRequest(backend.views.html.Profile.Organizations.update(formWithErrors, organization))),
-          formData => OrganizationRepository.getByName(formData.name).flatMap { orgOpt =>
-            orgOpt.map { org =>
-              Future(BadRequest(backend.views.html.Profile.Organizations.update(organizationForm.fill(formData), organization)))
-            }.getOrElse {
-              OrganizationRepository.update(uuid, OrganizationData.merge(organization, formData)).map {
-                _.map { updatedElt =>
-                  Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("success" -> "Organisation mise à jour avec succès")
-                }.getOrElse {
-                  InternalServerError(backend.views.html.Profile.Organizations.update(organizationForm.fill(formData), organization)).flashing("error" -> "Erreur lors de la modification de l'organisation")
-                }
+    withOrganization(organizationId) { organization =>
+      organizationForm.bindFromRequest.fold(
+        formWithErrors => Future(BadRequest(backend.views.html.Profile.Organizations.update(formWithErrors, organization))),
+        formData => OrganizationRepository.getByName(formData.name).flatMap { orgOpt =>
+          orgOpt.map { org =>
+            Future(BadRequest(backend.views.html.Profile.Organizations.update(organizationForm.fill(formData), organization))) // Organization name must be unique
+          }.getOrElse {
+            OrganizationRepository.update(organizationId, OrganizationData.merge(organization, formData)).map {
+              _.map { organizationUpdated =>
+                Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("success" -> "Organisation mise à jour avec succès")
+              }.getOrElse {
+                InternalServerError(backend.views.html.Profile.Organizations.update(organizationForm.fill(formData), organization))
               }
             }
-          })
-      }.getOrElse {
-        Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas."))
-      }
+          }
+        })
     }
   }
 
@@ -87,71 +75,61 @@ object Organizations extends SilhouetteEnvironment {
    *    	-> don't allow to delete an organization with events (they should be moved to an other organization before)
    * 	- notify all members that the organization is deleted
    */
-  def delete(uuid: String) = SecuredAction.async { implicit req =>
+  def delete(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    if (user.canAdministrateOrganization(uuid)) {
-      OrganizationRepository.getByUuid(uuid).map { organizationOpt =>
-        organizationOpt.map { organization =>
-          Ok(backend.views.html.Profile.Organizations.delete(organization))
-        }.getOrElse {
-          Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas.")
-        }
+    if (user.canAdministrateOrganization(organizationId)) {
+      withOrganization(organizationId) { organization =>
+        Future(Ok(backend.views.html.Profile.Organizations.delete(organization)))
       }
     } else {
-      Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour supprimer cette organisation :("))
+      Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Vous n'avez pas les droits pour supprimer cette organisation :("))
     }
   }
 
-  def doDelete(uuid: String) = SecuredAction.async { implicit req =>
+  def doDelete(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    if (user.canAdministrateOrganization(uuid)) {
-      val res: Future[Future[Result]] = for {
-        organizationOpt <- OrganizationRepository.getByUuid(uuid)
-        members <- UserRepository.findOrganizationMembers(uuid)
-      } yield {
-        organizationOpt.map { organization =>
+    if (user.canAdministrateOrganization(organizationId)) {
+      withOrganization(organizationId) { organization =>
+        UserRepository.findOrganizationMembers(organizationId).flatMap { members =>
           members.filter(_.uuid != user.uuid).map { u =>
             val emailData = EmailSrv.generateOrganizationDeleteEmail(u, organization, user)
             MandrillSrv.sendEmail(emailData)
           }
-          OrganizationRepository.delete(uuid).map { r =>
+          OrganizationRepository.delete(organizationId).map { r =>
             Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> "Organisation supprimée !")
           }
-        }.getOrElse {
-          Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation demandée n'existe pas."))
         }
       }
-      res.flatMap(identity)
     } else {
-      Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour supprimer cette organisation :("))
+      Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Vous n'avez pas les droits pour supprimer cette organisation :("))
     }
   }
 
-  def doOrganizationInvite(uuid: String) = SecuredAction.async { implicit req =>
+  def doOrganizationInvite(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     organizationInviteForm.bindFromRequest.fold(
-      formWithErrors => Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Email non valide.")),
+      formWithErrors => Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Email non valide.")),
       formData => {
-        if (user.canAdministrateOrganization(uuid)) {
-          organizationInvite(uuid, formData._1, formData._2, user).map {
-            case (category, message) => Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing(category -> message)
+        if (user.canAdministrateOrganization(organizationId)) {
+          organizationInvite(organizationId, formData._1, formData._2, user).map {
+            case (category, message) => Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing(category -> message)
           }
         } else {
-          Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits pour inviter des personnes dans cette organisation :("))
+          Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Vous n'avez pas les droits pour inviter des personnes dans cette organisation :("))
         }
       })
   }
 
   // when the user leave an organization
-  def leave(uuid: String) = SecuredAction.async { implicit req =>
+  def leave(organizationId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    if (user.canAdministrateOrganization(uuid)) {
-      Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Impossible de quitter une organisation dont vous êtes le responsable."))
-    } else if (user.organizationRole(uuid).isDefined) {
-      val userWithoutOrg = user.copy(organizationIds = user.organizationIds.filter(_.organizationId != uuid))
+    if (user.canAdministrateOrganization(organizationId)) {
+      Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Impossible de quitter une organisation dont vous êtes le responsable."))
+    } else if (user.organizationRole(organizationId).isDefined) {
+      val userWithoutOrg = user.copy(organizationIds = user.organizationIds.filter(_.organizationId != organizationId))
       for {
-        organizationOpt <- OrganizationRepository.getByUuid(uuid)
-        organizationOwnerOpt <- UserRepository.getOrganizationOwner(uuid)
+        organizationOpt <- OrganizationRepository.getByUuid(organizationId)
+        organizationOwnerOpt <- UserRepository.getOrganizationOwner(organizationId)
         updatedUserOpt <- UserRepository.update(userWithoutOrg.uuid, userWithoutOrg)
       } yield {
         for {
@@ -169,34 +147,36 @@ object Organizations extends SilhouetteEnvironment {
   }
 
   // when the organization owner ban a member
-  def ban(uuid: String, userId: String) = SecuredAction.async { implicit req =>
+  def ban(organizationId: String, userId: String) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    if (user.canAdministrateOrganization(uuid)) {
+    if (user.canAdministrateOrganization(organizationId)) {
       val res: Future[Future[Result]] = for {
-        organizationOpt <- OrganizationRepository.getByUuid(uuid)
+        organizationOpt <- OrganizationRepository.getByUuid(organizationId)
         bannedUserOpt <- UserRepository.getByUuid(userId)
       } yield {
-        if (bannedUserOpt.isDefined && bannedUserOpt.get.organizationRole(uuid).isDefined) {
+        if (bannedUserOpt.isDefined && bannedUserOpt.get.organizationRole(organizationId).isDefined) {
           val bannedUser = bannedUserOpt.get
-          val userWithoutOrg = bannedUser.copy(organizationIds = bannedUser.organizationIds.filter(_.organizationId != uuid))
+          val userWithoutOrg = bannedUser.copy(organizationIds = bannedUser.organizationIds.filter(_.organizationId != organizationId))
           UserRepository.update(userWithoutOrg.uuid, userWithoutOrg).map { updatedUserOpt =>
-            for {
-              organization <- organizationOpt
-            } yield {
+            organizationOpt.map { organization =>
               val emailData = EmailSrv.generateOrganizationBanEmail(bannedUser, organization, user)
               MandrillSrv.sendEmail(emailData)
             }
-            Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("success" -> s"${userWithoutOrg.name()} ne fait plus parti de l'organisation ${organizationOpt.map(_.name).getOrElse("")}")
+            Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("success" -> s"${userWithoutOrg.name()} ne fait plus parti de l'organisation ${organizationOpt.map(_.name).getOrElse("")}")
           }
         } else {
-          Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "L'utilisateur ciblé n'existe pas où ne fait pas parti de l'organisation."))
+          Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "L'utilisateur ciblé n'existe pas ou ne fait pas parti de l'organisation."))
         }
       }
       res.flatMap(identity)
     } else {
-      Future(Redirect(backend.controllers.routes.Organizations.details(uuid)).flashing("error" -> "Vous n'avez pas les droits nécessaires."))
+      Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Vous n'avez pas les droits nécessaires."))
     }
   }
+
+  /*
+   * Private methods
+   */
 
   private def getOrganizationRequests(organizationId: String): Future[List[(Request, User)]] = {
     for {
