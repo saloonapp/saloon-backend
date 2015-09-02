@@ -34,6 +34,7 @@ case class Session(
   images: SessionImages,
   info: SessionInfo,
   meta: SessionMeta) extends EventItem {
+  def day(): DateTime = if (this.info.start.isEmpty || this.info.end.isEmpty) new DateTime(0) else this.info.start.get.withTimeAtStartOfDay()
   def merge(e: Session): Session = Session.merge(this, e)
   def toBackendExport(): Map[String, String] = Session.toBackendExport(this)
   //def toMap(): Map[String, String] = Session.toMap(this)

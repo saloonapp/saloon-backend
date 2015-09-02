@@ -22,7 +22,7 @@
 		</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Sessions.update(event.uuid, session.uuid)"><i class="md md-edit"></i></a></li>
-			<li><form method="POST" action="@backend.controllers.routes.Sessions.delete(event.uuid, session.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
+			<li><form method="POST" action="@backend.controllers.routes.Sessions.doDelete(event.uuid, session.uuid)"><button type="submit" class="confirm"><i class="md md-delete"></i></button></form></li>
 		</ul>
 	</div>
 	<div class="card" id="profile-main">

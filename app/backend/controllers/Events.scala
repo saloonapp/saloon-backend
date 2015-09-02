@@ -72,8 +72,8 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       createForm.bindFromRequest.fold(
         formWithErrors => updateView(formWithErrors, event, BadRequest),
         formData => EventRepository.update(eventId, EventCreateData.merge(event, formData)).flatMap {
-          _.map { updatedElt =>
-            Future(Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"L'événement '${updatedElt.name}' a bien été modifié"))
+          _.map { eventUpdated =>
+            Future(Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"L'événement '${eventUpdated.name}' a bien été modifié"))
           }.getOrElse {
             updateView(createForm.fill(formData), event, InternalServerError)
           }

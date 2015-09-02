@@ -79,8 +79,8 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
         createForm.bindFromRequest.fold(
           formWithErrors => updateView(formWithErrors, exponent, eventId, BadRequest),
           formData => ExponentRepository.update(exponentId, ExponentCreateData.merge(exponent, formData)).flatMap {
-            _.map { updatedElt =>
-              Future(Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> s"L'exposant '${updatedElt.name}' a bien été modifié"))
+            _.map { exponentUpdated =>
+              Future(Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> s"L'exposant '${exponentUpdated.name}' a bien été modifié"))
             }.getOrElse {
               updateView(createForm.fill(formData), exponent, eventId, InternalServerError)
             }
@@ -225,13 +225,13 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
 
   private def createView(createForm: Form[ExponentCreateData], eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
-      Future(Ok(backend.views.html.Events.Exponents.create(createForm, event)))
+      Future(status(backend.views.html.Events.Exponents.create(createForm, event)))
     }
   }
 
   private def updateView(createForm: Form[ExponentCreateData], exponent: Exponent, eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
-      Future(Ok(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, event)))
+      Future(status(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, event)))
     }
   }
 
@@ -239,7 +239,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     withEvent(eventId) { event =>
       withExponent(exponentId) { exponent =>
         AttendeeRepository.findByEvent(eventId).map { allAttendees =>
-          Ok(backend.views.html.Events.Exponents.Team.create(teamCreateForm, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, tab))
+          status(backend.views.html.Events.Exponents.Team.create(teamCreateForm, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, tab))
         }
       }
     }
@@ -248,7 +248,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
   private def teamUpdateView(teamCreateForm: Form[AttendeeCreateData], attendee: Attendee, eventId: String, exponentId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       withExponent(exponentId) { exponent =>
-        Future(Ok(backend.views.html.Events.Exponents.Team.update(teamCreateForm, attendee, event, exponent)))
+        Future(status(backend.views.html.Events.Exponents.Team.update(teamCreateForm, attendee, event, exponent)))
       }
     }
   }
