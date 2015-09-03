@@ -1,9 +1,10 @@
 package admin.controllers
 
-import common.models.utils.Page
 import common.models.user.Device
 import common.models.user.DeviceData
 import common.models.user.UserAction
+import common.models.values.GenericId
+import common.models.utils.Page
 import common.repositories.Repository
 import common.repositories.user.DeviceRepository
 import common.repositories.user.UserActionRepository
@@ -18,7 +19,7 @@ import reactivemongo.core.commands.LastError
 
 object Devices extends SilhouetteEnvironment {
   val form: Form[DeviceData] = Form(DeviceData.fields)
-  val repository: Repository[Device] = DeviceRepository
+  val repository: Repository[Device, String] = DeviceRepository
   val mainRoute = routes.Devices
   val viewList = admin.views.html.Devices.list
   val viewDetails = admin.views.html.Devices.details
@@ -99,7 +100,7 @@ object Devices extends SilhouetteEnvironment {
     }
   }
 
-  def deleteAction(deviceId: String, itemType: String, itemId: String, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
+  def deleteAction(deviceId: String, itemType: String, itemId: GenericId, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(deviceId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =

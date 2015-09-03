@@ -1,8 +1,11 @@
 package common.services
 
 import common.Defaults
+import common.models.event.EventId
 import common.models.event.Session
+import common.models.event.SessionId
 import common.models.event.Exponent
+import common.models.event.ExponentId
 import common.models.user.User
 import common.models.user.Organization
 import common.models.user.Request
@@ -20,14 +23,14 @@ import org.jsoup.Jsoup
 case class EmailData(fromName: String, fromEmail: String, to: String, subject: String, html: String, text: String)
 
 object EmailSrv {
-  def generateEventReport(eventId: String, userId: String): Future[Option[EmailData]] = {
+  def generateEventReport(eventId: EventId, userId: String): Future[Option[EmailData]] = {
     UserActionRepository.findByUserEvent(userId, eventId).flatMap { actions =>
       val subscribeOpt = actions.find(_.action.isSubscribe())
       subscribeOpt.map {
         _.action match {
           case subscribe: SubscribeUserAction => {
-            val favoriteSessionUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Session.className).map(_.itemId)
-            val favoriteExponentUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Exponent.className).map(_.itemId)
+            val favoriteSessionUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Session.className).map(a => a.itemId.toSessionId)
+            val favoriteExponentUuids = actions.filter(a => a.action.isFavorite() && a.itemType == Exponent.className).map(a => a.itemId.toExponentId)
             for {
               eventOpt <- EventRepository.getByUuid(eventId)
               attendees <- AttendeeRepository.findByEvent(eventId)

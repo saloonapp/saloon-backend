@@ -3,6 +3,7 @@ package admin.controllers
 import common.models.user.User
 import common.models.user.UserData
 import common.models.user.UserAction
+import common.models.values.GenericId
 import common.models.utils.Page
 import common.services.EmailSrv
 import common.services.MandrillSrv
@@ -20,7 +21,7 @@ import reactivemongo.core.commands.LastError
 
 object Users extends SilhouetteEnvironment {
   val form: Form[UserData] = Form(UserData.fields)
-  val repository: Repository[User] = UserRepository
+  val repository: Repository[User, String] = UserRepository
   val mainRoute = routes.Users
   val viewList = admin.views.html.Users.list
   val viewDetails = admin.views.html.Users.details
@@ -110,7 +111,7 @@ object Users extends SilhouetteEnvironment {
     }
   }
 
-  def deleteAction(userId: String, itemType: String, itemId: String, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
+  def deleteAction(userId: String, itemType: String, itemId: GenericId, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(userId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =

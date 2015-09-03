@@ -1,8 +1,12 @@
 package common.models.event
 
 import common.Utils
-import common.repositories.Repository
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import common.models.values.DataSource
+import common.models.event.AttendeeId
+import common.repositories.Repository
 import common.services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
@@ -10,13 +14,22 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
 
+case class ExponentId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object ExponentId extends tStringHelper[ExponentId] {
+  def generate(): ExponentId = ExponentId(UUID.generate())
+  protected def build(str: String): Option[ExponentId] = UUID.toUUID(str).map(id => ExponentId(id))
+  //protected def build(str: String): Option[ExponentId] = Some(ExponentId(str))
+}
+
 case class ExponentImages(
   logo: String, // squared logo (~ 100x100)
   landing: String) // landscape img (~ 400x150)
 case class ExponentInfo(
   website: String, // TODO : transform to Option[String]
   place: String, // where to find this exponent
-  team: List[String], // attendees being part of this exponent
+  team: List[AttendeeId], // attendees being part of this exponent
   sponsorLevel: Option[Int])
 case class ExponentConfig(
   scanQRCode: Boolean)
@@ -25,8 +38,8 @@ case class ExponentMeta(
   created: DateTime,
   updated: DateTime)
 case class Exponent(
-  uuid: String,
-  eventId: String,
+  uuid: ExponentId,
+  eventId: EventId,
   ownerId: Option[String], // Organization uuid
   name: String,
   description: String,
@@ -36,7 +49,7 @@ case class Exponent(
   config: ExponentConfig,
   meta: ExponentMeta) extends EventItem {
   def hasMember(attendee: Attendee): Boolean = this.hasMember(attendee.uuid)
-  def hasMember(attendeeId: String): Boolean = this.info.team.contains(attendeeId)
+  def hasMember(attendeeId: AttendeeId): Boolean = this.info.team.contains(attendeeId.unwrap)
   def merge(e: Exponent): Exponent = Exponent.merge(this, e)
   def toBackendExport(): Map[String, String] = Exponent.toBackendExport(this)
   //def toMap(): Map[String, String] = Exponent.toMap(this)
@@ -50,14 +63,14 @@ object Exponent {
   implicit val format = Json.format[Exponent]
 
   def toBackendExport(e: Exponent): Map[String, String] = Map(
-    "uuid" -> e.uuid,
+    "uuid" -> e.uuid.unwrap,
     "name" -> e.name,
     "description" -> e.description,
     "logo" -> e.images.logo,
     "landing" -> e.images.landing,
     "website" -> e.info.website,
     "location" -> e.info.place,
-    "teamUuids" -> Utils.fromList(e.info.team),
+    "teamUuids" -> Utils.fromList(e.info.team.map(_.unwrap)),
     "sponsorLevel" -> e.info.sponsorLevel.map(_ match {
       case 1 => "Gold"
       case 2 => "Silver"
@@ -144,7 +157,7 @@ object Exponent {
 case class ExponentMetaData(
   source: Option[DataSource])
 case class ExponentData(
-  eventId: String,
+  eventId: EventId,
   name: String,
   description: String,
   descriptionHTML: String,
@@ -154,7 +167,7 @@ case class ExponentData(
   meta: ExponentMetaData)
 object ExponentData {
   val fields = mapping(
-    "eventId" -> nonEmptyText,
+    "eventId" -> of[EventId],
     "name" -> nonEmptyText,
     "description" -> text,
     "descriptionHTML" -> text,
@@ -164,7 +177,7 @@ object ExponentData {
     "info" -> mapping(
       "website" -> text,
       "place" -> text,
-      "team" -> list(text),
+      "team" -> list(of[AttendeeId]),
       "sponsorLevel" -> optional(number))(ExponentInfo.apply)(ExponentInfo.unapply),
     "config" -> mapping(
       "scanQRCode" -> boolean)(ExponentConfig.apply)(ExponentConfig.unapply),
@@ -172,7 +185,7 @@ object ExponentData {
       "source" -> optional(DataSource.fields))(ExponentMetaData.apply)(ExponentMetaData.unapply))(ExponentData.apply)(ExponentData.unapply)
 
   def toModel(d: ExponentMetaData): ExponentMeta = ExponentMeta(d.source, new DateTime(), new DateTime())
-  def toModel(d: ExponentData): Exponent = Exponent(Repository.generateUuid(), d.eventId, None, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, toModel(d.meta))
+  def toModel(d: ExponentData): Exponent = Exponent(ExponentId.generate(), d.eventId, None, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, toModel(d.meta))
   def fromModel(d: ExponentMeta): ExponentMetaData = ExponentMetaData(d.source)
   def fromModel(d: Exponent): ExponentData = ExponentData(d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, fromModel(d.meta))
   def merge(m: ExponentMeta, d: ExponentMetaData): ExponentMeta = toModel(d).copy(source = m.source, created = m.created)

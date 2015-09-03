@@ -1,3 +1,4 @@
+@import common.models.values.GenericId
 @import common.models.user.User
 @import common.models.user.Organization
 @import backend.forms.OrganizationData
@@ -5,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(organizationForm: Form[OrganizationData], organization: Organization)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Modifier l'organisation "+organization.name, "profile_organizations_"+organization.uuid+"_edit", Map(organization.uuid -> organization.name)){
+@layout("Modifier l'organisation "+organization.name, "profile_organizations_"+organization.uuid+"_edit", Map(GenericId(organization.uuid) -> organization.name)){
 	<div class="row">
 		<div class="col-md-8">
 			<div class="card">

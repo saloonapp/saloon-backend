@@ -1,6 +1,7 @@
 package backend.controllers
 
 import common.models.event.Event
+import common.models.event.EventId
 import common.models.user.User
 import common.models.user.UserInfo
 import common.models.event.AttendeeRegistration
@@ -31,7 +32,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def details(eventId: String) = SecuredAction.async { implicit req =>
+  def details(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       EventSrv.addMetadata(event).map {
@@ -59,14 +60,14 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       })
   }
 
-  def update(eventId: String) = SecuredAction.async { implicit req =>
+  def update(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       updateView(createForm.fill(EventCreateData.fromModel(event)), event)
     }
   }
 
-  def doUpdate(eventId: String) = SecuredAction.async { implicit req =>
+  def doUpdate(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       createForm.bindFromRequest.fold(
@@ -81,7 +82,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doDelete(eventId: String) = SecuredAction.async { implicit req =>
+  def doDelete(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       EventRepository.delete(eventId).map { res =>

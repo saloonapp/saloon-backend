@@ -1,10 +1,11 @@
 package api.controllers
 
+import common.models.event.EventId
+import common.models.user.Device
+import common.models.user.DeviceInfo
 import common.repositories.Repository
 import common.repositories.user.DeviceRepository
 import common.repositories.user.UserActionRepository
-import common.models.user.Device
-import common.models.user.DeviceInfo
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -14,7 +15,7 @@ import play.api.data.Form
 import play.api.libs.json._
 
 object Devices extends Controller {
-  val repository: Repository[Device] = DeviceRepository
+  val repository: Repository[Device, String] = DeviceRepository
 
   def find(deviceId: String) = Action.async { implicit req =>
     DeviceRepository.getByDeviceId(deviceId).map { eltOpt =>
@@ -44,12 +45,12 @@ object Devices extends Controller {
 
   def actions(uuid: String) = Action.async { implicit req =>
     UserActionRepository.findByUser(uuid).map { actions =>
-      val res = actions.groupBy(_.eventId.getOrElse("unknown")).map { case (key, value) => (key, Json.obj("actions" -> value)) }
+      val res = actions.groupBy(_.eventId.map(_.unwrap).getOrElse("unknown")).map { case (key, value) => (key, Json.obj("actions" -> value)) }
       Ok(Json.toJson(res))
     }
   }
 
-  def eventActions(uuid: String, eventId: String) = Action.async { implicit req =>
+  def eventActions(uuid: String, eventId: EventId) = Action.async { implicit req =>
     UserActionRepository.findByUserEvent(uuid, eventId).map { actions =>
       Ok(Json.obj("actions" -> actions))
     }

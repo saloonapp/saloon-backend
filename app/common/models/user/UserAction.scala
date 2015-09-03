@@ -1,8 +1,10 @@
 package common.models.user
 
-import common.repositories.Repository
 import common.models.event.Event
+import common.models.event.EventId
 import common.models.event.EventItem
+import common.models.values.GenericId
+import common.repositories.Repository
 import org.joda.time.DateTime
 import play.api.libs.json._
 
@@ -11,26 +13,28 @@ case class UserAction(
   userId: String, // id of Device (TODO: should add type 'user' or 'device')
   action: UserActionContent,
   itemType: String,
-  itemId: String,
-  eventId: Option[String],
+  itemId: GenericId,
+  eventId: Option[EventId],
   created: DateTime,
   updated: DateTime) {
   def withContent(c: UserActionContent, time: Option[DateTime] = None): UserAction = this.copy(action = c, updated = time.getOrElse(new DateTime()))
   def toMap(): Map[String, String] = {
     Map(
-      "eventId" -> this.eventId.getOrElse(""),
+      "eventId" -> this.eventId.map(_.unwrap).getOrElse(""),
       "userId" -> this.userId,
       "itemType" -> this.itemType,
-      "itemId" -> this.itemId) ++ this.action.toMap()
+      "itemId" -> this.itemId.unwrap) ++ this.action.toMap()
   }
 }
 object UserAction {
-  def favorite(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, FavoriteUserAction(), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
-  def done(userId: String, itemType: String, itemId: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, DoneUserAction(), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
-  def mood(userId: String, itemType: String, itemId: String, rating: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, MoodUserAction(rating), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
-  def comment(userId: String, itemType: String, itemId: String, text: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
-  def subscribe(userId: String, itemType: String, itemId: String, email: String, filter: String, eventId: String, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, SubscribeUserAction(email, filter), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def favorite(userId: String, itemType: String, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, FavoriteUserAction(), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def done(userId: String, itemType: String, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, DoneUserAction(), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def mood(userId: String, itemType: String, itemId: GenericId, rating: String, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, MoodUserAction(rating), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def comment(userId: String, itemType: String, itemId: GenericId, text: String, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
+  def subscribe(userId: String, itemType: String, itemId: GenericId, email: String, filter: String, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(Repository.generateUuid(), userId, SubscribeUserAction(email, filter), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
 
+  private implicit val formatEventId = Json.format[EventId]
+  private implicit val formatGenericId = Json.format[GenericId]
   private implicit val formatFavoriteUserAction = Json.format[FavoriteUserAction]
   private implicit val formatDoneUserAction = Json.format[DoneUserAction]
   private implicit val formatMoodUserAction = Json.format[MoodUserAction]
@@ -55,11 +59,11 @@ object UserAction {
 case class UserActionFull(event: Event, user: Device, action: UserActionContent, item: EventItem) {
   def toMap(): Map[String, String] = {
     Map(
-      "eventId" -> this.event.uuid,
+      "eventId" -> this.event.uuid.unwrap,
       "eventName" -> this.event.name,
       "userId" -> this.user.uuid,
       "itemType" -> this.item.getType(),
-      "itemId" -> this.item.uuid,
+      "itemId" -> this.item.uuid.unwrap,
       "itemName" -> this.item.name) ++ this.action.toMap()
   }
 }

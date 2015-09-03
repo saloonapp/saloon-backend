@@ -1,5 +1,6 @@
 package common.services
 
+import common.models.values.GenericId
 import common.models.event.EventItem
 import common.models.event.Attendee
 import common.models.event.Session
@@ -98,7 +99,7 @@ object UserActionSrv {
       case _ => 0
     }
   }.getOrElse(0)
-  private def moodFor(actions: List[UserAction], itemType: String, itemId: String): Option[String] = {
+  private def moodFor(actions: List[UserAction], itemType: String, itemId: GenericId): Option[String] = {
     actions.find(a => a.action.isMood() && a.itemType == itemType && a.itemId == itemId).flatMap {
       _.action match {
         case MoodUserAction(rating, mood) => Some(rating)
@@ -106,7 +107,7 @@ object UserActionSrv {
       }
     }
   }
-  private def commentsFor(actions: List[UserAction], itemType: String, itemId: String): List[String] = {
+  private def commentsFor(actions: List[UserAction], itemType: String, itemId: GenericId): List[String] = {
     actions.filter(a => a.action.isComment() && a.itemType == itemType && a.itemId == itemId).map {
       _.action match {
         case CommentUserAction(text, comment) => Some(text)

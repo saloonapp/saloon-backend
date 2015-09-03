@@ -14,7 +14,7 @@ import reactivemongo.api.DB
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
-trait MongoDbOrganizationRepository extends Repository[Organization] {
+trait MongoDbOrganizationRepository extends Repository[Organization, String] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.ORGANIZATIONS)
 

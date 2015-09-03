@@ -5,7 +5,7 @@
 
 <fieldset>
 	<legend>Général :</legend>
-	@fieldHorizontal(attendeeForm("eventId"), 'label -> "Evénement", 'constraints -> "false"){field => @inputHidden(field, 'value -> event.uuid) <p class="form-control-static">@event.name</p>}
+	@fieldHorizontal(attendeeForm("eventId"), 'label -> "Evénement", 'constraints -> "false"){field => @inputHidden(field, 'value -> event.uuid.unwrap) <p class="form-control-static">@event.name</p>}
 	@fieldHorizontal(attendeeForm("name"), 'label -> "Name"){field => @inputText(field, 'placeholder -> "ex: Loïc Knuchel")}
 	@fieldHorizontal(attendeeForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Développeur web freelance, fondateur de SalooN")}
 </fieldset>

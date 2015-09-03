@@ -1,6 +1,7 @@
 @import common.models.event.Event
 @import common.models.event.Exponent
 @import common.models.event.Attendee
+@import common.models.event.AttendeeId
 @import common.models.event.AttendeeRole
 @import common.models.user.User
 @import backend.forms.AttendeeCreateData
@@ -8,7 +9,7 @@
 @import common.views.html.forms._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(attendeeForm: Form[AttendeeCreateData], joinForm: Form[String], allAttendees: List[Attendee], event: Event, exponent: Exponent, tab: String = "inviteuser")(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(attendeeForm: Form[AttendeeCreateData], joinForm: Form[AttendeeId], allAttendees: List[Attendee], event: Event, exponent: Exponent, tab: String = "inviteuser")(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Ajouter à l'équipe de "+exponent.name, "events_"+event.uuid+"_exponents_"+exponent.uuid+"_team_create", Map(event.uuid -> event.name, exponent.uuid -> exponent.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
@@ -49,7 +50,7 @@
 						<div role="tabpanel" class="tab-pane @if(tab=="fromattendees"){active}" id="fromattendees">
 							@helper.form(action=backend.controllers.routes.Exponents.doTeamJoin(event.uuid, exponent.uuid), 'class->"form-horizontal") {
 								@fieldHorizontal(joinForm("attendeeId"), 'label -> "Nouveau membre"){field =>
-									@inputSelect2(field, allAttendees.map(a => (a.uuid, a.name+a.position().map(" ("+_+")").getOrElse(""))))
+									@inputSelect2(field, allAttendees.map(a => (a.uuid.unwrap, a.name+a.position().map(" ("+_+")").getOrElse(""))))
 								}
 								<div class="form-group">
 									<div class="col-md-offset-2 col-md-10">

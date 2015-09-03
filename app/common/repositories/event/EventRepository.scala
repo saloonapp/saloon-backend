@@ -2,6 +2,7 @@ package common.repositories.event
 
 import common.models.utils.Page
 import common.models.event.Event
+import common.models.event.EventId
 import common.repositories.Repository
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
@@ -18,7 +19,7 @@ import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.BSONFormats
 
-trait MongoDbEventRepository extends Repository[Event] {
+trait MongoDbEventRepository extends Repository[Event, EventId] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.EVENTS)
 
@@ -27,14 +28,14 @@ trait MongoDbEventRepository extends Repository[Event] {
   //def findAllOld(): Future[List[EventOld]] = collection.find(Json.obj()).cursor[EventOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[Event]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[Event]] = crud.findPage(query, page, pageSize, sort, filter)
-  override def getByUuid(uuid: String): Future[Option[Event]] = crud.getByUuid(uuid)
+  override def getByUuid(eventId: EventId): Future[Option[Event]] = crud.getByUuid(eventId.unwrap)
   override def insert(elt: Event): Future[Option[Event]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
-  override def update(uuid: String, elt: Event): Future[Option[Event]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
-  override def delete(uuid: String): Future[Option[Event]] = {
-    crud.delete(uuid).map { err =>
-      ExponentRepository.deleteByEvent(uuid)
-      SessionRepository.deleteByEvent(uuid)
-      UserActionRepository.deleteByEvent(uuid)
+  override def update(eventId: EventId, elt: Event): Future[Option[Event]] = crud.update(eventId.unwrap, elt).map(err => if (err.ok) Some(elt) else None)
+  override def delete(eventId: EventId): Future[Option[Event]] = {
+    crud.delete(eventId.unwrap).map { err =>
+      ExponentRepository.deleteByEvent(eventId)
+      SessionRepository.deleteByEvent(eventId)
+      UserActionRepository.deleteByEvent(eventId)
       None
     } // TODO : return deleted elt !
   }
@@ -53,7 +54,7 @@ trait MongoDbEventRepository extends Repository[Event] {
     }
   }
 
-  def findByUuids(uuids: List[String]): Future[List[Event]] = crud.findByUuids(uuids)
+  def findByUuids(eventIds: List[EventId]): Future[List[Event]] = crud.findByUuids(eventIds.map(_.unwrap))
   def findForOrganizations(uuids: List[String]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> uuids)))
   def bulkInsert(elts: List[Event]): Future[Int] = crud.bulkInsert(elts)
   def drop(): Future[Boolean] = crud.drop()

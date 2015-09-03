@@ -2,8 +2,10 @@ package common.models.event
 
 import common.views.Helpers
 import common.Utils
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import common.models.values.Address
-import common.repositories.Repository
 import common.models.values.DataSource
 import common.services.FileImporter
 import org.joda.time.DateTime
@@ -11,6 +13,14 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+
+case class AttendeeId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object AttendeeId extends tStringHelper[AttendeeId] {
+  def generate(): AttendeeId = AttendeeId(UUID.generate())
+  protected def build(str: String): Option[AttendeeId] = UUID.toUUID(str).map(id => AttendeeId(id))
+}
 
 case class AttendeeImages(
   avatar: String)
@@ -45,8 +55,8 @@ case class AttendeeMeta(
   created: DateTime,
   updated: DateTime)
 case class Attendee(
-  uuid: String,
-  eventId: String,
+  uuid: AttendeeId,
+  eventId: EventId,
   name: String,
   description: String,
   descriptionHTML: String,
@@ -66,7 +76,7 @@ case class Attendee(
       this.social.viadeoUrl.map(url => (url, "Viadeo", "socicon socicon-viadeo")),
       this.social.githubUrl.map(url => (url, "Github", "socicon socicon-github"))).flatten
   }
-  def position(): Option[String] = Helpers.strOpt(List(this.info.job, this.info.company).filter(_!="").mkString(" chez "))
+  def position(): Option[String] = Helpers.strOpt(List(this.info.job, this.info.company).filter(_ != "").mkString(" chez "))
   def merge(e: Attendee): Attendee = Attendee.merge(this, e)
   def toBackendExport(): Map[String, String] = Attendee.toBackendExport(this)
   //def toMap(): Map[String, String] = Attendee.toMap(this)
@@ -82,7 +92,7 @@ object Attendee {
   implicit val format = Json.format[Attendee]
 
   def toBackendExport(e: Attendee): Map[String, String] = e.survey.map(q => (q.question, Utils.fromList(q.answers))).toMap ++ Map(
-    "uuid" -> e.uuid,
+    "uuid" -> e.uuid.unwrap,
     "name" -> e.name,
     "description" -> e.description,
     "avatar" -> e.images.avatar,
@@ -210,7 +220,7 @@ object AttendeeRole {
 case class AttendeeMetaData(
   source: Option[DataSource])
 case class AttendeeData(
-  eventId: String,
+  eventId: EventId,
   name: String,
   description: String,
   descriptionHTML: String,
@@ -220,7 +230,7 @@ case class AttendeeData(
   meta: AttendeeMetaData)
 object AttendeeData {
   val fields = mapping(
-    "eventId" -> nonEmptyText,
+    "eventId" -> of[EventId],
     "name" -> nonEmptyText,
     "description" -> text,
     "descriptionHTML" -> text,
@@ -249,7 +259,7 @@ object AttendeeData {
       "source" -> optional(DataSource.fields))(AttendeeMetaData.apply)(AttendeeMetaData.unapply))(AttendeeData.apply)(AttendeeData.unapply)
 
   def toModel(d: AttendeeMetaData): AttendeeMeta = AttendeeMeta(d.source, new DateTime(), new DateTime())
-  def toModel(d: AttendeeData): Attendee = Attendee(Repository.generateUuid(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, None, d.social, List(), toModel(d.meta))
+  def toModel(d: AttendeeData): Attendee = Attendee(AttendeeId.generate(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, None, d.social, List(), toModel(d.meta))
   def fromModel(d: AttendeeMeta): AttendeeMetaData = AttendeeMetaData(d.source)
   def fromModel(d: Attendee): AttendeeData = AttendeeData(d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.social, fromModel(d.meta))
   def merge(m: AttendeeMeta, d: AttendeeMetaData): AttendeeMeta = toModel(d).copy(source = m.source, created = m.created)

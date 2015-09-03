@@ -13,7 +13,7 @@ import reactivemongo.api.DB
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
-trait MongoDbDeviceRepository extends Repository[Device] {
+trait MongoDbDeviceRepository extends Repository[Device, String] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.DEVICES)
 

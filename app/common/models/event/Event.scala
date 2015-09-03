@@ -1,16 +1,27 @@
 package common.models.event
 
 import common.Utils
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import common.models.values.Address
 import common.models.values.DataSource
 import common.models.values.Link
 import common.services.FileImporter
-import common.repositories.Repository
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+
+case class EventId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object EventId extends tStringHelper[EventId] {
+  def generate(): EventId = EventId(UUID.generate())
+  protected def build(str: String): Option[EventId] = UUID.toUUID(str).map(id => EventId(id))
+  //protected def build(str: String): Option[EventId] = Some(EventId(str))
+}
 
 case class EventImages(
   logo: String, // squared logo of event (~ 100x100)
@@ -62,7 +73,7 @@ case class EventMeta(
   created: DateTime,
   updated: DateTime)
 case class Event(
-  uuid: String,
+  uuid: EventId,
   ownerId: String, // Organization uuid
   name: String,
   description: String,
@@ -273,7 +284,7 @@ object EventData {
   def toModel(d: EventConfigBrandingData): EventConfigBranding = EventConfigBranding(d.primaryColor, d.secondaryColor, Utils.toList(d.dailySessionMenu), Utils.toList(d.exponentMenu))
   def toModel(d: EventConfigData): EventConfig = EventConfig(d.branding.map(b => toModel(b)), Map(), None, d.published)
   def toModel(d: EventMetaData): EventMeta = EventMeta(d.categories, d.refreshUrl, d.source, new DateTime(), new DateTime())
-  def toModel(d: EventData): Event = Event(Repository.generateUuid(), d.ownerId, d.name, d.description, d.descriptionHTML, d.images, toModel(d.info), d.email, toModel(d.config), toModel(d.meta))
+  def toModel(d: EventData): Event = Event(EventId.generate(), d.ownerId, d.name, d.description, d.descriptionHTML, d.images, toModel(d.info), d.email, toModel(d.config), toModel(d.meta))
   def fromModel(d: EventConfigBranding): EventConfigBrandingData = EventConfigBrandingData(d.primaryColor, d.secondaryColor, Utils.fromList(d.dailySessionMenu), Utils.fromList(d.exponentMenu))
   def fromModel(d: EventConfig): EventConfigData = EventConfigData(d.branding.map(b => fromModel(b)), d.published)
   def fromModel(d: EventMeta): EventMetaData = EventMetaData(d.categories, d.refreshUrl, d.source)

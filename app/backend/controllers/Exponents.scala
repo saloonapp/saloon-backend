@@ -1,7 +1,10 @@
 package backend.controllers
 
+import common.models.event.EventId
 import common.models.event.Attendee
+import common.models.event.AttendeeId
 import common.models.event.Exponent
+import common.models.event.ExponentId
 import common.models.user.User
 import common.models.utils.Page
 import common.services.FileExporter
@@ -22,7 +25,7 @@ import play.api.data.Forms._
 object Exponents extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[ExponentCreateData] = Form(ExponentCreateData.fields)
 
-  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
+  def list(eventId: EventId, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     val curPage = page.getOrElse(1)
     withEvent(eventId) { event =>
@@ -36,7 +39,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def details(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def details(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       withExponent(exponentId) { exponent =>
@@ -47,12 +50,12 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def create(eventId: String) = SecuredAction.async { implicit req =>
+  def create(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     createView(createForm, eventId)
   }
 
-  def doCreate(eventId: String) = SecuredAction.async { implicit req =>
+  def doCreate(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     createForm.bindFromRequest.fold(
       formWithErrors => createView(formWithErrors, eventId, BadRequest),
@@ -65,14 +68,14 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
       })
   }
 
-  def update(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def update(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withExponent(exponentId) { exponent =>
       updateView(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, eventId)
     }
   }
 
-  def doUpdate(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def doUpdate(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       withExponent(exponentId) { exponent =>
@@ -89,7 +92,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doDelete(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def doDelete(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withExponent(exponentId) { exponent =>
       // TODO : What to do with linked attendees ?
@@ -101,7 +104,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doFileExport(eventId: String) = SecuredAction.async { implicit req =>
+  def doFileExport(eventId: EventId) = SecuredAction.async { implicit req =>
     withEvent(eventId) { event =>
       ExponentRepository.findByEvent(eventId).map { exponents =>
         val filename = event.name + "_exponents.csv"
@@ -118,9 +121,9 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
    */
 
   val teamCreateForm: Form[AttendeeCreateData] = Form(AttendeeCreateData.fields)
-  val teamJoinForm: Form[String] = Form(single("attendeeId" -> nonEmptyText))
+  val teamJoinForm: Form[AttendeeId] = Form(single("attendeeId" -> of[AttendeeId]))
 
-  def teamDetails(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def teamDetails(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       withAttendee(attendeeId) { attendee =>
@@ -139,12 +142,12 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def teamCreate(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def teamCreate(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     teamCreateView(teamCreateForm, teamJoinForm, eventId, exponentId)
   }
 
-  def doTeamCreateInvite(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def doTeamCreateInvite(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     teamCreateForm.bindFromRequest.fold(
       formWithErrors => teamCreateView(formWithErrors, teamJoinForm, eventId, exponentId, "inviteuser", BadRequest),
@@ -160,7 +163,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
       })
   }
 
-  def doTeamCreateFull(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def doTeamCreateFull(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     teamCreateForm.bindFromRequest.fold(
       formWithErrors => teamCreateView(formWithErrors, teamJoinForm, eventId, exponentId, "fullform", BadRequest),
@@ -175,7 +178,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
       })
   }
 
-  def doTeamJoin(eventId: String, exponentId: String) = SecuredAction.async { implicit req =>
+  def doTeamJoin(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     teamJoinForm.bindFromRequest.fold(
       formWithErrors => teamCreateView(teamCreateForm, formWithErrors, eventId, exponentId, "fromattendees", BadRequest),
@@ -188,16 +191,16 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
       })
   }
 
-  def teamUpdate(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def teamUpdate(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withAttendee(eventId) { attendee =>
+    withAttendee(attendeeId) { attendee =>
       teamUpdateView(teamCreateForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, eventId, exponentId)
     }
   }
 
-  def doTeamUpdate(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def doTeamUpdate(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withAttendee(eventId) { attendee =>
+    withAttendee(attendeeId) { attendee =>
       teamCreateForm.bindFromRequest.fold(
         formWithErrors => teamUpdateView(formWithErrors, attendee, eventId, exponentId, BadRequest),
         formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).flatMap {
@@ -210,32 +213,32 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doTeamLeave(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def doTeamLeave(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     ExponentRepository.removeTeamMember(exponentId, attendeeId).map { r =>
       Redirect(req.headers("referer"))
     }
   }
 
-  // def doTeamInvite(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
-  // def doTeamBan(eventId: String, exponentId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  // def doTeamInvite(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
+  // def doTeamBan(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
 
   /*
    * Private methods
    */
 
-  private def createView(createForm: Form[ExponentCreateData], eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def createView(createForm: Form[ExponentCreateData], eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       Future(status(backend.views.html.Events.Exponents.create(createForm, event)))
     }
   }
 
-  private def updateView(createForm: Form[ExponentCreateData], exponent: Exponent, eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def updateView(createForm: Form[ExponentCreateData], exponent: Exponent, eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       Future(status(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, event)))
     }
   }
 
-  private def teamCreateView(teamCreateForm: Form[AttendeeCreateData], teamJoinForm: Form[String], eventId: String, exponentId: String, tab: String = "inviteuser", status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def teamCreateView(teamCreateForm: Form[AttendeeCreateData], teamJoinForm: Form[AttendeeId], eventId: EventId, exponentId: ExponentId, tab: String = "inviteuser", status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       withExponent(exponentId) { exponent =>
         AttendeeRepository.findByEvent(eventId).map { allAttendees =>
@@ -245,7 +248,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def teamUpdateView(teamCreateForm: Form[AttendeeCreateData], attendee: Attendee, eventId: String, exponentId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def teamUpdateView(teamCreateForm: Form[AttendeeCreateData], attendee: Attendee, eventId: EventId, exponentId: ExponentId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       withExponent(exponentId) { exponent =>
         Future(status(backend.views.html.Events.Exponents.Team.update(teamCreateForm, attendee, event, exponent)))

@@ -1,15 +1,19 @@
 package common.services
 
 import common.models.event.Event
+import common.models.event.EventId
 import common.models.event.Attendee
-import common.models.event.Session
+import common.models.event.AttendeeId
 import common.models.event.Exponent
+import common.models.event.ExponentId
+import common.models.event.Session
+import common.models.event.SessionId
 import common.models.event.EventItem
 import common.models.user.User
 import common.models.user.Device
 import common.models.user.UserActionFull
 import common.models.user.SubscribeUserAction
-import common.repositories.Repository
+import common.models.values.GenericId
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
@@ -58,12 +62,12 @@ object EventSrv {
     }
   }
 
-  def getActions(eventId: String): Future[List[UserActionFull]] = {
+  def getActions(eventId: EventId): Future[List[UserActionFull]] = {
     UserActionRepository.findByEvent(eventId).flatMap { actions =>
       for {
-        events: Map[String, Event] <- EventRepository.findByUuids(actions.map(_.eventId).flatten.distinct).map(_.map(u => (u.uuid, u)).toMap)
+        events: Map[EventId, Event] <- EventRepository.findByUuids(actions.map(_.eventId).flatten.distinct).map(_.map(u => (u.uuid, u)).toMap)
         devices: Map[String, Device] <- DeviceRepository.findByUuids(actions.map(_.userId).distinct).map(_.map(u => (u.uuid, u)).toMap)
-        items: Map[(String, String), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
+        items: Map[(String, GenericId), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
       } yield {
         actions.map { a =>
           for {
@@ -122,14 +126,14 @@ object EventSrv {
   def formatUrl(url: String)(implicit req: RequestHeader): String = {
     url match {
       case eventUrlMatcher(remoteHost, eventId) => {
-        val localUrl = api.controllers.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
+        val localUrl = api.controllers.routes.Events.detailsFull(EventId(eventId), Writer.lastVersion).absoluteURL(true)
         localUrl.replace(req.host, remoteHost)
       }
       case _ => url
     }
   }
 
-  def fetchEvent(remoteHost: String, eventId: String, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Attendee], List[Session], List[Exponent])]] = {
+  def fetchEvent(remoteHost: String, eventId: EventId, generateIds: Boolean)(implicit req: RequestHeader): Future[Option[(Event, List[Attendee], List[Session], List[Exponent])]] = {
     val localUrl = api.controllers.routes.Events.detailsFull(eventId, Writer.lastVersion).absoluteURL(true)
     val remoteUrl = localUrl.replace(req.host, remoteHost)
     WS.url(remoteUrl).get().map { response =>
@@ -139,11 +143,11 @@ object EventSrv {
         val exponents = (response.json \ "exponents").as[List[Exponent]]
 
         if (generateIds) {
-          val newEventId = Repository.generateUuid()
+          val newEventId = EventId.generate()
           (event.copy(uuid = newEventId),
-            attendees.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)),
-            sessions.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)),
-            exponents.map(_.copy(uuid = Repository.generateUuid(), eventId = newEventId)))
+            attendees.map(_.copy(uuid = AttendeeId.generate(), eventId = newEventId)),
+            sessions.map(_.copy(uuid = SessionId.generate(), eventId = newEventId)),
+            exponents.map(_.copy(uuid = ExponentId.generate(), eventId = newEventId)))
         } else {
           (event, attendees, sessions, exponents)
         }

@@ -13,7 +13,7 @@ object Writer {
 
   def write(data: Event, version: String): JsObject = version match {
     case "v1" => Json.obj(
-      "uuid" -> data.uuid,
+      "uuid" -> data.uuid.unwrap,
       "refreshUrl" -> data.meta.refreshUrl,
       "name" -> data.name,
       "description" -> data.description,
@@ -48,7 +48,7 @@ object Writer {
   }
   def write(data: Session, speakers: List[Attendee], version: String): JsObject = version match {
     case "v1" => Json.obj(
-      "uuid" -> data.uuid,
+      "uuid" -> data.uuid.unwrap,
       "eventId" -> data.eventId,
       "name" -> data.name,
       "description" -> data.description,
@@ -67,7 +67,7 @@ object Writer {
   }
   def write(data: Exponent, team: List[Attendee], version: String): JsObject = version match {
     case "v1" => Json.obj(
-      "uuid" -> data.uuid,
+      "uuid" -> data.uuid.unwrap,
       "eventId" -> data.eventId,
       "name" -> data.name,
       "description" -> data.description,

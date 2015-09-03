@@ -1,6 +1,7 @@
+@import common.models.values.UUID
 @import play.api.mvc.Call
 @import backend.views.partials.Breadcrumb
-@(breadcrumb: String, titles: Map[String, String])
+@(breadcrumb: String, titles: Map[UUID, String])
 @Breadcrumb.buildBreadcrumb(breadcrumb, titles).map { case (list, current) =>
 	<ol class="breadcrumb" style="margin-bottom: 0px;">
 		@list.map { elt => <li><a href="@elt._1">@elt._2</a></li> }

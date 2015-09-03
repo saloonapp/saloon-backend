@@ -6,7 +6,7 @@
 
 <fieldset>
 	<legend>Général :</legend>
-	@fieldHorizontal(sessionForm("eventId"), 'label -> "Evénement", 'constraints -> "false"){field => @inputHidden(field, 'value -> event.uuid) <p class="form-control-static">@event.name</p>}
+	@fieldHorizontal(sessionForm("eventId"), 'label -> "Evénement", 'constraints -> "false"){field => @inputHidden(field, 'value -> event.uuid.unwrap) <p class="form-control-static">@event.name</p>}
 	@fieldHorizontal(sessionForm("name"), 'label -> "Name"){field => @inputText(field, 'placeholder -> "ex: Reactive Programming avec RxJS")}
 	@fieldHorizontal(sessionForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: Le développement d'applications Javascript est étroitement lié à la programmation événementiel : du DOM à Node.js, Backbone, React ou Angular, la gestion des événements est centrale. Pour traiter ces flux de données asynchrones, les concepts de FRP sont particulièrement puissants.")}
 </fieldset>
@@ -21,7 +21,7 @@
 	@fieldHorizontal(sessionForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B12")}
 	@fieldHorizontal(sessionForm("info.start"), 'label -> "Début"){field => @inputDatetime(field)}
 	@fieldHorizontal(sessionForm("info.end"), 'label -> "Fin"){field => @inputDatetime(field)}
-	@fieldHorizontal(sessionForm("info.speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid, a.name)))}
+	@fieldHorizontal(sessionForm("info.speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid.unwrap, a.name)))}
 	@fieldHorizontal(sessionForm("info.slides"), 'label -> "Slides"){field => @inputText(field, 'placeholder -> "ex: http://fr.slideshare.net/loicknuchel/ionic-humantalks-11032015")}
 	@fieldHorizontal(sessionForm("info.video"), 'label -> "Vidéo"){field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/watch?v=EB2CZndGU9A")}
 </fieldset>

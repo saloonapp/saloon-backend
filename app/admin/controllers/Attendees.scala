@@ -3,7 +3,9 @@ package admin.controllers
 import common.FileBodyParser
 import common.models.utils.Page
 import common.models.FileImportConfig
+import common.models.event.EventId
 import common.models.event.Attendee
+import common.models.event.AttendeeId
 import common.models.event.AttendeeData
 import common.services.FileImporter
 import common.services.FileExporter
@@ -20,7 +22,7 @@ import play.api.data.Form
 object Attendees extends SilhouetteEnvironment {
   val form: Form[AttendeeData] = Form(AttendeeData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
-  val repository: Repository[Attendee] = AttendeeRepository
+  val repository: Repository[Attendee, AttendeeId] = AttendeeRepository
   val mainRoute = routes.Attendees
   val viewList = admin.views.html.Attendees.list
   val viewDetails = admin.views.html.Attendees.details
@@ -36,7 +38,7 @@ object Attendees extends SilhouetteEnvironment {
   def successDeleteFlash(elt: Attendee) = s"Attendee '${elt.name}' has been deleted"
   def successImportFlash(count: Int) = s"${count} attendees imported"
 
-  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
+  def list(eventId: EventId, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     val curPage = page.getOrElse(1)
     for {
       eltPage <- AttendeeRepository.findPageByEvent(eventId, query.getOrElse(""), curPage, pageSize.getOrElse(Page.defaultSize), sort.getOrElse("name"))
@@ -51,7 +53,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def create(eventId: String) = SecuredAction.async { implicit req =>
+  def create(eventId: EventId) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).map { eventOpt =>
       eventOpt
         .map { event => Ok(viewCreate(form, event)) }
@@ -59,7 +61,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def doCreate(eventId: String) = SecuredAction.async { implicit req =>
+  def doCreate(eventId: EventId) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         form.bindFromRequest.fold(
@@ -73,7 +75,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def details(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def details(eventId: EventId, uuid: AttendeeId) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -84,7 +86,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def update(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def update(eventId: EventId, uuid: AttendeeId) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -95,7 +97,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def doUpdate(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def doUpdate(eventId: EventId, uuid: AttendeeId) = SecuredAction.async { implicit req =>
     val dataFuture = for {
       eltOpt <- repository.getByUuid(uuid)
       eventOpt <- EventRepository.getByUuid(eventId)
@@ -116,7 +118,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def delete(eventId: String, uuid: String) = SecuredAction.async { implicit req =>
+  def delete(eventId: EventId, uuid: AttendeeId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -126,7 +128,7 @@ object Attendees extends SilhouetteEnvironment {
   }
 
   // TODO : add preview of updates
-  /*def fileImport(eventId: String) = SecuredAction.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
+  /*def fileImport(eventId: EventId) = SecuredAction.async(FileBodyParser.multipartFormDataAsBytes) { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         fileImportForm.bindFromRequest.fold(
@@ -147,7 +149,7 @@ object Attendees extends SilhouetteEnvironment {
     }
   }
 
-  def fileExport(eventId: String) = SecuredAction.async { implicit req =>
+  def fileExport(eventId: EventId) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(eventId).flatMap { eventOpt =>
       eventOpt.map { event =>
         AttendeeRepository.findByEvent(eventId).map { elts =>

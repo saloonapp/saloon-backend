@@ -3,7 +3,7 @@
 @import backend.forms.AttendeeCreateData
 @import common.views.html.forms._
 @(attendeeForm: Form[AttendeeCreateData], roles: List[String], event: Event)
-@inputHidden(attendeeForm("eventId"), 'value -> event.uuid)
+@inputHidden(attendeeForm("eventId"), 'value -> event.uuid.unwrap)
 @fieldHorizontal(attendeeForm("info.genre"), 'label -> "Nom", 'constraints -> "false"){field =>
 	<div class="row">
 		<div class="col-md-2">@inputSelect2(field, Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")@fieldErrors(field)</div>

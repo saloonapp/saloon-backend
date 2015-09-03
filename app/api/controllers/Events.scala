@@ -1,14 +1,15 @@
 package api.controllers
 
 import common.models.utils.Page
+import common.models.event.Event
+import common.models.event.EventId
+import common.models.event.Session
+import common.models.event.Exponent
 import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
-import common.models.event.Event
-import common.models.event.Session
-import common.models.event.Exponent
 import common.services.EventSrv
 import api.controllers.compatibility.Writer
 import scala.concurrent.Future
@@ -19,7 +20,7 @@ import play.api.data.Form
 import play.api.libs.json._
 
 object Events extends Controller {
-  val repository: Repository[Event] = EventRepository
+  val repository: Repository[Event, EventId] = EventRepository
 
   def list(query: Option[String], page: Option[Int], sort: Option[String], version: String) = Action.async { implicit req =>
     repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start"), Json.obj("config.published" -> true)).flatMap { eltPage =>
@@ -35,7 +36,7 @@ object Events extends Controller {
     }
   }
 
-  def details(uuid: String, version: String) = Action.async { implicit req =>
+  def details(uuid: EventId, version: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         EventSrv.addMetadata(elt).map { eltUI => Ok(Writer.write(eltUI, version)) }
@@ -43,7 +44,7 @@ object Events extends Controller {
     }
   }
 
-  def detailsFull(uuid: String, version: String) = Action.async { implicit req =>
+  def detailsFull(uuid: EventId, version: String) = Action.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {

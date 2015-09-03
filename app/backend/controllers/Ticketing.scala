@@ -1,6 +1,7 @@
 package backend.controllers
 
 import common.models.user.User
+import common.models.event.EventId
 import common.models.event.AttendeeRegistration
 import common.models.event.EventConfigAttendeeSurvey
 import common.models.event.EventConfigAttendeeSurveyQuestion
@@ -18,14 +19,14 @@ object Ticketing extends SilhouetteEnvironment with ControllerHelpers {
   val configForm: Form[EventConfigAttendeeSurvey] = Form(EventConfigAttendeeSurvey.fields)
   val registerForm: Form[AttendeeRegistration] = Form(AttendeeRegistration.fields)
 
-  def details(eventId: String) = SecuredAction.async { implicit req =>
+  def details(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       Future(Ok(backend.views.html.Events.Ticketing.details(event)))
     }
   }
 
-  def configure(eventId: String) = SecuredAction.async { implicit req =>
+  def configure(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       val form = event.config.attendeeSurvey.map(s => configForm.fill(s)).getOrElse(configForm)
@@ -33,7 +34,7 @@ object Ticketing extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doConfigure(eventId: String) = SecuredAction.async { implicit req =>
+  def doConfigure(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       configForm.bindFromRequest.fold(
@@ -52,7 +53,7 @@ object Ticketing extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doActivate(eventId: String, activated: Boolean) = SecuredAction.async { implicit req =>
+  def doActivate(eventId: EventId, activated: Boolean) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       // TODO : create specific method in EventRepository.toggleOption("ticketing", activated)
@@ -79,7 +80,7 @@ object Ticketing extends SilhouetteEnvironment with ControllerHelpers {
     EventConfigAttendeeSurveyQuestion(multiple = true, required = false, otherAllowed = true, question = "Comment avez-vous été informé de la tenue de ce salon ?", answers = List("les Métiers de la Petite Enfance", "Recrut.com", "A Nous Paris", "Le Marché du travail", "L'Aide Soignante", "Objectif Emploi", "La Revue de l'infirmière", "Soin spécial Emploi Salon", "L'Express", "Soins", "infirmier.com", "keljob.com", "letudiant.fr", "emploisoignant.fr", "cadresante.com", "lemarchedutravail.fr", "parisjob.com", "objectifemploi.fr", "aide-soignate.com", "actusoins.fr", "emploisante.com", "jobautonomie.com", "jobenfance.com", "jobintree.com", "capijobnew.com", "Panneau périphérique", "Pôle Emploi", "IFSI-CHU"))))
     */
 
-  def register(eventId: String) = UserAwareAction.async { implicit req =>
+  def register(eventId: EventId) = UserAwareAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       if (event.config.hasTicketing) {
@@ -90,7 +91,7 @@ object Ticketing extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doRegister(eventId: String) = UserAwareAction.async { implicit req =>
+  def doRegister(eventId: EventId) = UserAwareAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       registerForm.bindFromRequest.fold(

@@ -2,14 +2,16 @@ package admin.controllers
 
 import common.Utils
 import common.FileBodyParser
-import common.models.utils.Page
 import common.models.FileImportConfig
 import common.models.UrlImportConfig
 import common.models.event.Event
+import common.models.event.EventId
 import common.models.event.EventData
 import common.models.event.Session
 import common.models.event.Exponent
 import common.models.user.SubscribeUserAction
+import common.models.values.GenericId
+import common.models.utils.Page
 import common.services.FileImporter
 import common.services.FileExporter
 import common.services.EventSrv
@@ -36,7 +38,7 @@ object Events extends SilhouetteEnvironment {
   val form: Form[EventData] = Form(EventData.fields)
   val fileImportForm = Form(FileImportConfig.fields)
   val urlImportForm = Form(UrlImportConfig.fields)
-  val repository: Repository[Event] = EventRepository
+  val repository: Repository[Event, EventId] = EventRepository
   val mainRoute = routes.Events
   val viewList = admin.views.html.Events.list
   val viewDetails = admin.views.html.Events.details
@@ -106,7 +108,7 @@ object Events extends SilhouetteEnvironment {
     }.getOrElse(Future(Redirect(mainRoute.create()).flashing("error" -> "Le champ 'url' est nécessaire !")))
   }
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(uuid: EventId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         for {
@@ -119,7 +121,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def report(eventId: String, userId: String) = SecuredAction.async { implicit req =>
+  def report(eventId: EventId, userId: String) = SecuredAction.async { implicit req =>
     EmailSrv.generateEventReport(eventId, userId).map {
       _.map { email =>
         Ok(play.twirl.api.Html(email.html))
@@ -127,7 +129,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def sendReport(eventId: String, userId: String) = SecuredAction.async { implicit req =>
+  def sendReport(eventId: EventId, userId: String) = SecuredAction.async { implicit req =>
     UserActionRepository.getSubscribe(userId, Event.className, eventId).flatMap {
       _.map {
         _.action match {
@@ -146,7 +148,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def reportsPreview(eventId: String) = SecuredAction.async { implicit req =>
+  def reportsPreview(eventId: EventId) = SecuredAction.async { implicit req =>
     UserActionRepository.findSubscribes(Event.className, eventId).map { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
@@ -156,7 +158,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def sendReports(eventId: String) = SecuredAction.async { implicit req =>
+  def sendReports(eventId: EventId) = SecuredAction.async { implicit req =>
     UserActionRepository.findSubscribes(Event.className, eventId).flatMap { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
@@ -177,7 +179,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def stats(uuid: String) = SecuredAction.async { implicit req =>
+  def stats(uuid: EventId) = SecuredAction.async { implicit req =>
     EventSrv.getActions(uuid).map { actions =>
       val filename = actions.head.event.name + "_stats.csv"
       val content = FileExporter.makeCsv(actions.map(_.toMap))
@@ -187,7 +189,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def update(uuid: String) = SecuredAction.async { implicit req =>
+  def update(uuid: EventId) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
       categories <- EventRepository.getCategories()
@@ -198,7 +200,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
+  def doUpdate(uuid: EventId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
@@ -214,7 +216,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def delete(uuid: String) = SecuredAction.async { implicit req =>
+  def delete(uuid: EventId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -223,7 +225,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def operations(uuid: String) = SecuredAction.async { implicit req =>
+  def operations(uuid: EventId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { event =>
         Ok(viewOps(event, urlImportForm, fileImportForm.fill(FileImportConfig())))
@@ -231,7 +233,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def urlImport(uuid: String) = SecuredAction.async { implicit req =>
+  def urlImport(uuid: EventId) = SecuredAction.async { implicit req =>
     urlImportForm.bindFromRequest.fold(
       formWithErrors => repository.getByUuid(uuid).map {
         _.map { event =>
@@ -278,7 +280,7 @@ object Events extends SilhouetteEnvironment {
       })
   }
 
-  def refresh(uuid: String) = SecuredAction.async { implicit req =>
+  def refresh(uuid: EventId) = SecuredAction.async { implicit req =>
     EventRepository.getByUuid(uuid).flatMap { eventOpt =>
       eventOpt.map { localEvent =>
         localEvent.meta.refreshUrl.map { url =>
@@ -304,7 +306,7 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def doRefresh(uuid: String) = SecuredAction.async { implicit req =>
+  def doRefresh(uuid: EventId) = SecuredAction.async { implicit req =>
     req.body.asFormUrlEncoded.flatMap(_.get("data").flatMap(_.headOption)).map { data =>
       val jsonTry: Try[JsValue] = Try(Json.parse(data))
       (for {

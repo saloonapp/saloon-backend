@@ -17,7 +17,7 @@ import reactivemongo.core.commands.LastError
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
-trait MongoDbUserRepository extends Repository[User] {
+trait MongoDbUserRepository extends Repository[User, String] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.USERS)
 

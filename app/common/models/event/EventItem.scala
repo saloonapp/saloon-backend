@@ -1,7 +1,9 @@
 package common.models.event
 
+import common.models.values.UUID
+
 trait EventItem {
-  val uuid: String
+  val uuid: UUID
   val name: String
   def getType(): String = {
     this match {

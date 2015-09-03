@@ -16,7 +16,7 @@ import reactivemongo.core.commands.LastError
 
 object Organizations extends SilhouetteEnvironment {
   val form: Form[OrganizationData] = Form(OrganizationData.fields)
-  val repository: Repository[Organization] = OrganizationRepository
+  val repository: Repository[Organization, String] = OrganizationRepository
   val mainRoute = routes.Organizations
   val viewList = admin.views.html.Organizations.list
   val viewDetails = admin.views.html.Organizations.details

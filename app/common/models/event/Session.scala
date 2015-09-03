@@ -1,7 +1,9 @@
 package common.models.event
 
 import common.Utils
-import common.repositories.Repository
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import common.models.values.DataSource
 import common.services.FileImporter
 import org.joda.time.DateTime
@@ -9,6 +11,15 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+
+case class SessionId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object SessionId extends tStringHelper[SessionId] {
+  def generate(): SessionId = SessionId(UUID.generate())
+  protected def build(str: String): Option[SessionId] = UUID.toUUID(str).map(id => SessionId(id))
+  //protected def build(str: String): Option[SessionId] = Some(SessionId(str))
+}
 
 case class SessionImages(
   landing: String) // landscape img (~ 400x150)
@@ -18,7 +29,7 @@ case class SessionInfo(
   place: String, // where to find this session
   start: Option[DateTime],
   end: Option[DateTime],
-  speakers: List[String],
+  speakers: List[AttendeeId],
   slides: Option[String],
   video: Option[String])
 case class SessionMeta(
@@ -26,8 +37,8 @@ case class SessionMeta(
   created: DateTime,
   updated: DateTime)
 case class Session(
-  uuid: String,
-  eventId: String,
+  uuid: SessionId,
+  eventId: EventId,
   name: String,
   description: String,
   descriptionHTML: String,
@@ -47,7 +58,7 @@ object Session {
   implicit val format = Json.format[Session]
 
   def toBackendExport(e: Session): Map[String, String] = Map(
-    "uuid" -> e.uuid,
+    "uuid" -> e.uuid.unwrap,
     "name" -> e.name,
     "description" -> e.description,
     "format" -> e.info.format,
@@ -55,7 +66,7 @@ object Session {
     "place" -> e.info.place,
     "start" -> e.info.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "end" -> e.info.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
-    "speakerUuids" -> Utils.fromList(e.info.speakers),
+    "speakerUuids" -> Utils.fromList(e.info.speakers.map(_.unwrap)),
     "slides" -> e.info.slides.getOrElse(""),
     "video" -> e.info.video.getOrElse(""),
     "created" -> e.meta.created.toString(FileImporter.dateFormat),
@@ -137,7 +148,7 @@ object Session {
 case class SessionMetaData(
   source: Option[DataSource])
 case class SessionData(
-  eventId: String,
+  eventId: EventId,
   name: String,
   description: String,
   descriptionHTML: String,
@@ -146,7 +157,7 @@ case class SessionData(
   meta: SessionMetaData)
 object SessionData {
   val fields = mapping(
-    "eventId" -> nonEmptyText,
+    "eventId" -> of[EventId],
     "name" -> nonEmptyText,
     "description" -> text,
     "descriptionHTML" -> text,
@@ -158,14 +169,14 @@ object SessionData {
       "place" -> text,
       "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-      "speakers" -> list(text),
+      "speakers" -> list(of[AttendeeId]),
       "slides" -> optional(text),
       "video" -> optional(text))(SessionInfo.apply)(SessionInfo.unapply),
     "meta" -> mapping(
       "source" -> optional(DataSource.fields))(SessionMetaData.apply)(SessionMetaData.unapply))(SessionData.apply)(SessionData.unapply)
 
   def toModel(d: SessionMetaData): SessionMeta = SessionMeta(d.source, new DateTime(), new DateTime())
-  def toModel(d: SessionData): Session = Session(Repository.generateUuid(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, toModel(d.meta))
+  def toModel(d: SessionData): Session = Session(SessionId.generate(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, toModel(d.meta))
   def fromModel(d: SessionMeta): SessionMetaData = SessionMetaData(d.source)
   def fromModel(d: Session): SessionData = SessionData(d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, fromModel(d.meta))
   def merge(m: SessionMeta, d: SessionMetaData): SessionMeta = toModel(d).copy(source = m.source, created = m.created)

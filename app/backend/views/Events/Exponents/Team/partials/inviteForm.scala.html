@@ -3,7 +3,7 @@
 @import backend.forms.AttendeeCreateData
 @import common.views.html.forms._
 @(attendeeForm: Form[AttendeeCreateData], event: Event)
-@inputHidden(attendeeForm("eventId"), 'value -> event.uuid)
+@inputHidden(attendeeForm("eventId"), 'value -> event.uuid.unwrap)
 @inputHidden(attendeeForm("avatar"), 'value -> "")
 @inputHidden(attendeeForm("descriptionHTML"), 'value -> "")
 @inputHidden(attendeeForm("info.role"), 'value -> AttendeeRole.exposant)

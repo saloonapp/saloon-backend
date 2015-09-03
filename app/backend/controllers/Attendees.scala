@@ -1,6 +1,8 @@
 package backend.controllers
 
+import common.models.event.EventId
 import common.models.event.Attendee
+import common.models.event.AttendeeId
 import common.models.user.User
 import common.models.utils.Page
 import common.services.FileExporter
@@ -20,7 +22,7 @@ import play.api.data.Form
 object Attendees extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[AttendeeCreateData] = Form(AttendeeCreateData.fields)
 
-  def list(eventId: String, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
+  def list(eventId: EventId, query: Option[String], page: Option[Int], pageSize: Option[Int], sort: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     val curPage = page.getOrElse(1)
     withEvent(eventId) { event =>
@@ -34,7 +36,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def details(eventId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def details(eventId: EventId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
       withAttendee(attendeeId) { attendee =>
@@ -48,12 +50,12 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def create(eventId: String) = SecuredAction.async { implicit req =>
+  def create(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     createView(createForm, eventId)
   }
 
-  def doCreate(eventId: String) = SecuredAction.async { implicit req =>
+  def doCreate(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     createForm.bindFromRequest.fold(
       formWithErrors => createView(formWithErrors, eventId, BadRequest),
@@ -66,14 +68,14 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
       })
   }
 
-  def update(eventId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def update(eventId: EventId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withAttendee(attendeeId) { attendee =>
       updateView(createForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, eventId)
     }
   }
 
-  def doUpdate(eventId: String, attendeeId: String) = SecuredAction.async { implicit req =>
+  def doUpdate(eventId: EventId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withAttendee(attendeeId) { attendee =>
       createForm.bindFromRequest.fold(
@@ -89,7 +91,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
   }
 
   // TODO : force to manually remove from all exponents/sessions before delete ?
-  def doDelete(eventId: String, attendeeId: String, redirectOpt: Option[String]) = SecuredAction.async { implicit req =>
+  def doDelete(eventId: EventId, attendeeId: AttendeeId, redirectOpt: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withAttendee(attendeeId) { attendee =>
       for {
@@ -101,7 +103,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doFileExport(eventId: String) = SecuredAction.async { implicit req =>
+  def doFileExport(eventId: EventId) = SecuredAction.async { implicit req =>
     withEvent(eventId) { event =>
       AttendeeRepository.findByEvent(eventId).map { attendees =>
         val filename = event.name + "_attendees.csv"
@@ -117,7 +119,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
    * Private methods
    */
 
-  private def createView(createForm: Form[AttendeeCreateData], eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def createView(createForm: Form[AttendeeCreateData], eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       AttendeeRepository.findEventRoles(event.uuid).map { roles =>
         status(backend.views.html.Events.Attendees.create(createForm, roles, event))
@@ -125,7 +127,7 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def updateView(createForm: Form[AttendeeCreateData], attendee: Attendee, eventId: String, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def updateView(createForm: Form[AttendeeCreateData], attendee: Attendee, eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       AttendeeRepository.findEventRoles(event.uuid).map { roles =>
         status(backend.views.html.Events.Attendees.update(createForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, roles, event))
