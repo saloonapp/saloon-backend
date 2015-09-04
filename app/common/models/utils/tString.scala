@@ -34,16 +34,16 @@ trait tStringHelper[T <: tString] {
   protected def build(str: String): Option[T]
   protected val buildErrKey = "error.wrongFormat"
   protected val buildErrMsg = "Wrong format"
-  implicit def pathBinder = new PathBindable[T] {
+  implicit val pathBinder = new PathBindable[T] {
     override def bind(key: String, value: String): Either[String, T] = build(value).toRight(buildErrMsg)
     override def unbind(key: String, value: T): String = value.unwrap
   }
-  implicit def jsonFormat = Format(new Reads[T] {
+  implicit val jsonFormat = Format(new Reads[T] {
     override def reads(json: JsValue): JsResult[T] = json.validate[String].map(id => build(id)).filter(_.isDefined).map(_.get)
   }, new Writes[T] {
     override def writes(value: T): JsValue = JsString(value.unwrap)
   })
-  implicit def formMapping = new Formatter[T] {
+  implicit val formMapping = new Formatter[T] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], T] = data.get(key).flatMap(build).toRight(Seq(FormError(key, buildErrKey, Nil)))
     override def unbind(key: String, value: T): Map[String, String] = Map(key -> value.unwrap)
   }

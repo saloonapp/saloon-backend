@@ -52,7 +52,7 @@ object UserActionSrv {
 
   def favoriteSessions(actions: List[UserAction], sessions: List[(Session, List[Attendee])]): List[(Session, List[Attendee], Option[String], List[String])] = {
     actions.filter(a => a.action.isFavorite() && a.itemType == Session.className).map { a =>
-      sessions.find(_._1.uuid == a.itemId)
+      sessions.find(_._1.uuid.unwrap == a.itemId.unwrap)
     }.flatten
       .filter(_._1.info.format != "break")
       .map { case (session, speakers) => (session, speakers, moodFor(actions, Session.className, session.uuid), commentsFor(actions, Session.className, session.uuid)) }
@@ -67,7 +67,7 @@ object UserActionSrv {
   }
   def seenExponents(actions: List[UserAction], exponents: List[(Exponent, List[Attendee])]): List[(Exponent, List[Attendee], Option[String], List[String])] = {
     actions.filter(a => a.action.isDone() && a.itemType == Exponent.className).map { a =>
-      exponents.find(_._1.uuid == a.itemId)
+      exponents.find(_._1.uuid.unwrap == a.itemId.unwrap)
     }.flatten
       .map { case (exponent, team) => (exponent, team, moodFor(actions, Exponent.className, exponent.uuid), commentsFor(actions, Exponent.className, exponent.uuid)) }
       .sortBy(r => -moodSort(r._3))
@@ -82,7 +82,7 @@ object UserActionSrv {
   def favoriteNotSeenExponents(actions: List[UserAction], exponents: List[(Exponent, List[Attendee])]): List[(Exponent, List[Attendee], Option[String], List[String])] = {
     val seenUuids = actions.filter(a => a.action.isDone() && a.itemType == Exponent.className).map(_.itemId)
     actions.filter(a => a.action.isFavorite() && a.itemType == Exponent.className && !seenUuids.contains(a.itemId)).map { a =>
-      exponents.find(_._1.uuid == a.itemId)
+      exponents.find(_._1.uuid.unwrap == a.itemId.unwrap)
     }.flatten
       .map { case (exponent, team) => (exponent, team, moodFor(actions, Exponent.className, exponent.uuid), commentsFor(actions, Exponent.className, exponent.uuid)) }
       .sortBy(r => -moodSort(r._3))

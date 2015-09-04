@@ -5,7 +5,6 @@ import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.DataSource
-import common.models.event.AttendeeId
 import common.repositories.Repository
 import common.services.FileImporter
 import org.joda.time.DateTime
