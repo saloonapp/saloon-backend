@@ -18,7 +18,6 @@ case class GenericId(val id: String) extends AnyVal with tString with UUID {
 object GenericId extends tStringHelper[GenericId] {
   def generate(): GenericId = GenericId(UUID.generate())
   protected def build(str: String): Option[GenericId] = UUID.toUUID(str).map(id => GenericId(id))
-  //protected def build(str: String): Option[GenericId] = Some(GenericId(str))
 
   implicit def fromUUID(uuid: UUID): GenericId = GenericId(uuid.unwrap)
   implicit def fromEventId(id: EventId): GenericId = GenericId(id.unwrap)

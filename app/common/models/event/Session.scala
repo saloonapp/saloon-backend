@@ -18,7 +18,6 @@ case class SessionId(val id: String) extends AnyVal with tString with UUID {
 object SessionId extends tStringHelper[SessionId] {
   def generate(): SessionId = SessionId(UUID.generate())
   protected def build(str: String): Option[SessionId] = UUID.toUUID(str).map(id => SessionId(id))
-  //protected def build(str: String): Option[SessionId] = Some(SessionId(str))
 }
 
 case class SessionImages(
