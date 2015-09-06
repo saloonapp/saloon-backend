@@ -7,5 +7,5 @@ case class TextInline(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object TextInline extends tStringHelper[TextInline] {
-  def build(str: String): Option[TextInline] = Some(TextInline(str))
+  def build(str: String): Either[String, TextInline] = Right(TextInline(str))
 }

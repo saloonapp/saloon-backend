@@ -7,7 +7,7 @@ case class ItemType(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object ItemType extends tStringHelper[ItemType] {
-  def build(str: String): Option[ItemType] = Some(ItemType(str)) // TODO : add validation
+  def build(str: String): Either[String, ItemType] = Right(ItemType(str)) // TODO : add validation
   val events = ItemType("events")
   val attendees = ItemType("attendees")
   val exponents = ItemType("exponents")

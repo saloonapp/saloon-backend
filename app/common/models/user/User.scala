@@ -15,7 +15,7 @@ case class UserId(val id: String) extends AnyVal with tString with UUID {
 }
 object UserId extends tStringHelper[UserId] {
   def generate(): UserId = UserId(UUID.generate())
-  def build(str: String): Option[UserId] = UUID.toUUID(str).map(id => UserId(id))
+  def build(str: String): Either[String, UserId] = UUID.toUUID(str).right.map(id => UserId(id)).left.map(_ + " for UserId")
 }
 
 case class UserOrganization(

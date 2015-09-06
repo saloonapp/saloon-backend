@@ -7,5 +7,5 @@ case class WebsiteUrl(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object WebsiteUrl extends tStringHelper[WebsiteUrl] {
-  def build(str: String): Option[WebsiteUrl] = Some(WebsiteUrl(str)) // TODO : add validation
+  def build(str: String): Either[String, WebsiteUrl] = Right(WebsiteUrl(str)) // TODO : add validation
 }

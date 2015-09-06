@@ -7,5 +7,5 @@ case class Genre(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object Genre extends tStringHelper[Genre] {
-  def build(str: String): Option[Genre] = Some(Genre(str)) // TODO : add validation
+  def build(str: String): Either[String, Genre] = Right(Genre(str)) // TODO : add validation
 }

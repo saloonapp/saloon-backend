@@ -13,7 +13,7 @@ case class OrganizationId(val id: String) extends AnyVal with tString with UUID 
 }
 object OrganizationId extends tStringHelper[OrganizationId] {
   def generate(): OrganizationId = OrganizationId(UUID.generate())
-  def build(str: String): Option[OrganizationId] = UUID.toUUID(str).map(id => OrganizationId(id))
+  def build(str: String): Either[String, OrganizationId] = UUID.toUUID(str).right.map(id => OrganizationId(id)).left.map(_ + " for OrganizationId")
 }
 
 case class OrganizationMeta(

@@ -8,7 +8,7 @@ case class UserRole(val value: String) extends AnyVal with tString {
   def getPriority: Int = UserRole.getPriority(this)
 }
 object UserRole extends tStringHelper[UserRole] {
-  def build(str: String): Option[UserRole] = Some(UserRole(str)) // TODO : add validation
+  def build(str: String): Either[String, UserRole] = Right(UserRole(str)) // TODO : add validation
   val owner = UserRole("owner")
   val admin = UserRole("admin")
   val member = UserRole("member")

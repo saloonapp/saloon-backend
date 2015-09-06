@@ -7,5 +7,5 @@ case class EventLocation(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object EventLocation extends tStringHelper[EventLocation] {
-  def build(str: String): Option[EventLocation] = Some(EventLocation(str))
+  def build(str: String): Either[String, EventLocation] = Right(EventLocation(str))
 }

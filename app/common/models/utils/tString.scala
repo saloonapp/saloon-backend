@@ -2,8 +2,12 @@ package common.models.utils
 
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import play.api.data.validation.ValidationError
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsResult
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsError
+import play.api.libs.json.JsPath
 import play.api.libs.json.JsString
 import play.api.libs.json.Reads
 import play.api.libs.json.Writes
@@ -34,17 +38,17 @@ trait tString extends Any {
   override def toString: String = this.unwrap
 }
 trait tStringHelper[T <: tString] {
-  def build(str: String): Option[T]
+  def build(str: String): Either[String, T]
   protected val buildErrKey = "error.wrongFormat"
   protected val buildErrMsg = "Wrong format"
   implicit val pathBinder = new PathBindable[T] {
-    override def bind(key: String, value: String): Either[String, T] = build(value).toRight(buildErrMsg)
+    override def bind(key: String, value: String): Either[String, T] = build(value)
     override def unbind(key: String, value: T): String = value.unwrap
   }
   implicit val queryBinder = new QueryStringBindable[T] {
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, T]] = params.get(key).map { values =>
       values match {
-        case v :: vs => build(v).toRight(buildErrMsg)
+        case v :: vs => build(v)
         case _ => Left(buildErrMsg)
       }
     }
@@ -54,12 +58,15 @@ trait tStringHelper[T <: tString] {
     def to(value: T): String = value.unwrap
   }
   implicit val jsonFormat = Format(new Reads[T] {
-    override def reads(json: JsValue): JsResult[T] = json.validate[String].map(id => build(id)).filter(_.isDefined).map(_.get)
+    override def reads(json: JsValue): JsResult[T] = json.validate[String].flatMap(id => build(id) match {
+      case Right(uuid) => JsSuccess(uuid)
+      case Left(err) => JsError(Seq((JsPath(List()), Seq(ValidationError(err)))))
+    })
   }, new Writes[T] {
     override def writes(value: T): JsValue = JsString(value.unwrap)
   })
   implicit val formMapping = new Formatter[T] {
-    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], T] = data.get(key).flatMap(build).toRight(Seq(FormError(key, buildErrKey, Nil)))
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], T] = data.get(key).map { value => build(value).left.map(msg => Seq(FormError(key, msg, Nil))) }.getOrElse(Left(Seq(FormError(key, buildErrKey, Nil))))
     override def unbind(key: String, value: T): Map[String, String] = Map(key -> value.unwrap)
   }
 }

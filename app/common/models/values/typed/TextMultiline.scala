@@ -7,5 +7,5 @@ case class TextMultiline(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object TextMultiline extends tStringHelper[TextMultiline] {
-  def build(str: String): Option[TextMultiline] = Some(TextMultiline(str))
+  def build(str: String): Either[String, TextMultiline] = Right(TextMultiline(str))
 }

@@ -7,5 +7,5 @@ case class JobTitle(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object JobTitle extends tStringHelper[JobTitle] {
-  def build(str: String): Option[JobTitle] = Some(JobTitle(str))
+  def build(str: String): Either[String, JobTitle] = Right(JobTitle(str))
 }

@@ -7,5 +7,5 @@ case class CompanyName(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object CompanyName extends tStringHelper[CompanyName] {
-  def build(str: String): Option[CompanyName] = Some(CompanyName(str))
+  def build(str: String): Either[String, CompanyName] = Right(CompanyName(str))
 }

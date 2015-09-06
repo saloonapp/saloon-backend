@@ -12,7 +12,7 @@ case class RequestId(val id: String) extends AnyVal with tString with UUID {
 }
 object RequestId extends tStringHelper[RequestId] {
   def generate(): RequestId = RequestId(UUID.generate())
-  def build(str: String): Option[RequestId] = UUID.toUUID(str).map(id => RequestId(id))
+  def build(str: String): Either[String, RequestId] = UUID.toUUID(str).right.map(id => RequestId(id)).left.map(_ + " for RequestId")
 }
 
 case class Request(

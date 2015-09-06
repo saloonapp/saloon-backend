@@ -13,7 +13,7 @@ case class DeviceId(val id: String) extends AnyVal with tString with UUID {
 }
 object DeviceId extends tStringHelper[DeviceId] {
   def generate(): DeviceId = DeviceId(UUID.generate())
-  def build(str: String): Option[DeviceId] = UUID.toUUID(str).map(id => DeviceId(id))
+  def build(str: String): Either[String, DeviceId] = UUID.toUUID(str).right.map(id => DeviceId(id)).left.map(_ + " for DeviceId")
 }
 
 case class DeviceInfo(

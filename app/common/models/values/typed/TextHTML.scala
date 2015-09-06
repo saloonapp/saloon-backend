@@ -9,6 +9,6 @@ case class TextHTML(val value: String) extends AnyVal with tString {
   def toPlainText: TextMultiline = TextHTML.toPlainText(this)
 }
 object TextHTML extends tStringHelper[TextHTML] {
-  def build(str: String): Option[TextHTML] = Some(TextHTML(str))
+  def build(str: String): Either[String, TextHTML] = Right(TextHTML(str))
   def toPlainText(html: TextHTML): TextMultiline = TextMultiline(Jsoup.parse(html.unwrap).text())
 }

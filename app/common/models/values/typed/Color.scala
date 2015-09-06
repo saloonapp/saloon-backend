@@ -7,5 +7,5 @@ case class Color(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object Color extends tStringHelper[Color] {
-  def build(str: String): Option[Color] = Some(Color(str)) // TODO : add validation
+  def build(str: String): Either[String, Color] = Right(Color(str)) // TODO : add validation
 }

@@ -179,7 +179,7 @@ object UserActions extends Controller with ControllerHelpers {
     implicit val format: String = "json"
     val res: Option[Future[Result]] = for {
       deviceIdStr <- req.headers.get("userId")
-      deviceId <- DeviceId.build(deviceIdStr)
+      deviceId <- DeviceId.build(deviceIdStr).right.toOption
       result <- Some(withDevice(deviceId)(exec))
     } yield result
     res.getOrElse(Future(BadRequest(Json.obj("message" -> "You should set 'userId' header !"))))

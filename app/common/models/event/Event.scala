@@ -21,7 +21,7 @@ case class EventId(val id: String) extends AnyVal with tString with UUID {
 }
 object EventId extends tStringHelper[EventId] {
   def generate(): EventId = EventId(UUID.generate())
-  def build(str: String): Option[EventId] = UUID.toUUID(str).map(id => EventId(id))
+  def build(str: String): Either[String, EventId] = UUID.toUUID(str).right.map(id => EventId(id)).left.map(_ + " for EventId")
 }
 
 case class EventImages(

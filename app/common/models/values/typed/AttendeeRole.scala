@@ -7,7 +7,7 @@ case class AttendeeRole(val value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object AttendeeRole extends tStringHelper[AttendeeRole] {
-  def build(str: String): Option[AttendeeRole] = Some(AttendeeRole(str)) // TODO : add validation
+  def build(str: String): Either[String, AttendeeRole] = Right(AttendeeRole(str)) // TODO : add validation
   val staff = AttendeeRole("staff")
   val exposant = AttendeeRole("exposant")
   val speaker = AttendeeRole("speaker")

@@ -10,5 +10,5 @@ trait UUID extends Any with tString {
 }
 object UUID {
   def generate(): String = java.util.UUID.randomUUID().toString()
-  def toUUID(str: String): Option[String] = Try(java.util.UUID.fromString(str)).toOption.map(_.toString)
+  def toUUID(str: String): Either[String, String] = Try(java.util.UUID.fromString(str)).toOption.map(uuid => Right(uuid.toString())).getOrElse(Left(s"Incorrect UUID <$str>"))
 }

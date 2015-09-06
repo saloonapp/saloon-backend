@@ -21,7 +21,7 @@ case class ExponentId(val id: String) extends AnyVal with tString with UUID {
 }
 object ExponentId extends tStringHelper[ExponentId] {
   def generate(): ExponentId = ExponentId(UUID.generate())
-  def build(str: String): Option[ExponentId] = UUID.toUUID(str).map(id => ExponentId(id))
+  def build(str: String): Either[String, ExponentId] = UUID.toUUID(str).right.map(id => ExponentId(id)).left.map(_ + " for ExponentId")
 }
 
 case class ExponentImages(
