@@ -1,8 +1,10 @@
 package admin.controllers
 
 import common.models.user.Device
+import common.models.user.DeviceId
 import common.models.user.DeviceData
 import common.models.user.UserAction
+import common.models.user.UserActionId
 import common.models.values.GenericId
 import common.models.utils.Page
 import common.repositories.Repository
@@ -19,7 +21,7 @@ import reactivemongo.core.commands.LastError
 
 object Devices extends SilhouetteEnvironment {
   val form: Form[DeviceData] = Form(DeviceData.fields)
-  val repository: Repository[Device, String] = DeviceRepository
+  val repository: Repository[Device, DeviceId] = DeviceRepository
   val mainRoute = routes.Devices
   val viewList = admin.views.html.Devices.list
   val viewDetails = admin.views.html.Devices.details
@@ -58,7 +60,7 @@ object Devices extends SilhouetteEnvironment {
       })
   }
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(uuid: DeviceId) = SecuredAction.async { implicit req =>
     for {
       deviceOpt <- repository.getByUuid(uuid)
       actions <- DeviceSrv.getActionsForUser(uuid)
@@ -69,7 +71,7 @@ object Devices extends SilhouetteEnvironment {
     }
   }
 
-  def update(uuid: String) = SecuredAction.async { implicit req =>
+  def update(uuid: DeviceId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         Ok(viewUpdate(form.fill(toData(elt)), elt))
@@ -77,7 +79,7 @@ object Devices extends SilhouetteEnvironment {
     }
   }
 
-  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
+  def doUpdate(uuid: DeviceId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
@@ -91,7 +93,7 @@ object Devices extends SilhouetteEnvironment {
     }
   }
 
-  def delete(uuid: String) = SecuredAction.async { implicit req =>
+  def delete(uuid: DeviceId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -100,7 +102,7 @@ object Devices extends SilhouetteEnvironment {
     }
   }
 
-  def deleteAction(deviceId: String, itemType: String, itemId: GenericId, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
+  def deleteAction(deviceId: DeviceId, itemType: String, itemId: GenericId, actionType: String, actionId: UserActionId) = SecuredAction.async { implicit req =>
     repository.getByUuid(deviceId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =

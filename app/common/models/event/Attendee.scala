@@ -19,7 +19,7 @@ case class AttendeeId(val id: String) extends AnyVal with tString with UUID {
 }
 object AttendeeId extends tStringHelper[AttendeeId] {
   def generate(): AttendeeId = AttendeeId(UUID.generate())
-  protected def build(str: String): Option[AttendeeId] = UUID.toUUID(str).map(id => AttendeeId(id))
+  def build(str: String): Option[AttendeeId] = UUID.toUUID(str).map(id => AttendeeId(id))
 }
 
 case class AttendeeImages(

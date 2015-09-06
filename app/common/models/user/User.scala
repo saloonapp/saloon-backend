@@ -1,15 +1,24 @@
 package common.models.user
 
-import common.repositories.Repository
-import java.util.UUID
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 import com.mohiva.play.silhouette.core.Identity
 import com.mohiva.play.silhouette.core.LoginInfo
 
+case class UserId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object UserId extends tStringHelper[UserId] {
+  def generate(): UserId = UserId(UUID.generate())
+  def build(str: String): Option[UserId] = UUID.toUUID(str).map(id => UserId(id))
+}
+
 case class UserOrganization(
-  organizationId: String,
+  organizationId: OrganizationId,
   role: String)
 object UserOrganization {
   val owner = "owner"
@@ -34,7 +43,7 @@ case class UserMeta(
   created: DateTime,
   updated: DateTime)
 case class User(
-  uuid: String = Repository.generateUuid(),
+  uuid: UserId = UserId.generate(),
   organizationIds: List[UserOrganization] = List(),
   loginInfo: LoginInfo,
   email: String,
@@ -42,8 +51,8 @@ case class User(
   rights: Map[String, Boolean] = Map(),
   meta: UserMeta = UserMeta(new DateTime(), new DateTime())) extends Identity {
   def name(): String = this.info.firstName + " " + this.info.lastName
-  def organizationRole(uuid: String): Option[String] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
-  def canAdministrateOrganization(uuid: String): Boolean = this.organizationRole(uuid).map(_ == UserOrganization.owner).getOrElse(false)
+  def organizationRole(uuid: OrganizationId): Option[String] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
+  def canAdministrateOrganization(uuid: OrganizationId): Boolean = this.organizationRole(uuid).map(_ == UserOrganization.owner).getOrElse(false)
   def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
   def canCreateEvent(): Boolean = hasRight(UserRight.createEvent)
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)
@@ -79,7 +88,7 @@ object UserData {
     "rights" -> list(text))(UserData.apply)(UserData.unapply)
   val rights: Seq[(String, String)] = UserRight.all.map(r => (r.key, r.label))
 
-  def toModel(d: UserData): User = User(Repository.generateUuid(), List(), LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
+  def toModel(d: UserData): User = User(UserId.generate(), List(), LoginInfo("", ""), d.email, d.info, toRights(d.rights), UserMeta(new DateTime(), new DateTime()))
   def fromModel(d: User): UserData = UserData(d.email, d.info, fromRights(d.rights))
   def merge(m: User, d: UserData): User = toModel(d).copy(uuid = m.uuid, organizationIds = m.organizationIds, loginInfo = m.loginInfo, meta = UserMeta(m.meta.created, new DateTime()))
 

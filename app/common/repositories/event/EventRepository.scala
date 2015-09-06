@@ -1,6 +1,7 @@
 package common.repositories.event
 
 import common.models.utils.Page
+import common.models.user.OrganizationId
 import common.models.event.Event
 import common.models.event.EventId
 import common.repositories.Repository
@@ -55,7 +56,7 @@ trait MongoDbEventRepository extends Repository[Event, EventId] {
   }
 
   def findByUuids(eventIds: List[EventId]): Future[List[Event]] = crud.findByUuids(eventIds.map(_.unwrap))
-  def findForOrganizations(uuids: List[String]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> uuids)))
+  def findForOrganizations(organizationIds: List[OrganizationId]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> organizationIds.map(_.unwrap))))
   def bulkInsert(elts: List[Event]): Future[Int] = crud.bulkInsert(elts)
   def drop(): Future[Boolean] = crud.drop()
 }

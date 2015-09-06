@@ -11,8 +11,8 @@ POST      /contact                                                              
 GET       /login                                                                            authentication.controllers.Auth.login
 POST      /login                                                                            authentication.controllers.Auth.doLogin
 POST      /accountRequest                                                                   authentication.controllers.Auth.doAccountRequest
-GET       /createAccount/:requestId                                                         authentication.controllers.Auth.createAccount(requestId: String)
-POST      /createAccount/:requestId                                                         authentication.controllers.Auth.doCreateAccount(requestId: String)
+GET       /createAccount/:requestId                                                         authentication.controllers.Auth.createAccount(requestId: RequestId)
+POST      /createAccount/:requestId                                                         authentication.controllers.Auth.doCreateAccount(requestId: RequestId)
 GET       /logout                                                                           authentication.controllers.Auth.logout
 
 # Backend
@@ -34,14 +34,14 @@ GET       /backend/profile/edit                                                 
 POST      /backend/profile                                                                  backend.controllers.Profile.doUpdate
 POST      /backend/profile/organizations/create                                             backend.controllers.Profile.doCreateOrganization
 POST      /backend/profile/organizations/requestAccess                                      backend.controllers.Profile.doOrganizationRequestAccess
-GET       /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.details(organizationId: String)
-POST      /backend/profile/organizations/:organizationId/invite                             backend.controllers.Organizations.doOrganizationInvite(organizationId: String)
-GET       /backend/profile/organizations/:organizationId/edit                               backend.controllers.Organizations.update(organizationId: String)
-POST      /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.doUpdate(organizationId: String)
-GET       /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.delete(organizationId: String)
-POST      /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.doDelete(organizationId: String)
-POST      /backend/profile/organizations/:organizationId/leave                              backend.controllers.Organizations.doLeave(organizationId: String)
-POST      /backend/profile/organizations/:organizationId/ban/:userId                        backend.controllers.Organizations.doBan(organizationId: String, userId: String)
+GET       /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.details(organizationId: OrganizationId)
+POST      /backend/profile/organizations/:organizationId/invite                             backend.controllers.Organizations.doOrganizationInvite(organizationId: OrganizationId)
+GET       /backend/profile/organizations/:organizationId/edit                               backend.controllers.Organizations.update(organizationId: OrganizationId)
+POST      /backend/profile/organizations/:organizationId                                    backend.controllers.Organizations.doUpdate(organizationId: OrganizationId)
+GET       /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.delete(organizationId: OrganizationId)
+POST      /backend/profile/organizations/:organizationId/delete                             backend.controllers.Organizations.doDelete(organizationId: OrganizationId)
+POST      /backend/profile/organizations/:organizationId/leave                              backend.controllers.Organizations.doLeave(organizationId: OrganizationId)
+POST      /backend/profile/organizations/:organizationId/ban/:userId                        backend.controllers.Organizations.doBan(organizationId: OrganizationId, userId: UserId)
 
 GET       /backend/events                                                                   backend.controllers.Events.list
 GET       /backend/events/create                                                            backend.controllers.Events.create
@@ -94,11 +94,11 @@ POST      /backend/events/:eventId/ticketing/desactivate                        
 GET       /events/:eventId/register                                                         backend.controllers.Ticketing.register(eventId: EventId)
 POST      /events/:eventId/register                                                         backend.controllers.Ticketing.doRegister(eventId: EventId)
 
-GET       /backend/requests/:requestId                                                      backend.controllers.Requests.details(requestId: String)
-POST      /backend/requests/:requestId/reminder                                             backend.controllers.Requests.doReminder(requestId: String)
-POST      /backend/requests/:requestId/cancel                                               backend.controllers.Requests.doCancel(requestId: String)
-GET       /backend/requests/:requestId/accept                                               backend.controllers.Requests.doAccept(requestId: String, redirection: Option[String] ?= None)
-GET       /backend/requests/:requestId/reject                                               backend.controllers.Requests.doReject(requestId: String, redirection: Option[String] ?= None)
+GET       /backend/requests/:requestId                                                      backend.controllers.Requests.details(requestId: RequestId)
+POST      /backend/requests/:requestId/reminder                                             backend.controllers.Requests.doReminder(requestId: RequestId)
+POST      /backend/requests/:requestId/cancel                                               backend.controllers.Requests.doCancel(requestId: RequestId)
+GET       /backend/requests/:requestId/accept                                               backend.controllers.Requests.doAccept(requestId: RequestId, redirection: Option[String] ?= None)
+GET       /backend/requests/:requestId/reject                                               backend.controllers.Requests.doReject(requestId: RequestId, redirection: Option[String] ?= None)
 
 GET       /backend/sample                                                                   backend.controllers.Sample.index
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
@@ -122,9 +122,9 @@ GET       /admin/events/:eventId/refresh                                        
 POST      /admin/events/:eventId/refresh                                                    admin.controllers.Events.doRefresh(eventId: EventId)
 POST      /admin/events/:eventId/delete                                                     admin.controllers.Events.delete(eventId: EventId)
 GET       /admin/events/:eventId/reports                                                    admin.controllers.Events.reportsPreview(eventId: EventId)
-GET       /admin/events/:eventId/reports/:userId                                            admin.controllers.Events.report(eventId: EventId, userId: String)
+GET       /admin/events/:eventId/reports/:deviceId                                          admin.controllers.Events.report(eventId: EventId, deviceId: DeviceId)
 POST      /admin/events/:eventId/reports                                                    admin.controllers.Events.sendReports(eventId: EventId)
-POST      /admin/events/:eventId/reports/:userId                                            admin.controllers.Events.sendReport(eventId: EventId, userId: String)
+POST      /admin/events/:eventId/reports/:deviceId                                          admin.controllers.Events.sendReport(eventId: EventId, deviceId: DeviceId)
 
 GET       /admin/events/:eventId/attendees                                                  admin.controllers.Attendees.list(eventId: EventId, query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /admin/events/:eventId/attendees/create                                           admin.controllers.Attendees.create(eventId: EventId)
@@ -159,39 +159,39 @@ POST      /admin/events/:eventId/exponents/:exponentId/delete                   
 GET       /admin/organizations                                                              admin.controllers.Organizations.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /admin/organizations/create                                                       admin.controllers.Organizations.create
 POST      /admin/organizations                                                              admin.controllers.Organizations.doCreate
-GET       /admin/organizations/:organizationId                                              admin.controllers.Organizations.details(organizationId: String)
-GET       /admin/organizations/:organizationId/edit                                         admin.controllers.Organizations.update(organizationId: String)
-POST      /admin/organizations/:organizationId                                              admin.controllers.Organizations.doUpdate(organizationId: String)
-POST      /admin/organizations/:organizationId/delete                                       admin.controllers.Organizations.delete(organizationId: String)
+GET       /admin/organizations/:organizationId                                              admin.controllers.Organizations.details(organizationId: OrganizationId)
+GET       /admin/organizations/:organizationId/edit                                         admin.controllers.Organizations.update(organizationId: OrganizationId)
+POST      /admin/organizations/:organizationId                                              admin.controllers.Organizations.doUpdate(organizationId: OrganizationId)
+POST      /admin/organizations/:organizationId/delete                                       admin.controllers.Organizations.delete(organizationId: OrganizationId)
 
 GET       /admin/users                                                                      admin.controllers.Users.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /admin/users/create                                                               admin.controllers.Users.create
 POST      /admin/users                                                                      admin.controllers.Users.doCreate
-GET       /admin/users/:userId                                                              admin.controllers.Users.details(userId: String)
-GET       /admin/users/:userId/edit                                                         admin.controllers.Users.update(userId: String)
-POST      /admin/users/:userId                                                              admin.controllers.Users.doUpdate(userId: String)
-POST      /admin/users/:userId/delete                                                       admin.controllers.Users.delete(userId: String)
+GET       /admin/users/:userId                                                              admin.controllers.Users.details(userId: UserId)
+GET       /admin/users/:userId/edit                                                         admin.controllers.Users.update(userId: UserId)
+POST      /admin/users/:userId                                                              admin.controllers.Users.doUpdate(userId: UserId)
+POST      /admin/users/:userId/delete                                                       admin.controllers.Users.delete(userId: UserId)
 
 GET       /admin/devices                                                                    admin.controllers.Devices.list(query: Option[String] ?= None, page: Option[Int] ?= None, pageSize: Option[Int] ?= None, sort: Option[String] ?= None)
 GET       /admin/devices/create                                                             admin.controllers.Devices.create
 POST      /admin/devices                                                                    admin.controllers.Devices.doCreate
-GET       /admin/devices/:deviceId                                                          admin.controllers.Devices.details(deviceId: String)
-GET       /admin/devices/:deviceId/edit                                                     admin.controllers.Devices.update(deviceId: String)
-POST      /admin/devices/:deviceId                                                          admin.controllers.Devices.doUpdate(deviceId: String)
-POST      /admin/devices/:deviceId/delete                                                   admin.controllers.Devices.delete(deviceId: String)
-POST      /admin/devices/:deviceId/actions/:itemType/:itemId/:actionType/:actionId/delete   admin.controllers.Devices.deleteAction(deviceId: String, itemType: String, itemId: GenericId, actionType: String, actionId: String)
+GET       /admin/devices/:deviceId                                                          admin.controllers.Devices.details(deviceId: DeviceId)
+GET       /admin/devices/:deviceId/edit                                                     admin.controllers.Devices.update(deviceId: DeviceId)
+POST      /admin/devices/:deviceId                                                          admin.controllers.Devices.doUpdate(deviceId: DeviceId)
+POST      /admin/devices/:deviceId/delete                                                   admin.controllers.Devices.delete(deviceId: DeviceId)
+POST      /admin/devices/:deviceId/actions/:itemType/:itemId/:actionType/:actionId/delete   admin.controllers.Devices.deleteAction(deviceId: DeviceId, itemType: String, itemId: GenericId, actionType: String, actionId: UserActionId)
 
 GET       /admin/crashs                                                                     admin.controllers.Crashs.list
 GET       /admin/crashs/:crashId                                                            admin.controllers.Crashs.details(crashId: String)
 POST      /admin/crashs/:crashId/solved                                                     admin.controllers.Crashs.solved(crashId: String)
 
 # Api
-GET       /api/v1/users/find                                                                api.controllers.Devices.find(deviceId: String)
+GET       /api/v1/users/find                                                                api.controllers.Devices.find(deviceUuid: String)
 POST      /api/v1/users                                                                     api.controllers.Devices.create
-GET       /api/v1/users/:userId                                                             api.controllers.Devices.details(userId: String)
-GET       /api/v1/users/:userId/actions                                                     api.controllers.Devices.actions(userId: String)
-GET       /api/v1/users/:userId/actions/:eventId                                            api.controllers.Devices.eventActions(userId: String, eventId: EventId)
-POST      /api/v1/users/:userId/actions/:eventId/sync                                       api.controllers.UserActions.syncEventActions(userId: String, eventId: EventId)
+GET       /api/v1/users/:deviceId                                                           api.controllers.Devices.details(deviceId: DeviceId)
+GET       /api/v1/users/:deviceId/actions                                                   api.controllers.Devices.actions(deviceId: DeviceId)
+GET       /api/v1/users/:deviceId/actions/:eventId                                          api.controllers.Devices.eventActions(deviceId: DeviceId, eventId: EventId)
+POST      /api/v1/users/:deviceId/actions/:eventId/sync                                     api.controllers.UserActions.syncEventActions(deviceId: DeviceId, eventId: EventId)
 
 GET       /api/:version/events                                                              api.controllers.Events.list(query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None, version: String)
 GET       /api/:version/events/all                                                          api.controllers.Events.listAll(query: Option[String] ?= None, sort: Option[String] ?= None, version: String)
@@ -210,8 +210,8 @@ DELETE    /api/v1/events/:eventId/sessions/:sessionId/dones                     
 POST      /api/v1/events/:eventId/sessions/:sessionId/mood                                  api.controllers.UserActions.mood(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId)
 DELETE    /api/v1/events/:eventId/sessions/:sessionId/mood                                  api.controllers.UserActions.deleteMood(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId)
 POST      /api/v1/events/:eventId/sessions/:sessionId/comments                              api.controllers.UserActions.createComment(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId)
-PUT       /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId                   api.controllers.UserActions.updateComment(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId, commentId: String)
-DELETE    /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId                   api.controllers.UserActions.deleteComment(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId, commentId: String)
+PUT       /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId                   api.controllers.UserActions.updateComment(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId, commentId: UserActionId)
+DELETE    /api/v1/events/:eventId/sessions/:sessionId/comments/:commentId                   api.controllers.UserActions.deleteComment(eventId: EventId, itemType: String = common.models.event.Session.className, sessionId: GenericId, commentId: UserActionId)
 
 GET       /api/:version/events/:eventId/exponents                                           api.controllers.Exponents.list(eventId: EventId, query: Option[String] ?= None, page: Option[Int] ?= None, sort: Option[String] ?= None, version: String)
 GET       /api/:version/events/:eventId/exponents/all                                       api.controllers.Exponents.listAll(eventId: EventId, version: String)
@@ -223,8 +223,8 @@ DELETE    /api/v1/events/:eventId/exponents/:exponentId/dones                   
 POST      /api/v1/events/:eventId/exponents/:exponentId/mood                                api.controllers.UserActions.mood(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId)
 DELETE    /api/v1/events/:eventId/exponents/:exponentId/mood                                api.controllers.UserActions.deleteMood(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId)
 POST      /api/v1/events/:eventId/exponents/:exponentId/comments                            api.controllers.UserActions.createComment(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId)
-PUT       /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId                 api.controllers.UserActions.updateComment(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId, commentId: String)
-DELETE    /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId                 api.controllers.UserActions.deleteComment(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId, commentId: String)
+PUT       /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId                 api.controllers.UserActions.updateComment(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId, commentId: UserActionId)
+DELETE    /api/v1/events/:eventId/exponents/:exponentId/comments/:commentId                 api.controllers.UserActions.deleteComment(eventId: EventId, itemType: String = Exponent.className, exponentId: GenericId, commentId: UserActionId)
 
 GET       /api/v1/tools/crashs                                                              api.controllers.Crashs.getAll()
 POST      /api/v1/tools/crashs                                                              api.controllers.Crashs.receive()

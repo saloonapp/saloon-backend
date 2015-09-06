@@ -3,6 +3,7 @@ package common.services
 import common.models.event.Event
 import common.models.event.EventId
 import common.models.event.EventItem
+import common.models.user.DeviceId
 import common.models.user.UserAction
 import common.repositories.user.UserActionRepository
 import common.repositories.event.EventRepository
@@ -12,8 +13,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object DeviceSrv {
 
-  def getActionsForUser(userId: String): Future[Map[Option[Event], List[(Option[EventItem], UserAction)]]] = {
-    UserActionRepository.findByUser(userId).flatMap { actions =>
+  def getActionsForUser(deviceId: DeviceId): Future[Map[Option[Event], List[(Option[EventItem], UserAction)]]] = {
+    UserActionRepository.findByUser(deviceId).flatMap { actions =>
       val groupedActions: Map[EventId, List[UserAction]] = actions.groupBy(_.eventId.getOrElse(EventId("unknown")))
       val mapFuture = groupedActions.map {
         case (eventId, actions) => for {

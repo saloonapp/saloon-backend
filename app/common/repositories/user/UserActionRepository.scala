@@ -1,7 +1,9 @@
 package common.repositories.user
 
 import common.models.event.EventId
+import common.models.user.DeviceId
 import common.models.user.UserAction
+import common.models.user.UserActionId
 import common.models.user.FavoriteUserAction
 import common.models.user.DoneUserAction
 import common.models.user.MoodUserAction
@@ -28,52 +30,52 @@ trait MongoDbUserActionRepository {
 
   private val crud = MongoDbCrudUtils(collection, UserAction.format, List("action.text"), "uuid")
 
-  def findByUser(userId: String): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId))
+  def findByUser(deviceId: DeviceId): Future[List[UserAction]] = crud.find(Json.obj("userId" -> deviceId.unwrap))
   def findByEvent(eventId: EventId): Future[List[UserAction]] = crud.find(Json.obj("eventId" -> eventId.unwrap))
-  def findByUserEvent(userId: String, eventId: EventId): Future[List[UserAction]] = crud.find(Json.obj("userId" -> userId, "eventId" -> eventId.unwrap), Json.obj("created" -> 1))
+  def findByUserEvent(deviceId: DeviceId, eventId: EventId): Future[List[UserAction]] = crud.find(Json.obj("userId" -> deviceId.unwrap, "eventId" -> eventId.unwrap), Json.obj("created" -> 1))
 
-  def getFavorite(userId: String, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(FavoriteUserAction.className)(userId, itemType, itemId)
-  def insertFavorite(userId: String, itemType: String, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.favorite(userId, itemType, itemId, eventId, time))
-  def deleteFavorite(userId: String, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(FavoriteUserAction.className)(userId, itemType, itemId)
+  def getFavorite(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(FavoriteUserAction.className)(deviceId, itemType, itemId)
+  def insertFavorite(deviceId: DeviceId, itemType: String, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.favorite(deviceId, itemType, itemId, eventId, time))
+  def deleteFavorite(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(FavoriteUserAction.className)(deviceId, itemType, itemId)
 
-  def getDone(userId: String, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(DoneUserAction.className)(userId, itemType, itemId)
-  def insertDone(userId: String, itemType: String, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.done(userId, itemType, itemId, eventId, time))
-  def deleteDone(userId: String, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(DoneUserAction.className)(userId, itemType, itemId)
+  def getDone(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(DoneUserAction.className)(deviceId, itemType, itemId)
+  def insertDone(deviceId: DeviceId, itemType: String, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.done(deviceId, itemType, itemId, eventId, time))
+  def deleteDone(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(DoneUserAction.className)(deviceId, itemType, itemId)
 
-  def getMood(userId: String, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(MoodUserAction.className)(userId, itemType, itemId)
-  def setMood(rating: String)(userId: String, itemType: String, itemId: GenericId, eventId: EventId, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
-    val elt = oldElt.map(e => e.withContent(MoodUserAction(rating), time)).getOrElse(UserAction.mood(userId, itemType, itemId, rating, eventId, time))
-    crud.upsert(Json.obj("userId" -> userId, "action." + MoodUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
+  def getMood(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(MoodUserAction.className)(deviceId, itemType, itemId)
+  def setMood(rating: String)(deviceId: DeviceId, itemType: String, itemId: GenericId, eventId: EventId, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
+    val elt = oldElt.map(e => e.withContent(MoodUserAction(rating), time)).getOrElse(UserAction.mood(deviceId, itemType, itemId, rating, eventId, time))
+    crud.upsert(Json.obj("userId" -> deviceId.unwrap, "action." + MoodUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
-  def deleteMood(userId: String, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(MoodUserAction.className)(userId, itemType, itemId)
+  def deleteMood(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(MoodUserAction.className)(deviceId, itemType, itemId)
 
-  def getComment(userId: String, itemType: String, itemId: GenericId, uuid: String): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
-  def insertComment(userId: String, itemType: String, itemId: GenericId, text: String, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.comment(userId, itemType, itemId, text, eventId, time))
-  def updateComment(userId: String, itemType: String, itemId: GenericId, uuid: String, oldElt: UserAction, text: String, time: Option[DateTime] = None): Future[Option[UserAction]] = {
+  def getComment(deviceId: DeviceId, itemType: String, itemId: GenericId, uuid: UserActionId): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
+  def insertComment(deviceId: DeviceId, itemType: String, itemId: GenericId, text: String, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.comment(deviceId, itemType, itemId, text, eventId, time))
+  def updateComment(deviceId: DeviceId, itemType: String, itemId: GenericId, uuid: UserActionId, oldElt: UserAction, text: String, time: Option[DateTime] = None): Future[Option[UserAction]] = {
     val elt = oldElt.withContent(CommentUserAction(text), time)
-    crud.update(Json.obj("userId" -> userId, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid), elt).map { err => if (err.ok) Some(elt) else None }
+    crud.update(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
-  def deleteComment(userId: String, itemType: String, itemId: GenericId, uuid: String): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
+  def deleteComment(deviceId: DeviceId, itemType: String, itemId: GenericId, uuid: UserActionId): Future[LastError] = crud.delete(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
 
-  def getSubscribe(userId: String, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(SubscribeUserAction.className)(userId, itemType, itemId)
+  def getSubscribe(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[Option[UserAction]] = getAction(SubscribeUserAction.className)(deviceId, itemType, itemId)
   def findSubscribes(itemType: String, itemId: GenericId): Future[List[UserAction]] = crud.find(Json.obj("action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
-  def setSubscribe(email: String, filter: String)(userId: String, itemType: String, itemId: GenericId, eventId: EventId, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
-    val elt = oldElt.map(e => e.withContent(SubscribeUserAction(email, filter), time)).getOrElse(UserAction.subscribe(userId, itemType, itemId, email, filter, eventId, time))
-    crud.upsert(Json.obj("userId" -> userId, "action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
+  def setSubscribe(email: String, filter: String)(deviceId: DeviceId, itemType: String, itemId: GenericId, eventId: EventId, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
+    val elt = oldElt.map(e => e.withContent(SubscribeUserAction(email, filter), time)).getOrElse(UserAction.subscribe(deviceId, itemType, itemId, email, filter, eventId, time))
+    crud.upsert(Json.obj("userId" -> deviceId.unwrap, "action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
-  def deleteSubscribe(userId: String, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(SubscribeUserAction.className)(userId, itemType, itemId)
+  def deleteSubscribe(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[LastError] = deleteAction(SubscribeUserAction.className)(deviceId, itemType, itemId)
 
   def countForEvent(eventId: EventId): Future[Int] = crud.countFor("eventId", eventId.unwrap)
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
   def bulkInsert(elts: List[UserAction]): Future[Int] = crud.bulkInsert(elts)
-  def deleteByEventUser(eventId: EventId, userId: String): Future[LastError] = collection.remove(Json.obj("eventId" -> eventId.unwrap, "userId" -> userId))
+  def deleteByEventUser(eventId: EventId, deviceId: DeviceId): Future[LastError] = collection.remove(Json.obj("eventId" -> eventId.unwrap, "userId" -> deviceId.unwrap))
 
   def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
   def deleteByItem(itemType: String, itemId: String): Future[LastError] = collection.remove(Json.obj("itemType" -> itemType, "itemId" -> itemId))
-  def deleteByUser(userId: String): Future[LastError] = crud.deleteBy("userId", userId)
+  def deleteByUser(deviceId: DeviceId): Future[LastError] = crud.deleteBy("userId", deviceId.unwrap)
 
-  private def getAction(actionType: String)(userId: String, itemType: String, itemId: GenericId): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> userId, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
+  private def getAction(actionType: String)(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> deviceId.unwrap, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
   private def insertAction(action: UserAction): Future[Option[UserAction]] = crud.insert(action).map { err => if (err.ok) Some(action) else None }
-  private def deleteAction(actionType: String)(userId: String, itemType: String, itemId: GenericId): Future[LastError] = crud.delete(Json.obj("userId" -> userId, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
+  private def deleteAction(actionType: String)(deviceId: DeviceId, itemType: String, itemId: GenericId): Future[LastError] = crud.delete(Json.obj("userId" -> deviceId.unwrap, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
 }
 object UserActionRepository extends MongoDbUserActionRepository

@@ -9,6 +9,7 @@ import common.models.event.EventId
 import common.models.event.EventData
 import common.models.event.Session
 import common.models.event.Exponent
+import common.models.user.DeviceId
 import common.models.user.SubscribeUserAction
 import common.models.values.GenericId
 import common.models.utils.Page
@@ -121,30 +122,30 @@ object Events extends SilhouetteEnvironment {
     }
   }
 
-  def report(eventId: EventId, userId: String) = SecuredAction.async { implicit req =>
-    EmailSrv.generateEventReport(eventId, userId).map {
+  def report(eventId: EventId, deviceId: DeviceId) = SecuredAction.async { implicit req =>
+    EmailSrv.generateEventReport(eventId, deviceId).map {
       _.map { email =>
         Ok(play.twirl.api.Html(email.html))
-      }.getOrElse(NotFound(admin.views.html.error(s"User $userId didn't subscribe to event $eventId")))
+      }.getOrElse(NotFound(admin.views.html.error(s"Device $deviceId didn't subscribe to event $eventId")))
     }
   }
 
-  def sendReport(eventId: EventId, userId: String) = SecuredAction.async { implicit req =>
-    UserActionRepository.getSubscribe(userId, Event.className, eventId).flatMap {
+  def sendReport(eventId: EventId, deviceId: DeviceId) = SecuredAction.async { implicit req =>
+    UserActionRepository.getSubscribe(deviceId, Event.className, eventId).flatMap {
       _.map {
         _.action match {
           case SubscribeUserAction(email, filter, subscribe) => {
-            EmailSrv.generateEventReport(eventId, userId).flatMap {
+            EmailSrv.generateEventReport(eventId, deviceId).flatMap {
               _.map { emailData =>
                 MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
                   Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
                 }
-              }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+              }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $deviceId didn't subscribe to event $eventId")))
             }
           }
-          case _ => Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId"))
+          case _ => Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $deviceId didn't subscribe to event $eventId"))
         }
-      }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $userId didn't subscribe to event $eventId")))
+      }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $deviceId didn't subscribe to event $eventId")))
     }
   }
 

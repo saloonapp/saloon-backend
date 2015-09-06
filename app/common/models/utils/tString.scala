@@ -9,6 +9,7 @@ import play.api.libs.json.Reads
 import play.api.libs.json.Writes
 import play.api.libs.json.Format
 import play.api.mvc.PathBindable
+import play.api.mvc.QueryStringBindable
 
 /*
  * tString is for typed String
@@ -31,11 +32,20 @@ trait tString extends Any {
   override def toString: String = this.unwrap
 }
 trait tStringHelper[T <: tString] {
-  protected def build(str: String): Option[T]
+  def build(str: String): Option[T]
   protected val buildErrKey = "error.wrongFormat"
   protected val buildErrMsg = "Wrong format"
   implicit val pathBinder = new PathBindable[T] {
     override def bind(key: String, value: String): Either[String, T] = build(value).toRight(buildErrMsg)
+    override def unbind(key: String, value: T): String = value.unwrap
+  }
+  implicit val queryBinder = new QueryStringBindable[T] {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, T]] = params.get(key).map { values =>
+      values match {
+        case v :: vs => build(v).toRight(buildErrMsg)
+        case _ => Left(buildErrMsg)
+      }
+    }
     override def unbind(key: String, value: T): String = value.unwrap
   }
   implicit val jsonFormat = Format(new Reads[T] {

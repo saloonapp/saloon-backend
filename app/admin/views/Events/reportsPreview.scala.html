@@ -1,6 +1,7 @@
+@import common.models.user.DeviceId
 @import common.models.event.EventId
 @import common.models.user.SubscribeUserAction
-@(eventId: EventId, users: List[(String, SubscribeUserAction)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(eventId: EventId, users: List[(DeviceId, SubscribeUserAction)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @admin.views.html.layout("Bilans"){
 	<div class="row">

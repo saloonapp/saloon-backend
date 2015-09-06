@@ -1,8 +1,10 @@
 package backend.controllers
 
 import common.models.user.User
+import common.models.user.UserId
 import common.models.user.UserOrganization
 import common.models.user.Request
+import common.models.user.OrganizationId
 import common.models.user.OrganizationInvite
 import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository
@@ -23,7 +25,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
   val organizationInviteForm = Form(tuple("email" -> email, "comment" -> optional(text)))
 
-  def details(organizationId: String) = SecuredAction.async { implicit req =>
+  def details(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     user.organizationRole(organizationId).map { role =>
       withOrganization(organizationId) { organization =>
@@ -40,14 +42,14 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def update(organizationId: String) = SecuredAction.async { implicit req =>
+  def update(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withOrganization(organizationId) { organization =>
       Future(Ok(backend.views.html.Profile.Organizations.update(organizationForm.fill(OrganizationData.fromModel(organization)), organization)))
     }
   }
 
-  def doUpdate(organizationId: String) = SecuredAction.async { implicit req =>
+  def doUpdate(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withOrganization(organizationId) { organization =>
       organizationForm.bindFromRequest.fold(
@@ -75,7 +77,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
    *    	-> don't allow to delete an organization with events (they should be moved to an other organization before)
    * 	- notify all members that the organization is deleted
    */
-  def delete(organizationId: String) = SecuredAction.async { implicit req =>
+  def delete(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateOrganization(organizationId)) {
       withOrganization(organizationId) { organization =>
@@ -86,7 +88,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doDelete(organizationId: String) = SecuredAction.async { implicit req =>
+  def doDelete(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateOrganization(organizationId)) {
       withOrganization(organizationId) { organization =>
@@ -105,7 +107,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doOrganizationInvite(organizationId: String) = SecuredAction.async { implicit req =>
+  def doOrganizationInvite(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     organizationInviteForm.bindFromRequest.fold(
       formWithErrors => Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Email non valide.")),
@@ -121,7 +123,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   }
 
   // when the user leave an organization
-  def doLeave(organizationId: String) = SecuredAction.async { implicit req =>
+  def doLeave(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateOrganization(organizationId)) {
       Future(Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("error" -> "Impossible de quitter une organisation dont vous êtes le responsable."))
@@ -147,7 +149,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   }
 
   // when the organization owner ban a member
-  def doBan(organizationId: String, userId: String) = SecuredAction.async { implicit req =>
+  def doBan(organizationId: OrganizationId, userId: UserId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateOrganization(organizationId)) {
       val res: Future[Future[Result]] = for {
@@ -178,7 +180,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
    * Private methods
    */
 
-  private def getOrganizationRequests(organizationId: String): Future[List[(Request, User)]] = {
+  private def getOrganizationRequests(organizationId: OrganizationId): Future[List[(Request, User)]] = {
     for {
       requests <- RequestRepository.findPendingOrganizationRequestsByOrganization(organizationId)
       users <- UserRepository.findByUuids(requests.map(_.userId).flatten)
@@ -191,7 +193,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def getOrganizationInvites(organizationId: String): Future[List[(Request, Option[User])]] = {
+  private def getOrganizationInvites(organizationId: OrganizationId): Future[List[(Request, Option[User])]] = {
     for {
       requests <- RequestRepository.findPendingOrganizationInvitesByOrganization(organizationId)
       users <- UserRepository.findByEmails(requests.map {
@@ -210,7 +212,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def organizationInvite(organizationId: String, email: String, comment: Option[String], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
+  private def organizationInvite(organizationId: OrganizationId, email: String, comment: Option[String], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
     val request = Request.organizationInvite(organizationId, email, comment, user)
     val res = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)

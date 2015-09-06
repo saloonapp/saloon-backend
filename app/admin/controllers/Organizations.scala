@@ -2,6 +2,7 @@ package admin.controllers
 
 import common.models.utils.Page
 import common.models.user.Organization
+import common.models.user.OrganizationId
 import common.models.user.OrganizationData
 import common.repositories.Repository
 import common.repositories.user.OrganizationRepository
@@ -16,7 +17,7 @@ import reactivemongo.core.commands.LastError
 
 object Organizations extends SilhouetteEnvironment {
   val form: Form[OrganizationData] = Form(OrganizationData.fields)
-  val repository: Repository[Organization, String] = OrganizationRepository
+  val repository: Repository[Organization, OrganizationId] = OrganizationRepository
   val mainRoute = routes.Organizations
   val viewList = admin.views.html.Organizations.list
   val viewDetails = admin.views.html.Organizations.details
@@ -55,7 +56,7 @@ object Organizations extends SilhouetteEnvironment {
       })
   }
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(uuid: OrganizationId) = SecuredAction.async { implicit req =>
     for {
       organizationOpt <- repository.getByUuid(uuid)
       users <- UserRepository.findOrganizationMembers(uuid)
@@ -66,7 +67,7 @@ object Organizations extends SilhouetteEnvironment {
     }
   }
 
-  def update(uuid: String) = SecuredAction.async { implicit req =>
+  def update(uuid: OrganizationId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         Ok(viewUpdate(form.fill(toData(elt)), elt))
@@ -74,7 +75,7 @@ object Organizations extends SilhouetteEnvironment {
     }
   }
 
-  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
+  def doUpdate(uuid: OrganizationId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
@@ -88,7 +89,7 @@ object Organizations extends SilhouetteEnvironment {
     }
   }
 
-  def delete(uuid: String) = SecuredAction.async { implicit req =>
+  def delete(uuid: OrganizationId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)

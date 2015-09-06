@@ -49,7 +49,7 @@ case class Crash(
   uuid: String,
   clientId: String,
   previousClientId: Option[String],
-  userId: Option[String],
+  userId: Option[DeviceId],
   error: CrashError,
   device: Option[CrashDevice],
   application: Option[CrashApplication],

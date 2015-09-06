@@ -1,6 +1,7 @@
 package admin.controllers
 
 import common.models.user.User
+import common.models.user.UserId
 import common.models.user.UserData
 import common.models.user.UserAction
 import common.models.values.GenericId
@@ -21,7 +22,7 @@ import reactivemongo.core.commands.LastError
 
 object Users extends SilhouetteEnvironment {
   val form: Form[UserData] = Form(UserData.fields)
-  val repository: Repository[User, String] = UserRepository
+  val repository: Repository[User, UserId] = UserRepository
   val mainRoute = routes.Users
   val viewList = admin.views.html.Users.list
   val viewDetails = admin.views.html.Users.details
@@ -65,7 +66,7 @@ object Users extends SilhouetteEnvironment {
       })
   }
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(uuid: UserId) = SecuredAction.async { implicit req =>
     for {
       userOpt <- repository.getByUuid(uuid)
       organizations <- userOpt.map { u => OrganizationRepository.findByUuids(u.organizationIds.map(_.organizationId)) }.getOrElse(Future(List()))
@@ -76,7 +77,7 @@ object Users extends SilhouetteEnvironment {
     }
   }
 
-  def update(uuid: String) = SecuredAction.async { implicit req =>
+  def update(uuid: UserId) = SecuredAction.async { implicit req =>
     for {
       eltOpt <- repository.getByUuid(uuid)
     } yield {
@@ -86,7 +87,7 @@ object Users extends SilhouetteEnvironment {
     }
   }
 
-  def doUpdate(uuid: String) = SecuredAction.async { implicit req =>
+  def doUpdate(uuid: UserId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
@@ -102,7 +103,7 @@ object Users extends SilhouetteEnvironment {
     }
   }
 
-  def delete(uuid: String) = SecuredAction.async { implicit req =>
+  def delete(uuid: UserId) = SecuredAction.async { implicit req =>
     repository.getByUuid(uuid).map {
       _.map { elt =>
         repository.delete(uuid)
@@ -111,7 +112,7 @@ object Users extends SilhouetteEnvironment {
     }
   }
 
-  def deleteAction(userId: String, itemType: String, itemId: GenericId, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
+  /*def deleteAction(userId: UserId, itemType: String, itemId: GenericId, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(userId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =
@@ -123,5 +124,5 @@ object Users extends SilhouetteEnvironment {
         res.map(err => Redirect(mainRoute.details(userId)))
       }.getOrElse(Future(NotFound(admin.views.html.error404())))
     }
-  }
+  }*/
 }

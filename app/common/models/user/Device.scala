@@ -1,9 +1,19 @@
 package common.models.user
 
-import common.repositories.Repository
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.joda.time.DateTime
+
+case class DeviceId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object DeviceId extends tStringHelper[DeviceId] {
+  def generate(): DeviceId = DeviceId(UUID.generate())
+  def build(str: String): Option[DeviceId] = UUID.toUUID(str).map(id => DeviceId(id))
+}
 
 case class DeviceInfo(
   uuid: String,
@@ -16,7 +26,7 @@ case class DeviceMeta(
   created: DateTime,
   updated: DateTime)
 case class Device(
-  uuid: String,
+  uuid: DeviceId,
   info: DeviceInfo,
   pushId: Option[String],
   saloonMemo: String,
@@ -27,7 +37,7 @@ object DeviceInfo {
 object Device {
   implicit val formatDeviceMeta = Json.format[DeviceMeta]
   implicit val format = Json.format[Device]
-  def fromInfo(info: DeviceInfo): Device = Device(Repository.generateUuid(), info, None, "", DeviceMeta(new DateTime(), new DateTime()))
+  def fromInfo(info: DeviceInfo): Device = Device(DeviceId.generate(), info, None, "", DeviceMeta(new DateTime(), new DateTime()))
 }
 
 // mapping object for Device Form
@@ -47,7 +57,7 @@ object DeviceData {
     "push" -> optional(text),
     "saloonMemo" -> text)(DeviceData.apply)(DeviceData.unapply)
 
-  def toModel(d: DeviceData): Device = Device(Repository.generateUuid(), d.info, d.pushId, d.saloonMemo, DeviceMeta(new DateTime(), new DateTime()))
+  def toModel(d: DeviceData): Device = Device(DeviceId.generate(), d.info, d.pushId, d.saloonMemo, DeviceMeta(new DateTime(), new DateTime()))
   def fromModel(d: Device): DeviceData = DeviceData(d.info, d.pushId, d.saloonMemo)
   def merge(m: Device, d: DeviceData): Device = toModel(d).copy(uuid = m.uuid, meta = DeviceMeta(m.meta.created, new DateTime()))
 }

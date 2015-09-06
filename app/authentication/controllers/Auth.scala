@@ -3,6 +3,7 @@ package authentication.controllers
 import common.models.user.User
 import common.models.user.UserInfo
 import common.models.user.Request
+import common.models.user.RequestId
 import common.models.user.AccountRequest
 import common.models.user.AccountInvite
 import common.repositories.user.UserRepository
@@ -86,7 +87,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
       })
   }
 
-  def createAccount(requestId: String) = Action.async { implicit req =>
+  def createAccount(requestId: RequestId) = Action.async { implicit req =>
     RequestRepository.getPending(requestId).map { requestOpt =>
       requestOpt.map { request =>
         request.content match {
@@ -104,7 +105,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
     }
   }
 
-  def doCreateAccount(requestId: String) = Action.async { implicit req =>
+  def doCreateAccount(requestId: RequestId) = Action.async { implicit req =>
     RegisterForm.form.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(authentication.views.html.createAccount(requestId, formWithErrors))),
       formData => {

@@ -1,9 +1,10 @@
 @import common.models.user.User
+@import common.models.user.RequestId
 @import authentication.models.RegisterInfo
 @import com.mohiva.play.silhouette.core.providers.Credentials
 @import common.views._
 @import common.views.html.forms._
-@(requestId: String, registerForm: Form[RegisterInfo])(implicit env: com.mohiva.play.silhouette.core.Environment[User, _], request: RequestHeader)
+@(requestId: RequestId, registerForm: Form[RegisterInfo])(implicit env: com.mohiva.play.silhouette.core.Environment[User, _], request: RequestHeader)
 
 <!DOCTYPE html>
 <!--[if IE 9]> <html lang="fr" class="ie9"> <![endif]-->

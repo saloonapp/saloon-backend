@@ -11,6 +11,7 @@ import common.models.event.SessionId
 import common.models.event.EventItem
 import common.models.user.User
 import common.models.user.Device
+import common.models.user.DeviceId
 import common.models.user.UserActionFull
 import common.models.user.SubscribeUserAction
 import common.models.values.GenericId
@@ -66,7 +67,7 @@ object EventSrv {
     UserActionRepository.findByEvent(eventId).flatMap { actions =>
       for {
         events: Map[EventId, Event] <- EventRepository.findByUuids(actions.map(_.eventId).flatten.distinct).map(_.map(u => (u.uuid, u)).toMap)
-        devices: Map[String, Device] <- DeviceRepository.findByUuids(actions.map(_.userId).distinct).map(_.map(u => (u.uuid, u)).toMap)
+        devices: Map[DeviceId, Device] <- DeviceRepository.findByUuids(actions.map(_.userId).distinct).map(_.map(u => (u.uuid, u)).toMap)
         items: Map[(String, GenericId), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
       } yield {
         actions.map { a =>

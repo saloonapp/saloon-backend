@@ -4,13 +4,16 @@ import common.models.event.Event
 import common.models.event.EventId
 import common.models.event.EventItem
 import common.models.user.Device
+import common.models.user.DeviceId
 import common.models.user.UserAction
+import common.models.user.UserActionId
 import common.models.values.GenericId
 import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.EventItemRepository
 import common.repositories.user.DeviceRepository
 import common.repositories.user.UserActionRepository
+import backend.utils.ControllerHelpers
 import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -19,7 +22,7 @@ import play.api.mvc._
 import play.api.libs.json._
 import reactivemongo.core.commands.LastError
 
-object UserActions extends Controller {
+object UserActions extends Controller with ControllerHelpers {
   def favorite(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
     insertActionUnique(eventId, itemType, itemId)(UserActionRepository.getFavorite, UserActionRepository.insertFavorite)
   }
@@ -43,9 +46,9 @@ object UserActions extends Controller {
   }
 
   def deleteMood(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
-    withUser() { user =>
+    deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        UserActionRepository.deleteMood(user.uuid, itemType, item.uuid).map { lastError =>
+        UserActionRepository.deleteMood(device.uuid, itemType, item.uuid).map { lastError =>
           if (lastError.ok) { if (lastError.n == 0) NotFound(Json.obj("message" -> s"Unable to find mood for item $itemType.$itemId")) else NoContent } else { InternalServerError }
         }
       }
@@ -54,9 +57,9 @@ object UserActions extends Controller {
 
   def createComment(eventId: EventId, itemType: String, itemId: GenericId) = Action.async(parse.json) { implicit req =>
     bodyWith("text") { text =>
-      withUser() { user =>
+      deviceFromHeader() { device =>
         withData(eventId, itemType, itemId) { (event, item) =>
-          UserActionRepository.insertComment(user.uuid, itemType, item.uuid, text, event.uuid, withTime()).map { eltOpt =>
+          UserActionRepository.insertComment(device.uuid, itemType, item.uuid, text, event.uuid, withTime()).map { eltOpt =>
             eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
           }
         }
@@ -64,13 +67,13 @@ object UserActions extends Controller {
     }
   }
 
-  def updateComment(eventId: EventId, itemType: String, itemId: GenericId, uuid: String) = Action.async(parse.json) { implicit req =>
+  def updateComment(eventId: EventId, itemType: String, itemId: GenericId, uuid: UserActionId) = Action.async(parse.json) { implicit req =>
     bodyWith("text") { text =>
-      withUser() { user =>
+      deviceFromHeader() { device =>
         withData(eventId, itemType, itemId) { (event, item) =>
-          UserActionRepository.getComment(user.uuid, itemType, item.uuid, uuid).flatMap {
+          UserActionRepository.getComment(device.uuid, itemType, item.uuid, uuid).flatMap {
             _.map { userAction =>
-              UserActionRepository.updateComment(user.uuid, itemType, item.uuid, uuid, userAction, text, withTime()).map { eltOpt =>
+              UserActionRepository.updateComment(device.uuid, itemType, item.uuid, uuid, userAction, text, withTime()).map { eltOpt =>
                 eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
               }
             }.getOrElse(Future(NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid"))))
@@ -80,10 +83,10 @@ object UserActions extends Controller {
     }
   }
 
-  def deleteComment(eventId: EventId, itemType: String, itemId: GenericId, uuid: String) = Action.async { implicit req =>
-    withUser() { user =>
+  def deleteComment(eventId: EventId, itemType: String, itemId: GenericId, uuid: UserActionId) = Action.async { implicit req =>
+    deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        UserActionRepository.deleteComment(user.uuid, itemType, item.uuid, uuid).map { lastError =>
+        UserActionRepository.deleteComment(device.uuid, itemType, item.uuid, uuid).map { lastError =>
           if (lastError.ok) { if (lastError.n == 0) NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid")) else NoContent } else { InternalServerError }
         }
       }
@@ -102,9 +105,9 @@ object UserActions extends Controller {
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteSubscribe)
   }
 
-  def syncEventActions(userId: String, eventId: EventId) = Action.async(parse.json) { implicit req =>
+  def syncEventActions(deviceId: DeviceId, eventId: EventId) = Action.async(parse.json) { implicit req =>
     (req.body \ "actions").asOpt[List[UserAction]].map { actions =>
-      UserActionRepository.deleteByEventUser(eventId, userId).flatMap { err =>
+      UserActionRepository.deleteByEventUser(eventId, deviceId).flatMap { err =>
         UserActionRepository.bulkInsert(actions).map { count =>
           Ok(Json.obj("message" -> "UserActions sync with client !"))
         }
@@ -115,12 +118,12 @@ object UserActions extends Controller {
   /*
    * There must be a max of one action for (itemType, itemId)
    */
-  private def insertActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(get: (String, String, GenericId) => Future[Option[UserAction]], insert: (String, String, GenericId, EventId, Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
-    withUser() { user =>
+  private def insertActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(get: (DeviceId, String, GenericId) => Future[Option[UserAction]], insert: (DeviceId, String, GenericId, EventId, Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
+    deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        get(user.uuid, itemType, item.uuid).flatMap {
+        get(device.uuid, itemType, item.uuid).flatMap {
           _.map { elt => Future(Ok(Json.toJson(elt))) }.getOrElse {
-            insert(user.uuid, itemType, item.uuid, event.uuid, withTime()).map { eltOpt =>
+            insert(device.uuid, itemType, item.uuid, event.uuid, withTime()).map { eltOpt =>
               eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
             }
           }
@@ -132,11 +135,11 @@ object UserActions extends Controller {
   /*
    * There must be a max of one action for (itemType, itemId) but it can be overriden
    */
-  private def setActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(get: (String, String, GenericId) => Future[Option[UserAction]], set: (String, String, GenericId, EventId, Option[UserAction], Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
-    withUser() { user =>
+  private def setActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(get: (DeviceId, String, GenericId) => Future[Option[UserAction]], set: (DeviceId, String, GenericId, EventId, Option[UserAction], Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
+    deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        get(user.uuid, itemType, item.uuid).flatMap { eltOpt =>
-          set(user.uuid, itemType, item.uuid, event.uuid, eltOpt, withTime()).map { newEltOpt =>
+        get(device.uuid, itemType, item.uuid).flatMap { eltOpt =>
+          set(device.uuid, itemType, item.uuid, event.uuid, eltOpt, withTime()).map { newEltOpt =>
             newEltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
           }
         }
@@ -147,10 +150,10 @@ object UserActions extends Controller {
   /*
    * Delete the unique action
    */
-  private def deleteActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(delete: (String, String, GenericId) => Future[LastError])(implicit req: Request[Any]): Future[Result] = {
-    withUser() { user =>
+  private def deleteActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(delete: (DeviceId, String, GenericId) => Future[LastError])(implicit req: Request[Any]): Future[Result] = {
+    deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        delete(user.uuid, itemType, item.uuid).map { lastError =>
+        delete(device.uuid, itemType, item.uuid).map { lastError =>
           if (lastError.ok) { NoContent } else { InternalServerError }
         }
       }
@@ -172,12 +175,14 @@ object UserActions extends Controller {
     }).getOrElse(Future(BadRequest(Json.obj("message" -> s"Your request body should have a JSON object with fields '$field1' & '$field2' !"))))
   }
 
-  private def withUser()(exec: (Device) => Future[Result])(implicit req: Request[Any]) = {
-    req.headers.get("userId").map { userId =>
-      DeviceRepository.getByUuid(userId).flatMap {
-        _.map { device => exec(device) }.getOrElse(Future(NotFound(Json.obj("message" -> s"Device <$userId> not found !"))))
-      }
-    }.getOrElse(Future(BadRequest(Json.obj("message" -> "You should set 'userId' header !"))))
+  private def deviceFromHeader()(exec: Device => Future[Result])(implicit req: Request[Any]): Future[Result] = {
+    implicit val format: String = "json"
+    val res: Option[Future[Result]] = for {
+      deviceIdStr <- req.headers.get("userId")
+      deviceId <- DeviceId.build(deviceIdStr)
+      result <- Some(withDevice(deviceId)(exec))
+    } yield result
+    res.getOrElse(Future(BadRequest(Json.obj("message" -> "You should set 'userId' header !"))))
   }
 
   private def withTime()(implicit req: Request[Any]): Option[DateTime] = {

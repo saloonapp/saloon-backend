@@ -6,6 +6,7 @@ import common.models.user.OrganizationData
 import common.models.user.Request
 import common.models.user.OrganizationRequest
 import common.models.user.OrganizationInvite
+import common.models.user.OrganizationId
 import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.RequestRepository
@@ -25,7 +26,7 @@ import play.api.data.Forms._
 object Profile extends SilhouetteEnvironment {
   val userForm: Form[UserData] = Form(UserData.fields)
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
-  val accessRequestForm = Form(tuple("organizationId" -> nonEmptyText, "comment" -> optional(text)))
+  val accessRequestForm = Form(tuple("organizationId" -> of[OrganizationId], "comment" -> optional(text)))
 
   def details = SecuredAction.async { implicit req =>
     implicit val user = req.identity
@@ -94,7 +95,7 @@ object Profile extends SilhouetteEnvironment {
    * Private methods
    */
 
-  private def findOrganizationRequest(requests: List[Request], organizationId: String): Option[Request] = {
+  private def findOrganizationRequest(requests: List[Request], organizationId: OrganizationId): Option[Request] = {
     requests.find { r =>
       r.content match {
         case OrganizationRequest(id, _, _) => id == organizationId
@@ -104,7 +105,7 @@ object Profile extends SilhouetteEnvironment {
     }
   }
 
-  private def createOrganization(formData: OrganizationData, user: User): Future[(String, String, Option[String])] = {
+  private def createOrganization(formData: OrganizationData, user: User): Future[(String, String, Option[OrganizationId])] = {
     OrganizationRepository.getByName(formData.name).flatMap { orgOpt =>
       orgOpt.map { org =>
         Future(("error", s"L'organisation ${formData.name} existe déjà !", None))
@@ -123,7 +124,7 @@ object Profile extends SilhouetteEnvironment {
     }
   }
 
-  private def requestOrganisation(organizationId: String, comment: Option[String], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
+  private def requestOrganisation(organizationId: OrganizationId, comment: Option[String], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
     val request = Request.organizationRequest(organizationId, comment, user)
     OrganizationRepository.getByUuid(organizationId).flatMap { orgOpt =>
       orgOpt.map { organization =>

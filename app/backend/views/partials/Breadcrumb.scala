@@ -1,6 +1,7 @@
 package backend.views.partials
 
 import common.models.values.UUID
+import common.models.user.OrganizationId
 import common.models.event.EventId
 import common.models.event.AttendeeId
 import common.models.event.ExponentId
@@ -59,7 +60,7 @@ object Breadcrumb {
         case "profile" => (backend.controllers.routes.Profile.details, "Modification")
         case _ =>
           prev2.get match {
-            case "organizations" => (backend.controllers.routes.Organizations.update(identifiers.get("organization").get), "Modification")
+            case "organizations" => (backend.controllers.routes.Organizations.update(getOrganizationId(identifiers)), "Modification")
             case "events" => (backend.controllers.routes.Events.update(getEventId(identifiers)), "Modification")
             case "attendees" => (backend.controllers.routes.Attendees.update(getEventId(identifiers), getAttendeeId(identifiers)), "Modification")
             case "exponents" => (backend.controllers.routes.Exponents.update(getEventId(identifiers), getExponentId(identifiers)), "Modification")
@@ -68,7 +69,7 @@ object Breadcrumb {
           }
       }
       case "delete" => prev2.get match {
-        case "organizations" => (backend.controllers.routes.Organizations.delete(identifiers.get("organization").get), "Suppression")
+        case "organizations" => (backend.controllers.routes.Organizations.delete(getOrganizationId(identifiers)), "Suppression")
       }
       case "config" => prev.get match {
         case "ticketing" => (backend.controllers.routes.Ticketing.configure(getEventId(identifiers)), "Configuration")
@@ -76,7 +77,7 @@ object Breadcrumb {
       case identifier(id) => {
         setId(identifiers, prev.get, id)
         prev.get match {
-          case "organizations" => (backend.controllers.routes.Organizations.details(id), titles.get(id).get)
+          case "organizations" => (backend.controllers.routes.Organizations.details(getOrganizationId(identifiers)), titles.get(id).get)
           case "events" => (backend.controllers.routes.Events.details(getEventId(identifiers)), titles.get(id).get)
           case "attendees" => (backend.controllers.routes.Attendees.details(getEventId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
           case "exponents" => (backend.controllers.routes.Exponents.details(getEventId(identifiers), getExponentId(identifiers)), titles.get(id).get)
@@ -102,6 +103,7 @@ object Breadcrumb {
     case "team" => identifiers.put("attendee", id)
     case "sessions" => identifiers.put("session", id)
   }
+  private def getOrganizationId(identifiers: HashMap[String, String]): OrganizationId = OrganizationId(identifiers.get("organization").get)
   private def getEventId(identifiers: HashMap[String, String]): EventId = EventId(identifiers.get("event").get)
   private def getAttendeeId(identifiers: HashMap[String, String]): AttendeeId = AttendeeId(identifiers.get("attendee").get)
   private def getExponentId(identifiers: HashMap[String, String]): ExponentId = ExponentId(identifiers.get("exponent").get)

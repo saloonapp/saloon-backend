@@ -1,8 +1,11 @@
 package common.repositories.user
 
+import common.models.user.Request
+import common.models.user.RequestId
+import common.models.user.UserId
+import common.models.user.OrganizationId
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
-import common.models.user.Request
 import org.joda.time.DateTime
 import scala.concurrent.Future
 import play.api.Play.current
@@ -19,25 +22,25 @@ trait MongoDbRequestRepository {
 
   private val crud = MongoDbCrudUtils(collection, Request.format, List("action.text"), "uuid")
 
-  //def getByUuid(uuid: String): Future[Option[Request]] = crud.getByUuid(uuid)
-  def getPending(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "status" -> Request.Status.pending))
-  def getPendingByUser(uuid: String, userId: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "status" -> Request.Status.pending, "userId" -> userId))
+  //def getByUuid(requestId: RequestId): Future[Option[Request]] = crud.getByUuid(requestId)
+  def getPending(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "status" -> Request.Status.pending))
+  def getPendingByUser(requestId: RequestId, userId: UserId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "status" -> Request.Status.pending, "userId" -> userId))
   def getPendingAccountRequestByEmail(email: String): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountRequest" -> true, "content.email" -> email))
-  //def getAccountRequest(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.accountRequest" -> true))
-  def getPendingInviteForRequest(requestId: String): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountInvite" -> true, "content.next" -> requestId))
-  //def getPasswordReset(uuid: String): Future[Option[Request]] = crud.get(Json.obj("uuid" -> uuid, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
-  def findPendingOrganizationRequestsByUser(userId: String): Future[List[Request]] = crud.find(Json.obj("userId" -> userId, "status" -> Request.Status.pending, "content.organizationRequest" -> true))
+  //def getAccountRequest(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "content.accountRequest" -> true))
+  def getPendingInviteForRequest(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("status" -> Request.Status.pending, "content.accountInvite" -> true, "content.next" -> requestId))
+  //def getPasswordReset(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
+  def findPendingOrganizationRequestsByUser(userId: UserId): Future[List[Request]] = crud.find(Json.obj("userId" -> userId, "status" -> Request.Status.pending, "content.organizationRequest" -> true))
   def findPendingOrganizationInvitesByEmail(email: String): Future[List[Request]] = crud.find(Json.obj("content.email" -> email, "status" -> Request.Status.pending, "content.organizationInvite" -> true))
-  def findPendingOrganizationRequestsByOrganization(organizationId: String): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> organizationId))
-  def findPendingOrganizationInvitesByOrganization(organizationId: String): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationInvite" -> true, "content.organizationId" -> organizationId))
-  def countPendingOrganizationRequestsFor(organizationIds: List[String]): Future[Map[String, Int]] = crud.count(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> Json.obj("$in" -> organizationIds)), "content.organizationId")
+  def findPendingOrganizationRequestsByOrganization(organizationId: OrganizationId): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> organizationId))
+  def findPendingOrganizationInvitesByOrganization(organizationId: OrganizationId): Future[List[Request]] = crud.find(Json.obj("status" -> Request.Status.pending, "content.organizationInvite" -> true, "content.organizationId" -> organizationId))
+  def countPendingOrganizationRequestsFor(organizationIds: List[OrganizationId]): Future[Map[OrganizationId, Int]] = crud.count(Json.obj("status" -> Request.Status.pending, "content.organizationRequest" -> true, "content.organizationId" -> Json.obj("$in" -> organizationIds)), "content.organizationId").map { _.map { case (key, value) => (OrganizationId(key), value) } }
 
-  def insert(elt: Request): Future[LastError] = crud.insert(elt)
-  def update(elt: Request): Future[LastError] = crud.update(elt.uuid, elt)
-  def setAccepted(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.accepted)
-  def setCanceled(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.canceled)
-  def setRejected(uuid: String): Future[LastError] = setStatus(uuid, Request.Status.rejected)
-  private def setStatus(uuid: String, status: String): Future[LastError] = crud.update(Json.obj("uuid" -> uuid), Json.obj("$set" -> Json.obj("status" -> status, "updated" -> new DateTime())))
+  def insert(request: Request): Future[LastError] = crud.insert(request)
+  def update(request: Request): Future[LastError] = crud.update(request.uuid.unwrap, request)
+  def setAccepted(requestId: RequestId): Future[LastError] = setStatus(requestId, Request.Status.accepted)
+  def setCanceled(requestId: RequestId): Future[LastError] = setStatus(requestId, Request.Status.canceled)
+  def setRejected(requestId: RequestId): Future[LastError] = setStatus(requestId, Request.Status.rejected)
+  private def setStatus(requestId: RequestId, status: String): Future[LastError] = crud.update(Json.obj("uuid" -> requestId), Json.obj("$set" -> Json.obj("status" -> status, "updated" -> new DateTime())))
 
   // TODO : def incrementVisited(requestId: String): Future[LastError] cf Auth.createAccount
 }

@@ -4,7 +4,7 @@
 @import common.views.html.forms._
 @(eventForm: Form[EventCreateData], organizations: List[Organization], categories: List[String])(implicit user: User)
 
-@fieldHorizontal(eventForm("ownerId"), 'label -> "Organisation", 'constraints->"false"){field => @inputSelect2(field, organizations.map(o => (o.uuid,o.name))) <p class="help-block">L'événement sera lié à cette organisation.</p>}
+@fieldHorizontal(eventForm("ownerId"), 'label -> "Organisation", 'constraints->"false"){field => @inputSelect2(field, organizations.map(o => (o.uuid.unwrap,o.name))) <p class="help-block">L'événement sera lié à cette organisation.</p>}
 @fieldHorizontal(eventForm("name"), 'label -> "Nom", 'constraints->"false"){field => <div class="fg-line">@inputText(field, 'placeholder -> "ex: Best Of Web 2015")</div>}
 @fieldHorizontal(eventForm("categories"), 'label -> "Catégorie"){field => @inputTags(field, categories, 'placeholder -> "ex: emploi, tech, business") <p class="help-block">Seule la 1ère catégorie sera affichée dans l'application</p>}
 @fieldHorizontal(eventForm("start"), 'label -> "Date"){field =>

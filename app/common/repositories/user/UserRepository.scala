@@ -1,7 +1,9 @@
 package common.repositories.user
 
 import common.models.user.User
+import common.models.user.UserId
 import common.models.user.UserOrganization
+import common.models.user.OrganizationId
 import common.models.utils.Page
 import common.repositories.Repository
 import common.repositories.CollectionReferences
@@ -17,7 +19,7 @@ import reactivemongo.core.commands.LastError
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
-trait MongoDbUserRepository extends Repository[User, String] {
+trait MongoDbUserRepository extends Repository[User, UserId] {
   val db = ReactiveMongoPlugin.db
   lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.USERS)
 
@@ -26,11 +28,11 @@ trait MongoDbUserRepository extends Repository[User, String] {
   //def findAllOld(): Future[List[UserOld]] = collection.find(Json.obj()).cursor[UserOld].collect[List]()
   override def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[User]] = crud.findAll(query, sort, filter)
   override def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[User]] = crud.findPage(query, page, pageSize, sort, filter)
-  override def getByUuid(uuid: String): Future[Option[User]] = crud.getByUuid(uuid)
-  override def insert(elt: User): Future[Option[User]] = { crud.insert(elt).map(err => if (err.ok) Some(elt) else None) }
-  override def update(uuid: String, elt: User): Future[Option[User]] = crud.update(uuid, elt).map(err => if (err.ok) Some(elt) else None)
-  override def delete(uuid: String): Future[Option[User]] = {
-    getByUuid(uuid).flatMap { userOpt =>
+  override def getByUuid(userId: UserId): Future[Option[User]] = crud.getByUuid(userId.unwrap)
+  override def insert(user: User): Future[Option[User]] = { crud.insert(user).map(err => if (err.ok) Some(user) else None) }
+  override def update(userId: UserId, user: User): Future[Option[User]] = crud.update(userId.unwrap, user).map(err => if (err.ok) Some(user) else None)
+  override def delete(userId: UserId): Future[Option[User]] = {
+    getByUuid(userId).flatMap { userOpt =>
       userOpt.map { user =>
         for {
           userRemoved <- MongoUserRepository.remove(user.loginInfo)
@@ -41,10 +43,10 @@ trait MongoDbUserRepository extends Repository[User, String] {
   }
 
   def getByEmail(email: String): Future[Option[User]] = crud.get(Json.obj("email" -> email))
-  def findByUuids(uuids: List[String]): Future[List[User]] = crud.findByUuids(uuids)
+  def findByUuids(userIds: List[UserId]): Future[List[User]] = crud.findByUuids(userIds.map(_.unwrap))
   def findByEmails(emails: List[String]): Future[List[User]] = crud.findBy("email", emails)
-  def getOrganizationOwner(organizationId: String): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserOrganization.owner)))
-  def findOrganizationMembers(organizationId: String): Future[List[User]] = crud.find(Json.obj("organizationIds.organizationId" -> organizationId))
-  def removeOrganization(organizationId: String): Future[LastError] = collection.update(Json.obj("organizationIds.organizationId" -> organizationId), Json.obj("$pull" -> Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId))), multi = true)
+  def getOrganizationOwner(organizationId: OrganizationId): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserOrganization.owner)))
+  def findOrganizationMembers(organizationId: OrganizationId): Future[List[User]] = crud.find(Json.obj("organizationIds.organizationId" -> organizationId))
+  def removeOrganization(organizationId: OrganizationId): Future[LastError] = collection.update(Json.obj("organizationIds.organizationId" -> organizationId), Json.obj("$pull" -> Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId))), multi = true)
 }
 object UserRepository extends MongoDbUserRepository

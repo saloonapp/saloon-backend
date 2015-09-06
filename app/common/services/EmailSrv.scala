@@ -7,8 +7,10 @@ import common.models.event.SessionId
 import common.models.event.Exponent
 import common.models.event.ExponentId
 import common.models.user.User
+import common.models.user.DeviceId
 import common.models.user.Organization
 import common.models.user.Request
+import common.models.user.RequestId
 import common.models.user.SubscribeUserAction
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
@@ -23,8 +25,8 @@ import org.jsoup.Jsoup
 case class EmailData(fromName: String, fromEmail: String, to: String, subject: String, html: String, text: String)
 
 object EmailSrv {
-  def generateEventReport(eventId: EventId, userId: String): Future[Option[EmailData]] = {
-    UserActionRepository.findByUserEvent(userId, eventId).flatMap { actions =>
+  def generateEventReport(eventId: EventId, deviceId: DeviceId): Future[Option[EmailData]] = {
+    UserActionRepository.findByUserEvent(deviceId, eventId).flatMap { actions =>
       val subscribeOpt = actions.find(_.action.isSubscribe())
       subscribeOpt.map {
         _.action match {
@@ -56,7 +58,7 @@ object EmailSrv {
     EmailData(name, email, Defaults.contactEmail, s"Contact SalooN depuis ${source}", html, text)
   }
 
-  def generateAccountRequestEmail(email: String, requestId: String)(implicit req: RequestHeader): EmailData = {
+  def generateAccountRequestEmail(email: String, requestId: RequestId)(implicit req: RequestHeader): EmailData = {
     val saloonUrl = website.controllers.routes.Application.index().absoluteURL(Defaults.secureUrl)
     val inviteUrl = authentication.controllers.routes.Auth.createAccount(requestId).absoluteURL(Defaults.secureUrl)
     val html = authentication.views.html.Email.accountRequest(email, saloonUrl, inviteUrl).toString

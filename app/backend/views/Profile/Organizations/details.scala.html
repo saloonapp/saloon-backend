@@ -1,4 +1,3 @@
-@import common.models.values.GenericId
 @import common.models.user.User
 @import common.models.user.Organization
 @import common.models.user.OrganizationInvite
@@ -8,7 +7,7 @@
 @import common.views.html.forms._
 @import common.views.html.format._
 @(organization: Organization, members: List[User], pendingRequests: List[(Request, User)], pendingInvites: List[(Request, Option[User])], inviteForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(organization.name, "profile_organizations_"+organization.uuid, Map(GenericId(organization.uuid) -> organization.name)){
+@layout(organization.name, "profile_organizations_"+organization.uuid, Map(organization.uuid -> organization.name)){
 	<div class="row">
 		<div class="col-md-8">
 			<div class="card">

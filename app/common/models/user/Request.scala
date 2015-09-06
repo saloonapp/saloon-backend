@@ -1,12 +1,22 @@
 package common.models.user
 
-import common.repositories.Repository
+import common.models.utils.tString
+import common.models.utils.tStringHelper
+import common.models.values.UUID
 import org.joda.time.DateTime
 import play.api.libs.json._
 
+case class RequestId(val id: String) extends AnyVal with tString with UUID {
+  def unwrap: String = this.id
+}
+object RequestId extends tStringHelper[RequestId] {
+  def generate(): RequestId = RequestId(UUID.generate())
+  def build(str: String): Option[RequestId] = UUID.toUUID(str).map(id => RequestId(id))
+}
+
 case class Request(
-  uuid: String,
-  userId: Option[String], // id of user who initiated the request
+  uuid: RequestId,
+  userId: Option[UserId], // id of user who initiated the request
   content: RequestContent,
   status: String, // pending, accepted, rejected, canceled
   created: DateTime,
@@ -20,12 +30,12 @@ object Request {
   }
 
   def accountRequest(email: String): Request = build(AccountRequest(email))
-  def accountInvite(email: String, next: Option[String], user: User): Request = build(AccountInvite(email, next), user)
+  def accountInvite(email: String, next: Option[RequestId], user: User): Request = build(AccountInvite(email, next), user)
   def passwordReset(email: String): Request = build(PasswordReset(email))
-  def organizationRequest(organizationId: String, comment: Option[String], user: User): Request = build(OrganizationRequest(organizationId, comment), user)
-  def organizationInvite(organizationId: String, email: String, comment: Option[String], user: User): Request = build(OrganizationInvite(organizationId, email, comment), user)
-  private def build(content: RequestContent): Request = Request(Repository.generateUuid(), None, content, Request.Status.pending, new DateTime(), new DateTime())
-  private def build(content: RequestContent, user: User): Request = Request(Repository.generateUuid(), Some(user.uuid), content, Request.Status.pending, new DateTime(), new DateTime())
+  def organizationRequest(organizationId: OrganizationId, comment: Option[String], user: User): Request = build(OrganizationRequest(organizationId, comment), user)
+  def organizationInvite(organizationId: OrganizationId, email: String, comment: Option[String], user: User): Request = build(OrganizationInvite(organizationId, email, comment), user)
+  private def build(content: RequestContent): Request = Request(RequestId.generate(), None, content, Request.Status.pending, new DateTime(), new DateTime())
+  private def build(content: RequestContent, user: User): Request = Request(RequestId.generate(), Some(user.uuid), content, Request.Status.pending, new DateTime(), new DateTime())
 
   private implicit val formatAccountRequest = Json.format[AccountRequest]
   private implicit val formatAccountInvite = Json.format[AccountInvite]
@@ -50,7 +60,7 @@ object Request {
 
 sealed trait RequestContent
 case class AccountRequest(email: String, visited: Int = 0, accountRequest: Boolean = true) extends RequestContent
-case class AccountInvite(email: String, next: Option[String], visited: Int = 0, accountInvite: Boolean = true) extends RequestContent
+case class AccountInvite(email: String, next: Option[RequestId], visited: Int = 0, accountInvite: Boolean = true) extends RequestContent
 case class PasswordReset(email: String, passwordReset: Boolean = true) extends RequestContent
-case class OrganizationRequest(organizationId: String, comment: Option[String], organizationRequest: Boolean = true) extends RequestContent
-case class OrganizationInvite(organizationId: String, email: String, comment: Option[String], organizationInvite: Boolean = true) extends RequestContent
+case class OrganizationRequest(organizationId: OrganizationId, comment: Option[String], organizationRequest: Boolean = true) extends RequestContent
+case class OrganizationInvite(organizationId: OrganizationId, email: String, comment: Option[String], organizationInvite: Boolean = true) extends RequestContent

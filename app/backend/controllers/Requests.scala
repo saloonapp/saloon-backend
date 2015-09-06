@@ -4,7 +4,9 @@ import common.models.user.User
 import common.models.user.UserOrganization
 import common.models.user.OrganizationRequest
 import common.models.user.OrganizationInvite
+import common.models.user.OrganizationId
 import common.models.user.Request
+import common.models.user.RequestId
 import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.RequestRepository
@@ -18,9 +20,9 @@ import play.api.mvc._
 
 object Requests extends SilhouetteEnvironment {
 
-  def details(uuid: String) = SecuredAction.async { implicit req =>
+  def details(requestId: RequestId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    RequestRepository.getPending(uuid).flatMap { requestOpt =>
+    RequestRepository.getPending(requestId).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
           case OrganizationInvite(organizationId, email, comment, _) => {
@@ -49,9 +51,9 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def doReminder(uuid: String) = SecuredAction.async { implicit req =>
+  def doReminder(requestId: RequestId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    RequestRepository.getPendingByUser(uuid, user.uuid).flatMap { requestOpt =>
+    RequestRepository.getPendingByUser(requestId, user.uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
           case OrganizationRequest(organizationId, _, _) => {
@@ -103,16 +105,16 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def doCancel(uuid: String) = SecuredAction.async { implicit req =>
+  def doCancel(requestId: RequestId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    RequestRepository.getPendingInviteForRequest(uuid).map { // cancel linked invite request if it exists
+    RequestRepository.getPendingInviteForRequest(requestId).map { // cancel linked invite request if it exists
       _.map { inviteRequest =>
         RequestRepository.setCanceled(inviteRequest.uuid)
       }
     }
-    RequestRepository.getPendingByUser(uuid, user.uuid).flatMap { requestOpt =>
+    RequestRepository.getPendingByUser(requestId, user.uuid).flatMap { requestOpt =>
       requestOpt.map { request =>
-        RequestRepository.setCanceled(uuid).flatMap { err =>
+        RequestRepository.setCanceled(requestId).flatMap { err =>
           request.content match {
             case OrganizationRequest(_, _, _) => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Demande annulée !"))
             case OrganizationInvite(organizationId, email, _, _) => {
@@ -134,9 +136,9 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def doAccept(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
+  def doAccept(requestId: RequestId, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    RequestRepository.getPending(uuid).flatMap { requestOpt =>
+    RequestRepository.getPending(requestId).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
           case OrganizationRequest(organizationId, _, _) => {
@@ -166,9 +168,9 @@ object Requests extends SilhouetteEnvironment {
     }
   }
 
-  def doReject(uuid: String, redirection: Option[String]) = SecuredAction.async { implicit req =>
+  def doReject(requestId: RequestId, redirection: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    RequestRepository.getPending(uuid).flatMap { requestOpt =>
+    RequestRepository.getPending(requestId).flatMap { requestOpt =>
       requestOpt.map { request =>
         request.content match {
           case OrganizationRequest(organizationId, _, _) => {
@@ -202,7 +204,7 @@ object Requests extends SilhouetteEnvironment {
    * Private methods
    */
 
-  private def acceptOrganizationRequest(request: Request, organizationId: String, organizationOwner: User): Future[(String, String)] = {
+  private def acceptOrganizationRequest(request: Request, organizationId: OrganizationId, organizationOwner: User): Future[(String, String)] = {
     val res: Future[Future[Future[(String, String)]]] = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)
       userOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
@@ -227,7 +229,7 @@ object Requests extends SilhouetteEnvironment {
     res.flatMap(identity).flatMap(identity)
   }
 
-  private def rejectOrganizationRequest(request: Request, organizationId: String): Future[(String, String)] = {
+  private def rejectOrganizationRequest(request: Request, organizationId: OrganizationId): Future[(String, String)] = {
     val res: Future[Future[(String, String)]] = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)
       requestUserOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
@@ -248,7 +250,7 @@ object Requests extends SilhouetteEnvironment {
     res.flatMap(identity)
   }
 
-  private def acceptOrganizationInvite(request: Request, organizationId: String, invitedUser: User): Future[(String, String)] = {
+  private def acceptOrganizationInvite(request: Request, organizationId: OrganizationId, invitedUser: User): Future[(String, String)] = {
     val res: Future[Future[(String, String)]] = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)
       organizationOwnerOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
@@ -272,7 +274,7 @@ object Requests extends SilhouetteEnvironment {
     res.flatMap(identity)
   }
 
-  private def rejectOrganizationInvite(request: Request, organizationId: String, inviteEmail: String): Future[(String, String)] = {
+  private def rejectOrganizationInvite(request: Request, organizationId: OrganizationId, inviteEmail: String): Future[(String, String)] = {
     val res: Future[Future[(String, String)]] = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)
       organizationOwnerOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
