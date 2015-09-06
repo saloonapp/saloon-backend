@@ -60,7 +60,7 @@ object EmailSrv {
   def generateAccountRequestEmail(email: Email, requestId: RequestId)(implicit req: RequestHeader): EmailData = {
     val saloonUrl = website.controllers.routes.Application.index().absoluteURL(Defaults.secureUrl)
     val inviteUrl = authentication.controllers.routes.Auth.createAccount(requestId).absoluteURL(Defaults.secureUrl)
-    val html = TextHTML(authentication.views.html.Email.accountRequest(email, saloonUrl, inviteUrl).toString)
+    val html = TextHTML(authentication.views.html.Emails.accountRequest(email, saloonUrl, inviteUrl).toString)
     EmailData(Defaults.contactName, Defaults.contactEmail, email, "Invitation à SalooN", html, html.toPlainText)
   }
 

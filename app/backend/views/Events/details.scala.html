@@ -35,8 +35,8 @@
 				<ul>
 					<li><i class="md md-event"></i> @event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</li>
 					<li><i class="md md-location-on"></i> @event.info.address.map{a => @address(a, true)}.getOrElse{Pas de lieu !}</li>
-					@if(event.info.website != ""){<li><i class="md md-link"></i> <a href="@event.info.website" target="_blank">@event.info.website</a></li>}
-					@if(event.info.price.url != "" || event.info.price.label != ""){
+					@if(!event.info.website.isEmpty){<li><i class="md md-link"></i> <a href="@event.info.website" target="_blank">@event.info.website</a></li>}
+					@if(!event.info.price.url.isEmpty || !event.info.price.label.isEmpty){
 						<li>
 							<i class="md md-attach-money"></i>
 							@if(event.info.price.url != ""){<a href="@event.info.price.url" target="_blank">@event.info.price.label</a>}
@@ -68,8 +68,8 @@
 				<div class="p-l-30">
 					<dl class="dl-horizontal"><dt>Date</dt><dd>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</dd></dl>
 					<dl class="dl-horizontal"><dt>Adresse</dt><dd>@event.info.address.map{a => @address(a, true)}.getOrElse{Pas de lieu !}</dd></dl>
-					@if(event.info.website != ""){<dl class="dl-horizontal"><dt>Site web</dt><dd><a href="@event.info.website" target="_blank">@event.info.website</a></dd></dl>}
-					@if(event.info.price.url != "" || event.info.price.label != ""){
+					@if(!event.info.website.isEmpty){<dl class="dl-horizontal"><dt>Site web</dt><dd><a href="@event.info.website" target="_blank">@event.info.website</a></dd></dl>}
+					@if(!event.info.price.url.isEmpty || !event.info.price.label.isEmpty){
 						<dl class="dl-horizontal">
 							<dt>Tickets</dt>
 							<dd>
