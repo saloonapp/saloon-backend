@@ -1,6 +1,7 @@
 package common.controllers
 
 import common.Utils
+import common.models.values.typed.Email
 import common.services.EmailSrv
 import common.services.MandrillSrv
 import common.repositories.user.UserRepository
@@ -20,7 +21,7 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
     tuple(
       "url" -> nonEmptyText,
       "name" -> nonEmptyText,
-      "email" -> nonEmptyText,
+      "email" -> of[Email],
       "message" -> nonEmptyText))
 
   def sendContactEmail = UserAwareAction.async { implicit request =>

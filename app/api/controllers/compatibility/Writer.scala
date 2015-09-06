@@ -6,6 +6,7 @@ import common.models.event.Attendee._
 import common.models.event.Session
 import common.models.event.Exponent
 import common.models.user.Device
+import common.models.values.typed.ItemType
 import play.api.libs.json._
 
 object Writer {
@@ -31,9 +32,9 @@ object Writer {
       "published" -> data.config.published,
       "created" -> data.meta.created,
       "updated" -> data.meta.updated,
-      "className" -> Event.className)
-    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Event.className)
-    case _ => Json.obj("className" -> Event.className)
+      "className" -> ItemType.events.unwrap)
+    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> ItemType.events)
+    case _ => Json.obj("className" -> ItemType.events)
   }
   def write(data: Attendee, version: String): JsObject = version match {
     case "v1" => Json.obj(
@@ -43,8 +44,8 @@ object Writer {
       "avatar" -> data.images.avatar,
       "profilUrl" -> data.info.website,
       "social" -> Json.toJson(data.social))
-    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Attendee.className)
-    case _ => Json.obj("className" -> Event.className)
+    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> ItemType.attendees)
+    case _ => Json.obj("className" -> ItemType.events)
   }
   def write(data: Session, speakers: List[Attendee], version: String): JsObject = version match {
     case "v1" => Json.obj(
@@ -61,9 +62,9 @@ object Writer {
       "tags" -> Json.arr(),
       "created" -> data.meta.created,
       "updated" -> data.meta.updated,
-      "className" -> Session.className)
-    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Session.className)
-    case _ => Json.obj("className" -> Event.className)
+      "className" -> ItemType.sessions.unwrap)
+    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> ItemType.sessions)
+    case _ => Json.obj("className" -> ItemType.events)
   }
   def write(data: Exponent, team: List[Attendee], version: String): JsObject = version match {
     case "v1" => Json.obj(
@@ -81,9 +82,9 @@ object Writer {
       "images" -> Json.arr(),
       "created" -> data.meta.created,
       "updated" -> data.meta.updated,
-      "className" -> Exponent.className)
-    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> Exponent.className)
-    case _ => Json.obj("className" -> Event.className)
+      "className" -> ItemType.exponents.unwrap)
+    case "v2" => Json.toJson(data).as[JsObject] ++ Json.obj("className" -> ItemType.exponents)
+    case _ => Json.obj("className" -> ItemType.events)
   }
 
   def write(data: (Event, Int, Int, Int, Int), version: String): JsObject = write(data._1, version) ++ Json.obj(

@@ -11,7 +11,7 @@ import common.models.event.Session
 import common.models.event.Exponent
 import common.models.user.DeviceId
 import common.models.user.SubscribeUserAction
-import common.models.values.GenericId
+import common.models.values.typed._
 import common.models.utils.Page
 import common.services.FileImporter
 import common.services.FileExporter
@@ -125,13 +125,13 @@ object Events extends SilhouetteEnvironment {
   def report(eventId: EventId, deviceId: DeviceId) = SecuredAction.async { implicit req =>
     EmailSrv.generateEventReport(eventId, deviceId).map {
       _.map { email =>
-        Ok(play.twirl.api.Html(email.html))
+        Ok(play.twirl.api.Html(email.html.unwrap))
       }.getOrElse(NotFound(admin.views.html.error(s"Device $deviceId didn't subscribe to event $eventId")))
     }
   }
 
   def sendReport(eventId: EventId, deviceId: DeviceId) = SecuredAction.async { implicit req =>
-    UserActionRepository.getSubscribe(deviceId, Event.className, eventId).flatMap {
+    UserActionRepository.getSubscribe(deviceId, ItemType.events, eventId).flatMap {
       _.map {
         _.action match {
           case SubscribeUserAction(email, filter, subscribe) => {
@@ -150,7 +150,7 @@ object Events extends SilhouetteEnvironment {
   }
 
   def reportsPreview(eventId: EventId) = SecuredAction.async { implicit req =>
-    UserActionRepository.findSubscribes(Event.className, eventId).map { subscribes =>
+    UserActionRepository.findSubscribes(ItemType.events, eventId).map { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
         case _ => None
@@ -160,7 +160,7 @@ object Events extends SilhouetteEnvironment {
   }
 
   def sendReports(eventId: EventId) = SecuredAction.async { implicit req =>
-    UserActionRepository.findSubscribes(Event.className, eventId).flatMap { subscribes =>
+    UserActionRepository.findSubscribes(ItemType.events, eventId).flatMap { subscribes =>
       var users = subscribes.map(s => s.action match {
         case sub: SubscribeUserAction => Some((s.userId, sub))
         case _ => None

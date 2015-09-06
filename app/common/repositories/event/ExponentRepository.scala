@@ -1,6 +1,7 @@
 package common.repositories.event
 
 import common.models.utils.Page
+import common.models.values.typed.ItemType
 import common.models.event.EventId
 import common.models.event.AttendeeId
 import common.models.event.Exponent
@@ -32,7 +33,7 @@ trait MongoDbExponentRepository extends Repository[Exponent, ExponentId] {
   override def update(exponentId: ExponentId, elt: Exponent): Future[Option[Exponent]] = crud.update(exponentId.unwrap, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(exponentId: ExponentId): Future[Option[Exponent]] = {
     crud.delete(exponentId.unwrap).map { err =>
-      UserActionRepository.deleteByItem(Exponent.className, exponentId.unwrap)
+      UserActionRepository.deleteByItem(ItemType.exponents, exponentId.unwrap)
       None
     } // TODO : return deleted elt !
   }

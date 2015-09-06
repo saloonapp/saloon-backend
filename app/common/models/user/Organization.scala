@@ -3,6 +3,7 @@ package common.models.user
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
+import common.models.values.typed._
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.joda.time.DateTime
@@ -20,7 +21,7 @@ case class OrganizationMeta(
   updated: DateTime)
 case class Organization(
   uuid: OrganizationId = OrganizationId.generate(),
-  name: String,
+  name: FullName,
   meta: OrganizationMeta = OrganizationMeta(new DateTime(), new DateTime()))
 object Organization {
   implicit val formatOrganizationMeta = Json.format[OrganizationMeta]
@@ -29,10 +30,10 @@ object Organization {
 
 // mapping object for Organization Form
 case class OrganizationData(
-  name: String)
+  name: FullName)
 object OrganizationData {
   val fields = mapping(
-    "name" -> nonEmptyText)(OrganizationData.apply)(OrganizationData.unapply)
+    "name" -> of[FullName])(OrganizationData.apply)(OrganizationData.unapply)
   def toModel(d: OrganizationData): Organization = Organization(OrganizationId.generate(), d.name, OrganizationMeta(new DateTime(), new DateTime()))
   def fromModel(d: Organization): OrganizationData = OrganizationData(d.name)
   def merge(m: Organization, d: OrganizationData): Organization = toModel(d).copy(uuid = m.uuid, meta = OrganizationMeta(m.meta.created, new DateTime()))

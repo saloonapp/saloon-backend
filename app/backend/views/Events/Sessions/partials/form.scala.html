@@ -12,7 +12,7 @@
 		<div class="col-md-3"><div class="fg-line">@inputDatetime(sessionForm("end"), 'placeholder -> "Fin (ex: 05/06/2015 09:00)")</div></div>
 	</div>
 }
-@fieldHorizontal(sessionForm("speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid.unwrap, a.name)))}
+@fieldHorizontal(sessionForm("speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid.unwrap, a.name.unwrap)))}
 @fieldHorizontal(sessionForm("format"), 'label -> "Catégories"){field => 
 	<div class="row">
 		<div class="col-md-6"><div class="fg-line">@inputTypeahead(field, formats, 'placeholder -> "Format (ex: Quickie)")</div><p class="help-block">Format / Type de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p></div>

@@ -1,10 +1,11 @@
 @import common.models.user.User
+@import common.models.values.typed.ImageUrl
 @(user: User, breadcrumb: String)
 <aside id="sidebar">
 	<div class="sidebar-inner c-overflow">
 		<div class="profile-menu @if(breadcrumb.startsWith("profile")){toggled}">
 			<a href="#" style="background-image: url('@routes.Assets.at("backend/sample/images/profile-menu.png")');">
-				<div class="profile-pic">@avatar("", user.info.firstName)</div>
+				<div class="profile-pic">@avatar(ImageUrl(""), user.info.firstName)</div>
 				<div class="profile-info">@user.info.firstName @user.info.lastName <i class="md md-arrow-drop-down"></i></div>
 			</a>
 			<ul class="main-menu" @if(breadcrumb.startsWith("profile")){style="display: block;"}>

@@ -1,5 +1,7 @@
 package backend.controllers
 
+import common.models.values.typed.Email
+import common.models.values.typed.UserRole
 import common.models.user.User
 import common.models.user.UserOrganization
 import common.models.user.OrganizationRequest
@@ -213,7 +215,7 @@ object Requests extends SilhouetteEnvironment {
         organization <- organizationOpt
         user <- userOpt
       } yield {
-        val userWithOrg = if (user.organizationRole(organization.uuid).isDefined) { user } else { user.copy(organizationIds = user.organizationIds ++ List(UserOrganization(organization.uuid, UserOrganization.member))) }
+        val userWithOrg = if (user.organizationRole(organization.uuid).isDefined) { user } else { user.copy(organizationIds = user.organizationIds ++ List(UserOrganization(organization.uuid, UserRole.member))) }
         for {
           userUpdatedOpt <- UserRepository.update(userWithOrg.uuid, userWithOrg)
           acceptErr <- RequestRepository.setAccepted(request.uuid)
@@ -256,7 +258,7 @@ object Requests extends SilhouetteEnvironment {
       organizationOwnerOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))
     } yield {
       organizationOpt.map { organization =>
-        val invitedUserWithOrg = invitedUser.copy(organizationIds = invitedUser.organizationIds ++ List(UserOrganization(organizationId, UserOrganization.member)))
+        val invitedUserWithOrg = invitedUser.copy(organizationIds = invitedUser.organizationIds ++ List(UserOrganization(organizationId, UserRole.member)))
         UserRepository.update(invitedUserWithOrg.uuid, invitedUserWithOrg).flatMap { userUpdatedOpt =>
           RequestRepository.setAccepted(request.uuid).flatMap { _ =>
             organizationOwnerOpt.map { organizationOwner =>
@@ -274,7 +276,7 @@ object Requests extends SilhouetteEnvironment {
     res.flatMap(identity)
   }
 
-  private def rejectOrganizationInvite(request: Request, organizationId: OrganizationId, inviteEmail: String): Future[(String, String)] = {
+  private def rejectOrganizationInvite(request: Request, organizationId: OrganizationId, inviteEmail: Email): Future[(String, String)] = {
     val res: Future[Future[(String, String)]] = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)
       organizationOwnerOpt <- request.userId.map { userId => UserRepository.getByUuid(userId) }.getOrElse(Future(None))

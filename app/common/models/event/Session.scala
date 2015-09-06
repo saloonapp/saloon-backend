@@ -5,12 +5,15 @@ import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.DataSource
+import common.models.values.typed._
 import common.services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+import common.models.values.typed.TextMultiline
+import common.models.values.typed.TextHTML
 
 case class SessionId(val id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
@@ -21,16 +24,16 @@ object SessionId extends tStringHelper[SessionId] {
 }
 
 case class SessionImages(
-  landing: String) // landscape img (~ 400x150)
+  landing: ImageUrl) // landscape img (~ 400x150)
 case class SessionInfo(
   format: String,
   theme: String,
-  place: String, // where to find this session
+  place: EventLocation, // where to find this session
   start: Option[DateTime],
   end: Option[DateTime],
   speakers: List[AttendeeId],
-  slides: Option[String],
-  video: Option[String])
+  slides: Option[WebsiteUrl],
+  video: Option[WebsiteUrl])
 case class SessionMeta(
   source: Option[DataSource], // where the session were fetched (if applies)
   created: DateTime,
@@ -38,9 +41,9 @@ case class SessionMeta(
 case class Session(
   uuid: SessionId,
   eventId: EventId,
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: SessionImages,
   info: SessionInfo,
   meta: SessionMeta) extends EventItem {
@@ -50,7 +53,6 @@ case class Session(
   //def toMap(): Map[String, String] = Session.toMap(this)
 }
 object Session {
-  val className = "sessions"
   implicit val formatSessionImages = Json.format[SessionImages]
   implicit val formatSessionInfo = Json.format[SessionInfo]
   implicit val formatSessionMeta = Json.format[SessionMeta]
@@ -58,16 +60,16 @@ object Session {
 
   def toBackendExport(e: Session): Map[String, String] = Map(
     "uuid" -> e.uuid.unwrap,
-    "name" -> e.name,
-    "description" -> e.description,
+    "name" -> e.name.unwrap,
+    "description" -> e.description.unwrap,
     "format" -> e.info.format,
     "theme" -> e.info.theme,
-    "place" -> e.info.place,
+    "place" -> e.info.place.unwrap,
     "start" -> e.info.start.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "end" -> e.info.end.map(_.toString(FileImporter.dateFormat)).getOrElse(""),
     "speakerUuids" -> Utils.fromList(e.info.speakers.map(_.unwrap)),
-    "slides" -> e.info.slides.getOrElse(""),
-    "video" -> e.info.video.getOrElse(""),
+    "slides" -> e.info.slides.map(_.unwrap).getOrElse(""),
+    "video" -> e.info.video.map(_.unwrap).getOrElse(""),
     "created" -> e.meta.created.toString(FileImporter.dateFormat),
     "updated" -> e.meta.updated.toString(FileImporter.dateFormat))
 
@@ -96,6 +98,7 @@ object Session {
     e1.created,
     e2.updated)
   private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
+  private def merge[T <: tString](e1: T, e2: T): T = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
 
@@ -148,29 +151,29 @@ case class SessionMetaData(
   source: Option[DataSource])
 case class SessionData(
   eventId: EventId,
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: SessionImages,
   info: SessionInfo,
   meta: SessionMetaData)
 object SessionData {
   val fields = mapping(
     "eventId" -> of[EventId],
-    "name" -> nonEmptyText,
-    "description" -> text,
-    "descriptionHTML" -> text,
+    "name" -> of[FullName],
+    "description" -> of[TextMultiline],
+    "descriptionHTML" -> of[TextHTML],
     "images" -> mapping(
-      "landing" -> text)(SessionImages.apply)(SessionImages.unapply),
+      "landing" -> of[ImageUrl])(SessionImages.apply)(SessionImages.unapply),
     "info" -> mapping(
       "format" -> text,
       "theme" -> text,
-      "place" -> text,
+      "place" -> of[EventLocation],
       "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "speakers" -> list(of[AttendeeId]),
-      "slides" -> optional(text),
-      "video" -> optional(text))(SessionInfo.apply)(SessionInfo.unapply),
+      "slides" -> optional(of[WebsiteUrl]),
+      "video" -> optional(of[WebsiteUrl]))(SessionInfo.apply)(SessionInfo.unapply),
     "meta" -> mapping(
       "source" -> optional(DataSource.fields))(SessionMetaData.apply)(SessionMetaData.unapply))(SessionData.apply)(SessionData.unapply)
 

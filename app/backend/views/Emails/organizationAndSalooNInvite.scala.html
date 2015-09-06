@@ -1,8 +1,9 @@
+@import common.models.values.typed.TextMultiline
 @import common.models.user.User
 @import common.models.user.Organization
 @import common.models.user.OrganizationInvite
 @import common.models.user.Request
-@(organization: Organization, organizationOwner: User, commentOpt: Option[String], request: Request, inviteUrl: String)
+@(organization: Organization, organizationOwner: User, commentOpt: Option[TextMultiline], request: Request, inviteUrl: String)
 
 Bonjour,<br>
 <br>

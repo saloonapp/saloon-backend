@@ -14,7 +14,7 @@ import common.models.user.Device
 import common.models.user.DeviceId
 import common.models.user.UserActionFull
 import common.models.user.SubscribeUserAction
-import common.models.values.GenericId
+import common.models.values.typed._
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
@@ -68,7 +68,7 @@ object EventSrv {
       for {
         events: Map[EventId, Event] <- EventRepository.findByUuids(actions.map(_.eventId).flatten.distinct).map(_.map(u => (u.uuid, u)).toMap)
         devices: Map[DeviceId, Device] <- DeviceRepository.findByUuids(actions.map(_.userId).distinct).map(_.map(u => (u.uuid, u)).toMap)
-        items: Map[(String, GenericId), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
+        items: Map[(ItemType, GenericId), EventItem] <- EventItemRepository.findByUuids(actions.map(a => (a.itemType, a.itemId)).distinct)
       } yield {
         actions.map { a =>
           for {
@@ -107,7 +107,7 @@ object EventSrv {
     diff(oldElts, newElts, (e: Exponent) => e.name, (e: Exponent) => e.meta.source.map(_.ref), (oe: Exponent, ne: Exponent) => oe.merge(ne), (oe: Exponent, ne: Exponent) => oe.copy(meta = oe.meta.copy(updated = new DateTime(0))) == ne.copy(meta = ne.meta.copy(updated = new DateTime(0))))
   }
 
-  private def diff[A](oldElts: List[A], newElts: List[A], getName: A => String, getRef: A => Option[String], merge: (A, A) => A, equals: (A, A) => Boolean): (List[A], List[A], List[(A, A)]) = {
+  private def diff[A](oldElts: List[A], newElts: List[A], getName: A => FullName, getRef: A => Option[String], merge: (A, A) => A, equals: (A, A) => Boolean): (List[A], List[A], List[(A, A)]) = {
     val createdElts = newElts.filter(ne => oldElts.find(oe => eqOpt(getRef(oe), getRef(ne)) || getName(oe) == getName(ne)).isEmpty)
     val deletedElts = oldElts.filter(oe => newElts.find(ne => eqOpt(getRef(oe), getRef(ne)) || getName(oe) == getName(ne)).isEmpty)
     val updatedElts = oldElts

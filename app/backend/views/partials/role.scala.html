@@ -1,6 +1,0 @@
-@(role: String)
-@role.toLowerCase match {
-	case "" => {}
-	case "speaker" => {<span class="label label-danger">@role</span>}
-	case _ => {<span class="label label-primary">@role</span>}
-}

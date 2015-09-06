@@ -5,7 +5,7 @@ import common.models.user.DeviceId
 import common.models.user.DeviceData
 import common.models.user.UserAction
 import common.models.user.UserActionId
-import common.models.values.GenericId
+import common.models.values.typed._
 import common.models.utils.Page
 import common.repositories.Repository
 import common.repositories.user.DeviceRepository
@@ -102,7 +102,7 @@ object Devices extends SilhouetteEnvironment {
     }
   }
 
-  def deleteAction(deviceId: DeviceId, itemType: String, itemId: GenericId, actionType: String, actionId: UserActionId) = SecuredAction.async { implicit req =>
+  def deleteAction(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, actionType: String, actionId: UserActionId) = SecuredAction.async { implicit req =>
     repository.getByUuid(deviceId).flatMap {
       _.map { elt =>
         val res: Future[LastError] =

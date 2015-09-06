@@ -1,5 +1,6 @@
 @import common.models.user.User
-@(source: String, name: String, email: String, message: String, userOpt: Option[User])
+@import common.models.values.typed.Email
+@(source: String, name: String, email: Email, message: String, userOpt: Option[User])
 
 De : @name &lt;@email&gt;<br>
 Utilisateur : @userOpt.map { user => @user.email (@user.uuid) }.getOrElse { Non authentifié }<br>

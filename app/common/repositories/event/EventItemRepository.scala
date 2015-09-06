@@ -7,28 +7,28 @@ import common.models.event.Session
 import common.models.event.SessionId
 import common.models.event.Exponent
 import common.models.event.ExponentId
-import common.models.values.GenericId
+import common.models.values.typed._
 import common.repositories.CollectionReferences
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object EventItemRepository {
-  def getByUuid(itemType: String, itemId: GenericId): Future[Option[EventItem]] = {
-    if (itemType == Event.className) EventRepository.getByUuid(itemId.toEventId)
-    else if (itemType == Session.className) SessionRepository.getByUuid(itemId.toSessionId)
-    else if (itemType == Exponent.className) ExponentRepository.getByUuid(itemId.toExponentId)
+  def getByUuid(itemType: ItemType, itemId: GenericId): Future[Option[EventItem]] = {
+    if (itemType == ItemType.events) EventRepository.getByUuid(itemId.toEventId)
+    else if (itemType == ItemType.sessions) SessionRepository.getByUuid(itemId.toSessionId)
+    else if (itemType == ItemType.exponents) ExponentRepository.getByUuid(itemId.toExponentId)
     else Future(None)
   }
 
-  def findByUuids(uuids: List[(String, GenericId)]): Future[Map[(String, GenericId), EventItem]] = {
+  def findByUuids(uuids: List[(ItemType, GenericId)]): Future[Map[(ItemType, GenericId), EventItem]] = {
     for {
-      events <- EventRepository.findByUuids(uuids.filter(_._1 == Event.className).map(p => p._2.toEventId).distinct)
-      sessions <- SessionRepository.findByUuids(uuids.filter(_._1 == Session.className).map(p => p._2.toSessionId).distinct)
-      exponents <- ExponentRepository.findByUuids(uuids.filter(_._1 == Exponent.className).map(p => p._2.toExponentId).distinct)
+      events <- EventRepository.findByUuids(uuids.filter(_._1 == ItemType.events).map(p => p._2.toEventId).distinct)
+      sessions <- SessionRepository.findByUuids(uuids.filter(_._1 == ItemType.sessions).map(p => p._2.toSessionId).distinct)
+      exponents <- ExponentRepository.findByUuids(uuids.filter(_._1 == ItemType.exponents).map(p => p._2.toExponentId).distinct)
     } yield {
-      events.map(e => ((Event.className, e.uuid.toGenericId), e)).toMap ++
-        sessions.map(e => ((Session.className, e.uuid.toGenericId), e)).toMap ++
-        exponents.map(e => ((Exponent.className, e.uuid.toGenericId), e)).toMap
+      events.map(e => ((ItemType.events, e.uuid.toGenericId), e)).toMap ++
+        sessions.map(e => ((ItemType.sessions, e.uuid.toGenericId), e)).toMap ++
+        exponents.map(e => ((ItemType.exponents, e.uuid.toGenericId), e)).toMap
     }
   }
 }

@@ -7,6 +7,8 @@ import common.models.values.UUID
 import common.models.values.Address
 import common.models.values.DataSource
 import common.models.values.Link
+import common.models.values.typed._
+import common.models.user.OrganizationId
 import common.services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
@@ -23,25 +25,25 @@ object EventId extends tStringHelper[EventId] {
 }
 
 case class EventImages(
-  logo: String, // squared logo of event (~ 100x100)
-  landing: String) // landscape img for event (in info screen) (~ 400x150)
+  logo: ImageUrl, // squared logo of event (~ 100x100)
+  landing: ImageUrl) // landscape img for event (in info screen) (~ 400x150)
 case class EventInfoSocialTwitter(
   hashtag: Option[String],
   account: Option[String])
 case class EventInfoSocial(
   twitter: EventInfoSocialTwitter)
 case class EventInfo(
-  website: String, // event home page
+  website: WebsiteUrl, // event home page
   start: Option[DateTime], // when event starts
   end: Option[DateTime], // when event ends
   address: Address,
   price: Link, // event pricing (ex: "15€ - 50€" or "inscription obligatoire")
   social: EventInfoSocial)
 case class EventEmail(
-  reportMessageHtml: Option[String])
+  reportMessageHtml: Option[TextHTML])
 case class EventConfigBranding(
-  primaryColor: String,
-  secondaryColor: String,
+  primaryColor: Color,
+  secondaryColor: Color,
   dailySessionMenu: List[String],
   exponentMenu: List[String])
 case class EventConfigAttendeeSurveyQuestion(
@@ -73,10 +75,10 @@ case class EventMeta(
   updated: DateTime)
 case class Event(
   uuid: EventId,
-  ownerId: String, // Organization uuid
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  ownerId: OrganizationId, // Organization uuid
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: EventImages,
   info: EventInfo,
   email: EventEmail,
@@ -86,7 +88,6 @@ case class Event(
   //def toMap(): Map[String, String] = Event.toMap(this)
 }
 object Event {
-  val className = "events"
   implicit val formatEventImages = Json.format[EventImages]
   implicit val formatEventInfoSocialTwitter = Json.format[EventInfoSocialTwitter]
   implicit val formatEventInfoSocial = Json.format[EventInfoSocial]
@@ -141,6 +142,7 @@ object Event {
   private def merge(e1: Link, e2: Link): Link = if (e2.label.isEmpty && e2.url.isEmpty) e1 else e2
   private def merge(e1: Address, e2: Address): Address = if (e2.name.isEmpty && e2.street.isEmpty && e2.zipCode.isEmpty && e2.city.isEmpty) e1 else e2
   private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
+  private def merge[T <: tString](e1: T, e2: T): T = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
   private def merge[A, B](e1: Map[A, B], e2: Map[A, B]): Map[A, B] = if (e2.isEmpty) e1 else e2
@@ -223,8 +225,8 @@ object Event {
 
 // mapping object for Event Form
 case class EventConfigBrandingData(
-  primaryColor: String,
-  secondaryColor: String,
+  primaryColor: Color,
+  secondaryColor: Color,
   dailySessionMenu: String,
   exponentMenu: String)
 case class EventConfigData(
@@ -235,10 +237,10 @@ case class EventMetaData(
   refreshUrl: Option[String],
   source: Option[DataSource])
 case class EventData(
-  ownerId: String,
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  ownerId: OrganizationId,
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: EventImages,
   info: EventInfo,
   email: EventEmail,
@@ -246,15 +248,15 @@ case class EventData(
   meta: EventMetaData)
 object EventData {
   val fields = mapping(
-    "ownerId" -> nonEmptyText,
-    "name" -> nonEmptyText,
-    "description" -> text,
-    "descriptionHTML" -> text,
+    "ownerId" -> of[OrganizationId],
+    "name" -> of[FullName],
+    "description" -> of[TextMultiline],
+    "descriptionHTML" -> of[TextHTML],
     "images" -> mapping(
-      "logo" -> text,
-      "landing" -> text)(EventImages.apply)(EventImages.unapply),
+      "logo" -> of[ImageUrl],
+      "landing" -> of[ImageUrl])(EventImages.apply)(EventImages.unapply),
     "info" -> mapping(
-      "website" -> text,
+      "website" -> of[WebsiteUrl],
       "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
       "address" -> Address.fields,
@@ -264,11 +266,11 @@ object EventData {
           "hashtag" -> optional(text),
           "account" -> optional(text))(EventInfoSocialTwitter.apply)(EventInfoSocialTwitter.unapply))(EventInfoSocial.apply)(EventInfoSocial.unapply))(EventInfo.apply)(EventInfo.unapply),
     "email" -> mapping(
-      "reportMessageHtml" -> optional(text))(EventEmail.apply)(EventEmail.unapply),
+      "reportMessageHtml" -> optional(of[TextHTML]))(EventEmail.apply)(EventEmail.unapply),
     "config" -> mapping(
       "branding" -> optional(mapping(
-        "primaryColor" -> text,
-        "secondaryColor" -> text,
+        "primaryColor" -> of[Color],
+        "secondaryColor" -> of[Color],
         "dailySessionMenu" -> text,
         "exponentMenu" -> text)(EventConfigBrandingData.apply)(EventConfigBrandingData.unapply)),
       "published" -> boolean)(EventConfigData.apply)(EventConfigData.unapply),

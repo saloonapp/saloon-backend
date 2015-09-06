@@ -5,6 +5,8 @@ import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.DataSource
+import common.models.values.typed._
+import common.models.user.OrganizationId
 import common.repositories.Repository
 import common.services.FileImporter
 import org.joda.time.DateTime
@@ -12,6 +14,7 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+import common.models.values.typed.TextMultiline
 
 case class ExponentId(val id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
@@ -22,11 +25,11 @@ object ExponentId extends tStringHelper[ExponentId] {
 }
 
 case class ExponentImages(
-  logo: String, // squared logo (~ 100x100)
-  landing: String) // landscape img (~ 400x150)
+  logo: ImageUrl, // squared logo (~ 100x100)
+  landing: ImageUrl) // landscape img (~ 400x150)
 case class ExponentInfo(
-  website: String, // TODO : transform to Option[String]
-  place: String, // where to find this exponent
+  website: WebsiteUrl, // TODO : transform to Option[String]
+  place: EventLocation, // where to find this exponent
   team: List[AttendeeId], // attendees being part of this exponent
   sponsorLevel: Option[Int])
 case class ExponentConfig(
@@ -38,10 +41,10 @@ case class ExponentMeta(
 case class Exponent(
   uuid: ExponentId,
   eventId: EventId,
-  ownerId: Option[String], // Organization uuid
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  ownerId: Option[OrganizationId],
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: ExponentImages,
   info: ExponentInfo,
   config: ExponentConfig,
@@ -53,7 +56,6 @@ case class Exponent(
   //def toMap(): Map[String, String] = Exponent.toMap(this)
 }
 object Exponent {
-  val className = "exponents"
   implicit val formatExponentImages = Json.format[ExponentImages]
   implicit val formatExponentInfo = Json.format[ExponentInfo]
   implicit val formatExponentConfig = Json.format[ExponentConfig]
@@ -62,12 +64,12 @@ object Exponent {
 
   def toBackendExport(e: Exponent): Map[String, String] = Map(
     "uuid" -> e.uuid.unwrap,
-    "name" -> e.name,
-    "description" -> e.description,
-    "logo" -> e.images.logo,
-    "landing" -> e.images.landing,
-    "website" -> e.info.website,
-    "location" -> e.info.place,
+    "name" -> e.name.unwrap,
+    "description" -> e.description.unwrap,
+    "logo" -> e.images.logo.unwrap,
+    "landing" -> e.images.landing.unwrap,
+    "website" -> e.info.website.unwrap,
+    "location" -> e.info.place.unwrap,
     "teamUuids" -> Utils.fromList(e.info.team.map(_.unwrap)),
     "sponsorLevel" -> e.info.sponsorLevel.map(_ match {
       case 1 => "Gold"
@@ -105,6 +107,7 @@ object Exponent {
     e1.created,
     e2.updated)
   private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
+  private def merge[T <: tString](e1: T, e2: T): T = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
 
@@ -156,9 +159,9 @@ case class ExponentMetaData(
   source: Option[DataSource])
 case class ExponentData(
   eventId: EventId,
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: ExponentImages,
   info: ExponentInfo,
   config: ExponentConfig,
@@ -166,15 +169,15 @@ case class ExponentData(
 object ExponentData {
   val fields = mapping(
     "eventId" -> of[EventId],
-    "name" -> nonEmptyText,
-    "description" -> text,
-    "descriptionHTML" -> text,
+    "name" -> of[FullName],
+    "description" -> of[TextMultiline],
+    "descriptionHTML" -> of[TextHTML],
     "images" -> mapping(
-      "logo" -> text,
-      "landing" -> text)(ExponentImages.apply)(ExponentImages.unapply),
+      "logo" -> of[ImageUrl],
+      "landing" -> of[ImageUrl])(ExponentImages.apply)(ExponentImages.unapply),
     "info" -> mapping(
-      "website" -> text,
-      "place" -> text,
+      "website" -> of[WebsiteUrl],
+      "place" -> of[EventLocation],
       "team" -> list(of[AttendeeId]),
       "sponsorLevel" -> optional(number))(ExponentInfo.apply)(ExponentInfo.unapply),
     "config" -> mapping(

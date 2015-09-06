@@ -1,3 +1,5 @@
+@import common.models.values.typed.UserRole
+@import common.models.values.typed.TextMultiline
 @import common.models.user.User
 @import common.models.user.Organization
 @import common.models.user.OrganizationId
@@ -10,7 +12,7 @@
 @import backend.views.html.partials._
 @import common.views.html.forms._
 @import common.views.html.format._
-@(userOrganizations: List[(Organization, String, Int)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(OrganizationId, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(userOrganizations: List[(Organization, UserRole, Int)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(OrganizationId, Option[TextMultiline])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Mon profil", "profile"){
 	<div class="row">
 		<div class="col-md-8">
@@ -61,7 +63,7 @@
 									<div style="padding: 10px;">
 										<h4>Demandez à rejoindre une organisation</h4>
 										<p>Rejoignez vos collègues dans leur organisation pour partager les événements</p>
-										@inputSelect2(accessRequestForm("organizationId"), otherOrganizations.map(o => (o.uuid.unwrap,o.name)), 'emptyOption->"--")
+										@inputSelect2(accessRequestForm("organizationId"), otherOrganizations.map(o => (o.uuid.unwrap,o.name.unwrap)), 'emptyOption->"--")
 										<div class="fg-line" style="margin-top: 10px;">@inputTextarea(accessRequestForm("comment"), 'placeholder->"Raison de votre demande...")</div>
 									</div>
 									<div class="body-alt-actions">

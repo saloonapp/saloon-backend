@@ -4,7 +4,7 @@ import common.models.user.User
 import common.models.user.UserId
 import common.models.user.UserData
 import common.models.user.UserAction
-import common.models.values.GenericId
+import common.models.values.typed.GenericId
 import common.models.utils.Page
 import common.services.EmailSrv
 import common.services.MandrillSrv

@@ -1,6 +1,7 @@
 package common.repositories.event
 
 import common.models.utils.Page
+import common.models.values.typed.ItemType
 import common.models.event.EventId
 import common.models.event.AttendeeId
 import common.models.event.Session
@@ -32,7 +33,7 @@ trait MongoDbSessionRepository extends Repository[Session, SessionId] {
   override def update(sessionId: SessionId, elt: Session): Future[Option[Session]] = crud.update(sessionId.unwrap, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(sessionId: SessionId): Future[Option[Session]] = {
     crud.delete(sessionId.unwrap).map { err =>
-      UserActionRepository.deleteByItem(Session.className, sessionId.unwrap)
+      UserActionRepository.deleteByItem(ItemType.sessions, sessionId.unwrap)
       None
     } // TODO : return deleted elt !
   }

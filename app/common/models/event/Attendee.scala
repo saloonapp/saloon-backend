@@ -7,12 +7,16 @@ import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.Address
 import common.models.values.DataSource
+import common.models.values.typed._
 import common.services.FileImporter
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+import common.models.values.typed.TextMultiline
+import common.models.values.typed.TextHTML
+import common.models.values.typed.ImageUrl
 
 case class AttendeeId(val id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
@@ -23,30 +27,30 @@ object AttendeeId extends tStringHelper[AttendeeId] {
 }
 
 case class AttendeeImages(
-  avatar: String)
+  avatar: ImageUrl)
 case class AttendeeInfo(
-  role: String, // cf AttendeeRole
-  genre: String,
-  firstName: String,
-  lastName: String,
+  role: AttendeeRole,
+  genre: Genre,
+  firstName: FirstName,
+  lastName: LastName,
   birthYear: Option[Int],
-  email: String,
-  phone: String,
+  email: Email,
+  phone: PhoneNumber,
   address: Address,
-  job: String,
-  company: String,
-  website: Option[String])
+  job: JobTitle,
+  company: CompanyName,
+  website: Option[WebsiteUrl])
 case class AttendeeCV(
   integral: String,
   nameless: String,
   content: String)
 case class AttendeeSocial(
-  blogUrl: Option[String],
-  facebookUrl: Option[String],
-  twitterUrl: Option[String],
-  linkedinUrl: Option[String],
-  viadeoUrl: Option[String],
-  githubUrl: Option[String])
+  blogUrl: Option[WebsiteUrl],
+  facebookUrl: Option[WebsiteUrl],
+  twitterUrl: Option[WebsiteUrl],
+  linkedinUrl: Option[WebsiteUrl],
+  viadeoUrl: Option[WebsiteUrl],
+  githubUrl: Option[WebsiteUrl])
 case class AttendeeQuestion(
   question: String,
   answers: List[String])
@@ -57,16 +61,16 @@ case class AttendeeMeta(
 case class Attendee(
   uuid: AttendeeId,
   eventId: EventId,
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: AttendeeImages,
   info: AttendeeInfo,
   cv: Option[AttendeeCV],
   social: AttendeeSocial,
   survey: List[AttendeeQuestion],
   meta: AttendeeMeta) extends EventItem {
-  def links(): List[(String, String, String)] = {
+  def links(): List[(WebsiteUrl, String, String)] = {
     List(
       this.info.website.map(url => (url, "Site", "md md-link")),
       this.social.blogUrl.map(url => (url, "Blog", "md md-messenger")),
@@ -76,13 +80,12 @@ case class Attendee(
       this.social.viadeoUrl.map(url => (url, "Viadeo", "socicon socicon-viadeo")),
       this.social.githubUrl.map(url => (url, "Github", "socicon socicon-github"))).flatten
   }
-  def position(): Option[String] = Helpers.strOpt(List(this.info.job, this.info.company).filter(_ != "").mkString(" chez "))
+  def position(): Option[String] = Helpers.strOpt(List(this.info.job.unwrap, this.info.company.unwrap).filter(_ != "").mkString(" chez "))
   def merge(e: Attendee): Attendee = Attendee.merge(this, e)
   def toBackendExport(): Map[String, String] = Attendee.toBackendExport(this)
   //def toMap(): Map[String, String] = Attendee.toMap(this)
 }
 object Attendee {
-  val className = "attendees"
   implicit val formatAttendeeImages = Json.format[AttendeeImages]
   implicit val formatAttendeeInfo = Json.format[AttendeeInfo]
   implicit val formatAttendeeCV = Json.format[AttendeeCV]
@@ -93,28 +96,28 @@ object Attendee {
 
   def toBackendExport(e: Attendee): Map[String, String] = e.survey.map(q => (q.question, Utils.fromList(q.answers))).toMap ++ Map(
     "uuid" -> e.uuid.unwrap,
-    "name" -> e.name,
-    "description" -> e.description,
-    "avatar" -> e.images.avatar,
-    "role" -> e.info.role,
-    "genre" -> e.info.genre,
-    "firstName" -> e.info.firstName,
-    "lastName" -> e.info.lastName,
+    "name" -> e.name.unwrap,
+    "description" -> e.description.unwrap,
+    "avatar" -> e.images.avatar.unwrap,
+    "role" -> e.info.role.unwrap,
+    "genre" -> e.info.genre.unwrap,
+    "firstName" -> e.info.firstName.unwrap,
+    "lastName" -> e.info.lastName.unwrap,
     "birthYear" -> e.info.birthYear.map(_.toString).getOrElse(""),
-    "email" -> e.info.email,
-    "phone" -> e.info.phone,
+    "email" -> e.info.email.unwrap,
+    "phone" -> e.info.phone.unwrap,
     "street" -> e.info.address.street,
     "zipCode" -> e.info.address.zipCode,
     "city" -> e.info.address.city,
-    "job" -> e.info.job,
-    "company" -> e.info.company,
-    "website" -> e.info.website.getOrElse(""),
-    "blogUrl" -> e.social.blogUrl.getOrElse(""),
-    "facebookUrl" -> e.social.facebookUrl.getOrElse(""),
-    "twitterUrl" -> e.social.twitterUrl.getOrElse(""),
-    "linkedinUrl" -> e.social.linkedinUrl.getOrElse(""),
-    "viadeoUrl" -> e.social.viadeoUrl.getOrElse(""),
-    "githubUrl" -> e.social.githubUrl.getOrElse(""),
+    "job" -> e.info.job.unwrap,
+    "company" -> e.info.company.unwrap,
+    "website" -> e.info.website.map(_.unwrap).getOrElse(""),
+    "blogUrl" -> e.social.blogUrl.map(_.unwrap).getOrElse(""),
+    "facebookUrl" -> e.social.facebookUrl.map(_.unwrap).getOrElse(""),
+    "twitterUrl" -> e.social.twitterUrl.map(_.unwrap).getOrElse(""),
+    "linkedinUrl" -> e.social.linkedinUrl.map(_.unwrap).getOrElse(""),
+    "viadeoUrl" -> e.social.viadeoUrl.map(_.unwrap).getOrElse(""),
+    "githubUrl" -> e.social.githubUrl.map(_.unwrap).getOrElse(""),
     "created" -> e.meta.created.toString(FileImporter.dateFormat),
     "updated" -> e.meta.updated.toString(FileImporter.dateFormat))
 
@@ -157,6 +160,7 @@ object Attendee {
     e2.updated)
   private def merge(e1: Address, e2: Address): Address = if (e2.name.isEmpty && e2.street.isEmpty && e2.zipCode.isEmpty && e2.city.isEmpty) e1 else e2
   private def merge(e1: String, e2: String): String = if (e2.isEmpty) e1 else e2
+  private def merge[T <: tString](e1: T, e2: T): T = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: Option[A], e2: Option[A]): Option[A] = if (e2.isEmpty) e1 else e2
   private def merge[A](e1: List[A], e2: List[A]): List[A] = if (e2.isEmpty) e1 else e2
 
@@ -208,22 +212,14 @@ object Attendee {
   private def parseDate(date: String) = Utils.parseDate(FileImporter.dateFormat)(date)*/
 }
 
-object AttendeeRole {
-  val staff = "staff"
-  val exposant = "exposant"
-  val speaker = "speaker"
-  val visiteur = "visiteur"
-  val all = List(staff, exposant, speaker, visiteur)
-}
-
 // mapping object for Attendee Form
 case class AttendeeMetaData(
   source: Option[DataSource])
 case class AttendeeData(
   eventId: EventId,
-  name: String,
-  description: String,
-  descriptionHTML: String,
+  name: FullName,
+  description: TextMultiline,
+  descriptionHTML: TextHTML,
   images: AttendeeImages,
   info: AttendeeInfo,
   social: AttendeeSocial,
@@ -231,30 +227,30 @@ case class AttendeeData(
 object AttendeeData {
   val fields = mapping(
     "eventId" -> of[EventId],
-    "name" -> nonEmptyText,
-    "description" -> text,
-    "descriptionHTML" -> text,
+    "name" -> of[FullName],
+    "description" -> of[TextMultiline],
+    "descriptionHTML" -> of[TextHTML],
     "images" -> mapping(
-      "avatar" -> text)(AttendeeImages.apply)(AttendeeImages.unapply),
+      "avatar" -> of[ImageUrl])(AttendeeImages.apply)(AttendeeImages.unapply),
     "info" -> mapping(
-      "role" -> text,
-      "genre" -> text,
-      "firstName" -> text,
-      "lasName" -> text,
+      "role" -> of[AttendeeRole],
+      "genre" -> of[Genre],
+      "firstName" -> of[FirstName],
+      "lasName" -> of[LastName],
       "birthYear" -> optional(number),
-      "email" -> email,
-      "phone" -> text,
+      "email" -> of[Email],
+      "phone" -> of[PhoneNumber],
       "address" -> Address.fields,
-      "job" -> text,
-      "company" -> text,
-      "website" -> optional(text))(AttendeeInfo.apply)(AttendeeInfo.unapply),
+      "job" -> of[JobTitle],
+      "company" -> of[CompanyName],
+      "website" -> optional(of[WebsiteUrl]))(AttendeeInfo.apply)(AttendeeInfo.unapply),
     "social" -> mapping(
-      "blogUrl" -> optional(text),
-      "facebookUrl" -> optional(text),
-      "twitterUrl" -> optional(text),
-      "linkedinUrl" -> optional(text),
-      "viadeoUrl" -> optional(text),
-      "githubUrl" -> optional(text))(AttendeeSocial.apply)(AttendeeSocial.unapply),
+      "blogUrl" -> optional(of[WebsiteUrl]),
+      "facebookUrl" -> optional(of[WebsiteUrl]),
+      "twitterUrl" -> optional(of[WebsiteUrl]),
+      "linkedinUrl" -> optional(of[WebsiteUrl]),
+      "viadeoUrl" -> optional(of[WebsiteUrl]),
+      "githubUrl" -> optional(of[WebsiteUrl]))(AttendeeSocial.apply)(AttendeeSocial.unapply),
     "meta" -> mapping(
       "source" -> optional(DataSource.fields))(AttendeeMetaData.apply)(AttendeeMetaData.unapply))(AttendeeData.apply)(AttendeeData.unapply)
 

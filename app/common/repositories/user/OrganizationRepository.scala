@@ -1,6 +1,7 @@
 package common.repositories.user
 
 import common.models.utils.Page
+import common.models.values.typed.FullName
 import common.models.user.User
 import common.models.user.Organization
 import common.models.user.OrganizationId
@@ -33,7 +34,7 @@ trait MongoDbOrganizationRepository extends Repository[Organization, Organizatio
     }
   }
 
-  def getByName(name: String): Future[Option[Organization]] = crud.getBy("name", name)
+  def getByName(name: FullName): Future[Option[Organization]] = crud.getBy("name", name.unwrap)
   def findByUuids(organizationIds: List[OrganizationId]): Future[List[Organization]] = crud.findByUuids(organizationIds.map(_.unwrap))
   def findAllowed(user: User): Future[List[Organization]] = if (user.canAdministrateSaloon()) findAll() else findByUuids(user.organizationIds.map(_.organizationId))
 }

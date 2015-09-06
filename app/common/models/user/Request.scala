@@ -3,6 +3,7 @@ package common.models.user
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
+import common.models.values.typed._
 import org.joda.time.DateTime
 import play.api.libs.json._
 
@@ -18,24 +19,17 @@ case class Request(
   uuid: RequestId,
   userId: Option[UserId], // id of user who initiated the request
   content: RequestContent,
-  status: String, // pending, accepted, rejected, canceled
+  status: RequestStatus,
   created: DateTime,
   updated: DateTime)
 object Request {
-  object Status {
-    val pending = "pending"
-    val accepted = "accepted"
-    val rejected = "rejected"
-    val canceled = "canceled"
-  }
-
-  def accountRequest(email: String): Request = build(AccountRequest(email))
-  def accountInvite(email: String, next: Option[RequestId], user: User): Request = build(AccountInvite(email, next), user)
-  def passwordReset(email: String): Request = build(PasswordReset(email))
-  def organizationRequest(organizationId: OrganizationId, comment: Option[String], user: User): Request = build(OrganizationRequest(organizationId, comment), user)
-  def organizationInvite(organizationId: OrganizationId, email: String, comment: Option[String], user: User): Request = build(OrganizationInvite(organizationId, email, comment), user)
-  private def build(content: RequestContent): Request = Request(RequestId.generate(), None, content, Request.Status.pending, new DateTime(), new DateTime())
-  private def build(content: RequestContent, user: User): Request = Request(RequestId.generate(), Some(user.uuid), content, Request.Status.pending, new DateTime(), new DateTime())
+  def accountRequest(email: Email): Request = build(AccountRequest(email))
+  def accountInvite(email: Email, next: Option[RequestId], user: User): Request = build(AccountInvite(email, next), user)
+  def passwordReset(email: Email): Request = build(PasswordReset(email))
+  def organizationRequest(organizationId: OrganizationId, comment: Option[TextMultiline], user: User): Request = build(OrganizationRequest(organizationId, comment), user)
+  def organizationInvite(organizationId: OrganizationId, email: Email, comment: Option[TextMultiline], user: User): Request = build(OrganizationInvite(organizationId, email, comment), user)
+  private def build(content: RequestContent): Request = Request(RequestId.generate(), None, content, RequestStatus.pending, new DateTime(), new DateTime())
+  private def build(content: RequestContent, user: User): Request = Request(RequestId.generate(), Some(user.uuid), content, RequestStatus.pending, new DateTime(), new DateTime())
 
   private implicit val formatAccountRequest = Json.format[AccountRequest]
   private implicit val formatAccountInvite = Json.format[AccountInvite]
@@ -59,8 +53,8 @@ object Request {
 }
 
 sealed trait RequestContent
-case class AccountRequest(email: String, visited: Int = 0, accountRequest: Boolean = true) extends RequestContent
-case class AccountInvite(email: String, next: Option[RequestId], visited: Int = 0, accountInvite: Boolean = true) extends RequestContent
-case class PasswordReset(email: String, passwordReset: Boolean = true) extends RequestContent
-case class OrganizationRequest(organizationId: OrganizationId, comment: Option[String], organizationRequest: Boolean = true) extends RequestContent
-case class OrganizationInvite(organizationId: OrganizationId, email: String, comment: Option[String], organizationInvite: Boolean = true) extends RequestContent
+case class AccountRequest(email: Email, visited: Int = 0, accountRequest: Boolean = true) extends RequestContent
+case class AccountInvite(email: Email, next: Option[RequestId], visited: Int = 0, accountInvite: Boolean = true) extends RequestContent
+case class PasswordReset(email: Email, passwordReset: Boolean = true) extends RequestContent
+case class OrganizationRequest(organizationId: OrganizationId, comment: Option[TextMultiline], organizationRequest: Boolean = true) extends RequestContent
+case class OrganizationInvite(organizationId: OrganizationId, email: Email, comment: Option[TextMultiline], organizationInvite: Boolean = true) extends RequestContent

@@ -1,5 +1,7 @@
+@import common.models.values.typed.ImageUrl
+@import common.models.utils.tString
 @import common.views._
-@(avatar: String, name: String, args: (Symbol, String)*)
+@(avatar: ImageUrl, name: tString, args: (Symbol, String)*)
 @avatarColor(letter: Char) = @{
 	letter.toLower match {
 		case 'a'|'q' => "bgm-red"
@@ -21,5 +23,5 @@
 		case _ => "bgm-bluegray"
 	}
 }
+@if(avatar.isEmpty){<div class="lv-avatar @avatarColor(name.unwrap.head) @Helpers.getArg(args, "class")" @Helpers.toHtmlArgs(args, Seq("class"))>@name.unwrap.head</div>}
 @if(!avatar.isEmpty){<img src="@avatar" @Helpers.toHtmlArgs(args)>}
-@if(avatar.isEmpty){<div class="lv-avatar @avatarColor(name.head) @Helpers.getArg(args, "class")" @Helpers.toHtmlArgs(args, Seq("class"))>@name.head</div>}

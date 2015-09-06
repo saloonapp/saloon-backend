@@ -9,7 +9,7 @@
 	</div>
 	<div class="media-body">
 		<h4 class="media-heading">@attendee.name <span class="label label-primary">@attendee.info.role</span></h4>
-		<p class="text-muted">@if(!attendee.info.job.isEmpty){ (@attendee.info.job) } at @if(!attendee.info.company.isEmpty){ (@attendee.info.company) }</p>
+		<p class="text-muted">@attendee.position()</p>
 		<p class="well">@textMultiline(attendee.description)</p>
 		<p class="text-muted">
 			@attendee.info.website.map { url => <a href="@url" target="_blank"><i class="fa fa-link"></i></a> }.getOrElse("")

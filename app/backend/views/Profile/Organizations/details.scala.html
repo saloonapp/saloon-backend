@@ -1,3 +1,6 @@
+@import common.models.values.typed.Email
+@import common.models.values.typed.ImageUrl
+@import common.models.values.typed.TextMultiline
 @import common.models.user.User
 @import common.models.user.Organization
 @import common.models.user.OrganizationInvite
@@ -6,8 +9,8 @@
 @import backend.views.html.partials._
 @import common.views.html.forms._
 @import common.views.html.format._
-@(organization: Organization, members: List[User], pendingRequests: List[(Request, User)], pendingInvites: List[(Request, Option[User])], inviteForm: Form[(String, Option[String])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(organization.name, "profile_organizations_"+organization.uuid, Map(organization.uuid -> organization.name)){
+@(organization: Organization, members: List[User], pendingRequests: List[(Request, User)], pendingInvites: List[(Request, Option[User])], inviteForm: Form[(Email, Option[TextMultiline])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout(organization.name.unwrap, "profile_organizations_"+organization.uuid, Map(organization.uuid -> organization.name)){
 	<div class="row">
 		<div class="col-md-8">
 			<div class="card">
@@ -109,7 +112,7 @@
 					}
 					@members.map { member =>
 						<div class="media">
-							<div class="pull-left">@avatar("", user.info.firstName)</div>
+							<div class="pull-left">@avatar(ImageUrl(""), user.info.firstName)</div>
 							@if(user.canAdministrateOrganization(organization.uuid) && !member.canAdministrateOrganization(organization.uuid)){
 								<ul class="actions" style="float: right; margin-top: -6px;">
 									<li class="dropdown">

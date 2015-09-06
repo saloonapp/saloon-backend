@@ -1,8 +1,9 @@
-@(role: String)
+@import common.models.values.typed.UserRole
+@(role: UserRole)
 @role match {
-	case "owner" => { responsable }
-	case "admin" => { administrateur}
-	case "member" => { membre }
-	case "guest" => { invité }
-	case _ => { @role }
+	case UserRole("owner") => { responsable }
+	case UserRole("admin") => { administrateur}
+	case UserRole("member") => { membre }
+	case UserRole("guest") => { invité }
+	case _ => { @role.unwrap }
 }

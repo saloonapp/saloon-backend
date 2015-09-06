@@ -3,7 +3,7 @@
 @import common.models.event.Exponent
 @(exponent: Exponent, exponentTeam: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@admin.views.html.layout(exponent.name) {
+@admin.views.html.layout(exponent.name.unwrap) {
 	<div class="row">
 		<div class="col-md-12">
 			<div class="widget">

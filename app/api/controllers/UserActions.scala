@@ -7,7 +7,7 @@ import common.models.user.Device
 import common.models.user.DeviceId
 import common.models.user.UserAction
 import common.models.user.UserActionId
-import common.models.values.GenericId
+import common.models.values.typed._
 import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.EventItemRepository
@@ -23,29 +23,29 @@ import play.api.libs.json._
 import reactivemongo.core.commands.LastError
 
 object UserActions extends Controller with ControllerHelpers {
-  def favorite(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
+  def favorite(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     insertActionUnique(eventId, itemType, itemId)(UserActionRepository.getFavorite, UserActionRepository.insertFavorite)
   }
 
-  def unfavorite(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
+  def unfavorite(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteFavorite)
   }
 
-  def done(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
+  def done(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     insertActionUnique(eventId, itemType, itemId)(UserActionRepository.getDone, UserActionRepository.insertDone)
   }
 
-  def undone(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
+  def undone(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteDone)
   }
 
-  def mood(eventId: EventId, itemType: String, itemId: GenericId) = Action.async(parse.json) { implicit req =>
+  def mood(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async(parse.json) { implicit req =>
     bodyWith("rating") { rating =>
       setActionUnique(eventId, itemType, itemId)(UserActionRepository.getMood, UserActionRepository.setMood(rating))
     }
   }
 
-  def deleteMood(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
+  def deleteMood(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
         UserActionRepository.deleteMood(device.uuid, itemType, item.uuid).map { lastError =>
@@ -55,11 +55,11 @@ object UserActions extends Controller with ControllerHelpers {
     }
   }
 
-  def createComment(eventId: EventId, itemType: String, itemId: GenericId) = Action.async(parse.json) { implicit req =>
+  def createComment(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async(parse.json) { implicit req =>
     bodyWith("text") { text =>
       deviceFromHeader() { device =>
         withData(eventId, itemType, itemId) { (event, item) =>
-          UserActionRepository.insertComment(device.uuid, itemType, item.uuid, text, event.uuid, withTime()).map { eltOpt =>
+          UserActionRepository.insertComment(device.uuid, itemType, item.uuid, TextMultiline(text), event.uuid, withTime()).map { eltOpt =>
             eltOpt.map(elt => Created(Json.toJson(elt))).getOrElse(InternalServerError)
           }
         }
@@ -67,13 +67,13 @@ object UserActions extends Controller with ControllerHelpers {
     }
   }
 
-  def updateComment(eventId: EventId, itemType: String, itemId: GenericId, uuid: UserActionId) = Action.async(parse.json) { implicit req =>
+  def updateComment(eventId: EventId, itemType: ItemType, itemId: GenericId, uuid: UserActionId) = Action.async(parse.json) { implicit req =>
     bodyWith("text") { text =>
       deviceFromHeader() { device =>
         withData(eventId, itemType, itemId) { (event, item) =>
           UserActionRepository.getComment(device.uuid, itemType, item.uuid, uuid).flatMap {
             _.map { userAction =>
-              UserActionRepository.updateComment(device.uuid, itemType, item.uuid, uuid, userAction, text, withTime()).map { eltOpt =>
+              UserActionRepository.updateComment(device.uuid, itemType, item.uuid, uuid, userAction, TextMultiline(text), withTime()).map { eltOpt =>
                 eltOpt.map(elt => Ok(Json.toJson(elt))).getOrElse(InternalServerError)
               }
             }.getOrElse(Future(NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid"))))
@@ -83,7 +83,7 @@ object UserActions extends Controller with ControllerHelpers {
     }
   }
 
-  def deleteComment(eventId: EventId, itemType: String, itemId: GenericId, uuid: UserActionId) = Action.async { implicit req =>
+  def deleteComment(eventId: EventId, itemType: ItemType, itemId: GenericId, uuid: UserActionId) = Action.async { implicit req =>
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
         UserActionRepository.deleteComment(device.uuid, itemType, item.uuid, uuid).map { lastError =>
@@ -93,15 +93,15 @@ object UserActions extends Controller with ControllerHelpers {
     }
   }
 
-  def subscribe(eventId: EventId): Action[JsValue] = subscribe(eventId, Event.className, eventId)
-  def subscribe(eventId: EventId, itemType: String, itemId: GenericId) = Action.async(parse.json) { implicit req =>
+  def subscribe(eventId: EventId): Action[JsValue] = subscribe(eventId, ItemType.events, eventId)
+  def subscribe(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async(parse.json) { implicit req =>
     bodyWith("email", "filter") { (email, filter) =>
-      setActionUnique(eventId, itemType, itemId)(UserActionRepository.getSubscribe, UserActionRepository.setSubscribe(email, filter))
+      setActionUnique(eventId, itemType, itemId)(UserActionRepository.getSubscribe, UserActionRepository.setSubscribe(Email(email), filter))
     }
   }
 
-  def unsubscribe(eventId: EventId): Action[AnyContent] = unsubscribe(eventId, Event.className, eventId)
-  def unsubscribe(eventId: EventId, itemType: String, itemId: GenericId) = Action.async { implicit req =>
+  def unsubscribe(eventId: EventId): Action[AnyContent] = unsubscribe(eventId, ItemType.events, eventId)
+  def unsubscribe(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     deleteActionUnique(eventId, itemType, itemId)(UserActionRepository.deleteSubscribe)
   }
 
@@ -118,7 +118,7 @@ object UserActions extends Controller with ControllerHelpers {
   /*
    * There must be a max of one action for (itemType, itemId)
    */
-  private def insertActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(get: (DeviceId, String, GenericId) => Future[Option[UserAction]], insert: (DeviceId, String, GenericId, EventId, Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
+  private def insertActionUnique(eventId: EventId, itemType: ItemType, itemId: GenericId)(get: (DeviceId, ItemType, GenericId) => Future[Option[UserAction]], insert: (DeviceId, ItemType, GenericId, EventId, Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
         get(device.uuid, itemType, item.uuid).flatMap {
@@ -135,7 +135,7 @@ object UserActions extends Controller with ControllerHelpers {
   /*
    * There must be a max of one action for (itemType, itemId) but it can be overriden
    */
-  private def setActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(get: (DeviceId, String, GenericId) => Future[Option[UserAction]], set: (DeviceId, String, GenericId, EventId, Option[UserAction], Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
+  private def setActionUnique(eventId: EventId, itemType: ItemType, itemId: GenericId)(get: (DeviceId, ItemType, GenericId) => Future[Option[UserAction]], set: (DeviceId, ItemType, GenericId, EventId, Option[UserAction], Option[DateTime]) => Future[Option[UserAction]])(implicit req: Request[Any]): Future[Result] = {
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
         get(device.uuid, itemType, item.uuid).flatMap { eltOpt =>
@@ -150,7 +150,7 @@ object UserActions extends Controller with ControllerHelpers {
   /*
    * Delete the unique action
    */
-  private def deleteActionUnique(eventId: EventId, itemType: String, itemId: GenericId)(delete: (DeviceId, String, GenericId) => Future[LastError])(implicit req: Request[Any]): Future[Result] = {
+  private def deleteActionUnique(eventId: EventId, itemType: ItemType, itemId: GenericId)(delete: (DeviceId, ItemType, GenericId) => Future[LastError])(implicit req: Request[Any]): Future[Result] = {
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
         delete(device.uuid, itemType, item.uuid).map { lastError =>
@@ -189,7 +189,7 @@ object UserActions extends Controller with ControllerHelpers {
     req.headers.get("timestamp").map(t => new DateTime(t.toLong))
   }
 
-  private def withData(eventId: EventId, itemType: String, itemId: GenericId)(exec: (Event, EventItem) => Future[Result])(implicit req: Request[Any]) = {
+  private def withData(eventId: EventId, itemType: ItemType, itemId: GenericId)(exec: (Event, EventItem) => Future[Result])(implicit req: Request[Any]) = {
     val futureData = for {
       event <- EventRepository.getByUuid(eventId)
       item <- EventItemRepository.getByUuid(itemType, itemId)

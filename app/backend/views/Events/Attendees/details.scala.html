@@ -11,7 +11,7 @@
 	<div class="block-header">
 		<h2>
 			@attendee.name
-			<small>@attendee.position().getOrElse("") @role(attendee.info.role)</small>
+			<small>@attendee.position().getOrElse("") @attendeeRole(attendee.info.role)</small>
 		</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Attendees.update(event.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
@@ -31,7 +31,7 @@
 			<div class="pmb-block">
 				<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 				<div class="p-l-30">
-					@Html(attendee.descriptionHTML)
+					@Html(attendee.descriptionHTML.unwrap)
 				</div>
 			</div>
 			@if(attendee.links().length > 0){

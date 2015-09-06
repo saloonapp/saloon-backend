@@ -10,6 +10,7 @@ import play.api.libs.json.Writes
 import play.api.libs.json.Format
 import play.api.mvc.PathBindable
 import play.api.mvc.QueryStringBindable
+import play.api.mvc.JavascriptLitteral
 
 /*
  * tString is for typed String
@@ -29,6 +30,7 @@ import play.api.mvc.QueryStringBindable
 
 trait tString extends Any {
   def unwrap: String
+  def isEmpty: Boolean = this.unwrap.isEmpty
   override def toString: String = this.unwrap
 }
 trait tStringHelper[T <: tString] {
@@ -47,6 +49,9 @@ trait tStringHelper[T <: tString] {
       }
     }
     override def unbind(key: String, value: T): String = value.unwrap
+  }
+  implicit val javascriptBinder = new JavascriptLitteral[T] {
+    def to(value: T): String = value.unwrap
   }
   implicit val jsonFormat = Format(new Reads[T] {
     override def reads(json: JsValue): JsResult[T] = json.validate[String].map(id => build(id)).filter(_.isDefined).map(_.get)

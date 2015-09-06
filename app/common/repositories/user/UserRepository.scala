@@ -1,8 +1,9 @@
 package common.repositories.user
 
+import common.models.values.typed.Email
+import common.models.values.typed.UserRole
 import common.models.user.User
 import common.models.user.UserId
-import common.models.user.UserOrganization
 import common.models.user.OrganizationId
 import common.models.utils.Page
 import common.repositories.Repository
@@ -42,10 +43,10 @@ trait MongoDbUserRepository extends Repository[User, UserId] {
     }
   }
 
-  def getByEmail(email: String): Future[Option[User]] = crud.get(Json.obj("email" -> email))
+  def getByEmail(email: Email): Future[Option[User]] = crud.get(Json.obj("email" -> email.unwrap))
   def findByUuids(userIds: List[UserId]): Future[List[User]] = crud.findByUuids(userIds.map(_.unwrap))
-  def findByEmails(emails: List[String]): Future[List[User]] = crud.findBy("email", emails)
-  def getOrganizationOwner(organizationId: OrganizationId): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserOrganization.owner)))
+  def findByEmails(emails: List[Email]): Future[List[User]] = crud.findBy("email", emails.map(_.unwrap))
+  def getOrganizationOwner(organizationId: OrganizationId): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserRole.owner.unwrap)))
   def findOrganizationMembers(organizationId: OrganizationId): Future[List[User]] = crud.find(Json.obj("organizationIds.organizationId" -> organizationId))
   def removeOrganization(organizationId: OrganizationId): Future[LastError] = collection.update(Json.obj("organizationIds.organizationId" -> organizationId), Json.obj("$pull" -> Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId))), multi = true)
 }

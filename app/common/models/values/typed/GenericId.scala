@@ -1,7 +1,8 @@
-package common.models.values
+package common.models.values.typed
 
 import common.models.utils.tString
 import common.models.utils.tStringHelper
+import common.models.values.UUID
 import common.models.event.EventId
 import common.models.event.AttendeeId
 import common.models.event.ExponentId

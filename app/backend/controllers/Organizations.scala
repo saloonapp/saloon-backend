@@ -1,5 +1,8 @@
 package backend.controllers
 
+import common.models.values.typed.UserRole
+import common.models.values.typed.Email
+import common.models.values.typed.TextMultiline
 import common.models.user.User
 import common.models.user.UserId
 import common.models.user.UserOrganization
@@ -23,7 +26,7 @@ import play.api.data.Forms._
 
 object Organizations extends SilhouetteEnvironment with ControllerHelpers {
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
-  val organizationInviteForm = Form(tuple("email" -> email, "comment" -> optional(text)))
+  val organizationInviteForm = Form(tuple("email" -> of[Email], "comment" -> optional(of[TextMultiline])))
 
   def details(organizationId: OrganizationId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
@@ -34,7 +37,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
           requests <- if (user.canAdministrateOrganization(organizationId)) getOrganizationRequests(organizationId) else Future(List())
           invites <- if (user.canAdministrateOrganization(organizationId)) getOrganizationInvites(organizationId) else Future(List())
         } yield {
-          Ok(backend.views.html.Profile.Organizations.details(organization, members.sortBy(m => UserOrganization.getPriority(m.organizationRole(organizationId))), requests, invites, organizationInviteForm))
+          Ok(backend.views.html.Profile.Organizations.details(organization, members.sortBy(m => UserRole.getPriority(m.organizationRole(organizationId))), requests, invites, organizationInviteForm))
         }
       }
     }.getOrElse {
@@ -212,7 +215,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def organizationInvite(organizationId: OrganizationId, email: String, comment: Option[String], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
+  private def organizationInvite(organizationId: OrganizationId, email: Email, comment: Option[TextMultiline], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
     val request = Request.organizationInvite(organizationId, email, comment, user)
     val res = for {
       organizationOpt <- OrganizationRepository.getByUuid(organizationId)

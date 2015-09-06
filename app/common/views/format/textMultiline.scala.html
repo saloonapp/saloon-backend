@@ -1,3 +1,3 @@
-@(text: String)
-
-@Html(HtmlFormat.escape(text).toString.replace("\r\n", "<br>").replace("\n\r", "<br>").replace("\n", "<br>").replace("\r", "<br>"))
+@import common.models.values.typed.TextMultiline
+@(text: TextMultiline)
+@Html(HtmlFormat.escape(text.unwrap).toString.replace("\r\n", "<br>").replace("\n\r", "<br>").replace("\n", "<br>").replace("\r", "<br>"))

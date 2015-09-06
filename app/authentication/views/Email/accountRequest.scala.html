@@ -1,8 +1,9 @@
-@(email: String, saloonUrl: String, inviteUrl: String)
+@import common.models.values.typed.Email
+@(email: Email, saloonUrl: String, inviteUrl: String)
 
 Bonjour,<br>
 <br>
-Une invitation à <a href="@saloonUrl">SalooN</a> vient d'être demandée pour <b>@{email}</b>.<br>
+Une invitation à <a href="@saloonUrl">SalooN</a> vient d'être demandée pour <b>@email</b>.<br>
 <br>
 Pour créer votre compte, veuillez cliquer sur le lien suivant :<br>
 <br>

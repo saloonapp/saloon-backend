@@ -3,7 +3,7 @@
 @import admin.views.html._
 @(organization: Organization, users: List[User])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@layout(organization.name) {
+@layout(organization.name.unwrap) {
 	<div class="row">
 		<div class="col-md-6">
 			<div class="widget">

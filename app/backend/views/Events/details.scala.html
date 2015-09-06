@@ -4,7 +4,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(event.name, "events_"+event.uuid, Map(event.uuid -> event.name)){
+@layout(event.name.unwrap, "events_"+event.uuid, Map(event.uuid -> event.name)){
 	<div class="block-header">
 		<h2>@event.name</h2>
 		<ul class="actions">
@@ -60,7 +60,7 @@
 			<div class="pmb-block">
 				<div class="pmbb-header"><h2><i class="md md-format-align-left m-r-5"></i> Description</h2></div>
 				<div class="p-l-30">
-					@Html(event.descriptionHTML)
+					@Html(event.descriptionHTML.unwrap)
 				</div>
 			</div>
 			<div class="pmb-block visible-xs">

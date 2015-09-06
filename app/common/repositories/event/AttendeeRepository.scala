@@ -1,6 +1,7 @@
 package common.repositories.event
 
 import common.models.utils.Page
+import common.models.values.typed.ItemType
 import common.models.event.EventId
 import common.models.event.Attendee
 import common.models.event.AttendeeId
@@ -31,7 +32,7 @@ trait MongoDbAttendeeRepository extends Repository[Attendee, AttendeeId] {
   override def update(attendeeId: AttendeeId, elt: Attendee): Future[Option[Attendee]] = crud.update(attendeeId.unwrap, elt).map(err => if (err.ok) Some(elt) else None)
   override def delete(attendeeId: AttendeeId): Future[Option[Attendee]] = {
     crud.delete(attendeeId.unwrap).map { err =>
-      UserActionRepository.deleteByItem(Attendee.className, attendeeId.unwrap)
+      UserActionRepository.deleteByItem(ItemType.attendees, attendeeId.unwrap)
       None
     } // TODO : return deleted elt !
   }

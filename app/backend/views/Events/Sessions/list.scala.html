@@ -67,7 +67,7 @@
 							<div role="tabpanel" class="tab-pane @if(i==0){active}" id="@date.toString("ddMMMMyyyy")">
 								@if(date.getMillis() == 0){
 									<div class="flex-row">
-										@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+										@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 											<div class="col media-list">
 												<h3>@place</h3>
 												@sessionsOfPlace.map { session =>
@@ -89,14 +89,14 @@
 									<div class="agenda">
 										@defining(hourData(sessionsOfDay)){ case (min, max, maxHeight, pxByMinute) =>
 											<div class="flex-row">
-												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 													<div class="col">
 														<h3>@place</h3>
 													</div>
 												}
 											</div>
 											<div class="flex-row">
-												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.toLowerCase).map { case (place, sessionsOfPlace) =>
+												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 													<div class="col agenda-col" style="height: @{maxHeight}px;">
 														@sessionsOfPlace.map { session =>
 															<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="agenda-item @if(hasConflict(session.info.start.get, sessionsOfPlace)){warning}" style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">

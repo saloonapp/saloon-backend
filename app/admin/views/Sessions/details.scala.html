@@ -3,7 +3,7 @@
 @import common.models.event.Session
 @(session: Session, sessionSpeakers: List[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@admin.views.html.layout(session.name) {
+@admin.views.html.layout(session.name.unwrap) {
 	<div class="row">
 		<div class="col-md-12">
 			<div class="widget">

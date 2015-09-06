@@ -1,5 +1,6 @@
 package authentication.repositories.impl
 
+import common.models.values.typed.Email
 import common.models.user.User
 import authentication.repositories.UserRepository
 import authentication.repositories.UserCreationException
@@ -22,5 +23,5 @@ class InMemoryUserRepository extends UserRepository {
   }
 }
 object InMemoryUserRepository {
-  private val users: mutable.HashMap[String, User] = mutable.HashMap()
+  private val users: mutable.HashMap[Email, User] = mutable.HashMap()
 }

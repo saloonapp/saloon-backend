@@ -3,6 +3,7 @@ package common.models.user
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
+import common.models.values.typed._
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.joda.time.DateTime
@@ -19,24 +20,10 @@ object UserId extends tStringHelper[UserId] {
 
 case class UserOrganization(
   organizationId: OrganizationId,
-  role: String)
-object UserOrganization {
-  val owner = "owner"
-  val admin = "admin"
-  val member = "member"
-  val guest = "guest"
-  val all = List(owner, admin, member, guest)
-  def getPriority(role: String): Int = getPriority(Some(role))
-  def getPriority(roleOpt: Option[String]): Int = {
-    roleOpt.map { role =>
-      val index = all.indexOf(role)
-      if (index == -1) all.length + 1 else index + 1
-    }.getOrElse(all.length + 2)
-  }
-}
+  role: UserRole)
 case class UserInfo(
-  firstName: String,
-  lastName: String)
+  firstName: FirstName,
+  lastName: LastName)
 case class UserRights(
   global: Map[String, Boolean])
 case class UserMeta(
@@ -46,13 +33,13 @@ case class User(
   uuid: UserId = UserId.generate(),
   organizationIds: List[UserOrganization] = List(),
   loginInfo: LoginInfo,
-  email: String,
+  email: Email,
   info: UserInfo,
   rights: Map[String, Boolean] = Map(),
   meta: UserMeta = UserMeta(new DateTime(), new DateTime())) extends Identity {
-  def name(): String = this.info.firstName + " " + this.info.lastName
-  def organizationRole(uuid: OrganizationId): Option[String] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
-  def canAdministrateOrganization(uuid: OrganizationId): Boolean = this.organizationRole(uuid).map(_ == UserOrganization.owner).getOrElse(false)
+  def name(): String = this.info.firstName.unwrap + " " + this.info.lastName.unwrap
+  def organizationRole(uuid: OrganizationId): Option[UserRole] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
+  def canAdministrateOrganization(uuid: OrganizationId): Boolean = this.organizationRole(uuid).map(_ == UserRole.owner).getOrElse(false)
   def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
   def canCreateEvent(): Boolean = hasRight(UserRight.createEvent)
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)
@@ -76,15 +63,15 @@ object UserRight {
 
 // mapping object for User Form
 case class UserData(
-  email: String,
+  email: Email,
   info: UserInfo,
   rights: List[String])
 object UserData {
   val fields = mapping(
-    "email" -> email,
+    "email" -> of[Email],
     "info" -> mapping(
-      "firstName" -> text,
-      "lastName" -> text)(UserInfo.apply)(UserInfo.unapply),
+      "firstName" -> of[FirstName],
+      "lastName" -> of[LastName])(UserInfo.apply)(UserInfo.unapply),
     "rights" -> list(text))(UserData.apply)(UserData.unapply)
   val rights: Seq[(String, String)] = UserRight.all.map(r => (r.key, r.label))
 

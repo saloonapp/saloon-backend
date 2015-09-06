@@ -1,0 +1,10 @@
+@import common.models.values.typed.AttendeeRole
+@(role: AttendeeRole)
+@role match {
+	case AttendeeRole("") => {}
+	case AttendeeRole("staff") => {<span class="label label-danger">Staff</span>}
+	case AttendeeRole("exposant") => {<span class="label label-danger">Exposant</span>}
+	case AttendeeRole("speaker") => {<span class="label label-danger">Speaker</span>}
+	case AttendeeRole("visiteur") => {<span class="label label-danger">Visiteur</span>}
+	case _ => {<span class="label label-primary">@role.unwrap</span>}
+}

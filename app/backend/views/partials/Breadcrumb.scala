@@ -1,5 +1,6 @@
 package backend.views.partials
 
+import common.models.utils.tString
 import common.models.values.UUID
 import common.models.user.OrganizationId
 import common.models.event.EventId
@@ -11,14 +12,14 @@ import scala.collection.mutable.MutableList
 import scala.collection.mutable.HashMap
 
 object Breadcrumb {
-  def buildBreadcrumb(breadcrumb: String, titles: Map[UUID, String]): Option[(List[(Call, String)], String)] = {
+  def buildBreadcrumb(breadcrumb: String, titles: Map[UUID, tString]): Option[(List[(Call, String)], String)] = {
     prepare(breadcrumb).map { list =>
       val result = new MutableList[(Call, String)]()
       val identifiers = new HashMap[String, String]()
       for (i <- 0 until list.length) {
         val prev = if (i > 0) Some(list(i - 1)) else None
         val prev2 = if (i > 1) Some(list(i - 2)) else None
-        result += build(list(i), prev, prev2, titles.map { case (key, value) => (key.unwrap, value) }, identifiers)
+        result += build(list(i), prev, prev2, titles.map { case (key, value) => (key.unwrap, value.unwrap) }, identifiers)
       }
       (result.toList.take(result.length - 1), result.last._2)
     }

@@ -1,5 +1,7 @@
 package backend.controllers
 
+import common.models.values.typed.UserRole
+import common.models.values.typed.TextMultiline
 import common.models.user.User
 import common.models.user.UserOrganization
 import common.models.user.OrganizationData
@@ -26,7 +28,7 @@ import play.api.data.Forms._
 object Profile extends SilhouetteEnvironment {
   val userForm: Form[UserData] = Form(UserData.fields)
   val organizationForm: Form[OrganizationData] = Form(OrganizationData.fields)
-  val accessRequestForm = Form(tuple("organizationId" -> of[OrganizationId], "comment" -> optional(text)))
+  val accessRequestForm = Form(tuple("organizationId" -> of[OrganizationId], "comment" -> optional(of[TextMultiline])))
 
   def details = SecuredAction.async { implicit req =>
     implicit val user = req.identity
@@ -42,7 +44,7 @@ object Profile extends SilhouetteEnvironment {
 
       // transform collections
       val memberOrganizationsWithRole = memberOrganizations.map(o => (o, user.organizationRole(o.uuid).get, pendingRequestsForOwnedOrganizations.get(o.uuid).getOrElse(0))).sortBy {
-        case (orga, role, pending) => UserOrganization.getPriority(role)
+        case (orga, role, pending) => role.getPriority
       }
       val pendingOrganizationsWithDate = pendingOrganizations.map(o => (o, findOrganizationRequest(pendingRequests ++ pendingInvites, o.uuid).get)).sortBy(_._2.created.getMillis())
 
@@ -112,7 +114,7 @@ object Profile extends SilhouetteEnvironment {
       }.getOrElse {
         OrganizationRepository.insert(OrganizationData.toModel(formData)).flatMap { createdOpt =>
           createdOpt.map { created =>
-            val userWithOrg = user.copy(organizationIds = user.organizationIds ++ List(UserOrganization(created.uuid, UserOrganization.owner)))
+            val userWithOrg = user.copy(organizationIds = user.organizationIds ++ List(UserOrganization(created.uuid, UserRole.owner)))
             UserRepository.update(userWithOrg.uuid, userWithOrg).map { userUpdatedOpt =>
               ("success", s"Votre organisation ${formData.name} vient d'être créée. Invitez d'autres personnes à vous rejoindre :)", Some(created.uuid))
             }
@@ -124,7 +126,7 @@ object Profile extends SilhouetteEnvironment {
     }
   }
 
-  private def requestOrganisation(organizationId: OrganizationId, comment: Option[String], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
+  private def requestOrganisation(organizationId: OrganizationId, comment: Option[TextMultiline], user: User)(implicit req: RequestHeader): Future[(String, String)] = {
     val request = Request.organizationRequest(organizationId, comment, user)
     OrganizationRepository.getByUuid(organizationId).flatMap { orgOpt =>
       orgOpt.map { organization =>

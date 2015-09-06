@@ -1,5 +1,5 @@
 @import common.models.event.Event
-@import common.models.event.AttendeeRole
+@import common.models.values.typed.AttendeeRole
 @import backend.forms.AttendeeCreateData
 @import common.views.html.forms._
 @(attendeeForm: Form[AttendeeCreateData], roles: List[String], event: Event)
@@ -26,7 +26,7 @@
 		<div class="col-md-4"><div class="fg-line">@inputText(attendeeForm("info.address.city"), 'placeholder -> "Ville")</div>@fieldErrors(attendeeForm("info.address.city"))</div>
 	</div>
 }
-@fieldHorizontal(attendeeForm("info.role"), 'label -> "Role"){field => <div class="fg-line">@inputTypeahead(field, (roles++AttendeeRole.all).distinct.sorted, 'placeholder->("ex: "+AttendeeRole.all.mkString(", ")))</div>}
+@fieldHorizontal(attendeeForm("info.role"), 'label -> "Role"){field => <div class="fg-line">@inputTypeahead(field, (roles++AttendeeRole.all.map(_.unwrap)).distinct.sorted, 'placeholder->("ex: "+AttendeeRole.all.map(_.unwrap).mkString(", ")))</div>}
 @fieldHorizontal(attendeeForm("info.job"), 'label -> "Emploi"){field => 
 	<div class="row">
 		<div class="col-md-6"><div class="fg-line">@inputText(field, 'placeholder -> "Poste (ex: Développeur)")</div></div>

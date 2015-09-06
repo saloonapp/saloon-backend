@@ -70,7 +70,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
           requestOpt <- RequestRepository.getPendingAccountRequestByEmail(email)
         } yield {
           userOpt.map { u =>
-            Future(Redirect(authentication.controllers.routes.Auth.login).flashing("error" -> s"L'email $email est déjà utilisé !"))
+            Future(Redirect(authentication.controllers.routes.Auth.login).flashing("error" -> s"L'email ${email.unwrap} est déjà utilisé !"))
           }.getOrElse {
             requestOpt.map { request => Future(request.uuid) }.getOrElse {
               val accountRequest = Request.accountRequest(email)
@@ -78,7 +78,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             }.flatMap { requestId =>
               val emailData = EmailSrv.generateAccountRequestEmail(email, requestId)
               MandrillSrv.sendEmail(emailData).map { res =>
-                Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Invitation envoyée à $email")
+                Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Invitation envoyée à ${email.unwrap}")
               }
             }
           }
@@ -117,7 +117,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
               case _ => (None, Redirect(backend.controllers.routes.Application.welcome))
             }
             emailOpt.map { email =>
-              val loginInfo = LoginInfo(CredentialsProvider.Credentials, email)
+              val loginInfo = LoginInfo(CredentialsProvider.Credentials, email.unwrap)
               val authInfo = passwordHasher.hash(formData.password)
               val user = User(loginInfo = loginInfo, email = email, info = UserInfo(formData.firstName, formData.lastName))
 

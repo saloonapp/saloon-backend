@@ -79,7 +79,7 @@
 				}
 			}
 
-			@event.email.reportMessageHtml.map { message => <div>@Html(message)</div> }
+			@event.email.reportMessageHtml.map { message => <div>@Html(message.unwrap)</div> }
 
 			<br><br>
 			PS: n'hésite pas à nous faire un feedback sur ce mail, l'application ou SalooN de manière générale.<br>
