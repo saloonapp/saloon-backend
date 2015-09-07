@@ -39,7 +39,7 @@ object AttendeeTeam extends SilhouetteEnvironment with ControllerHelpers {
           } else if (itemOpt.flatMap(_.toSession).map(_.hasMember(attendee)).getOrElse(false)) {
             Ok(backend.views.html.Events.AttendeeTeam.details(attendee, attendeeSessions, attendeeExponents, event, itemOpt.get))
           } else {
-            Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event))
+            Redirect(backend.controllers.routes.Attendees.details(eventId, attendeeId))
           }
         }
       }

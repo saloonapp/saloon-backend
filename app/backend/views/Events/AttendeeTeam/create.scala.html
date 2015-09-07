@@ -1,3 +1,4 @@
+@import common.models.values.typed.AttendeeRole
 @import common.models.event.Event
 @import common.models.event.EventItem
 @import common.models.event.Attendee
@@ -25,7 +26,7 @@
 				<div class="tab-content p-20">
 					<div role="tabpanel" class="tab-pane @if(tab=="inviteuser"){active}" id="inviteuser">
 						@helper.form(action=backend.controllers.routes.AttendeeTeam.doCreateInvite(event.uuid, eventItem.getType(), eventItem.uuid), 'class->"form-horizontal") {
-							@partials.inviteForm(attendeeForm, event)
+							@partials.inviteForm(attendeeForm, eventItem.toExponent.map(e => AttendeeRole.exposant.unwrap).orElse(eventItem.toSession.map(e => AttendeeRole.speaker.unwrap)).getOrElse(""), event)
 							<div class="form-group">
 								<div class="col-md-offset-2 col-md-10">
 									<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
@@ -36,7 +37,7 @@
 					</div>
 					<div role="tabpanel" class="tab-pane @if(tab=="fullform"){active}" id="fullform">
 						@helper.form(action=backend.controllers.routes.AttendeeTeam.doCreateFull(event.uuid, eventItem.getType(), eventItem.uuid), 'class->"form-horizontal") {
-							@partials.form(attendeeForm, event)
+							@partials.form(attendeeForm, eventItem.toExponent.map(e => AttendeeRole.exposant.unwrap).orElse(eventItem.toSession.map(e => AttendeeRole.speaker.unwrap)).getOrElse(""), event)
 							<div class="form-group">
 								<div class="col-md-offset-2 col-md-10">
 									<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>

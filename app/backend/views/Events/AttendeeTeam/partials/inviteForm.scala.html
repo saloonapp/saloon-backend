@@ -2,11 +2,11 @@
 @import common.models.values.typed.AttendeeRole
 @import backend.forms.AttendeeCreateData
 @import common.views.html.forms._
-@(attendeeForm: Form[AttendeeCreateData], event: Event)
+@(attendeeForm: Form[AttendeeCreateData], role: String, event: Event)
 @inputHidden(attendeeForm("eventId"), 'value -> event.uuid.unwrap)
 @inputHidden(attendeeForm("avatar"), 'value -> "")
 @inputHidden(attendeeForm("descriptionHTML"), 'value -> "")
-@inputHidden(attendeeForm("info.role"), 'value -> AttendeeRole.exposant.unwrap)
+@inputHidden(attendeeForm("info.role"), 'value -> role)
 @inputHidden(attendeeForm("info.phone"), 'value -> "")
 @inputHidden(attendeeForm("info.address.name"), 'value -> "")
 @inputHidden(attendeeForm("info.address.street"), 'value -> "")
@@ -14,6 +14,7 @@
 @inputHidden(attendeeForm("info.address.city"), 'value -> "")
 @inputHidden(attendeeForm("info.job"), 'value -> "")
 @inputHidden(attendeeForm("info.company"), 'value -> "")
+@inputHidden(attendeeForm("info.birthYear"))
 @fieldHorizontal(attendeeForm("info.genre"), 'label -> "Nom", 'constraints -> "false"){field =>
 	<div class="row">
 		<div class="col-md-2">@inputSelect2(field, Seq("Mr", "Mme", "Mlle").map(o=>(o,o)), 'emptyOption->" ")@fieldErrors(field)</div>
