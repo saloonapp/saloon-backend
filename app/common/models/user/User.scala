@@ -41,7 +41,6 @@ case class User(
   def organizationRole(uuid: OrganizationId): Option[UserRole] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
   def canAdministrateOrganization(uuid: OrganizationId): Boolean = this.organizationRole(uuid).map(_ == UserRole.owner).getOrElse(false)
   def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
-  def canCreateEvent(): Boolean = hasRight(UserRight.createEvent)
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)
 }
 object User {
