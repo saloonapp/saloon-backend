@@ -87,8 +87,8 @@
 								email-open: re-invite user
 								eye-off:    remove user access
 							-->
-							<li><a href="" title="Inviter @attendee.name à compléter son profil et l'exposant"><i class="md md-email"></i></a></li>
-							<li>@helper.form(action=backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'équipe"><i class="md md-visibility-off"></i></button>}</li>
+							<!-- <li><a href="" title="Inviter @attendee.name à compléter son profil et l'exposant"><i class="md md-email"></i></a></li> -->
+							<li>@helper.form(action=backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'équipe"><i class="md md-exit-to-app"></i></button>}</li>
 						</ul>
 						@attendeeMedia(attendee, Some(backend.controllers.routes.Exponents.teamDetails(event.uuid, exponent.uuid, attendee.uuid)))
 					}

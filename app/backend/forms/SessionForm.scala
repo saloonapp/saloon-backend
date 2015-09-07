@@ -1,5 +1,6 @@
 package backend.forms
 
+import common.models.utils.tStringConstraints._
 import common.models.values.typed._
 import common.models.event.EventId
 import common.models.event.AttendeeId
@@ -26,8 +27,8 @@ case class SessionCreateData(
   video: Option[WebsiteUrl])
 object SessionCreateData {
   val fields = mapping(
-    "eventId" -> of[EventId],
-    "name" -> of[FullName],
+    "eventId" -> of[EventId].verifying(nonEmpty),
+    "name" -> of[FullName].verifying(nonEmpty),
     "descriptionHTML" -> of[TextHTML],
     "format" -> text,
     "theme" -> text,

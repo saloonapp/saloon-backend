@@ -1,5 +1,6 @@
 package backend.forms
 
+import common.models.utils.tStringConstraints._
 import common.models.values.typed._
 import common.models.values.Address
 import common.models.values.Link
@@ -33,8 +34,8 @@ case class EventCreateData(
   twitterAccount: Option[String])
 object EventCreateData {
   val fields = mapping(
-    "ownerId" -> of[OrganizationId],
-    "name" -> of[FullName],
+    "ownerId" -> of[OrganizationId].verifying(nonEmpty),
+    "name" -> of[FullName].verifying(nonEmpty),
     "categories" -> list(text),
     "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),

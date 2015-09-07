@@ -1,5 +1,6 @@
 package backend.forms
 
+import common.models.utils.tStringConstraints._
 import common.models.values.typed._
 import common.models.values.Address
 import common.models.event.EventId
@@ -12,6 +13,7 @@ import common.models.event.AttendeeMeta
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json._
+
 
 case class AttendeeInfoCreateData(
   role: AttendeeRole,
@@ -33,14 +35,14 @@ case class AttendeeCreateData(
   social: AttendeeSocial)
 object AttendeeCreateData {
   val fields = mapping(
-    "eventId" -> of[EventId],
+    "eventId" -> of[EventId].verifying(nonEmpty),
     "descriptionHTML" -> of[TextHTML],
     "avatar" -> of[ImageUrl],
     "info" -> mapping(
       "role" -> of[AttendeeRole],
-      "genre" -> of[Genre],
-      "firstName" -> of[FirstName],
-      "lasName" -> of[LastName],
+      "genre" -> of[Genre].verifying(nonEmpty),
+      "firstName" -> of[FirstName].verifying(nonEmpty),
+      "lasName" -> of[LastName].verifying(nonEmpty),
       "birthYear" -> optional(number),
       "email" -> optional(of[Email]),
       "phone" -> of[PhoneNumber],

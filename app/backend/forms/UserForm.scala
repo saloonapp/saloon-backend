@@ -1,5 +1,6 @@
 package backend.forms
 
+import common.models.utils.tStringConstraints._
 import common.models.values.typed.Email
 import common.models.values.typed.FirstName
 import common.models.values.typed.LastName
@@ -16,8 +17,8 @@ case class UserData(
   lastName: LastName)
 object UserData {
   val fields = mapping(
-    "firstName" -> of[FirstName],
-    "lastName" -> of[LastName])(UserData.apply)(UserData.unapply)
+    "firstName" -> of[FirstName].verifying(nonEmpty),
+    "lastName" -> of[LastName].verifying(nonEmpty))(UserData.apply)(UserData.unapply)
 
   def toInfo(d: UserData): UserInfo = UserInfo(d.firstName, d.lastName)
   def toModel(d: UserData): User = User(UserId.generate(), List(), LoginInfo(CredentialsProvider.Credentials, ""), Email(""), UserInfo(d.firstName, d.lastName))

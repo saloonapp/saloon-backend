@@ -3,6 +3,9 @@ package common.models.utils
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.data.validation.ValidationError
+import play.api.data.validation.Constraint
+import play.api.data.validation.Invalid
+import play.api.data.validation.Valid
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsResult
 import play.api.libs.json.JsSuccess
@@ -68,5 +71,16 @@ trait tStringHelper[T <: tString] {
   implicit val formMapping = new Formatter[T] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], T] = data.get(key).map { value => build(value).left.map(msg => Seq(FormError(key, msg, Nil))) }.getOrElse(Left(Seq(FormError(key, buildErrKey, Nil))))
     override def unbind(key: String, value: T): Map[String, String] = Map(key -> value.unwrap)
+  }
+}
+object tStringConstraints {
+  /*
+   * cf :
+   * 	- https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/data/validation/Validation.scala
+   * 	- https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/data/Form.scala
+   * 	- https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/data/Forms.scala
+   */
+  def nonEmpty: Constraint[tString] = Constraint[tString]("constraint.required") { o =>
+    if (o == null) Invalid(ValidationError("error.required")) else if (o.unwrap.trim.isEmpty) Invalid(ValidationError("error.required")) else Valid
   }
 }

@@ -52,7 +52,7 @@
 					<div class="pmbb-body p-l-30 media-list">
 						@attendeeSessions.map { session =>
 							<ul class="actions pull-right">
-								<li><a href="" title="Retirer @attendee.name de la session '@exponent.name'"><i class="md md-visibility-off"></i></a></li>
+								<li><a href="" title="Retirer @attendee.name de la session '@exponent.name'"><i class="md md-exit-to-app"></i></a></li>
 							</ul>
 							@sessionMedia(session, event)
 						}
@@ -65,7 +65,7 @@
 					<div class="pmbb-body p-l-30 media-list">
 						@attendeeExponents.map { exponent =>
 							<ul class="actions pull-right">
-								<li>@helper.form(action=backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'exposant @exponent.name"><i class="md md-visibility-off"></i></button>}</li>
+								<li>@helper.form(action=backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'exposant @exponent.name"><i class="md md-exit-to-app"></i></button>}</li>
 							</ul>
 							@exponentMedia(exponent, event)
 						}
