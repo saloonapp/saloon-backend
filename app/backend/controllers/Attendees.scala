@@ -90,15 +90,19 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  // TODO : force to manually remove from all exponents/sessions before delete ?
   def doDelete(eventId: EventId, attendeeId: AttendeeId, redirectOpt: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withAttendee(attendeeId) { attendee =>
       for {
-        res <- AttendeeRepository.delete(attendeeId)
-        res2 <- ExponentRepository.removeFromAllTeams(attendeeId)
+        attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
+        attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
       } yield {
-        followRedirect(redirectOpt, backend.controllers.routes.Attendees.list(eventId)).flashing("success" -> s"Suppression du profil ${attendee.name}")
+        if (attendeeSessions.length == 0 && attendeeExponents.length == 0) {
+          AttendeeRepository.delete(attendeeId)
+          followRedirect(redirectOpt, backend.controllers.routes.Attendees.list(eventId)).flashing("success" -> s"Suppression du profil ${attendee.name}")
+        } else {
+          Redirect(req.headers("referer")).flashing("error" -> s"${attendee.name} ne doit pas faire parti d'une session ou d'un exposant pour être supprimé.")
+        }
       }
     }
   }
