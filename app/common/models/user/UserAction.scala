@@ -73,7 +73,7 @@ case class UserActionFull(event: Event, user: Device, action: UserActionContent,
       "eventId" -> this.event.uuid.unwrap,
       "eventName" -> this.event.name.unwrap,
       "userId" -> this.user.uuid.unwrap,
-      "itemType" -> this.item.getType(),
+      "itemType" -> this.item.getType().unwrap,
       "itemId" -> this.item.uuid.unwrap,
       "itemName" -> this.item.name.unwrap) ++ this.action.toMap()
   }

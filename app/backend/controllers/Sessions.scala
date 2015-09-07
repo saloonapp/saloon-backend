@@ -85,6 +85,10 @@ object Sessions extends SilhouetteEnvironment with ControllerHelpers {
   def doDelete(eventId: EventId, sessionId: SessionId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withSession(sessionId) { session =>
+      // TODO : What to do with linked attendees ?
+      //	- delete a session only if it has no speakers ?
+      // 	- delete thoses who are not linked with other elts (exponents / sessions)
+      //	- ask which one to delete (showing other links)
       SessionRepository.delete(sessionId).map { res =>
         Redirect(backend.controllers.routes.Sessions.list(eventId)).flashing("success" -> s"Suppression de la session '${session.name}'")
       }
@@ -114,12 +118,11 @@ object Sessions extends SilhouetteEnvironment with ControllerHelpers {
   private def createView(createForm: Form[SessionCreateData], eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       for {
-        allAttendees <- AttendeeRepository.findByEvent(eventId)
         formats <- SessionRepository.findEventFormats(eventId)
         categories <- SessionRepository.findEventCategories(eventId)
         places <- SessionRepository.findEventPlaces(eventId)
       } yield {
-        status(backend.views.html.Events.Sessions.create(createForm, allAttendees, formats, categories, places, event))
+        status(backend.views.html.Events.Sessions.create(createForm, formats, categories, places, event))
       }
     }
   }
@@ -127,12 +130,11 @@ object Sessions extends SilhouetteEnvironment with ControllerHelpers {
   private def updateView(createForm: Form[SessionCreateData], session: Session, eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       for {
-        allAttendees <- AttendeeRepository.findByEvent(eventId)
         formats <- SessionRepository.findEventFormats(eventId)
         categories <- SessionRepository.findEventCategories(eventId)
         places <- SessionRepository.findEventPlaces(eventId)
       } yield {
-        status(backend.views.html.Events.Sessions.update(createForm, session, allAttendees, formats, categories, places, event))
+        status(backend.views.html.Events.Sessions.update(createForm, session, formats, categories, places, event))
       }
     }
   }

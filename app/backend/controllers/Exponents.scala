@@ -1,7 +1,6 @@
 package backend.controllers
 
 import common.models.event.EventId
-import common.models.event.Attendee
 import common.models.event.AttendeeId
 import common.models.event.Exponent
 import common.models.event.ExponentId
@@ -10,9 +9,7 @@ import common.models.utils.Page
 import common.services.FileExporter
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
-import common.repositories.event.SessionRepository
 import backend.forms.ExponentCreateData
-import backend.forms.AttendeeCreateData
 import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
@@ -96,6 +93,7 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
     implicit val user = req.identity
     withExponent(exponentId) { exponent =>
       // TODO : What to do with linked attendees ?
+      //	- delete an exponent only if it has no team member ?
       // 	- delete thoses who are not linked with other elts (exponents / sessions)
       //	- ask which one to delete (showing other links)
       ExponentRepository.delete(exponentId).map { res =>
@@ -117,112 +115,6 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
   }
 
   /*
-   * Team
-   */
-
-  val teamCreateForm: Form[AttendeeCreateData] = Form(AttendeeCreateData.fields)
-  val teamJoinForm: Form[AttendeeId] = Form(single("attendeeId" -> of[AttendeeId]))
-
-  def teamDetails(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    withEvent(eventId) { event =>
-      withAttendee(attendeeId) { attendee =>
-        for {
-          exponentOpt <- ExponentRepository.getByUuid(exponentId)
-          attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
-          attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
-        } yield {
-          if (exponentOpt.isDefined && exponentOpt.get.hasMember(attendee)) {
-            Ok(backend.views.html.Events.Exponents.Team.details(attendee, attendeeSessions, attendeeExponents, event, exponentOpt.get))
-          } else {
-            Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event))
-          }
-        }
-      }
-    }
-  }
-
-  def teamCreate(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    teamCreateView(teamCreateForm, teamJoinForm, eventId, exponentId)
-  }
-
-  def doTeamCreateInvite(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    teamCreateForm.bindFromRequest.fold(
-      formWithErrors => teamCreateView(formWithErrors, teamJoinForm, eventId, exponentId, "inviteuser", BadRequest),
-      formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
-        _.map { attendee =>
-          ExponentRepository.addTeamMember(exponentId, attendee.uuid).map { r =>
-            // TODO : create ExponentInvite & send invite email
-            Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre invité !")
-          }
-        }.getOrElse {
-          teamCreateView(teamCreateForm.fill(formData), teamJoinForm, eventId, exponentId, "inviteuser", InternalServerError)
-        }
-      })
-  }
-
-  def doTeamCreateFull(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    teamCreateForm.bindFromRequest.fold(
-      formWithErrors => teamCreateView(formWithErrors, teamJoinForm, eventId, exponentId, "fullform", BadRequest),
-      formData => AttendeeRepository.insert(AttendeeCreateData.toModel(formData)).flatMap {
-        _.map { attendee =>
-          ExponentRepository.addTeamMember(exponentId, attendee.uuid).map { r =>
-            Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre créé !")
-          }
-        }.getOrElse {
-          teamCreateView(teamCreateForm.fill(formData), teamJoinForm, eventId, exponentId, "fullform", InternalServerError)
-        }
-      })
-  }
-
-  def doTeamJoin(eventId: EventId, exponentId: ExponentId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    teamJoinForm.bindFromRequest.fold(
-      formWithErrors => teamCreateView(teamCreateForm, formWithErrors, eventId, exponentId, "fromattendees", BadRequest),
-      formData => ExponentRepository.addTeamMember(exponentId, formData).flatMap { err =>
-        if (err.ok) {
-          Future(Redirect(backend.controllers.routes.Exponents.details(eventId, exponentId)).flashing("success" -> "Nouveau membre ajouté !"))
-        } else {
-          teamCreateView(teamCreateForm, teamJoinForm.fill(formData), eventId, exponentId, "fromattendees", InternalServerError)
-        }
-      })
-  }
-
-  def teamUpdate(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    withAttendee(attendeeId) { attendee =>
-      teamUpdateView(teamCreateForm.fill(AttendeeCreateData.fromModel(attendee)), attendee, eventId, exponentId)
-    }
-  }
-
-  def doTeamUpdate(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
-    implicit val user = req.identity
-    withAttendee(attendeeId) { attendee =>
-      teamCreateForm.bindFromRequest.fold(
-        formWithErrors => teamUpdateView(formWithErrors, attendee, eventId, exponentId, BadRequest),
-        formData => AttendeeRepository.update(attendeeId, AttendeeCreateData.merge(attendee, formData)).flatMap {
-          _.map { attendeeUpdated =>
-            Future(Redirect(backend.controllers.routes.Exponents.teamDetails(eventId, exponentId, attendeeId)).flashing("success" -> s"${attendeeUpdated.name} a été modifié"))
-          }.getOrElse {
-            teamUpdateView(teamCreateForm.fill(formData), attendee, eventId, exponentId, InternalServerError)
-          }
-        })
-    }
-  }
-
-  def doTeamLeave(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
-    ExponentRepository.removeTeamMember(exponentId, attendeeId).map { r =>
-      Redirect(req.headers("referer"))
-    }
-  }
-
-  // def doTeamInvite(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
-  // def doTeamBan(eventId: EventId, exponentId: ExponentId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
-
-  /*
    * Private methods
    */
 
@@ -235,24 +127,6 @@ object Exponents extends SilhouetteEnvironment with ControllerHelpers {
   private def updateView(createForm: Form[ExponentCreateData], exponent: Exponent, eventId: EventId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     withEvent(eventId) { event =>
       Future(status(backend.views.html.Events.Exponents.update(createForm.fill(ExponentCreateData.fromModel(exponent)), exponent, event)))
-    }
-  }
-
-  private def teamCreateView(teamCreateForm: Form[AttendeeCreateData], teamJoinForm: Form[AttendeeId], eventId: EventId, exponentId: ExponentId, tab: String = "inviteuser", status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
-    withEvent(eventId) { event =>
-      withExponent(exponentId) { exponent =>
-        AttendeeRepository.findByEvent(eventId).map { allAttendees =>
-          status(backend.views.html.Events.Exponents.Team.create(teamCreateForm, teamJoinForm, allAttendees.filter(!exponent.hasMember(_)), event, exponent, tab))
-        }
-      }
-    }
-  }
-
-  private def teamUpdateView(teamCreateForm: Form[AttendeeCreateData], attendee: Attendee, eventId: EventId, exponentId: ExponentId, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
-    withEvent(eventId) { event =>
-      withExponent(exponentId) { exponent =>
-        Future(status(backend.views.html.Events.Exponents.Team.update(teamCreateForm, attendee, event, exponent)))
-      }
     }
   }
 

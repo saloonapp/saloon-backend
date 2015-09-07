@@ -46,7 +46,6 @@ trait MongoDbExponentRepository extends Repository[Exponent, ExponentId] {
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
   def addTeamMember(exponentId: ExponentId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> exponentId.unwrap), Json.obj("$addToSet" -> Json.obj("info.team" -> attendeeId.unwrap)))
   def removeTeamMember(exponentId: ExponentId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> exponentId.unwrap), Json.obj("$pull" -> Json.obj("info.team" -> attendeeId.unwrap)))
-  def removeFromAllTeams(attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj(), Json.obj("$pull" -> Json.obj("info.team" -> attendeeId.unwrap)), multi = true)
   def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
   def bulkInsert(elts: List[Exponent]): Future[Int] = crud.bulkInsert(elts)
   def bulkUpdate(elts: List[(ExponentId, Exponent)]): Future[Int] = crud.bulkUpdate(elts.map(p => (p._1.unwrap, p._2)))

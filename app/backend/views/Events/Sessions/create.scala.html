@@ -1,10 +1,9 @@
 @import common.models.event.Event
-@import common.models.event.Attendee
 @import common.models.user.User
 @import backend.forms.SessionCreateData
 @import backend.views.html._
 @import backend.views.html.partials._
-@(sessionForm: Form[SessionCreateData], allAttendees: List[Attendee], formats: List[String], categories: List[String], places: List[String], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(sessionForm: Form[SessionCreateData], formats: List[String], categories: List[String], places: List[String], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Nouvelle session pour "+event.name, "events_"+event.uuid+"_sessions_create", Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
@@ -12,7 +11,7 @@
 		</div>
 		<div class="card-body card-padding">
 			@helper.form(action=backend.controllers.routes.Sessions.doCreate(event.uuid), 'class->"form-horizontal"){
-				@partials.form(sessionForm, allAttendees, formats, categories, places, event)
+				@partials.form(sessionForm, formats, categories, places, event)
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
 						<a href="@backend.controllers.routes.Sessions.list(event.uuid)" class="btn btn-default">Annuler</a>

@@ -47,6 +47,8 @@ trait MongoDbSessionRepository extends Repository[Session, SessionId] {
   def findEventPlaces(eventId: EventId): Future[List[String]] = crud.distinct("info.place", Json.obj("eventId" -> eventId.unwrap)).map(_.filter(_ != ""))
   def countForEvent(eventId: EventId): Future[Int] = crud.countFor("eventId", eventId.unwrap)
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
+  def addSpeaker(sessionId: SessionId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> sessionId.unwrap), Json.obj("$addToSet" -> Json.obj("info.speakers" -> attendeeId.unwrap)))
+  def removeSpeaker(sessionId: SessionId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> sessionId.unwrap), Json.obj("$pull" -> Json.obj("info.speakers" -> attendeeId.unwrap)))
   def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
   def bulkInsert(elts: List[Session]): Future[Int] = crud.bulkInsert(elts)
   def bulkUpdate(elts: List[(SessionId, Session)]): Future[Int] = crud.bulkUpdate(elts.map(p => (p._1.unwrap, p._2)))

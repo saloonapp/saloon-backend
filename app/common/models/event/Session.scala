@@ -48,6 +48,8 @@ case class Session(
   info: SessionInfo,
   meta: SessionMeta) extends EventItem {
   def day(): DateTime = if (this.info.start.isEmpty || this.info.end.isEmpty) new DateTime(0) else this.info.start.get.withTimeAtStartOfDay()
+  def hasMember(attendee: Attendee): Boolean = this.hasMember(attendee.uuid)
+  def hasMember(attendeeId: AttendeeId): Boolean = this.info.speakers.contains(attendeeId)
   def merge(e: Session): Session = Session.merge(this, e)
   def toBackendExport(): Map[String, String] = Session.toBackendExport(this)
   //def toMap(): Map[String, String] = Session.toMap(this)

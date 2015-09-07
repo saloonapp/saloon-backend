@@ -1,5 +1,7 @@
 package backend.utils
 
+import common.models.values.typed.ItemType
+import common.models.values.typed.GenericId
 import common.models.user.Device
 import common.models.user.DeviceId
 import common.models.user.User
@@ -14,6 +16,7 @@ import common.models.event.Exponent
 import common.models.event.ExponentId
 import common.models.event.Session
 import common.models.event.SessionId
+import common.models.event.EventItem
 import common.repositories.Repository
 import common.repositories.user.DeviceRepository
 import common.repositories.user.UserRepository
@@ -22,6 +25,7 @@ import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.event.SessionRepository
+import common.repositories.event.EventItemRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
@@ -47,6 +51,16 @@ trait ControllerHelpers {
       case None => format match {
         case "json" => Future(NotFound(Json.obj("message" -> "$name not found...")))
         case _ => Future(NotFound(backend.views.html.error("404", s"$name not found...")))
+      }
+    }
+  }
+
+  def withEventItem(itemType: ItemType, genericId: GenericId)(block: EventItem => Future[Result])(implicit flash: Flash, req: RequestHeader, format: String = "html"): Future[Result] = {
+    EventItemRepository.getByUuid(itemType, genericId).flatMap {
+      case Some(data) => block(data)
+      case None => format match {
+        case "json" => Future(NotFound(Json.obj("message" -> "Not found...")))
+        case _ => Future(NotFound(backend.views.html.error("404", s"Not found...")))
       }
     }
   }

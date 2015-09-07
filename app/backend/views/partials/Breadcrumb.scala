@@ -2,6 +2,7 @@ package backend.views.partials
 
 import common.models.utils.tString
 import common.models.values.UUID
+import common.models.values.typed.ItemType
 import common.models.user.OrganizationId
 import common.models.event.EventId
 import common.models.event.AttendeeId
@@ -17,9 +18,7 @@ object Breadcrumb {
       val result = new MutableList[(Call, String)]()
       val identifiers = new HashMap[String, String]()
       for (i <- 0 until list.length) {
-        val prev = if (i > 0) Some(list(i - 1)) else None
-        val prev2 = if (i > 1) Some(list(i - 2)) else None
-        result += build(list(i), prev, prev2, titles.map { case (key, value) => (key.unwrap, value.unwrap) }, identifiers)
+        result += build(list, i, titles.map { case (key, value) => (key.unwrap, value.unwrap) }, identifiers)
       }
       (result.toList.take(result.length - 1), result.last._2)
     }
@@ -39,51 +38,63 @@ object Breadcrumb {
   }
 
   private val identifier = "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})".r
-  private def build(current: String, prev: Option[String], prev2: Option[String], titles: Map[String, String], identifiers: HashMap[String, String]): (Call, String) = {
-    current match {
+  private def build(list: List[String], index: Int, titles: Map[String, String], identifiers: HashMap[String, String]): (Call, String) = {
+    list(index) match {
       case "home" => (backend.controllers.routes.Application.index(), "Accueil")
       case "profile" => (backend.controllers.routes.Profile.details(), "Profil")
       case "organizations" => (backend.controllers.routes.Profile.details(), "Organisations")
-      case "events" => (backend.controllers.routes.Events.list(), "Mes événements")
-      case "attendees" => (backend.controllers.routes.Attendees.list(getEventId(identifiers)), "Participants")
-      case "exponents" => (backend.controllers.routes.Exponents.list(getEventId(identifiers)), "Exposants")
-      case "team" => (backend.controllers.routes.Exponents.details(getEventId(identifiers), getExponentId(identifiers)), "Équipe")
-      case "sessions" => (backend.controllers.routes.Sessions.list(getEventId(identifiers)), "Sessions")
-      case "ticketing" => (backend.controllers.routes.Ticketing.details(getEventId(identifiers)), "Ticketing")
-      case "create" => prev.get match {
-        case "events" => (backend.controllers.routes.Events.create(), "Créer un événement")
-        case "attendees" => (backend.controllers.routes.Attendees.create(getEventId(identifiers)), "Nouveau participant")
-        case "exponents" => (backend.controllers.routes.Exponents.create(getEventId(identifiers)), "Nouvel exposant")
-        case "team" => (backend.controllers.routes.Exponents.teamCreate(getEventId(identifiers), getExponentId(identifiers)), "Nouveau membre")
-        case "sessions" => (backend.controllers.routes.Sessions.create(getEventId(identifiers)), "Nouvelle session")
+      case ItemType.events.value => (backend.controllers.routes.Events.list(), "Mes événements")
+      case ItemType.attendees.value => (backend.controllers.routes.Attendees.list(getEventId(identifiers)), "Participants")
+      case ItemType.exponents.value => (backend.controllers.routes.Exponents.list(getEventId(identifiers)), "Exposants")
+      case ItemType.sessions.value => (backend.controllers.routes.Sessions.list(getEventId(identifiers)), "Sessions")
+      case "team" => list(index - 2) match {
+        case ItemType.exponents.value => (backend.controllers.routes.Exponents.details(getEventId(identifiers), getExponentId(identifiers)), "Équipe")
+        case ItemType.sessions.value => (backend.controllers.routes.Sessions.details(getEventId(identifiers), getSessionId(identifiers)), "Speakers")
       }
-      case "edit" => prev.get match {
+      case "ticketing" => (backend.controllers.routes.Ticketing.details(getEventId(identifiers)), "Ticketing")
+      case "create" => list(index - 1) match {
+        case ItemType.events.value => (backend.controllers.routes.Events.create(), "Créer un événement")
+        case ItemType.attendees.value => (backend.controllers.routes.Attendees.create(getEventId(identifiers)), "Nouveau participant")
+        case ItemType.exponents.value => (backend.controllers.routes.Exponents.create(getEventId(identifiers)), "Nouvel exposant")
+        case ItemType.sessions.value => (backend.controllers.routes.Sessions.create(getEventId(identifiers)), "Nouvelle session")
+        case "team" => list(index - 3) match {
+          case ItemType.exponents.value => (backend.controllers.routes.AttendeeTeam.create(getEventId(identifiers), ItemType.exponents, getExponentId(identifiers)), "Nouveau membre")
+          case ItemType.sessions.value => (backend.controllers.routes.AttendeeTeam.create(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers)), "Nouveau speaker")
+        }
+      }
+      case "edit" => list(index - 1) match {
         case "profile" => (backend.controllers.routes.Profile.details, "Modification")
         case _ =>
-          prev2.get match {
+          list(index - 2) match {
             case "organizations" => (backend.controllers.routes.Organizations.update(getOrganizationId(identifiers)), "Modification")
-            case "events" => (backend.controllers.routes.Events.update(getEventId(identifiers)), "Modification")
-            case "attendees" => (backend.controllers.routes.Attendees.update(getEventId(identifiers), getAttendeeId(identifiers)), "Modification")
-            case "exponents" => (backend.controllers.routes.Exponents.update(getEventId(identifiers), getExponentId(identifiers)), "Modification")
-            case "team" => (backend.controllers.routes.Exponents.teamUpdate(getEventId(identifiers), getExponentId(identifiers), getAttendeeId(identifiers)), "Modification")
-            case "sessions" => (backend.controllers.routes.Sessions.update(getEventId(identifiers), getSessionId(identifiers)), "Modification")
+            case ItemType.events.value => (backend.controllers.routes.Events.update(getEventId(identifiers)), "Modification")
+            case ItemType.attendees.value => (backend.controllers.routes.Attendees.update(getEventId(identifiers), getAttendeeId(identifiers)), "Modification")
+            case ItemType.exponents.value => (backend.controllers.routes.Exponents.update(getEventId(identifiers), getExponentId(identifiers)), "Modification")
+            case ItemType.sessions.value => (backend.controllers.routes.Sessions.update(getEventId(identifiers), getSessionId(identifiers)), "Modification")
+            case "team" => list(index - 4) match {
+              case ItemType.exponents.value => (backend.controllers.routes.AttendeeTeam.update(getEventId(identifiers), ItemType.exponents, getExponentId(identifiers), getAttendeeId(identifiers)), "Modification")
+              case ItemType.sessions.value => (backend.controllers.routes.AttendeeTeam.update(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers), getAttendeeId(identifiers)), "Modification")
+            }
           }
       }
-      case "delete" => prev2.get match {
+      case "delete" => list(index - 2) match {
         case "organizations" => (backend.controllers.routes.Organizations.delete(getOrganizationId(identifiers)), "Suppression")
       }
-      case "config" => prev.get match {
+      case "config" => list(index - 1) match {
         case "ticketing" => (backend.controllers.routes.Ticketing.configure(getEventId(identifiers)), "Configuration")
       }
       case identifier(id) => {
-        setId(identifiers, prev.get, id)
-        prev.get match {
+        setId(identifiers, list(index - 1), id)
+        list(index - 1) match {
           case "organizations" => (backend.controllers.routes.Organizations.details(getOrganizationId(identifiers)), titles.get(id).get)
-          case "events" => (backend.controllers.routes.Events.details(getEventId(identifiers)), titles.get(id).get)
-          case "attendees" => (backend.controllers.routes.Attendees.details(getEventId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
-          case "exponents" => (backend.controllers.routes.Exponents.details(getEventId(identifiers), getExponentId(identifiers)), titles.get(id).get)
-          case "team" => (backend.controllers.routes.Exponents.teamDetails(getEventId(identifiers), getExponentId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
-          case "sessions" => (backend.controllers.routes.Sessions.details(getEventId(identifiers), getSessionId(identifiers)), titles.get(id).get)
+          case ItemType.events.value => (backend.controllers.routes.Events.details(getEventId(identifiers)), titles.get(id).get)
+          case ItemType.attendees.value => (backend.controllers.routes.Attendees.details(getEventId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
+          case ItemType.exponents.value => (backend.controllers.routes.Exponents.details(getEventId(identifiers), getExponentId(identifiers)), titles.get(id).get)
+          case ItemType.sessions.value => (backend.controllers.routes.Sessions.details(getEventId(identifiers), getSessionId(identifiers)), titles.get(id).get)
+          case "team" => list(index - 3) match {
+            case ItemType.exponents.value => (backend.controllers.routes.AttendeeTeam.details(getEventId(identifiers), ItemType.exponents, getExponentId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
+            case ItemType.sessions.value => (backend.controllers.routes.AttendeeTeam.details(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
+          }
         }
       }
 
@@ -98,11 +109,11 @@ object Breadcrumb {
 
   private def setId(identifiers: HashMap[String, String], prev: String, id: String): Option[String] = prev match {
     case "organizations" => identifiers.put("organization", id)
-    case "events" => identifiers.put("event", id)
-    case "attendees" => identifiers.put("attendee", id)
-    case "exponents" => identifiers.put("exponent", id)
+    case ItemType.events.value => identifiers.put("event", id)
+    case ItemType.attendees.value => identifiers.put("attendee", id)
+    case ItemType.exponents.value => identifiers.put("exponent", id)
     case "team" => identifiers.put("attendee", id)
-    case "sessions" => identifiers.put("session", id)
+    case ItemType.sessions.value => identifiers.put("session", id)
   }
   private def getOrganizationId(identifiers: HashMap[String, String]): OrganizationId = OrganizationId(identifiers.get("organization").get)
   private def getEventId(identifiers: HashMap[String, String]): EventId = EventId(identifiers.get("event").get)

@@ -1,22 +1,24 @@
+@import common.models.values.typed.ItemType
 @import common.models.event.Event
 @import common.models.event.Attendee
 @import common.models.event.Session
 @import common.models.event.Exponent
+@import common.models.event.EventItem
 @import common.models.user.User
 @import common.views.html.format._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event, exponent: Exponent)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(attendee.name+", "+exponent.name, "events_"+event.uuid+"_exponents_"+exponent.uuid+"_team_"+attendee.uuid, Map(event.uuid -> event.name, exponent.uuid -> exponent.name, attendee.uuid -> attendee.name)){
+@(attendee: Attendee, attendeeSessions: List[Session], attendeeExponents: List[Exponent], event: Event, eventItem: EventItem)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout(attendee.name+", "+eventItem.name, "events_"+event.uuid+"_"+eventItem.getType()+"_"+eventItem.uuid+"_team_"+attendee.uuid, Map(event.uuid -> event.name, eventItem.uuid -> eventItem.name, attendee.uuid -> attendee.name)){
 	<div class="block-header">
 		<h2>
 			@attendee.name
 			<small>@attendee.position().getOrElse("")</small>
 		</h2>
 		<ul class="actions">
-			<li><a href="@backend.controllers.routes.Exponents.teamUpdate(event.uuid, exponent.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
+			<li><a href="@backend.controllers.routes.AttendeeTeam.update(event.uuid, eventItem.getType(), eventItem.uuid, attendee.uuid)"><i class="md md-edit"></i></a></li>
 			<li>
-				@helper.form(action=backend.controllers.routes.Attendees.doDelete(event.uuid, attendee.uuid, Some(backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid).url))) {
+				@helper.form(action=backend.controllers.routes.Attendees.doDelete(event.uuid, attendee.uuid, eventItem.toExponent.map(e => backend.controllers.routes.Exponents.details(event.uuid, e.uuid).url).orElse(eventItem.toSession.map(s => backend.controllers.routes.Sessions.details(event.uuid, s.uuid).url)))) {
 					<button type="submit" class="confirm" title="Supprimer le profil de @attendee.name"><i class="md md-delete"></i></button>
 				}
 			</li>
@@ -52,7 +54,7 @@
 					<div class="pmbb-body p-l-30 media-list">
 						@attendeeSessions.map { session =>
 							<ul class="actions pull-right">
-								<li><a href="" title="Retirer @attendee.name de la session '@session.name'"><i class="md md-exit-to-app"></i></a></li>
+								<li>@helper.form(action=backend.controllers.routes.AttendeeTeam.doLeave(event.uuid, ItemType.sessions, session.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de la session '@session.name'"><i class="md md-exit-to-app"></i></button>}</li>
 							</ul>
 							@sessionMedia(session, event)
 						}
@@ -65,7 +67,7 @@
 					<div class="pmbb-body p-l-30 media-list">
 						@attendeeExponents.map { exponent =>
 							<ul class="actions pull-right">
-								<li>@helper.form(action=backend.controllers.routes.Exponents.doTeamLeave(event.uuid, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'exposant '@exponent.name'"><i class="md md-exit-to-app"></i></button>}</li>
+								<li>@helper.form(action=backend.controllers.routes.AttendeeTeam.doLeave(event.uuid, ItemType.exponents, exponent.uuid, attendee.uuid)){<button type="submit" class="confirm" title="Retirer @attendee.name de l'exposant '@exponent.name'"><i class="md md-exit-to-app"></i></button>}</li>
 							</ul>
 							@exponentMedia(exponent, event)
 						}

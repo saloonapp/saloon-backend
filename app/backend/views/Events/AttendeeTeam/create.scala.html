@@ -1,5 +1,5 @@
 @import common.models.event.Event
-@import common.models.event.Exponent
+@import common.models.event.EventItem
 @import common.models.event.Attendee
 @import common.models.event.AttendeeId
 @import common.models.user.User
@@ -8,11 +8,11 @@
 @import common.views.html.forms._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(attendeeForm: Form[AttendeeCreateData], joinForm: Form[AttendeeId], allAttendees: List[Attendee], event: Event, exponent: Exponent, tab: String = "inviteuser")(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Ajouter à l'équipe de "+exponent.name, "events_"+event.uuid+"_exponents_"+exponent.uuid+"_team_create", Map(event.uuid -> event.name, exponent.uuid -> exponent.name)){
+@(attendeeForm: Form[AttendeeCreateData], joinForm: Form[AttendeeId], allAttendees: List[Attendee], event: Event, eventItem: EventItem, tab: String = "inviteuser")(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Ajouter à l'équipe de "+eventItem.name, "events_"+event.uuid+"_"+eventItem.getType()+"_"+eventItem.uuid+"_team_create", Map(event.uuid -> event.name, eventItem.uuid -> eventItem.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
-			<h2>Nouveau membre pour @exponent.name :</h2>
+			<h2>Nouveau membre pour @eventItem.name :</h2>
 		</div>
 		<div class="card-body">
 			<div role="tabpanel">
@@ -24,22 +24,22 @@
 			  
 				<div class="tab-content p-20">
 					<div role="tabpanel" class="tab-pane @if(tab=="inviteuser"){active}" id="inviteuser">
-						@helper.form(action=backend.controllers.routes.Exponents.doTeamCreateInvite(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+						@helper.form(action=backend.controllers.routes.AttendeeTeam.doCreateInvite(event.uuid, eventItem.getType(), eventItem.uuid), 'class->"form-horizontal") {
 							@partials.inviteForm(attendeeForm, event)
 							<div class="form-group">
 								<div class="col-md-offset-2 col-md-10">
-									<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+									<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
 									<button type="submit" class="btn btn-success">Inviter</button>
 								</div>
 							</div>
 						}
 					</div>
 					<div role="tabpanel" class="tab-pane @if(tab=="fullform"){active}" id="fullform">
-						@helper.form(action=backend.controllers.routes.Exponents.doTeamCreateFull(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+						@helper.form(action=backend.controllers.routes.AttendeeTeam.doCreateFull(event.uuid, eventItem.getType(), eventItem.uuid), 'class->"form-horizontal") {
 							@partials.form(attendeeForm, event)
 							<div class="form-group">
 								<div class="col-md-offset-2 col-md-10">
-									<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+									<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
 									<button type="submit" class="btn btn-success">Ajouter</button>
 								</div>
 							</div>
@@ -47,13 +47,13 @@
 					</div>
 					@if(allAttendees.length > 0){
 						<div role="tabpanel" class="tab-pane @if(tab=="fromattendees"){active}" id="fromattendees">
-							@helper.form(action=backend.controllers.routes.Exponents.doTeamJoin(event.uuid, exponent.uuid), 'class->"form-horizontal") {
+							@helper.form(action=backend.controllers.routes.AttendeeTeam.doJoin(event.uuid, eventItem.getType(), eventItem.uuid), 'class->"form-horizontal") {
 								@fieldHorizontal(joinForm("attendeeId"), 'label -> "Nouveau membre"){field =>
 									@inputSelect2(field, allAttendees.map(a => (a.uuid.unwrap, a.name+a.position().map(" ("+_+")").getOrElse(""))))
 								}
 								<div class="form-group">
 									<div class="col-md-offset-2 col-md-10">
-										<a href="@backend.controllers.routes.Exponents.details(event.uuid, exponent.uuid)" class="btn btn-default">Annuler</a>
+										<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
 										<button type="submit" class="btn btn-success">Ajouter</button>
 									</div>
 								</div>

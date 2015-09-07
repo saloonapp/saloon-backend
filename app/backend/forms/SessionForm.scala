@@ -22,7 +22,6 @@ case class SessionCreateData(
   place: EventLocation,
   start: Option[DateTime],
   end: Option[DateTime],
-  speakers: List[AttendeeId],
   slides: Option[WebsiteUrl],
   video: Option[WebsiteUrl])
 object SessionCreateData {
@@ -35,14 +34,13 @@ object SessionCreateData {
     "place" -> of[EventLocation],
     "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
     "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-    "speakers" -> list(of[AttendeeId]),
     "slides" -> optional(of[WebsiteUrl]),
     "video" -> optional(of[WebsiteUrl]))(SessionCreateData.apply)(SessionCreateData.unapply)
 
   def toMeta(d: SessionCreateData): SessionMeta = SessionMeta(None, new DateTime(), new DateTime())
-  def toInfo(d: SessionCreateData): SessionInfo = SessionInfo(d.format, d.theme, d.place, d.start, d.end, d.speakers, d.slides, d.video)
+  def toInfo(d: SessionCreateData, speakers: List[AttendeeId]): SessionInfo = SessionInfo(d.format, d.theme, d.place, d.start, d.end, speakers, d.slides, d.video)
   def toImages(d: SessionCreateData): SessionImages = SessionImages(ImageUrl(""))
-  def toModel(d: SessionCreateData): Session = Session(SessionId.generate(), d.eventId, d.name, d.descriptionHTML.toPlainText, d.descriptionHTML, toImages(d), toInfo(d), toMeta(d))
-  def fromModel(d: Session): SessionCreateData = SessionCreateData(d.eventId, d.name, d.descriptionHTML, d.info.format, d.info.theme, d.info.place, d.info.start, d.info.end, d.info.speakers, d.info.slides, d.info.video)
-  def merge(m: Session, d: SessionCreateData): Session = m.copy(name = d.name, description = d.descriptionHTML.toPlainText, descriptionHTML = d.descriptionHTML, images = toImages(d), info = toInfo(d), meta = m.meta.copy(updated = new DateTime()))
+  def toModel(d: SessionCreateData): Session = Session(SessionId.generate(), d.eventId, d.name, d.descriptionHTML.toPlainText, d.descriptionHTML, toImages(d), toInfo(d, List()), toMeta(d))
+  def fromModel(d: Session): SessionCreateData = SessionCreateData(d.eventId, d.name, d.descriptionHTML, d.info.format, d.info.theme, d.info.place, d.info.start, d.info.end, d.info.slides, d.info.video)
+  def merge(m: Session, d: SessionCreateData): Session = m.copy(name = d.name, description = d.descriptionHTML.toPlainText, descriptionHTML = d.descriptionHTML, images = toImages(d), info = toInfo(d, m.info.speakers), meta = m.meta.copy(updated = new DateTime()))
 }
