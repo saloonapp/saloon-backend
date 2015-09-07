@@ -11,7 +11,7 @@
 	<div class="block-header">
 		<h2>
 			@session.name
-			<small>
+			@*<small>
 				@if(!session.info.place.isEmpty){@session.info.place}
 				@session.info.start.orElse(session.info.end).map(d => if(!session.info.place.isEmpty){", "} + "le " + d.toString("EEEE dd MMMM")).getOrElse("")
 				@if(session.info.start.isDefined && session.info.end.isDefined){de @session.info.start.get.toString("hh'h'mm") à @session.info.end.get.toString("hh'h'mm")}
@@ -19,7 +19,7 @@
 				@if(session.info.start.isEmpty && session.info.end.isDefined){jusqu'à @session.info.end.get.toString("hh'h'mm")}
 				@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
 				@if(!session.info.theme.isEmpty){<span class="label label-danger">@session.info.theme</span>}
-			</small>
+			</small>*@
 		</h2>
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Sessions.update(event.uuid, session.uuid)"><i class="md md-edit"></i></a></li>
@@ -28,6 +28,31 @@
 	</div>
 	<div class="card" id="profile-main">
 		<div class="pm-overview c-overflow">
+			<div class="pmo-block pmo-contact hidden-xs">
+				<h2>Informations générales</h2>
+				<ul>
+					<li>
+						<i class="md md-event"></i>
+						@session.info.start.orElse(session.info.end).map(_.toString("EEEE dd MMMM")).getOrElse("Pas planifié")
+						@if(session.info.start.isDefined && session.info.end.isDefined){de @session.info.start.get.toString("hh'h'mm") à @session.info.end.get.toString("hh'h'mm")}
+						@if(session.info.start.isDefined && session.info.end.isEmpty){à @session.info.start.get.toString("hh'h'mm")}
+						@if(session.info.start.isEmpty && session.info.end.isDefined){jusqu'à @session.info.end.get.toString("hh'h'mm")}
+					</li>
+					<li><i class="md md-location-on"></i> @if(session.info.place.isEmpty){Pas de lieu}@if(!session.info.place.isEmpty){@session.info.place}</li>
+					@session.info.slides.orElse(session.info.video).map { l =>
+						<li>
+							<i class="md md-link"></i>
+							@session.info.slides.map{url => <a href="@url" target="_blank" title="Slides"><i class="socicon socicon-slideshare"></i></a>}
+							@session.info.video.map{url => <a href="@url" target="_blank" title="Vidéo"><i class="socicon socicon-youtube"></i></a>}
+						</li>
+					}
+					<li>
+						<i class="md md-local-offer"></i>
+						<span class="label label-primary">@if(session.info.format.isEmpty){Pas de format}@if(!session.info.format.isEmpty){@session.info.format}</span>
+						<span class="label label-danger">@if(session.info.theme.isEmpty){Pas de thème}@if(!session.info.theme.isEmpty){@session.info.theme}</span>
+					</li>
+				</ul>
+			</div>
 		</div>
 		<div class="pm-body clearfix">
 			<div class="pmb-block">
@@ -36,14 +61,37 @@
 					@Html(session.descriptionHTML.unwrap)
 				</div>
 			</div>
-			@*@if(sessionSpeakers.length > 0){
-				<div class="pmb-block">
-					<div class="pmbb-header"><h2><i class="md md-people m-r-5"></i> Speakers</h2></div>
-					<div class="p-l-30">
-						@sessionSpeakers.map { attendee => @attendeeMedia(attendee, Some(backend.controllers.routes.Attendees.details(event.uuid, attendee.uuid))) }
-					</div>
+			<div class="pmb-block visible-xs">
+				<div class="pmbb-header"><h2><i class="md md-person m-r-5"></i> Informations générales</h2></div>
+				<div class="p-l-30">
+					<dl class="dl-horizontal">
+						<dt>Date</dt>
+						<dd>
+							@session.info.start.orElse(session.info.end).map(_.toString("EEEE dd MMMM")).getOrElse("Pas planifié")
+							@if(session.info.start.isDefined && session.info.end.isDefined){de @session.info.start.get.toString("hh'h'mm") à @session.info.end.get.toString("hh'h'mm")}
+							@if(session.info.start.isDefined && session.info.end.isEmpty){à @session.info.start.get.toString("hh'h'mm")}
+							@if(session.info.start.isEmpty && session.info.end.isDefined){jusqu'à @session.info.end.get.toString("hh'h'mm")}
+						</dd>
+					</dl>
+					<dl class="dl-horizontal"><dt>Lieu</dt><dd>@if(session.info.place.isEmpty){Pas de lieu}@if(!session.info.place.isEmpty){@session.info.place}</dd></dl>
+					@session.info.slides.orElse(session.info.video).map { l =>
+						<dl class="dl-horizontal">
+							<dt>Liens</dt>
+							<dd>
+								@session.info.slides.map{url => <a href="@url" target="_blank" title="Slides"><i class="socicon socicon-slideshare"></i></a>}
+								@session.info.video.map{url => <a href="@url" target="_blank" title="Vidéo"><i class="socicon socicon-youtube"></i></a>}
+							</dd>
+						</dl>
+					}
+					<dl class="dl-horizontal">
+						<dt>Catégories</dt>
+						<dd>
+							<span class="label label-primary">@if(session.info.format.isEmpty){Pas de format}@if(!session.info.format.isEmpty){@session.info.format}</span>
+							<span class="label label-danger">@if(session.info.theme.isEmpty){Pas de thème}@if(!session.info.theme.isEmpty){@session.info.theme}</span>
+						</dd>
+					</dl>
 				</div>
-			}*@
+			</div>
 			<div class="pmb-block">
 				<div class="pmbb-header">
 					<h2><i class="md md-people m-r-5"></i> Speakers</h2>
