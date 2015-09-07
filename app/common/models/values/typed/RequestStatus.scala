@@ -3,7 +3,7 @@ package common.models.values.typed
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 
-case class RequestStatus(val value: String) extends AnyVal with tString {
+case class RequestStatus(value: String) extends AnyVal with tString {
   def unwrap: String = this.value
 }
 object RequestStatus extends tStringHelper[RequestStatus] {

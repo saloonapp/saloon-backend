@@ -15,7 +15,7 @@ import org.jsoup.Jsoup
 import common.models.values.typed.TextMultiline
 import common.models.values.typed.TextHTML
 
-case class SessionId(val id: String) extends AnyVal with tString with UUID {
+case class SessionId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object SessionId extends tStringHelper[SessionId] {

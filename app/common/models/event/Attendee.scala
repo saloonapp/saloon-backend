@@ -18,7 +18,7 @@ import common.models.values.typed.TextMultiline
 import common.models.values.typed.TextHTML
 import common.models.values.typed.ImageUrl
 
-case class AttendeeId(val id: String) extends AnyVal with tString with UUID {
+case class AttendeeId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object AttendeeId extends tStringHelper[AttendeeId] {

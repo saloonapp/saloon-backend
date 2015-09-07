@@ -16,7 +16,7 @@ import play.api.libs.json.Json
 import org.jsoup.Jsoup
 import common.models.values.typed.TextMultiline
 
-case class ExponentId(val id: String) extends AnyVal with tString with UUID {
+case class ExponentId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object ExponentId extends tStringHelper[ExponentId] {

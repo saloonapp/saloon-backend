@@ -16,7 +16,7 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
 
-case class EventId(val id: String) extends AnyVal with tString with UUID {
+case class EventId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object EventId extends tStringHelper[EventId] {

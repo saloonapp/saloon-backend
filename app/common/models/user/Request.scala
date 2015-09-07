@@ -7,7 +7,7 @@ import common.models.values.typed._
 import org.joda.time.DateTime
 import play.api.libs.json._
 
-case class RequestId(val id: String) extends AnyVal with tString with UUID {
+case class RequestId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object RequestId extends tStringHelper[RequestId] {

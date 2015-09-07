@@ -3,7 +3,7 @@ package common.models.values.typed
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 
-case class UserRole(val value: String) extends AnyVal with tString {
+case class UserRole(value: String) extends AnyVal with tString {
   def unwrap: String = this.value
   def getPriority: Int = UserRole.getPriority(this)
 }

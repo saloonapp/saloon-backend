@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 
-case class DeviceId(val id: String) extends AnyVal with tString with UUID {
+case class DeviceId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object DeviceId extends tStringHelper[DeviceId] {

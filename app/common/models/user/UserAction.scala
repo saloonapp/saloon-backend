@@ -11,7 +11,7 @@ import org.joda.time.DateTime
 import play.api.libs.json._
 import common.models.values.typed.TextMultiline
 
-case class UserActionId(val id: String) extends AnyVal with tString with UUID {
+case class UserActionId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object UserActionId extends tStringHelper[UserActionId] {

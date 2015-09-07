@@ -4,7 +4,7 @@ import common.models.utils.tString
 import common.models.utils.tStringHelper
 import org.jsoup.Jsoup
 
-case class TextHTML(val value: String) extends AnyVal with tString {
+case class TextHTML(value: String) extends AnyVal with tString {
   def unwrap: String = this.value
   def toPlainText: TextMultiline = TextHTML.toPlainText(this)
 }

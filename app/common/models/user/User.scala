@@ -10,7 +10,7 @@ import org.joda.time.DateTime
 import com.mohiva.play.silhouette.core.Identity
 import com.mohiva.play.silhouette.core.LoginInfo
 
-case class UserId(val id: String) extends AnyVal with tString with UUID {
+case class UserId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }
 object UserId extends tStringHelper[UserId] {

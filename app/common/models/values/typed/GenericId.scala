@@ -8,7 +8,7 @@ import common.models.event.AttendeeId
 import common.models.event.ExponentId
 import common.models.event.SessionId
 
-case class GenericId(val id: String) extends AnyVal with tString with UUID {
+case class GenericId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 
   def toEventId: EventId = EventId(this.id)
