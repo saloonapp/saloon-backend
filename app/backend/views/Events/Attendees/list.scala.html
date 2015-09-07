@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(attendeePage: Page[Attendee], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Participants à "+event.name, "events_"+event.uuid+"_attendees", Map(event.uuid -> event.name)){
+@layout("Participants à "+event.name, Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>

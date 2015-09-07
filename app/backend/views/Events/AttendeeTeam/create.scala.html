@@ -9,7 +9,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(attendeeForm: Form[AttendeeCreateData], joinForm: Form[AttendeeId], allAttendees: List[Attendee], event: Event, eventItem: EventItem, tab: String = "inviteuser")(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Ajouter à l'équipe de "+eventItem.name, "events_"+event.uuid+"_"+eventItem.getType()+"_"+eventItem.uuid+"_team_create", Map(event.uuid -> event.name, eventItem.uuid -> eventItem.name)){
+@layout("Ajouter à l'équipe de "+eventItem.name, Map(event.uuid -> event.name, eventItem.uuid -> eventItem.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Nouveau membre pour @eventItem.name :</h2>

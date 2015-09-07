@@ -13,7 +13,7 @@
 @import common.views.html.forms._
 @import common.views.html.format._
 @(userOrganizations: List[(Organization, UserRole, Int)], userPendingOrganizationRequests: List[(Organization, Request)], otherOrganizations: List[Organization], organizationForm: Form[OrganizationData], accessRequestForm: Form[(OrganizationId, Option[TextMultiline])])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Mon profil", "profile"){
+@layout("Mon profil"){
 	<div class="row">
 		<div class="col-md-8">
 			<div class="card">

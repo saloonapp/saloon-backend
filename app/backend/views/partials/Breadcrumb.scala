@@ -13,8 +13,8 @@ import scala.collection.mutable.MutableList
 import scala.collection.mutable.HashMap
 
 object Breadcrumb {
-  def buildBreadcrumb(breadcrumb: String, titles: Map[UUID, tString]): Option[(List[(Call, String)], String)] = {
-    prepare(breadcrumb).map { list =>
+  def buildBreadcrumb(uri: String, titles: Map[UUID, tString]): Option[(List[(Call, String)], String)] = {
+    prepare(uri).map { list =>
       val result = new MutableList[(Call, String)]()
       val identifiers = new HashMap[String, String]()
       for (i <- 0 until list.length) {
@@ -24,14 +24,10 @@ object Breadcrumb {
     }
   }
 
-  private def prepare(breadcrumb: String): Option[List[String]] = {
-    val list = breadcrumb.split("_").toList
-    if (breadcrumb != "" && list.length > 0 && !breadcrumb.startsWith("welcome")) {
-      if (breadcrumb.startsWith("home")) {
-        Some(list)
-      } else {
-        Some(List("home") ++ list)
-      }
+  private def prepare(uri: String): Option[List[String]] = {
+    val list = (if (uri.startsWith("/backend/")) uri.substring(9) else uri).split("/").toList
+    if (list.length > 0 && !List("welcome", "requests").contains(list(0))) {
+      Some(List("home") ++ list)
     } else {
       None
     }

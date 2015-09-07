@@ -5,7 +5,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(events: List[(Event, Int, Int, Int, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Événements", "events"){
+@layout("Événements"){
 	<div class="block-header"><h2>Mes événements</h2></div>
 	@if(events.length == 0 && user.organizationIds.length == 0){
 		<div class="card">

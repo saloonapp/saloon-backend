@@ -5,7 +5,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(sessionForm: Form[SessionCreateData], session: Session, formats: List[String], categories: List[String], places: List[String], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Modifier "+session.name, "events_"+event.uuid+"_sessions_"+session.uuid+"_edit", Map(event.uuid -> event.name, session.uuid -> session.name)){
+@layout("Modifier "+session.name, Map(event.uuid -> event.name, session.uuid -> session.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Modifier @session.name :</h2>

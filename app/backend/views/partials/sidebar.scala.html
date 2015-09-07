@@ -1,15 +1,15 @@
 @import common.models.user.User
 @import common.models.values.typed.ImageUrl
-@(user: User, breadcrumb: String)
+@(user: User, uri: String)
 <aside id="sidebar">
 	<div class="sidebar-inner c-overflow">
-		<div class="profile-menu @if(breadcrumb.startsWith("profile")){toggled}">
+		<div class="profile-menu @if(uri.startsWith("/backend/profile")){toggled}">
 			<a href="#" style="background-image: url('@routes.Assets.at("backend/sample/images/profile-menu.png")');">
 				<div class="profile-pic">@avatar(ImageUrl(""), user.info.firstName)</div>
 				<div class="profile-info">@user.info.firstName @user.info.lastName <i class="md md-arrow-drop-down"></i></div>
 			</a>
-			<ul class="main-menu" @if(breadcrumb.startsWith("profile")){style="display: block;"}>
-				<li @if(breadcrumb.startsWith("profile")){class="active"}><a href="@backend.controllers.routes.Profile.details()"><i class="md md-person"></i> Mon profil</a></li>
+			<ul class="main-menu" @if(uri.startsWith("/backend/profile")){style="display: block;"}>
+				<li @if(uri.startsWith("/backend/profile")){class="active"}><a href="@backend.controllers.routes.Profile.details()"><i class="md md-person"></i> Mon profil</a></li>
 				<!-- <li><a href=""><i class="md md-person"></i> Mon profil</a></li>
 				<li><a href=""><i class="md md-settings-input-antenna"></i> Privacy Settings</a></li>
 				<li><a href=""><i class="md md-settings"></i> Settings</a></li> -->
@@ -17,8 +17,8 @@
 			</ul>
 		</div>
 		<ul class="main-menu">
-			<li @if(breadcrumb.startsWith("home")||breadcrumb.startsWith("welcome")){class="active"}><a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i> Accueil</a></li>
-			<li @if(breadcrumb.startsWith("events")){class="active"}><a href="@backend.controllers.routes.Events.list()"><i class="md md-event-available"></i> Mes événements</a></li>
+			<li @if(uri.startsWith("/backend/home")||uri.startsWith("/backend/welcome")){class="active"}><a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i> Accueil</a></li>
+			<li @if(uri.startsWith("/backend/events")){class="active"}><a href="@backend.controllers.routes.Events.list()"><i class="md md-event-available"></i> Mes événements</a></li>
 			@if(user.canAdministrateSaloon()){ <li><a href="@admin.controllers.routes.Application.index()"><i class="md md-settings"></i> Admin</a></li> }
 		</ul>
 	</div>

@@ -2,13 +2,13 @@
 @import common.models.values.UUID
 @import common.models.utils.tString
 @import common.views.html._
-@(title: String, breadcrumb: String = "", titles: Map[UUID, tString] = Map())(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(title: String, titles: Map[UUID, tString] = Map())(content: Html)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @main(if(title.length > 0) title+" | SalooN" else "SalooN"){
 	@notifications(flash)
 	@partials.header()
-	@partials.breadcrumb(breadcrumb, titles)
+	@partials.breadcrumb(req.uri, titles)
 	<section id="main">
-		@partials.sidebar(user, breadcrumb)
+		@partials.sidebar(user, req.uri)
 		<section id="content">
 			<div class="container">
 				@content

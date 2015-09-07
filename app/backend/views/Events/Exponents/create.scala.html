@@ -4,7 +4,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(exponentForm: Form[ExponentCreateData], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Nouvel exposant pour "+event.name, "events_"+event.uuid+"_exponents_create", Map(event.uuid -> event.name)){
+@layout("Nouvel exposant pour "+event.name, Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Nouvel exposant :</h2>

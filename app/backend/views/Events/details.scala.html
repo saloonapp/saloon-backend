@@ -4,7 +4,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(event: Event, attendeeCount: Int, sessionCount: Int, exponentCount: Int, actionCount: Int)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout(event.name.unwrap, "events_"+event.uuid, Map(event.uuid -> event.name)){
+@layout(event.name.unwrap, Map(event.uuid -> event.name)){
 	<div class="block-header">
 		<h2>@event.name</h2>
 		<ul class="actions">

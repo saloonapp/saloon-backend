@@ -6,7 +6,7 @@
 @import backend.views.html._
 @import backend.views.html.partials._
 @(attendeeForm: Form[AttendeeCreateData], attendee: Attendee, event: Event, eventItem: EventItem)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Modifier "+eventItem.name, "events_"+event.uuid+"_"+eventItem.getType()+"_"+eventItem.uuid+"_team_"+attendee.uuid+"_edit", Map(event.uuid -> event.name, eventItem.uuid -> eventItem.name, attendee.uuid -> attendee.name)){
+@layout("Modifier "+eventItem.name, Map(event.uuid -> event.name, eventItem.uuid -> eventItem.name, attendee.uuid -> attendee.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Modifier @eventItem.name :</h2>
