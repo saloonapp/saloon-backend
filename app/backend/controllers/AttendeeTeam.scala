@@ -32,12 +32,8 @@ object AttendeeTeam extends SilhouetteEnvironment with ControllerHelpers {
   def details(eventId: EventId, itemType: ItemType, genericId: GenericId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
-      withAttendee(attendeeId) { attendee =>
-        for {
-          itemOpt <- EventItemRepository.getByUuid(itemType, genericId)
-          attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
-          attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
-        } yield {
+      withAttendeeWithExtra(eventId, attendeeId) { (attendee, attendeeSessions, attendeeExponents) =>
+        EventItemRepository.getByUuid(itemType, genericId).map { itemOpt =>
           if (itemOpt.flatMap(_.toExponent).map(_.hasMember(attendee)).getOrElse(false)) {
             Ok(backend.views.html.Events.AttendeeTeam.details(attendee, attendeeSessions, attendeeExponents, event, itemOpt.get))
           } else if (itemOpt.flatMap(_.toSession).map(_.hasMember(attendee)).getOrElse(false)) {

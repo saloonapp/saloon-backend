@@ -39,13 +39,8 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
   def details(eventId: EventId, attendeeId: AttendeeId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
-      withAttendee(attendeeId) { attendee =>
-        for {
-          attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
-          attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
-        } yield {
-          Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event))
-        }
+      withAttendeeWithExtra(eventId, attendeeId) { (attendee, attendeeSessions, attendeeExponents) =>
+        Future(Ok(backend.views.html.Events.Attendees.details(attendee, attendeeSessions, attendeeExponents, event)))
       }
     }
   }
@@ -92,17 +87,13 @@ object Attendees extends SilhouetteEnvironment with ControllerHelpers {
 
   def doDelete(eventId: EventId, attendeeId: AttendeeId, redirectOpt: Option[String]) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
-    withAttendee(attendeeId) { attendee =>
-      for {
-        attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
-        attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
-      } yield {
-        if (attendeeSessions.length == 0 && attendeeExponents.length == 0) {
-          AttendeeRepository.delete(attendeeId)
+    withAttendeeWithExtra(eventId, attendeeId) { (attendee, attendeeSessions, attendeeExponents) =>
+      if (attendeeSessions.length == 0 && attendeeExponents.length == 0) {
+        AttendeeRepository.delete(attendeeId).map { r =>
           followRedirect(redirectOpt, backend.controllers.routes.Attendees.list(eventId)).flashing("success" -> s"Suppression du profil ${attendee.name}")
-        } else {
-          Redirect(req.headers("referer")).flashing("error" -> s"${attendee.name} ne doit pas faire parti d'une session ou d'un exposant pour être supprimé.")
         }
+      } else {
+        Future(Redirect(req.headers("referer")).flashing("error" -> s"${attendee.name} ne doit pas faire parti d'une session ou d'un exposant pour être supprimé."))
       }
     }
   }

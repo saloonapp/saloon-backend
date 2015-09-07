@@ -64,6 +64,16 @@ trait ControllerHelpers {
       }
     }
   }
+  def withAttendeeWithExtra(eventId: EventId, attendeeId: AttendeeId)(block: (Attendee, List[Session], List[Exponent]) => Future[Result])(implicit flash: Flash, req: RequestHeader, format: String = "html"): Future[Result] = {
+    withAttendee(attendeeId) { attendee =>
+      (for {
+        attendeeSessions <- SessionRepository.findByEventAttendee(eventId, attendeeId)
+        attendeeExponents <- ExponentRepository.findByEventAttendee(eventId, attendeeId)
+      } yield {
+        block(attendee, attendeeSessions, attendeeExponents)
+      }).flatMap(identity)
+    }
+  }
 
   def followRedirect(redirectOpt: Option[String], defaultRedirect: Call): Result = {
     redirectOpt.map { redirect => Redirect(redirect) }.getOrElse { Redirect(defaultRedirect) }
