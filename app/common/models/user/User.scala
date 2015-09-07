@@ -56,9 +56,7 @@ object User {
 case class UserRight(key: String, label: String)
 object UserRight {
   val administrateSalooN = UserRight("administrateSaloon", "Administrer SalooN")
-  val createEvent = UserRight("createEvent", "Créer un événement")
-
-  val all = Seq(administrateSalooN, createEvent)
+  val all = Seq(administrateSalooN)
 }
 
 // mapping object for User Form
