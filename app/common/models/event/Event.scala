@@ -17,13 +17,6 @@ import play.api.libs.json.Json
 import org.jsoup.Jsoup
 import common.models.values.typed.EventStatus
 
-/*
- * Migration :
- *
- * db.Events.update({"config.published": false}, {$set: {"meta.status":"draft"}, $unset:{"config.published":""}}, {multi:true})
- * db.Events.update({"config.published": true}, {$set: {"meta.status":"published"}, $unset:{"config.published":""}}, {multi:true})
- */
-
 case class EventId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
 }

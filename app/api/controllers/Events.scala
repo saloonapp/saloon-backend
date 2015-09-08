@@ -23,7 +23,7 @@ object Events extends Controller {
   val repository: Repository[Event, EventId] = EventRepository
 
   def list(query: Option[String], page: Option[Int], sort: Option[String], version: String) = Action.async { implicit req =>
-    repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start"), Json.obj("config.published" -> true)).flatMap { eltPage =>
+    repository.findPage(query.getOrElse(""), page.getOrElse(1), Page.defaultSize, sort.getOrElse("-info.start"), Json.obj("meta.status" -> "published")).flatMap { eltPage =>
       eltPage
         .batchMapAsync(EventSrv.addMetadata _)
         .map { page => Ok(Json.toJson(page.map(e => Writer.write(e, version)))) }
@@ -31,7 +31,7 @@ object Events extends Controller {
   }
 
   def listAll(query: Option[String], sort: Option[String], version: String) = Action.async { implicit req =>
-    repository.findAll(query.getOrElse(""), sort.getOrElse("-info.start"), Json.obj("config.published" -> true)).flatMap { elts =>
+    repository.findAll(query.getOrElse(""), sort.getOrElse("-info.start"), Json.obj("meta.status" -> "published")).flatMap { elts =>
       EventSrv.addMetadata(elts).map { list => Ok(Json.toJson(list.map(e => Writer.write(e, version)))) }
     }
   }
