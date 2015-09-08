@@ -2,6 +2,7 @@ package common.services
 
 import common.Defaults
 import common.models.values.typed._
+import common.models.event.Event
 import common.models.event.EventId
 import common.models.event.Session
 import common.models.event.SessionId
@@ -122,6 +123,12 @@ object EmailSrv {
   def generateOrganizationDeleteEmail(user: User, organization: Organization, deletingUser: User): EmailData = {
     val html = TextHTML(backend.views.html.Emails.organizationDelete(deletingUser, organization).toString)
     EmailData(Defaults.contactName, Defaults.contactEmail, user.email, s"${deletingUser.name()} supprime l'organisation ${organization.name}", html, html.toPlainText)
+  }
+
+  def generateEventPublishRequestEmail(user: User, event: Event)(implicit req: RequestHeader): EmailData = {
+    val eventUrl = backend.controllers.routes.Events.details(event.uuid).absoluteURL(Defaults.secureUrl)
+    val html = TextHTML(backend.views.html.Emails.eventPublishRequest(user, event, eventUrl).toString)
+    EmailData(user.name(), user.email, Defaults.adminEmail, s"Demande de publication de l'événement ${event.name}", html, html.toPlainText)
   }
 
 }

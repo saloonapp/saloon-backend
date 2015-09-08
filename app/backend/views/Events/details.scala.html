@@ -1,3 +1,4 @@
+@import common.models.values.typed.EventStatus
 @import common.models.event.Event
 @import common.models.user.User
 @import common.views.html.format._
@@ -8,7 +9,20 @@
 	<div class="block-header">
 		<h2>@event.name</h2>
 		<ul class="actions">
-			<li><a href="@backend.controllers.routes.Events.update(event.uuid)"><i class="md md-edit"></i></a></li>
+			<li><a href="@backend.controllers.routes.Events.update(event.uuid)" title="Modifier l'événement @event.name"><i class="md md-edit"></i></a></li>
+			@event.meta.status match {
+				case EventStatus.draft => {<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit" title="Demander à publier @event.name"><i class="md md-public"></i></button>}</li>}
+				case EventStatus.publishing => {
+					<li class="dropdown">
+						<a href="#" data-toggle="dropdown" title="@event.name est en cours de publication"><i class="md md-sync"></i></a>
+						<ul class="dropdown-menu dropdown-menu-right">
+							<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit">Relancer</button>}</li>
+							<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit">Annuler</button>}</li>
+						</ul>
+					</li>
+				}
+				case _ => {}
+			}
 			<li>@helper.form(action=backend.controllers.routes.Events.doDelete(event.uuid)){<button type="submit" class="confirm" title="Supprimer l'événement @event.name"><i class="md md-delete"></i></button>}</li>
 		</ul>
 	</div>

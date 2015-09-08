@@ -1,3 +1,4 @@
+@import common.models.values.typed.EventStatus
 @import common.models.event.Event
 @import common.models.user.User
 @import org.joda.time.DateTime
@@ -40,7 +41,11 @@
 							<div class="card card-event blog-post @if(event.info.end.map(_.isBefore(new DateTime())).getOrElse(false)){done}">
 								<div class="bp-header">
 									<div data-aspect-ratio="5:2"><img src="@event.images.landing" alt=""></div>
-									@if(event.config.published){<span class="badge-corner badge-corner-green" title="publié"><span class="md md-public"></span></span>}
+									@event.meta.status match {
+										case EventStatus.publishing => {<span class="badge-corner badge-corner-green" title="en cours de publication"><span class="md md-sync"></span></span>}
+										case EventStatus.published => {<span class="badge-corner badge-corner-green" title="publié"><span class="md md-public"></span></span>}
+										case _ => {}
+									}
 									<div class="bp-title">
 										<h2 class="one-line">@event.name</h2>
 										<small>@period(event.info.start, event.info.end) - @attendeeCount participants, @sessionCount sessions, @exponentCount exposants, @actionCount actions</small>

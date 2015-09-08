@@ -39,10 +39,10 @@ trait MongoDbRequestRepository {
 
   def insert(request: Request): Future[LastError] = crud.insert(request)
   def update(request: Request): Future[LastError] = crud.update(request.uuid.unwrap, request)
-  def setAccepted(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.accepted.unwrap)
-  def setCanceled(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.canceled.unwrap)
-  def setRejected(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.rejected.unwrap)
-  private def setStatus(requestId: RequestId, status: String): Future[LastError] = crud.update(Json.obj("uuid" -> requestId), Json.obj("$set" -> Json.obj("status" -> status, "updated" -> new DateTime())))
+  def setAccepted(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.accepted)
+  def setCanceled(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.canceled)
+  def setRejected(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.rejected)
+  private def setStatus(requestId: RequestId, status: RequestStatus): Future[LastError] = crud.update(Json.obj("uuid" -> requestId), Json.obj("$set" -> Json.obj("status" -> status.unwrap, "updated" -> new DateTime())))
 
   // TODO : def incrementVisited(requestId: String): Future[LastError] cf Auth.createAccount
 }

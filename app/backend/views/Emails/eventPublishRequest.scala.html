@@ -1,0 +1,12 @@
+@import common.models.user.User
+@import common.models.event.Event
+@(user: User, event: Event, eventUrl: String)
+
+Bonjour,<br>
+<br>
+@user.name() &lt;@user.email> vient de demander de publier l'événement <b>@event.name</b>.<br>
+<br>
+Rendez-vous sur la <a href="@eventUrl" target="_blank">page de l'événement</a> pour traiter cette demande.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

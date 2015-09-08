@@ -29,7 +29,7 @@ object Writer {
       "twitterHashtag" -> data.info.social.twitter.hashtag,
       "twitterAccount" -> data.info.social.twitter.account,
       "tags" -> data.meta.categories,
-      "published" -> data.config.published,
+      "published" -> data.isPublished,
       "created" -> data.meta.created,
       "updated" -> data.meta.updated,
       "className" -> ItemType.events.unwrap)

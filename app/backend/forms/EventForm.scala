@@ -48,8 +48,8 @@ object EventCreateData {
     "twitterHashtag" -> optional(text),
     "twitterAccount" -> optional(text))(EventCreateData.apply)(EventCreateData.unapply)
 
-  def toMeta(d: EventCreateData): EventMeta = EventMeta(d.categories, None, None, new DateTime(), new DateTime())
-  def toConfig(d: EventCreateData): EventConfig = EventConfig(None, Map(), None, false)
+  def toMeta(d: EventCreateData): EventMeta = EventMeta(d.categories, EventStatus.draft, None, None, new DateTime(), new DateTime())
+  def toConfig(d: EventCreateData): EventConfig = EventConfig(None, Map(), None)
   def toSocial(d: EventCreateData): EventInfoSocial = EventInfoSocial(EventInfoSocialTwitter(d.twitterHashtag, d.twitterAccount))
   def toInfo(d: EventCreateData): EventInfo = EventInfo(d.website, d.start, d.end, d.address, d.price, toSocial(d))
   def toImages(d: EventCreateData): EventImages = EventImages(d.logo, d.landing)

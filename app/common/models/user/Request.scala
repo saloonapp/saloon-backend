@@ -17,7 +17,7 @@ object RequestId extends tStringHelper[RequestId] {
 
 case class Request(
   uuid: RequestId,
-  userId: Option[UserId], // id of user who initiated the request
+  userId: Option[UserId], // userId who initiated the request
   content: RequestContent,
   status: RequestStatus,
   created: DateTime,

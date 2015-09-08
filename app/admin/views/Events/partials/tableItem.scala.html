@@ -5,7 +5,7 @@
 
 <tr>
 	<td><a href="@admin.controllers.routes.Events.details(event.uuid)"><img src="@event.images.logo" style="max-height: 32px;"> @event.name</a></td>
-	<td>@event.config.published</td>
+	<td>@event.isPublished</td>
 	<td>@datetimeOpt(event.info.start)</td>
 	<td>
 		@event.meta.categories.headOption.map { mainCategory =>

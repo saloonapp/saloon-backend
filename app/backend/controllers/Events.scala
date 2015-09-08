@@ -2,14 +2,16 @@ package backend.controllers
 
 import common.models.event.Event
 import common.models.event.EventId
-import common.models.user.User
-import common.models.user.UserInfo
 import common.models.event.AttendeeRegistration
 import common.models.event.EventConfigAttendeeSurvey
 import common.models.event.EventConfigAttendeeSurveyQuestion
-import common.repositories.user.OrganizationRepository
+import common.models.user.User
+import common.models.user.UserInfo
 import common.repositories.event.EventRepository
+import common.repositories.user.OrganizationRepository
 import common.services.EventSrv
+import common.services.EmailSrv
+import common.services.MandrillSrv
 import backend.forms.EventCreateData
 import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
@@ -87,6 +89,18 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
     withEvent(eventId) { event =>
       EventRepository.delete(eventId).map { res =>
         Redirect(backend.controllers.routes.Events.list()).flashing("success" -> s"Suppression de l'événement '${event.name}'")
+      }
+    }
+  }
+
+  def doPublishRequest(eventId: EventId) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      for {
+        statusRes <- EventRepository.setPublishing(eventId)
+        emailRes <- MandrillSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
+      } yield {
+        Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"Demande de publication envoyée")
       }
     }
   }

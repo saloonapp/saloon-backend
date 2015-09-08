@@ -15,6 +15,14 @@ import scala.util.Try
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import org.jsoup.Jsoup
+import common.models.values.typed.EventStatus
+
+/*
+ * Migration :
+ *
+ * db.Events.update({"config.published": false}, {$set: {"meta.status":"draft"}, $unset:{"config.published":""}}, {multi:true})
+ * db.Events.update({"config.published": true}, {$set: {"meta.status":"published"}, $unset:{"config.published":""}}, {multi:true})
+ */
 
 case class EventId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
@@ -58,8 +66,7 @@ case class EventConfigAttendeeSurvey(
 case class EventConfig(
   branding: Option[EventConfigBranding],
   options: Map[String, Boolean],
-  attendeeSurvey: Option[EventConfigAttendeeSurvey],
-  published: Boolean) {
+  attendeeSurvey: Option[EventConfigAttendeeSurvey]) {
   def hasTicketing(): Boolean = hasOption("ticketing")
   def setTicketing(activated: Boolean): EventConfig = setOption("ticketing", activated)
   def hasCVTheque(): Boolean = hasOption("cvtheque")
@@ -69,6 +76,7 @@ case class EventConfig(
 }
 case class EventMeta(
   categories: List[String],
+  status: EventStatus,
   refreshUrl: Option[String], // a get on this url will scrape original data of this event (used to update program)
   source: Option[DataSource], // where the event were fetched (if applies)
   created: DateTime,
@@ -84,6 +92,9 @@ case class Event(
   email: EventEmail,
   config: EventConfig,
   meta: EventMeta) extends EventItem {
+  def isDraft: Boolean = this.meta.status == EventStatus.draft
+  def isPublishing: Boolean = this.meta.status == EventStatus.publishing
+  def isPublished: Boolean = this.meta.status == EventStatus.published
   def merge(e: Event): Event = Event.merge(this, e)
   //def toMap(): Map[String, String] = Event.toMap(this)
 }
@@ -131,10 +142,10 @@ object Event {
   private def merge(e1: EventConfig, e2: EventConfig): EventConfig = EventConfig(
     merge(e1.branding, e2.branding),
     merge(e1.options, e2.options),
-    merge(e1.attendeeSurvey, e2.attendeeSurvey),
-    e2.published)
+    merge(e1.attendeeSurvey, e2.attendeeSurvey))
   private def merge(e1: EventMeta, e2: EventMeta): EventMeta = EventMeta(
     merge(e1.categories, e2.categories),
+    e2.status,
     merge(e1.refreshUrl, e2.refreshUrl),
     merge(e1.source, e2.source),
     e1.created,
@@ -230,8 +241,7 @@ case class EventConfigBrandingData(
   dailySessionMenu: String,
   exponentMenu: String)
 case class EventConfigData(
-  branding: Option[EventConfigBrandingData],
-  published: Boolean)
+  branding: Option[EventConfigBrandingData])
 case class EventMetaData(
   categories: List[String],
   refreshUrl: Option[String],
@@ -272,8 +282,7 @@ object EventData {
         "primaryColor" -> of[Color],
         "secondaryColor" -> of[Color],
         "dailySessionMenu" -> text,
-        "exponentMenu" -> text)(EventConfigBrandingData.apply)(EventConfigBrandingData.unapply)),
-      "published" -> boolean)(EventConfigData.apply)(EventConfigData.unapply),
+        "exponentMenu" -> text)(EventConfigBrandingData.apply)(EventConfigBrandingData.unapply)))(EventConfigData.apply)(EventConfigData.unapply),
     "meta" -> mapping(
       "categories" -> list(text),
       "refreshUrl" -> optional(text),
@@ -283,14 +292,14 @@ object EventData {
   def toModel(d: EventInfoSocial): EventInfoSocial = d.copy(twitter = toModel(d.twitter))
   def toModel(d: EventInfo): EventInfo = d.copy(social = toModel(d.social))
   def toModel(d: EventConfigBrandingData): EventConfigBranding = EventConfigBranding(d.primaryColor, d.secondaryColor, Utils.toList(d.dailySessionMenu), Utils.toList(d.exponentMenu))
-  def toModel(d: EventConfigData): EventConfig = EventConfig(d.branding.map(b => toModel(b)), Map(), None, d.published)
-  def toModel(d: EventMetaData): EventMeta = EventMeta(d.categories, d.refreshUrl, d.source, new DateTime(), new DateTime())
+  def toModel(d: EventConfigData): EventConfig = EventConfig(d.branding.map(b => toModel(b)), Map(), None)
+  def toModel(d: EventMetaData): EventMeta = EventMeta(d.categories, EventStatus.draft, d.refreshUrl, d.source, new DateTime(), new DateTime())
   def toModel(d: EventData): Event = Event(EventId.generate(), d.ownerId, d.name, d.description, d.descriptionHTML, d.images, toModel(d.info), d.email, toModel(d.config), toModel(d.meta))
   def fromModel(d: EventConfigBranding): EventConfigBrandingData = EventConfigBrandingData(d.primaryColor, d.secondaryColor, Utils.fromList(d.dailySessionMenu), Utils.fromList(d.exponentMenu))
-  def fromModel(d: EventConfig): EventConfigData = EventConfigData(d.branding.map(b => fromModel(b)), d.published)
+  def fromModel(d: EventConfig): EventConfigData = EventConfigData(d.branding.map(b => fromModel(b)))
   def fromModel(d: EventMeta): EventMetaData = EventMetaData(d.categories, d.refreshUrl, d.source)
   def fromModel(d: Event): EventData = EventData(d.ownerId, d.name, d.description, d.descriptionHTML, d.images, d.info, d.email, fromModel(d.config), fromModel(d.meta))
-  def merge(m: EventMeta, d: EventMetaData): EventMeta = toModel(d).copy(source = m.source, created = m.created)
+  def merge(m: EventMeta, d: EventMetaData): EventMeta = toModel(d).copy(status = m.status, source = m.source, created = m.created)
   def merge(m: Event, d: EventData): Event = toModel(d).copy(uuid = m.uuid, ownerId = m.ownerId, meta = merge(m.meta, d.meta))
 }
 object EventConfigAttendeeSurvey {
