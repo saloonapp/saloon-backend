@@ -305,17 +305,22 @@
 	font-size: 20px;
 	text-transform: initial;
 }
-#sidebar .profile-menu > a {
-	background-size: cover;
-}
-#sidebar .profile-menu > a .profile-pic > .lv-avatar {
-	width: 47px;
-	height: 47px;
-	border-radius: 50%;
-	border: 3px solid rgba(0, 0, 0, 0.14);
-	box-sizing: content-box;
-	line-height: 47px;
-	font-size: 25px;
+#sidebar {
+	.profile-menu > a {
+		background-size: cover;
+	}
+	.profile-menu > a .profile-pic > .lv-avatar {
+		width: 47px;
+		height: 47px;
+		border-radius: 50%;
+		border: 3px solid rgba(0, 0, 0, 0.14);
+		box-sizing: content-box;
+		line-height: 47px;
+		font-size: 25px;
+	}
+	.main-menu > li.sub-menu > ul > li.active > a {
+		color: #000;
+	}
 }
 @media(max-width: 1200px){
 	body.sw-toggled #footer {

@@ -6,20 +6,27 @@
 		<div class="profile-menu @if(uri.startsWith("/backend/profile")){toggled}">
 			<a href="#" style="background-image: url('@routes.Assets.at("backend/sample/images/profile-menu.png")');">
 				<div class="profile-pic">@avatar(ImageUrl(""), user.info.firstName)</div>
-				<div class="profile-info">@user.info.firstName @user.info.lastName <i class="md md-arrow-drop-down"></i></div>
+				<div class="profile-info">@user.info.firstName @user.info.lastName@* <i class="md md-arrow-drop-down"></i>*@</div>
 			</a>
-			<ul class="main-menu" @if(uri.startsWith("/backend/profile")){style="display: block;"}>
+			@*<ul class="main-menu" @if(uri.startsWith("/backend/profile")){style="display: block;"}>
 				<li @if(uri.startsWith("/backend/profile")){class="active"}><a href="@backend.controllers.routes.Profile.details()"><i class="md md-person"></i> Mon profil</a></li>
-				<!-- <li><a href=""><i class="md md-person"></i> Mon profil</a></li>
-				<li><a href=""><i class="md md-settings-input-antenna"></i> Privacy Settings</a></li>
-				<li><a href=""><i class="md md-settings"></i> Settings</a></li> -->
 				<li><a href="@authentication.controllers.routes.Auth.logout()"><i class="md md-history"></i> Déconnexion</a></li>
-			</ul>
+			</ul>*@
 		</div>
 		<ul class="main-menu">
-			<li @if(uri.startsWith("/backend/home")||uri.startsWith("/backend/welcome")){class="active"}><a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i> Accueil</a></li>
+			@*<li @if(uri.startsWith("/backend/home")||uri.startsWith("/backend/welcome")){class="active"}><a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i> Accueil</a></li>*@
 			<li @if(uri.startsWith("/backend/events")){class="active"}><a href="@backend.controllers.routes.Events.list()"><i class="md md-event-available"></i> Mes événements</a></li>
-			@if(user.canAdministrateSalooN()){ <li><a href="@admin.controllers.routes.Application.index()"><i class="md md-settings"></i> Admin</a></li> }
+			<li @if(uri.startsWith("/backend/profile")){class="active"}><a href="@backend.controllers.routes.Profile.details()"><i class="md md-person"></i> Mon profil</a></li>
+			@if(user.canAdministrateSalooN()){
+				<li class="sub-menu @if(uri.startsWith("/backend/admin")){toggled active}">
+					<a href=""><i class="md md-settings"></i> Admin</a>
+					<ul>
+						<li @if(uri.startsWith("/backend/admin/events")){class="active"}><a href="@backend.controllers.admin.routes.Events.list()">Tous les événements</a></li>
+						<li><a href="@admin.controllers.routes.Application.index()">Ancien backend</a></li>
+					</ul>
+				</li>
+			}
+			<li><a href="@authentication.controllers.routes.Auth.logout()"><i class="md md-history"></i> Déconnexion</a></li>
 		</ul>
 	</div>
 </aside>

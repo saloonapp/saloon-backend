@@ -6,7 +6,6 @@ import common.models.event.AttendeeRegistration
 import common.models.event.EventConfigAttendeeSurvey
 import common.models.event.EventConfigAttendeeSurveyQuestion
 import common.models.user.User
-import common.models.user.UserInfo
 import common.repositories.event.EventRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.UserRepository
@@ -18,7 +17,6 @@ import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api._
 import play.api.mvc._
 import play.api.data.Form
 

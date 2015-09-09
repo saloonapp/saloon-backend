@@ -115,6 +115,10 @@ GET       /backend/sample                                                       
 GET       /backend/sample/:pageName                                                         backend.controllers.Sample.page(pageName: String)
 
 # Admin
+GET       /backend/admin                                                                    backend.controllers.admin.Application.index
+GET       /backend/admin/events                                                             backend.controllers.admin.Events.list
+
+# Old Admin
 GET       /admin                                                                            admin.controllers.Application.index
 GET       /admin/sample                                                                     admin.controllers.Application.sample
 GET       /admin/migrate                                                                    admin.controllers.Application.migrate

@@ -5,14 +5,9 @@ import common.models.values.typed.FirstName
 import common.models.values.typed.LastName
 import common.models.user.User
 import common.models.user.UserInfo
-import common.repositories.event.EventRepository
-import common.services.EventSrv
-import authentication.environments.SilhouetteEnvironment
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api._
-import play.api.mvc._
 import com.mohiva.play.silhouette.core.LoginInfo
+import authentication.environments.SilhouetteEnvironment
+import play.api.mvc._
 
 object Application extends SilhouetteEnvironment {
 
