@@ -11,13 +11,13 @@
 		<ul class="actions">
 			<li><a href="@backend.controllers.routes.Events.update(event.uuid)" title="Modifier l'événement @event.name"><i class="md md-edit"></i></a></li>
 			@event.meta.status match {
-				case EventStatus.draft => {<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit" title="Demander à publier @event.name"><i class="md md-public"></i></button>}</li>}
+				case EventStatus.draft => {<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit" class="confirm" title="Demander à publier @event.name dans SalooN"><i class="md md-public"></i></button>}</li>}
 				case EventStatus.publishing => {
 					<li class="dropdown">
 						<a href="#" data-toggle="dropdown" title="@event.name est en cours de publication"><i class="md md-sync"></i></a>
 						<ul class="dropdown-menu dropdown-menu-right">
-							<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit">Relancer</button>}</li>
-							<li>@helper.form(action=backend.controllers.routes.Events.doCancelPublishRequest(event.uuid)){<button type="submit">Annuler</button>}</li>
+							<li>@helper.form(action=backend.controllers.routes.Events.doPublishRequest(event.uuid)){<button type="submit" class="confirm" title="Envoyer une relance de demande de publication">Relancer</button>}</li>
+							<li>@helper.form(action=backend.controllers.routes.Events.doCancelPublishRequest(event.uuid)){<button type="submit" class="confirm" title="Annuler la demande de publication">Annuler</button>}</li>
 							@if(user.canAdministrateSalooN()){
 								<li>@helper.form(action=backend.controllers.routes.Events.doPublish(event.uuid)){<button type="submit" class="confirm" title="Publier @event.name dans SalooN">Publier</button>}</li>
 							}

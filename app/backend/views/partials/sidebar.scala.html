@@ -3,7 +3,7 @@
 @(user: User, uri: String)
 <aside id="sidebar">
 	<div class="sidebar-inner c-overflow">
-		<div class="profile-menu @if(uri.startsWith("/backend/profile")){toggled}">
+		<div class="profile-menu@* @if(uri.startsWith("/backend/profile")){toggled}*@">
 			<a href="#" style="background-image: url('@routes.Assets.at("backend/sample/images/profile-menu.png")');">
 				<div class="profile-pic">@avatar(ImageUrl(""), user.info.firstName)</div>
 				<div class="profile-info">@user.info.firstName @user.info.lastName@* <i class="md md-arrow-drop-down"></i>*@</div>
