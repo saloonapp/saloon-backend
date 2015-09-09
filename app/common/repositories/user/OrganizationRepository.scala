@@ -36,6 +36,6 @@ trait MongoDbOrganizationRepository extends Repository[Organization, Organizatio
 
   def getByName(name: FullName): Future[Option[Organization]] = crud.getBy("name", name.unwrap)
   def findByUuids(organizationIds: List[OrganizationId]): Future[List[Organization]] = crud.findByUuids(organizationIds.map(_.unwrap))
-  def findAllowed(user: User): Future[List[Organization]] = if (user.canAdministrateSaloon()) findAll() else findByUuids(user.organizationIds.map(_.organizationId))
+  def findAllowed(user: User): Future[List[Organization]] = if (user.canAdministrateSalooN()) findAll() else findByUuids(user.organizationIds.map(_.organizationId))
 }
 object OrganizationRepository extends MongoDbOrganizationRepository

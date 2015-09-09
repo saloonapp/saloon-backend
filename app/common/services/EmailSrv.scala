@@ -131,4 +131,15 @@ object EmailSrv {
     EmailData(user.name(), user.email, Defaults.adminEmail, s"Demande de publication de l'événement ${event.name}", html, html.toPlainText)
   }
 
+  def generateEventPublishRequestCancelEmail(user: User, event: Event)(implicit req: RequestHeader): EmailData = {
+    val html = TextHTML(backend.views.html.Emails.eventPublishRequestCancel(user, event).toString)
+    EmailData(user.name(), user.email, Defaults.adminEmail, s"Demande de publication de l'événement ${event.name}", html, html.toPlainText)
+  }
+
+  def generateEventPublishedEmail(member: User, event: Event)(implicit req: RequestHeader): EmailData = {
+    val eventUrl = backend.controllers.routes.Events.details(event.uuid).absoluteURL(Defaults.secureUrl)
+    val html = TextHTML(backend.views.html.Emails.eventPublished(event, eventUrl, Defaults.androidStoreUrl, Defaults.appleStoreUrl).toString)
+    EmailData(Defaults.contactName, Defaults.contactEmail, member.email, s"Publication de l'événement ${event.name}", html, html.toPlainText)
+  }
+
 }

@@ -1,0 +1,15 @@
+@import common.models.values.typed.WebsiteUrl
+@import common.models.user.User
+@import common.models.event.Event
+@(event: Event, eventUrl: String, androidStoreUrl: WebsiteUrl, appleStoreUrl: WebsiteUrl)
+
+Bonjour,<br>
+<br>
+Votre événement <b>@event.name</b> vient d'être publié dans SalooN.<br>
+Il est maintenant visible dans l'application, disponible sur les stores <a href="@androidStoreUrl" target="_blank">Android</a> et <a href="@appleStoreUrl" target="_blank">iPhone</a>.<br>
+Vous pouvez commencer à communiquer dessus quand vous le souhaitez.<br>
+<br>
+Pour gérer votre événement, rendez-vous sur <a href="@eventUrl" target="_blank">sa page</a>.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

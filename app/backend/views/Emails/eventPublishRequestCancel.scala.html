@@ -1,0 +1,10 @@
+@import common.models.user.User
+@import common.models.event.Event
+@(user: User, event: Event)
+
+Bonjour,<br>
+<br>
+@user.name() &lt;@user.email> vient d'annuler la demande de publication de l'événement <b>@event.name</b>.<br>
+<br>
+Bonne journée et à bientôt,<br>
+L'équipe SalooN

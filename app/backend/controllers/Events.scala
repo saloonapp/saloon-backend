@@ -9,6 +9,7 @@ import common.models.user.User
 import common.models.user.UserInfo
 import common.repositories.event.EventRepository
 import common.repositories.user.OrganizationRepository
+import common.repositories.user.UserRepository
 import common.services.EventSrv
 import common.services.EmailSrv
 import common.services.MandrillSrv
@@ -96,11 +97,48 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
   def doPublishRequest(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     withEvent(eventId) { event =>
-      for {
-        statusRes <- EventRepository.setPublishing(eventId)
-        emailRes <- MandrillSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
-      } yield {
-        Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"Demande de publication envoyée")
+      if (event.isDraft || event.isPublishing) {
+        for {
+          statusRes <- EventRepository.setPublishing(eventId)
+          emailRes <- MandrillSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
+        } yield {
+          Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Demande de publication envoyée")
+        }
+      } else {
+        Future(Redirect(backend.controllers.routes.Events.details(eventId)))
+      }
+    }
+  }
+
+  def doCancelPublishRequest(eventId: EventId) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      if (event.isPublishing) {
+        for {
+          statusRes <- EventRepository.setDraft(eventId)
+          emailRes <- MandrillSrv.sendEmail(EmailSrv.generateEventPublishRequestCancelEmail(user, event))
+        } yield {
+          Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Demande de publication annulée")
+        }
+      } else {
+        Future(Redirect(backend.controllers.routes.Events.details(eventId)))
+      }
+    }
+  }
+
+  def doPublish(eventId: EventId) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withEvent(eventId) { event =>
+      if (event.isPublishing && user.canAdministrateSalooN()) {
+        for {
+          statusRes <- EventRepository.setPublished(eventId)
+          members <- UserRepository.findOrganizationMembers(event.ownerId)
+          emailRes <- Future.sequence(members.map { member => MandrillSrv.sendEmail(EmailSrv.generateEventPublishedEmail(member, event)) })
+        } yield {
+          Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"${event.name} est maintenant publié dans SalooN.")
+        }
+      } else {
+        Future(Redirect(backend.controllers.routes.Events.details(eventId)))
       }
     }
   }

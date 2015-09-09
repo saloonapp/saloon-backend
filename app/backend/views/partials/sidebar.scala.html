@@ -19,7 +19,7 @@
 		<ul class="main-menu">
 			<li @if(uri.startsWith("/backend/home")||uri.startsWith("/backend/welcome")){class="active"}><a href="@backend.controllers.routes.Application.index()"><i class="md md-home"></i> Accueil</a></li>
 			<li @if(uri.startsWith("/backend/events")){class="active"}><a href="@backend.controllers.routes.Events.list()"><i class="md md-event-available"></i> Mes événements</a></li>
-			@if(user.canAdministrateSaloon()){ <li><a href="@admin.controllers.routes.Application.index()"><i class="md md-settings"></i> Admin</a></li> }
+			@if(user.canAdministrateSalooN()){ <li><a href="@admin.controllers.routes.Application.index()"><i class="md md-settings"></i> Admin</a></li> }
 		</ul>
 	</div>
 </aside>

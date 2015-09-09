@@ -40,7 +40,7 @@ case class User(
   def name(): String = this.info.firstName.unwrap + " " + this.info.lastName.unwrap
   def organizationRole(uuid: OrganizationId): Option[UserRole] = this.organizationIds.find(_.organizationId == uuid).map(_.role)
   def canAdministrateOrganization(uuid: OrganizationId): Boolean = this.organizationRole(uuid).map(_ == UserRole.owner).getOrElse(false)
-  def canAdministrateSaloon(): Boolean = hasRight(UserRight.administrateSalooN)
+  def canAdministrateSalooN(): Boolean = hasRight(UserRight.administrateSalooN)
   def hasRight(right: UserRight): Boolean = this.rights.get(right.key).getOrElse(false)
 }
 object User {
