@@ -268,6 +268,12 @@ GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId                    tools.controllers.Innorobo.getExibitor(exhibitorId: String)
 GET       /api/v1/tools/scrapers/metas                                                      tools.controllers.Scrapers.getMetas(url: String)
 
+# New tools
+GET       /tools/utils/getPage                                                              tools.utils.BasicScraper.getPage(url: String)
+GET       /tools/scrapers/eventseye/details                                                 tools.scrapers.eventseye.EventsEyeScraper.getDetails(url: String, format: String ?= "json")
+GET       /tools/scrapers/eventseye/listUrls                                                tools.scrapers.eventseye.EventsEyeScraper.getLinkList(url: String, format: String ?= "json")
+GET       /tools/scrapers/eventseye/listDetails                                             tools.scrapers.eventseye.EventsEyeScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, format: String ?= "json")
+
 # Allow cross-origin for API
 OPTIONS   /api/v1/*all                                                                      common.controllers.Application.corsPreflight(all: String)
 
