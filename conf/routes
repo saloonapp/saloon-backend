@@ -266,10 +266,10 @@ GET       /api/v1/tools/scrapers/events/foiresetsalons/:page/full               
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors                                 tools.controllers.Innorobo.getExibitors()
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                            tools.controllers.Innorobo.getFullExibitors(offset: Int ?= 0, limit: Int ?= 5, format: String ?= "json")
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId                    tools.controllers.Innorobo.getExibitor(exhibitorId: String)
-GET       /api/v1/tools/scrapers/metas                                                      tools.controllers.Scrapers.getMetas(url: String)
 
 # New tools
-GET       /tools/utils/getPage                                                              tools.utils.BasicScraper.getPage(url: String)
+GET       /tools/scrapers/utils/getPage                                                     tools.utils.GenericScraper.getPage(url: String)
+GET       /tools/scrapers/utils/getMetas                                                    tools.utils.GenericScraper.getMetas(url: String)
 GET       /tools/scrapers/eventseye/details                                                 tools.scrapers.eventseye.EventsEyeScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listUrls                                                tools.scrapers.eventseye.EventsEyeScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listDetails                                             tools.scrapers.eventseye.EventsEyeScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, format: String ?= "json")
