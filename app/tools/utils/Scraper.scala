@@ -11,8 +11,6 @@ import play.api.libs.json.Writes
 import play.api.libs.ws.WS
 import play.api.Play.current
 import play.api.mvc._
-import com.github.tototoshi.csv.CSVWriter
-import com.github.tototoshi.csv.DefaultCSVFormat
 
 trait Scraper[T <: CsvElt] extends Controller {
   val baseUrl: String
@@ -27,7 +25,7 @@ trait Scraper[T <: CsvElt] extends Controller {
     fetchDetails(detailsUrl).map {
       _ match {
         case Success(value) => format match {
-          case "csv" => Ok(makeCsv(List(value.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
+          case "csv" => Ok(CsvUtils.makeCsv(List(value.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
           case _ => Ok(Json.toJson(value))
         }
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -39,7 +37,7 @@ trait Scraper[T <: CsvElt] extends Controller {
     fetchLinkList(eventListUrl).map {
       _ match {
         case Success(urls) => format match {
-          case "csv" => Ok(makeCsv(urls.map(url => Map("url" -> url)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
+          case "csv" => Ok(CsvUtils.makeCsv(urls.map(url => Map("url" -> url)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
           case _ => Ok(Json.toJson(urls))
         }
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -60,7 +58,7 @@ trait Scraper[T <: CsvElt] extends Controller {
             }
           }.flatten
           format match {
-            case "csv" => Ok(makeCsv(successResult.map(_.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
+            case "csv" => Ok(CsvUtils.makeCsv(successResult.map(_.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
             case _ => Ok(Json.obj("results" -> successResult, "errors" -> errorResult))
           }
         }
@@ -88,28 +86,5 @@ trait Scraper[T <: CsvElt] extends Controller {
       case e => Failure(e)
     }
   }
-
-  /*
-   * Utilities
-   */
-
-  implicit object csvFormat extends DefaultCSVFormat {
-    override val delimiter = ';'
-  }
-
-  private def makeCsv(elts: List[Map[String, String]]): String = {
-    if (elts.isEmpty) {
-      "No elts to serialize..."
-    } else {
-      val headers = elts.flatMap(_.map(_._1)).distinct.sorted
-      val writer = new java.io.StringWriter()
-      val csvWriter = CSVWriter.open(writer)
-      csvWriter.writeRow(headers)
-      csvWriter.writeAll(elts.map { row => headers.map(header => row.get(header).getOrElse("")).map(csvCellFormat) })
-      csvWriter.close()
-      writer.toString()
-    }
-  }
-  private def csvCellFormat(value: String): String = if (value != null) { value.replace("\r", "\\r").replace("\n", "\\n") } else { "" }
 
 }

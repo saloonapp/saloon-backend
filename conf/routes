@@ -268,11 +268,16 @@ GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId                    tools.controllers.Innorobo.getExibitor(exhibitorId: String)
 
 # New tools
-GET       /tools/scrapers/utils/getPage                                                     tools.utils.GenericScraper.getPage(url: String)
-GET       /tools/scrapers/utils/getMetas                                                    tools.utils.GenericScraper.getMetas(url: String)
+GET       /tools/scrapers/utils/page                                                        tools.utils.GenericScraper.getPage(url: String)
+GET       /tools/scrapers/utils/metas                                                       tools.utils.GenericScraper.getMetas(url: String)
 GET       /tools/scrapers/eventseye/details                                                 tools.scrapers.eventseye.EventsEyeScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listUrls                                                tools.scrapers.eventseye.EventsEyeScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listDetails                                             tools.scrapers.eventseye.EventsEyeScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, format: String ?= "json")
+GET       /tools/api/devoxx/events                                                          tools.api.Devoxx.DevoxxApi.getEventLinks(url: String)
+GET       /tools/api/devoxx/event                                                           tools.api.Devoxx.DevoxxApi.getEvent(url: String)
+GET       /tools/api/devoxx/speakers                                                        tools.api.Devoxx.DevoxxApi.getSpeakers(url: String)
+GET       /tools/api/devoxx/sessions                                                        tools.api.Devoxx.DevoxxApi.getSessions(url: String)
+GET       /tools/api/devoxx/event/full                                                      tools.api.Devoxx.DevoxxApi.getEventFull(url: String)
 
 # Allow cross-origin for API
 OPTIONS   /api/v1/*all                                                                      common.controllers.Application.corsPreflight(all: String)

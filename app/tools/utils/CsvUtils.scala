@@ -1,6 +1,8 @@
 package tools.utils
 
 import play.api.libs.json._
+import com.github.tototoshi.csv.CSVWriter
+import com.github.tototoshi.csv.DefaultCSVFormat
 
 object CsvUtils {
   def jsonToCsv(json: JsValue, maxDeep: Int = 1): Map[String, String] = toCsv(json, maxDeep).toMap
@@ -23,4 +25,23 @@ object CsvUtils {
       }
     }
   }
+
+  implicit object csvFormat extends DefaultCSVFormat {
+    override val delimiter = ';'
+  }
+
+  def makeCsv(elts: List[Map[String, String]]): String = {
+    if (elts.isEmpty) {
+      "No elts to serialize..."
+    } else {
+      val headers = elts.flatMap(_.map(_._1)).distinct.sorted
+      val writer = new java.io.StringWriter()
+      val csvWriter = CSVWriter.open(writer)
+      csvWriter.writeRow(headers)
+      csvWriter.writeAll(elts.map { row => headers.map(header => row.get(header).getOrElse("")).map(csvCellFormat) })
+      csvWriter.close()
+      writer.toString()
+    }
+  }
+  private def csvCellFormat(value: String): String = if (value != null) { value.replace("\r", "\\r").replace("\n", "\\n") } else { "" }
 }
