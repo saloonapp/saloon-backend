@@ -6,6 +6,8 @@ import play.api.mvc._
 import play.api.Play.current
 import play.api.libs.ws._
 
+import play.api.libs.json._
+
 object BasicScraper extends Controller {
 
   def getPage(url: String) = Action.async { implicit req =>

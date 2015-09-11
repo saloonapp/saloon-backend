@@ -101,13 +101,15 @@ trait Scraper[T <: CsvElt] extends Controller {
     if (elts.isEmpty) {
       "No elts to serialize..."
     } else {
+      val headers = elts.flatMap(_.map(_._1)).distinct.sorted
       val writer = new java.io.StringWriter()
       val csvWriter = CSVWriter.open(writer)
-      csvWriter.writeRow(elts.head.map { case (key, value) => key }.toList)
-      csvWriter.writeAll(elts.map { _.map { case (key, value) => if (value != null) { value.replace("\r", "\\r").replace("\n", "\\n") } else { "" } }.toList })
+      csvWriter.writeRow(headers)
+      csvWriter.writeAll(elts.map { row => headers.map(header => row.get(header).getOrElse("")).map(csvCellFormat) })
       csvWriter.close()
       writer.toString()
     }
   }
+  private def csvCellFormat(value: String): String = if (value != null) { value.replace("\r", "\\r").replace("\n", "\\n") } else { "" }
 
 }

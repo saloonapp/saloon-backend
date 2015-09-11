@@ -1,6 +1,7 @@
 package tools.scrapers.eventseye.models
 
 import tools.utils.CsvElt
+import tools.utils.CsvUtils
 import play.api.libs.json.Json
 
 case class EventsEyeAddress(
@@ -20,6 +21,14 @@ case class EventsEyeOrganizer(name: String,
 object EventsEyeOrganizer {
   implicit val format = Json.format[EventsEyeOrganizer]
 }
+case class EventsEyeAttendance(
+  year: String,
+  exponents: String,
+  visitors: String,
+  exhibitionSpace: String)
+object EventsEyeAttendance {
+  implicit val format = Json.format[EventsEyeAttendance]
+}
 case class EventsEyeEvent(
   logo: String,
   name: String,
@@ -30,23 +39,14 @@ case class EventsEyeEvent(
   otherDates: List[String],
   venue: String,
   orgas: List[EventsEyeOrganizer],
+  attendance: Option[EventsEyeAttendance],
   website: String,
   email: String,
+  phone: String,
   url: String) extends CsvElt {
-  def toCsv(): Map[String, String] = Map(
-    "logo" -> this.logo,
-    "name" -> this.name,
-    "decription" -> this.decription,
-    "audience" -> this.audience,
-    "cycle" -> this.cycle,
-    "nextDate" -> this.nextDate,
-    "otherDates" -> this.otherDates.mkString(", "),
-    "venue" -> this.venue,
-    "orgas" -> Json.stringify(Json.toJson(this.orgas)),
-    "website" -> this.website,
-    "email" -> this.email,
-    "url" -> this.url)
+  def toCsv(): Map[String, String] = EventsEyeEvent.toCsv(this)
 }
 object EventsEyeEvent {
   implicit val format = Json.format[EventsEyeEvent]
+  def toCsv(e: EventsEyeEvent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(e), 4)
 }
