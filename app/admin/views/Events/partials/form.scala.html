@@ -1,9 +1,11 @@
+@import common.models.user.Organization
 @import common.models.event.EventData
 @import common.views.html.forms._
-@(eventForm: Form[EventData], categories: List[String])
+@(eventForm: Form[EventData], organizations: List[Organization], categories: List[String])
 
 <fieldset>
 	<legend>Général :</legend>
+	@fieldHorizontal(eventForm("ownerId"), 'label -> "Organisation"){field => @inputSelect(field, organizations.map(o => (o.uuid.unwrap, o.name.unwrap)))}
 	@fieldHorizontal(eventForm("name"), 'label -> "Nom"){field => @inputText(field, 'placeholder -> "ex: Best Of Web 2015")}
 	@fieldHorizontal(eventForm("description"), 'label -> "Description"){field => @inputTextarea(field, 'rows -> "4", 'placeholder -> "ex: 8 meetups web parisiens se réunissent pour vous proposer un Best Of de leurs talks de l'année, ainsi que quelques talks inédits.")}
 </fieldset>

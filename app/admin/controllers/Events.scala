@@ -24,6 +24,7 @@ import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.user.UserActionRepository
+import common.repositories.user.OrganizationRepository
 import common.repositories.event.EventRepository
 import authentication.environments.SilhouetteEnvironment
 import api.controllers.compatibility.Writer
@@ -67,19 +68,17 @@ object Events extends SilhouetteEnvironment {
   }
 
   def create = SecuredAction.async { implicit req =>
-    EventRepository.getCategories().map { categories =>
-      Ok(viewCreate(form, categories))
-    }
+    createView(form)
   }
 
   def doCreate = SecuredAction.async { implicit req =>
     form.bindFromRequest.fold(
-      formWithErrors => EventRepository.getCategories().map { categories => BadRequest(viewCreate(formWithErrors, categories)) },
+      formWithErrors => createView(formWithErrors, BadRequest),
       formData => repository.insert(createElt(formData)).flatMap {
         _.map { elt =>
           Future(Redirect(mainRoute.list()).flashing("success" -> successCreateFlash(elt)))
         }.getOrElse {
-          EventRepository.getCategories().map { categories => InternalServerError(viewCreate(form.fill(formData), categories)).flashing("error" -> errorCreateFlash(formData)) }
+          createView(form.fill(formData), InternalServerError)
         }
       })
   }
@@ -107,6 +106,15 @@ object Events extends SilhouetteEnvironment {
         }.getOrElse(Future(Redirect(mainRoute.create()).flashing("error" -> s"Pas d'événement trouvé à l'url : <b>$eventUrl</b>")))
       }
     }.getOrElse(Future(Redirect(mainRoute.create()).flashing("error" -> "Le champ 'url' est nécessaire !")))
+  }
+
+  private def createView(createForm: Form[EventData], status: Status = Ok)(implicit req: RequestHeader): Future[Result] = {
+    for {
+      organizations <- OrganizationRepository.findAll()
+      categories <- EventRepository.getCategories()
+    } yield {
+      status(viewCreate(form, organizations, categories))
+    }
   }
 
   def details(uuid: EventId) = SecuredAction.async { implicit req =>
@@ -191,13 +199,10 @@ object Events extends SilhouetteEnvironment {
   }
 
   def update(uuid: EventId) = SecuredAction.async { implicit req =>
-    for {
-      eltOpt <- repository.getByUuid(uuid)
-      categories <- EventRepository.getCategories()
-    } yield {
+    repository.getByUuid(uuid).flatMap { eltOpt =>
       eltOpt.map { elt =>
-        Ok(viewUpdate(form.fill(toData(elt)), elt, categories))
-      }.getOrElse(NotFound(admin.views.html.error404()))
+        updateView(form.fill(toData(elt)), elt)
+      }.getOrElse(Future(NotFound(admin.views.html.error404())))
     }
   }
 
@@ -205,15 +210,24 @@ object Events extends SilhouetteEnvironment {
     repository.getByUuid(uuid).flatMap {
       _.map { elt =>
         form.bindFromRequest.fold(
-          formWithErrors => EventRepository.getCategories().map { categories => BadRequest(viewUpdate(formWithErrors, elt, categories)) },
+          formWithErrors => updateView(formWithErrors, elt, BadRequest),
           formData => repository.update(uuid, updateElt(elt, formData)).flatMap {
             _.map { updatedElt =>
               Future(Redirect(mainRoute.details(uuid)).flashing("success" -> successUpdateFlash(updatedElt)))
             }.getOrElse {
-              EventRepository.getCategories().map { categories => InternalServerError(viewUpdate(form.fill(formData), elt, categories)).flashing("error" -> errorUpdateFlash(elt)) }
+              updateView(form.fill(formData), elt, InternalServerError)
             }
           })
       }.getOrElse(Future(NotFound(admin.views.html.error404())))
+    }
+  }
+
+  private def updateView(createForm: Form[EventData], event: Event, status: Status = Ok)(implicit req: RequestHeader): Future[Result] = {
+    for {
+      organizations <- OrganizationRepository.findAll()
+      categories <- EventRepository.getCategories()
+    } yield {
+      status(viewUpdate(form, event, organizations, categories))
     }
   }
 
