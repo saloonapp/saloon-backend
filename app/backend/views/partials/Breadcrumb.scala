@@ -25,7 +25,8 @@ object Breadcrumb {
   }
 
   private def prepare(uri: String): Option[List[String]] = {
-    val list = (if (uri.startsWith("/backend/")) uri.substring(9) else uri).split("/").toList
+    val correctUri = (if (uri.startsWith("/backend/")) uri.substring(9) else uri).split("\\?")(0)
+    val list = correctUri.split("/").toList
     if (list.length > 0 && !List("welcome", "requests").contains(list(0))) {
       Some(List("home") ++ list)
     } else {
