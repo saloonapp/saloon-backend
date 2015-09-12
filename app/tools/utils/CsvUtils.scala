@@ -12,7 +12,6 @@ object CsvUtils {
       case JsString(v) => List((prefix, v))
       case JsNumber(v) => List((prefix, v.toString))
       case JsBoolean(v) => List((prefix, v.toString))
-      case _: JsUndefined => List()
       case JsArray(seq: Seq[JsValue]) => if (maxDeep > 0) {
         seq.toList.zipWithIndex.flatMap { case (v, i) => toCsv(v, maxDeep - 1, if (prefix.isEmpty) { i.toString } else { s"$prefix[$i]" }) }
       } else {
@@ -23,6 +22,7 @@ object CsvUtils {
       } else {
         List((prefix, Json.stringify(Json.toJson(obj))))
       }
+      case _ => List()
     }
   }
 
