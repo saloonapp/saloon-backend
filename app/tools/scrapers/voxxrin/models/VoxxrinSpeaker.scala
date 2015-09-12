@@ -1,7 +1,6 @@
 package tools.scrapers.voxxrin.models
 
 import common.Utils
-import common.models.values.DataSource
 import common.models.event.Attendee
 import common.models.event.AttendeeImages
 import common.models.event.AttendeeInfo
@@ -47,7 +46,7 @@ case class VoxxrinSpeaker(
         None,
         None),
       AttendeeMeta(
-        Some(DataSource(this.name, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
+        Some(Source(this.name, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
         new DateTime(),
         new DateTime()))*/
 }

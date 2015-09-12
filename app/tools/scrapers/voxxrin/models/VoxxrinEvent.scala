@@ -2,7 +2,6 @@ package tools.scrapers.voxxrin.models
 
 import common.repositories.Repository
 import common.models.values.Address
-import common.models.values.DataSource
 import common.models.values.Link
 import common.models.event.Event
 import common.models.event.EventImages
@@ -59,7 +58,7 @@ case class VoxxrinEvent(
       EventMeta(
         List(),
         Some("/api/v1/tools/scrapers/events/voxxrin/" + this.id + "/formated"),
-        Some(DataSource(this.id, "Voxxrin API", VoxxrinApi.eventUrl(this.id))),
+        Some(Source(this.id, "Voxxrin API", VoxxrinApi.eventUrl(this.id))),
         new DateTime(),
         new DateTime()))
 

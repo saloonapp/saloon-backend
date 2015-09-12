@@ -2,7 +2,6 @@ package tools.scrapers.voxxrin.models
 
 import common.Utils
 import common.repositories.Repository
-import common.models.values.DataSource
 import common.models.event.Session
 import common.models.event.SessionImages
 import common.models.event.SessionInfo
@@ -49,7 +48,7 @@ case class VoxxrinSession(
         None,
         None),
       SessionMeta(
-        Some(DataSource(this.id, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
+        Some(Source(this.id, "Voxxrin API", VoxxrinApi.baseUrl + this.uri)),
         new DateTime(),
         new DateTime()))
   }*/
