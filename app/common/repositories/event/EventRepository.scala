@@ -1,5 +1,6 @@
 package common.repositories.event
 
+import tools.models.Source
 import common.models.utils.Page
 import common.models.values.typed.EventStatus
 import common.models.user.OrganizationId
@@ -57,6 +58,7 @@ trait MongoDbEventRepository extends Repository[Event, EventId] {
     }
   }
 
+  def getBySource(source: Source): Future[Option[Event]] = crud.get(Json.obj("meta.source" -> source))
   def findByUuids(eventIds: List[EventId]): Future[List[Event]] = crud.findByUuids(eventIds.map(_.unwrap))
   def findForOrganizations(organizationIds: List[OrganizationId]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> organizationIds.map(_.unwrap))))
   def setDraft(eventId: EventId): Future[LastError] = setStatus(eventId, EventStatus.draft)

@@ -3,6 +3,7 @@ package tools.models
 import tools.api.Devoxx.models.DevoxxEvent
 import tools.api.Devoxx.models.DevoxxSpeaker
 import tools.api.Devoxx.models.DevoxxSession
+import common.models.values.typed.AttendeeRole
 import play.api.libs.json.Json
 
 case class GenericEventFull(
@@ -25,6 +26,7 @@ object GenericEventFull {
         speaker.avatarURL.getOrElse(""),
         speaker.bio,
         speaker.bioAsHtml,
+        AttendeeRole.speaker.unwrap,
         speaker.blog,
         speaker.twitter.map(_.replace("@", "https://twitter.com/")),
         speaker.company.getOrElse(""))

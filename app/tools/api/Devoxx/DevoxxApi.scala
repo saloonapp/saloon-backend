@@ -1,5 +1,6 @@
 package tools.api.Devoxx
 
+import tools.utils.WSUtils
 import tools.api.Devoxx.models.Link
 import tools.api.Devoxx.models.DevoxxEvent
 import tools.api.Devoxx.models.DevoxxSpeaker
@@ -7,8 +8,6 @@ import tools.api.Devoxx.models.DevoxxSession
 import tools.models.GenericEventFull
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.ws._
-import play.api.Play.current
 import play.api.mvc._
 import play.api.libs.json.Json
 
@@ -63,13 +62,13 @@ object DevoxxApi extends Controller {
    */
 
   def fetchEventLinks(cfpUrl: String): Future[List[String]] = {
-    WS.url(DevoxxUrl.conferences(cfpUrl)).get().map { res =>
+    WSUtils.fetch(DevoxxUrl.conferences(cfpUrl)).map { res =>
       (res.json \ "links").as[List[Link]].map(_.href)
     }
   }
 
   def fetchEvent(conferenceUrl: String): Future[DevoxxEvent] = {
-    WS.url(conferenceUrl).get().map { res =>
+    WSUtils.fetch(conferenceUrl).map { res =>
       res.json.as[DevoxxEvent].copy(sourceUrl = Some(conferenceUrl))
     }
   }
@@ -81,13 +80,13 @@ object DevoxxApi extends Controller {
   }
 
   def fetchSpeakerLinks(conferenceUrl: String): Future[List[String]] = {
-    fetch(DevoxxUrl.speakers(conferenceUrl)).map { res =>
+    WSUtils.fetch(DevoxxUrl.speakers(conferenceUrl)).map { res =>
       (res.json \\ "links").map(_.as[List[Link]]).flatMap(identity).map(_.href).toList
     }
   }
 
   def fetchSpeaker(speakerUrl: String): Future[DevoxxSpeaker] = {
-    fetch(speakerUrl).map { res =>
+    WSUtils.fetch(speakerUrl).map { res =>
       res.json.as[DevoxxSpeaker].copy(sourceUrl = Some(speakerUrl))
     }
   }
@@ -99,19 +98,18 @@ object DevoxxApi extends Controller {
   }
 
   def fetchSchedules(conferenceUrl: String): Future[List[String]] = {
-    fetch(DevoxxUrl.schedules(conferenceUrl)).map { res =>
+    WSUtils.fetch(DevoxxUrl.schedules(conferenceUrl)).map { res =>
       (res.json \ "links").as[List[Link]].map(_.href)
     }
   }
 
   def fetchSchedule(scheduleUrl: String): Future[List[DevoxxSession]] = {
-    fetch(scheduleUrl).map { res =>
+    WSUtils.fetch(scheduleUrl).map { res =>
       (res.json \ "slots").as[List[DevoxxSession]].map { session =>
         session.copy(sourceUrl = Some(scheduleUrl))
       }
     }
   }
 
-  def fetch(url: String): Future[WSResponse] = WS.url(url).get()
 
 }

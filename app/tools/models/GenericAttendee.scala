@@ -9,7 +9,8 @@ case class GenericAttendee(
   avatar: String,
   description: String,
   descriptionHTML: String,
-  blogUrl: Option[String],
+  role: String,
+  siteUrl: Option[String],
   twitterUrl: Option[String],
   company: String)
 object GenericAttendee {

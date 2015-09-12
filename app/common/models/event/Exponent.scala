@@ -4,11 +4,11 @@ import common.Utils
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
-import common.models.values.DataSource
 import common.models.values.typed._
 import common.models.user.OrganizationId
 import common.repositories.Repository
 import common.services.FileImporter
+import tools.models.Source
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
@@ -35,7 +35,7 @@ case class ExponentInfo(
 case class ExponentConfig(
   scanQRCode: Boolean)
 case class ExponentMeta(
-  source: Option[DataSource], // where the exponent were fetched (if applies)
+  source: Option[Source], // where the exponent were fetched (if applies)
   created: DateTime,
   updated: DateTime)
 case class Exponent(
@@ -129,7 +129,7 @@ object Exponent {
       ExponentConfig(
         d.get("config.scanQRCode").flatMap(s => if (s.isEmpty) None else Some(s.toBoolean)).getOrElse(false)),
       ExponentMeta(
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => Source(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -156,7 +156,7 @@ object Exponent {
 
 // mapping object for Exponent Form
 case class ExponentMetaData(
-  source: Option[DataSource])
+  source: Option[Source])
 case class ExponentData(
   eventId: EventId,
   name: FullName,
@@ -183,7 +183,7 @@ object ExponentData {
     "config" -> mapping(
       "scanQRCode" -> boolean)(ExponentConfig.apply)(ExponentConfig.unapply),
     "meta" -> mapping(
-      "source" -> optional(DataSource.fields))(ExponentMetaData.apply)(ExponentMetaData.unapply))(ExponentData.apply)(ExponentData.unapply)
+      "source" -> optional(Source.fields))(ExponentMetaData.apply)(ExponentMetaData.unapply))(ExponentData.apply)(ExponentData.unapply)
 
   def toModel(d: ExponentMetaData): ExponentMeta = ExponentMeta(d.source, new DateTime(), new DateTime())
   def toModel(d: ExponentData): Exponent = Exponent(ExponentId.generate(), d.eventId, None, d.name, d.description, d.descriptionHTML, d.images, d.info, d.config, toModel(d.meta))

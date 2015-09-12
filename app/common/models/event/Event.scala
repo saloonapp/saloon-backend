@@ -5,11 +5,11 @@ import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.Address
-import common.models.values.DataSource
 import common.models.values.Link
 import common.models.values.typed._
 import common.models.user.OrganizationId
 import common.services.FileImporter
+import tools.models.Source
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
@@ -71,7 +71,7 @@ case class EventMeta(
   categories: List[String],
   status: EventStatus,
   refreshUrl: Option[String], // a get on this url will scrape original data of this event (used to update program)
-  source: Option[DataSource], // where the event were fetched (if applies)
+  source: Option[Source], // where the event were fetched (if applies)
   created: DateTime,
   updated: DateTime)
 case class Event(
@@ -189,7 +189,7 @@ object Event {
       EventMeta(
         Utils.toList(d.get("meta.categories").getOrElse("")),
         d.get("meta.refreshUrl"),
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => Source(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -238,7 +238,7 @@ case class EventConfigData(
 case class EventMetaData(
   categories: List[String],
   refreshUrl: Option[String],
-  source: Option[DataSource])
+  source: Option[Source])
 case class EventData(
   ownerId: OrganizationId,
   name: FullName,
@@ -279,7 +279,7 @@ object EventData {
     "meta" -> mapping(
       "categories" -> list(text),
       "refreshUrl" -> optional(text),
-      "source" -> optional(DataSource.fields))(EventMetaData.apply)(EventMetaData.unapply))(EventData.apply)(EventData.unapply)
+      "source" -> optional(Source.fields))(EventMetaData.apply)(EventMetaData.unapply))(EventData.apply)(EventData.unapply)
 
   def toModel(d: EventInfoSocialTwitter): EventInfoSocialTwitter = EventInfoSocialTwitter(d.hashtag.map(Utils.toTwitterHashtag), d.account.map(Utils.toTwitterAccount))
   def toModel(d: EventInfoSocial): EventInfoSocial = d.copy(twitter = toModel(d.twitter))

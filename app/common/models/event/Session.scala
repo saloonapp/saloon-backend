@@ -4,9 +4,9 @@ import common.Utils
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
-import common.models.values.DataSource
 import common.models.values.typed._
 import common.services.FileImporter
+import tools.models.Source
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
@@ -35,7 +35,7 @@ case class SessionInfo(
   slides: Option[WebsiteUrl],
   video: Option[WebsiteUrl])
 case class SessionMeta(
-  source: Option[DataSource], // where the session were fetched (if applies)
+  source: Option[Source], // where the session were fetched (if applies)
   created: DateTime,
   updated: DateTime)
 case class Session(
@@ -122,7 +122,7 @@ object Session {
         d.get("info.slides"),
         d.get("info.video")),
       SessionMeta(
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => Source(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -150,7 +150,7 @@ object Session {
 
 // mapping object for Session Form
 case class SessionMetaData(
-  source: Option[DataSource])
+  source: Option[Source])
 case class SessionData(
   eventId: EventId,
   name: FullName,
@@ -177,7 +177,7 @@ object SessionData {
       "slides" -> optional(of[WebsiteUrl]),
       "video" -> optional(of[WebsiteUrl]))(SessionInfo.apply)(SessionInfo.unapply),
     "meta" -> mapping(
-      "source" -> optional(DataSource.fields))(SessionMetaData.apply)(SessionMetaData.unapply))(SessionData.apply)(SessionData.unapply)
+      "source" -> optional(Source.fields))(SessionMetaData.apply)(SessionMetaData.unapply))(SessionData.apply)(SessionData.unapply)
 
   def toModel(d: SessionMetaData): SessionMeta = SessionMeta(d.source, new DateTime(), new DateTime())
   def toModel(d: SessionData): Session = Session(SessionId.generate(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, toModel(d.meta))

@@ -28,8 +28,8 @@
 }
 @metaInfos(session: Session) = {
 	@timeOpt(session.info.start)-@timeOpt(session.info.end)
-	@if(!session.info.format.isEmpty){<span class="label label-primary">@session.info.format</span>}
-	@if(!session.info.theme.isEmpty){<span class="label label-danger">@session.info.theme</span>}
+	@if(!session.info.format.isEmpty){<span class="label label-primary" title="@session.info.format">@session.info.format</span>}
+	@if(!session.info.theme.isEmpty){<span class="label label-danger" title="@session.info.theme">@session.info.theme</span>}
 }
 @layout("Sessions à "+event.name, Map(event.uuid -> event.name)){
 	<div class="card">

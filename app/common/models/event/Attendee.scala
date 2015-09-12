@@ -6,9 +6,9 @@ import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.Address
-import common.models.values.DataSource
 import common.models.values.typed._
 import common.services.FileImporter
+import tools.models.Source
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._
@@ -55,7 +55,7 @@ case class AttendeeQuestion(
   question: String,
   answers: List[String])
 case class AttendeeMeta(
-  source: Option[DataSource], // where the session were fetched (if applies)
+  source: Option[Source], // where the session were fetched (if applies)
   created: DateTime,
   updated: DateTime)
 case class Attendee(
@@ -185,7 +185,7 @@ object Attendee {
         d.get("social.linkedinUrl").flatMap(s => if (s.isEmpty) None else Some(s)),
         d.get("social.githubUrl").flatMap(s => if (s.isEmpty) None else Some(s))),
       AttendeeMeta(
-        d.get("meta.source.ref").map { ref => DataSource(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
+        d.get("meta.source.ref").map { ref => Source(ref, d.get("meta.source.name").getOrElse(""), d.get("meta.source.url").getOrElse("")) },
         d.get("meta.created").flatMap(d => parseDate(d)).getOrElse(new DateTime()),
         d.get("meta.updated").flatMap(d => parseDate(d)).getOrElse(new DateTime()))))
 
@@ -214,7 +214,7 @@ object Attendee {
 
 // mapping object for Attendee Form
 case class AttendeeMetaData(
-  source: Option[DataSource])
+  source: Option[Source])
 case class AttendeeData(
   eventId: EventId,
   name: FullName,
@@ -252,7 +252,7 @@ object AttendeeData {
       "viadeoUrl" -> optional(of[WebsiteUrl]),
       "githubUrl" -> optional(of[WebsiteUrl]))(AttendeeSocial.apply)(AttendeeSocial.unapply),
     "meta" -> mapping(
-      "source" -> optional(DataSource.fields))(AttendeeMetaData.apply)(AttendeeMetaData.unapply))(AttendeeData.apply)(AttendeeData.unapply)
+      "source" -> optional(Source.fields))(AttendeeMetaData.apply)(AttendeeMetaData.unapply))(AttendeeData.apply)(AttendeeData.unapply)
 
   def toModel(d: AttendeeMetaData): AttendeeMeta = AttendeeMeta(d.source, new DateTime(), new DateTime())
   def toModel(d: AttendeeData): Attendee = Attendee(AttendeeId.generate(), d.eventId, d.name, d.description, d.descriptionHTML, d.images, d.info, None, d.social, List(), toModel(d.meta))

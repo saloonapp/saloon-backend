@@ -21,7 +21,8 @@
 				<li class="sub-menu @if(uri.startsWith("/backend/admin")){toggled active}">
 					<a href=""><i class="md md-settings"></i> Admin</a>
 					<ul>
-						<li @if(uri.startsWith("/backend/admin/events")){class="active"}><a href="@backend.controllers.admin.routes.Events.list()">Tous les événements</a></li>
+						<li @if(uri == "/backend/admin/events"){class="active"}><a href="@backend.controllers.admin.routes.Events.list()">Tous les événements</a></li>
+						<li @if(uri == "/backend/admin/events/urlImport"){class="active"}><a href="@backend.controllers.admin.routes.Events.urlImport()">Importer un événement</a></li>
 						<li><a href="@admin.controllers.routes.Application.index()">Ancien backend</a></li>
 					</ul>
 				</li>

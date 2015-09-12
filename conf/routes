@@ -117,6 +117,8 @@ GET       /backend/sample/:pageName                                             
 # Admin
 GET       /backend/admin                                                                    backend.controllers.admin.Application.index
 GET       /backend/admin/events                                                             backend.controllers.admin.Events.list
+GET       /backend/admin/events/urlImport                                                   backend.controllers.admin.Events.urlImport
+POST      /backend/admin/events/urlImport                                                   backend.controllers.admin.Events.doUrlImport
 
 # Old Admin
 GET       /admin                                                                            admin.controllers.Application.index

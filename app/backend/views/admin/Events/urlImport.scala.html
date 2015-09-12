@@ -1,0 +1,33 @@
+@import common.models.values.typed.WebsiteUrl
+@import common.models.user.User
+@import common.models.user.Organization
+@import common.models.user.OrganizationId
+@import common.views.html.forms._
+@import backend.views.html._
+@import backend.views.html.partials._
+@(eventImportForm: Form[(OrganizationId, WebsiteUrl)], organizations: List[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Importer un événement"){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Importer un événement :</h2>
+		</div>
+		<div class="card-body card-padding">
+			@helper.form(action=backend.controllers.admin.routes.Events.doUrlImport(), 'class->"form-horizontal"){
+				@fieldHorizontal(eventImportForm("organizationId"), 'label -> "Organisation", 'constraints->"false"){field =>
+					@inputSelect2(field, organizations.map(o => (o.uuid.unwrap,o.name.unwrap)))
+					<p class="help-block">L'événement sera lié à cette organisation.</p>
+				}
+				@fieldHorizontal(eventImportForm("importUrl"), 'label -> "Url", 'constraints->"false"){field =>
+					<div class="fg-line">@inputText(field, 'placeholder -> "ex: https://saloonapp.herokuapp.com/tools/api/devoxx/event/full?url=http://cfp.bdx.io/api/conferences/BdxIO2015")</div>
+					<p class="help-block">L'url doit renvoyer un json formaté comme un GenericEventFull.</p>
+				}
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Créer</button>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}

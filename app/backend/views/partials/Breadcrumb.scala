@@ -38,7 +38,6 @@ object Breadcrumb {
   private def build(list: List[String], index: Int, titles: Map[String, String], identifiers: HashMap[String, String]): (Call, String) = {
     list(index) match {
       case "home" => (backend.controllers.routes.Application.index(), "Accueil")
-      case "admin" => (backend.controllers.admin.routes.Application.index(), "Admin")
       case "profile" => (backend.controllers.routes.Profile.details(), "Profil")
       case "organizations" => (backend.controllers.routes.Profile.details(), "Organisations")
       case ItemType.events.value => list(index - 1) match {
@@ -90,6 +89,9 @@ object Breadcrumb {
           case "speakers" => (backend.controllers.routes.AttendeeTeam.details(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
         }
       }
+
+      case "admin" => (backend.controllers.admin.routes.Application.index(), "Admin")
+      case "urlImport" => (backend.controllers.admin.routes.Events.urlImport(), "Importer un événement")
 
       case "mockups" => (backend.controllers.routes.Application.mockups(), "Mockups")
       case "activityWall" => (backend.controllers.routes.Application.mockupActivityWall(), "Activity Wall")

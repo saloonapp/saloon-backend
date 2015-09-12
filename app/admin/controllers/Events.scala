@@ -26,6 +26,7 @@ import common.repositories.event.ExponentRepository
 import common.repositories.user.UserActionRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.event.EventRepository
+import admin.services.EventImport
 import authentication.environments.SilhouetteEnvironment
 import api.controllers.compatibility.Writer
 import scala.util.Try
@@ -85,15 +86,15 @@ object Events extends SilhouetteEnvironment {
 
   def doCreateFromUrl = SecuredAction.async { implicit req =>
     Utils.getFormParam("url").map { url =>
-      val eventUrl = EventSrv.formatUrl(url)
-      EventSrv.fetchFullEvent(eventUrl).flatMap {
+      val eventUrl = EventImport.formatUrl(url)
+      EventImport.fetchFullEvent(eventUrl).flatMap {
         _.map {
           case (event, attendees, sessions, exponents) =>
             EventRepository.getByUuid(event.uuid).flatMap {
               _.map { localEvent =>
                 Future(Redirect(mainRoute.create()).flashing("error" -> s"L'événement ${event.uuid} existe déjà !"))
               }.getOrElse {
-                EventSrv.insertAll(event, attendees, sessions, exponents).map {
+                EventImport.insertAll(event, attendees, sessions, exponents).map {
                   _.map {
                     case (event, attendeeCount, sessionCount, exponentCount) =>
                       Redirect(mainRoute.details(event.uuid)).flashing("success" -> s"Evénément ${event.name} créé avec $attendeeCount attendees, $sessionCount sessions, $exponentCount exponents")
@@ -256,9 +257,9 @@ object Events extends SilhouetteEnvironment {
         }.getOrElse(Redirect(mainRoute.list()).flashing("error" -> s"Event $uuid not found..."))
       },
       formData => {
-        val eventUrl = EventSrv.formatUrl(formData.url)
+        val eventUrl = EventImport.formatUrl(formData.url)
         val getData = for {
-          fullEventOpt <- EventSrv.fetchFullEvent(eventUrl)
+          fullEventOpt <- EventImport.fetchFullEvent(eventUrl)
           localEventOpt <- EventRepository.getByUuid(uuid)
         } yield (fullEventOpt, localEventOpt)
 
@@ -279,12 +280,12 @@ object Events extends SilhouetteEnvironment {
                   localEventOpt.map { localEvent =>
                     val remoteSource = Writer.write(remoteEvent, remoteAttendees, remoteSessions, remoteExponents, Writer.lastVersion)
                     val updatedEvent = localEvent.merge(remoteEvent)
-                    val (createdAttendees, deletedAttendees, updatedAttendees) = EventSrv.attendeeDiff(localAttendees, remoteAttendees)
-                    val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
-                    val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
+                    val (createdAttendees, deletedAttendees, updatedAttendees) = EventImport.attendeeDiff(localAttendees, remoteAttendees)
+                    val (createdSessions, deletedSessions, updatedSessions) = EventImport.sessionDiff(localSessions, remoteSessions)
+                    val (createdExponents, deletedExponents, updatedExponents) = EventImport.exponentDiff(localExponents, remoteExponents)
                     Future(Ok(admin.views.html.Events.refresh(localEvent, updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource)))
                   }.getOrElse {
-                    EventSrv.insertAll(remoteEvent, remoteAttendees, remoteSessions, remoteExponents).map { insertedOpt =>
+                    EventImport.insertAll(remoteEvent, remoteAttendees, remoteSessions, remoteExponents).map { insertedOpt =>
                       if (insertedOpt.isDefined) { Redirect(mainRoute.list()).flashing("success" -> s"L'événement <b>${remoteEvent.name}</b> bien créé") }
                       else { InternalServerError(viewOps(localEvent, urlImportForm.fill(formData), fileImportForm)(req.flash + ("error" -> s"Erreur pendant la création de ${remoteEvent.name} (id: ${remoteEvent.uuid})"))) }
                     }
@@ -299,9 +300,9 @@ object Events extends SilhouetteEnvironment {
     EventRepository.getByUuid(uuid).flatMap { eventOpt =>
       eventOpt.map { localEvent =>
         localEvent.meta.refreshUrl.map { url =>
-          val eventUrl = EventSrv.formatUrl(url)
+          val eventUrl = EventImport.formatUrl(url)
           for {
-            remoteSourceOpt <- EventSrv.fetchFullEvent(eventUrl)
+            remoteSourceOpt <- EventImport.fetchFullEvent(eventUrl)
             localAttendees <- AttendeeRepository.findByEvent(uuid)
             localSessions <- SessionRepository.findByEvent(uuid)
             localExponents <- ExponentRepository.findByEvent(uuid)
@@ -310,9 +311,9 @@ object Events extends SilhouetteEnvironment {
               case (remoteEvent, remoteAttendees, remoteSessions, remoteExponents) =>
                 val remoteSource = Writer.write(remoteEvent, remoteAttendees, remoteSessions, remoteExponents, Writer.lastVersion)
                 val updatedEvent = localEvent.merge(remoteEvent)
-                val (createdAttendees, deletedAttendees, updatedAttendees) = EventSrv.attendeeDiff(localAttendees, remoteAttendees)
-                val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
-                val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
+                val (createdAttendees, deletedAttendees, updatedAttendees) = EventImport.attendeeDiff(localAttendees, remoteAttendees)
+                val (createdSessions, deletedSessions, updatedSessions) = EventImport.sessionDiff(localSessions, remoteSessions)
+                val (createdExponents, deletedExponents, updatedExponents) = EventImport.exponentDiff(localExponents, remoteExponents)
                 Ok(admin.views.html.Events.refresh(localEvent, updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdSessions, deletedSessions, updatedSessions, createdExponents, deletedExponents, updatedExponents, remoteSource))
             }.getOrElse(Ok(s"Result of url $url is incorrect !"))
           }
@@ -339,8 +340,8 @@ object Events extends SilhouetteEnvironment {
           case (localEventOpt, localSessions, localExponents) =>
             localEventOpt.map { localEvent =>
               val updatedEvent = localEvent.merge(remoteEvent)
-              val (createdSessions, deletedSessions, updatedSessions) = EventSrv.sessionDiff(localSessions, remoteSessions)
-              val (createdExponents, deletedExponents, updatedExponents) = EventSrv.exponentDiff(localExponents, remoteExponents)
+              val (createdSessions, deletedSessions, updatedSessions) = EventImport.sessionDiff(localSessions, remoteSessions)
+              val (createdExponents, deletedExponents, updatedExponents) = EventImport.exponentDiff(localExponents, remoteExponents)
 
               for {
                 eventUpdated <- EventRepository.update(localEvent.uuid, updatedEvent)
