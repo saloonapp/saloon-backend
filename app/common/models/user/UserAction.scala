@@ -44,14 +44,12 @@ object UserAction {
   def comment(userId: DeviceId, itemType: ItemType, itemId: GenericId, text: TextMultiline, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(UserActionId.generate(), userId, CommentUserAction(text), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
   def subscribe(userId: DeviceId, itemType: ItemType, itemId: GenericId, email: Email, filter: String, eventId: EventId, time: Option[DateTime] = None): UserAction = UserAction(UserActionId.generate(), userId, SubscribeUserAction(email, filter), itemType, itemId, Some(eventId), time.getOrElse(new DateTime()), time.getOrElse(new DateTime()))
 
-  private implicit val formatEventId = Json.format[EventId]
-  private implicit val formatGenericId = Json.format[GenericId]
   private implicit val formatFavoriteUserAction = Json.format[FavoriteUserAction]
   private implicit val formatDoneUserAction = Json.format[DoneUserAction]
   private implicit val formatMoodUserAction = Json.format[MoodUserAction]
   private implicit val formatCommentUserAction = Json.format[CommentUserAction]
   private implicit val formatSubscribeUserAction = Json.format[SubscribeUserAction]
-  implicit val formatUserActionContent = Format(
+  private implicit val formatUserActionContent = Format(
     __.read[FavoriteUserAction].map(x => x: UserActionContent)
       .orElse(__.read[DoneUserAction].map(x => x: UserActionContent))
       .orElse(__.read[MoodUserAction].map(x => x: UserActionContent))

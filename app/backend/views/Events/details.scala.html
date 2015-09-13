@@ -26,6 +26,7 @@
 				}
 				case _ => {}
 			}
+			@if(user.canAdministrateSalooN() && event.meta.refreshUrl.isDefined){<li><a href="@backend.controllers.admin.routes.Events.refresh(event.uuid)" title="Mettre à jour l'événement depuis sa source"><i class="md md-refresh"></i></a></li>}
 			<li>@helper.form(action=backend.controllers.routes.Events.doDelete(event.uuid)){<button type="submit" class="confirm" title="Supprimer l'événement @event.name"><i class="md md-delete"></i></button>}</li>
 		</ul>
 	</div>

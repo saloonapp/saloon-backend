@@ -6,6 +6,7 @@ import common.models.event.EventItem
 import common.models.user.User
 import common.models.user.Device
 import common.models.user.DeviceId
+import common.models.user.UserAction
 import common.models.user.UserActionFull
 import common.models.user.SubscribeUserAction
 import common.models.values.typed._

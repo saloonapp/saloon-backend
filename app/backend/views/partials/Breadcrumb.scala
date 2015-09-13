@@ -92,6 +92,7 @@ object Breadcrumb {
 
       case "admin" => (backend.controllers.admin.routes.Application.index(), "Admin")
       case "urlImport" => (backend.controllers.admin.routes.Events.urlImport(), "Importer un événement")
+      case "refresh" => (backend.controllers.admin.routes.Events.refresh(getEventId(identifiers)), "Mettre à jour l'événement")
 
       case "mockups" => (backend.controllers.routes.Application.mockups(), "Mockups")
       case "activityWall" => (backend.controllers.routes.Application.mockupActivityWall(), "Activity Wall")
@@ -109,6 +110,7 @@ object Breadcrumb {
     case ItemType.exponents.value => identifiers.put("exponent", id)
     case "team" => identifiers.put("attendee", id)
     case ItemType.sessions.value => identifiers.put("session", id)
+    case "speakers" => identifiers.put("attendee", id)
   }
   private def getOrganizationId(identifiers: HashMap[String, String]): OrganizationId = OrganizationId(identifiers.get("organization").get)
   private def getEventId(identifiers: HashMap[String, String]): EventId = EventId(identifiers.get("event").get)

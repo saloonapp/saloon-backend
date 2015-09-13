@@ -1,0 +1,112 @@
+@import common.models.user.User
+@import common.models.event.Event
+@import common.models.event.Attendee
+@import common.models.event.Session
+@import common.models.event.Exponent
+@import play.api.libs.json.Json
+@import play.api.libs.json.JsValue
+@import org.joda.time.DateTime
+@import common.views.html.format._
+@import common.views.html.forms._
+@import backend.views.html._
+@(refreshForm: Form[String], event: Event, updatedEvent: Event, createdAttendees: List[Attendee], deletedAttendees: List[Attendee], updatedAttendees: List[(Attendee, Attendee)], createdExponents: List[Exponent], deletedExponents: List[Exponent], updatedExponents: List[(Exponent, Exponent)], createdSessions: List[Session], deletedSessions: List[Session], updatedSessions: List[(Session, Session)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@singleGroup(title: String, id: String, elts: List[(String, String, JsValue)]) = {
+	@if(elts.length > 0){
+		<p class="c-black f-500 m-b-5">@title</p>
+		<div class="panel-group" role="tablist" aria-multiselectable="false" id="accordion-@id">
+			@elts.map { case (uuid, name, elt) =>
+				<div class="panel panel-collapse">
+					<div class="panel-heading" role="tab" id="@id-@uuid-head">
+						<h4 class="panel-title">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion-@id" href="#@id-@uuid" aria-expanded="false" aria-controls="@id-@uuid">@name</a>
+						</h4>
+					</div>
+					<div id="@id-@uuid" class="collapse" role="tabpanel" aria-labelledby="@id-@uuid-head">
+						<div class="panel-body">@json(elt)</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+@diffGroup(title: String, id: String, elts: List[(String, String, JsValue, JsValue)]) = {
+	@if(elts.length > 0){
+		<p class="c-black f-500 m-b-5">@title</p>
+		<div class="panel-group" role="tablist" aria-multiselectable="false" id="accordion-@id">
+			@elts.map { case (uuid, name, oldElt, elt) =>
+				<div class="panel panel-collapse">
+					<div class="panel-heading" role="tab" id="@id-@uuid-head">
+						<h4 class="panel-title">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion-@id" href="#@id-@uuid" aria-expanded="false" aria-controls="@id-@uuid">@name</a>
+						</h4>
+					</div>
+					<div id="@id-@uuid" class="collapse" role="tabpanel" aria-labelledby="@id-@uuid-head">
+						<div class="panel-body">@jsonDiff(oldElt, elt)</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+@layout("Mettre à jour "+updatedEvent.name, Map(event.uuid -> event.name)){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Modifications pour @event.name :</h2>
+		</div>
+		<div class="card-body card-padding">
+			<ul>
+				@if(createdAttendees.length>0){<li>@createdAttendees.length participants créées</li>}
+				@if(deletedAttendees.length>0){<li>@deletedAttendees.length  participants supprimées</li>}
+				@if(updatedAttendees.length>0){<li>@updatedAttendees.length participants modifiées</li>}
+				@if(createdExponents.length>0){<li>@createdExponents.length exposants créés</li>}
+				@if(deletedExponents.length>0){<li>@deletedExponents.length exposants supprimés</li>}
+				@if(updatedExponents.length>0){<li>@updatedExponents.length exposants modifiés</li>}
+				@if(createdSessions.length>0){<li>@createdSessions.length sessions créées</li>}
+				@if(deletedSessions.length>0){<li>@deletedSessions.length sessions supprimées</li>}
+				@if(updatedSessions.length>0){<li>@updatedSessions.length sessions modifiées</li>}
+			</ul>
+
+			@if(event.copy(meta = event.meta.copy(updated = new DateTime(0))) != updatedEvent.copy(meta = updatedEvent.meta.copy(updated = new DateTime(0)))){
+				<p class="c-black f-500 m-b-5">Modification de l'événement</p>
+				<div class="panel-group" id="accordion-updateEvent">
+					<div class="panel panel-default">
+						<div class="panel-heading" role="tab">
+							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-updateEvent" href="#updateEvent-@updatedEvent.uuid">@updatedEvent.name</a></h4>
+						</div>
+						<div id="updateEvent-@updatedEvent.uuid" class="panel-collapse collapse">
+							<div class="panel-body">@jsonDiff(Json.toJson(event), Json.toJson(updatedEvent))</div>
+						</div>
+					</div>
+				</div>
+			}
+
+			@singleGroup("Participants à créer", "createdAttendees", createdAttendees.map(e => (e.uuid.unwrap, e.name.unwrap, Json.toJson(e))))
+			@singleGroup("Participants à supprimer", "deletedAttendees", deletedAttendees.map(e => (e.uuid.unwrap, e.name.unwrap, Json.toJson(e))))
+			@diffGroup("Participants à modifier", "updatedAttendees", updatedAttendees.map{case (oldElt, elt) => (elt.uuid.unwrap, elt.name.unwrap, Json.toJson(oldElt), Json.toJson(elt))})
+			@singleGroup("Exposants à créer", "createdExponents", createdExponents.map(e => (e.uuid.unwrap, e.name.unwrap, Json.toJson(e))))
+			@singleGroup("Exposants à supprimer", "deletedExponents", deletedExponents.map(e => (e.uuid.unwrap, e.name.unwrap, Json.toJson(e))))
+			@diffGroup("Exposants à modifier", "updatedExponents", updatedExponents.map{case (oldElt, elt) => (elt.uuid.unwrap, elt.name.unwrap, Json.toJson(oldElt), Json.toJson(elt))})
+			@singleGroup("Sessions à créer", "createdSessions", createdSessions.map(e => (e.uuid.unwrap, e.name.unwrap, Json.toJson(e))))
+			@singleGroup("Sessions à supprimer", "deletedSessions", deletedSessions.map(e => (e.uuid.unwrap, e.name.unwrap, Json.toJson(e))))
+			@diffGroup("Sessions à modifier", "updatedSessions", updatedSessions.map{case (oldElt, elt) => (elt.uuid.unwrap, elt.name.unwrap, Json.toJson(oldElt), Json.toJson(elt))})
+			
+			@if(event.copy(meta = event.meta.copy(updated = new DateTime(0))) == updatedEvent.copy(meta = updatedEvent.meta.copy(updated = new DateTime(0))) && createdAttendees.length == 0 && deletedAttendees.length == 0 && updatedAttendees.length == 0 && createdExponents.length == 0 && createdExponents.length == 0 && updatedExponents.length == 0 && createdSessions.length == 0 && deletedSessions.length == 0 && deletedSessions.length == 0){
+				<p>Aucune modification identifiée !</p>
+			}
+
+			<br><br>
+			<h3>Modifier les données avant la mise à jour :</h3>
+			@helper.form(action=backend.controllers.admin.routes.Events.doRefresh(event.uuid), 'class->"form-horizontal"){
+				@fieldHorizontal(refreshForm("data"), 'label -> "Données", 'constraints->"false"){field =>
+					<div class="fg-line"><textarea class="form-control" rows="30" name="data" id="data" required>@Json.prettyPrint(Json.parse(field.value.getOrElse("")))</textarea></div>
+				}
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Mettre à jour</button>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}

@@ -119,6 +119,9 @@ GET       /backend/admin                                                        
 GET       /backend/admin/events                                                             backend.controllers.admin.Events.list
 GET       /backend/admin/events/urlImport                                                   backend.controllers.admin.Events.urlImport
 POST      /backend/admin/events/urlImport                                                   backend.controllers.admin.Events.doUrlImport
+GET       /backend/admin/events/:eventId                                                    backend.controllers.Events.details(eventId: EventId)
+GET       /backend/admin/events/:eventId/refresh                                            backend.controllers.admin.Events.refresh(eventId: EventId)
+POST      /backend/admin/events/:eventId/refresh                                            backend.controllers.admin.Events.doRefresh(eventId: EventId)
 
 # Old Admin
 GET       /admin                                                                            admin.controllers.Application.index

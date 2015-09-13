@@ -86,7 +86,7 @@ object Events extends SilhouetteEnvironment {
 
   def doCreateFromUrl = SecuredAction.async { implicit req =>
     Utils.getFormParam("url").map { url =>
-      val eventUrl = EventImport.formatUrl(url)
+      val eventUrl = EventImport.formatUrl(WebsiteUrl(url))
       EventImport.fetchFullEvent(eventUrl).flatMap {
         _.map {
           case (event, attendees, sessions, exponents) =>

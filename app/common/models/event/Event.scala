@@ -70,7 +70,7 @@ case class EventConfig(
 case class EventMeta(
   categories: List[String],
   status: EventStatus,
-  refreshUrl: Option[String], // a get on this url will scrape original data of this event (used to update program)
+  refreshUrl: Option[WebsiteUrl], // a get on this url will scrape original data of this event (used to update program)
   source: Option[Source], // where the event were fetched (if applies)
   created: DateTime,
   updated: DateTime)
@@ -237,7 +237,7 @@ case class EventConfigData(
   branding: Option[EventConfigBrandingData])
 case class EventMetaData(
   categories: List[String],
-  refreshUrl: Option[String],
+  refreshUrl: Option[WebsiteUrl],
   source: Option[Source])
 case class EventData(
   ownerId: OrganizationId,
@@ -278,7 +278,7 @@ object EventData {
         "exponentMenu" -> text)(EventConfigBrandingData.apply)(EventConfigBrandingData.unapply)))(EventConfigData.apply)(EventConfigData.unapply),
     "meta" -> mapping(
       "categories" -> list(text),
-      "refreshUrl" -> optional(text),
+      "refreshUrl" -> optional(of[WebsiteUrl]),
       "source" -> optional(Source.fields))(EventMetaData.apply)(EventMetaData.unapply))(EventData.apply)(EventData.unapply)
 
   def toModel(d: EventInfoSocialTwitter): EventInfoSocialTwitter = EventInfoSocialTwitter(d.hashtag.map(Utils.toTwitterHashtag), d.account.map(Utils.toTwitterAccount))

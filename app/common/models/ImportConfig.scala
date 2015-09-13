@@ -1,5 +1,6 @@
 package common.models
 
+import common.models.values.typed.WebsiteUrl
 import play.api.data.Forms._
 
 case class FileImportConfig(
@@ -14,8 +15,8 @@ object FileImportConfig {
 }
 
 case class UrlImportConfig(
-  url: String = "")
+  url: WebsiteUrl)
 object UrlImportConfig {
   val fields = mapping(
-    "url" -> nonEmptyText)(UrlImportConfig.apply)(UrlImportConfig.unapply)
+    "url" -> of[WebsiteUrl])(UrlImportConfig.apply)(UrlImportConfig.unapply)
 }

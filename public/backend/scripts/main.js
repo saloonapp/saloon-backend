@@ -226,6 +226,57 @@ $(document).ready(function(){
 	}
 
 	/*
+	 * Collaspe Fix
+	 */
+	if($('.collapse')[0]){
+		//Add active class for opened items
+		$('.collapse').on('show.bs.collapse', function(e){
+			$(this).closest('.panel').find('.panel-heading').addClass('active');
+		});
+
+		$('.collapse').on('hide.bs.collapse', function(e){
+			$(this).closest('.panel').find('.panel-heading').removeClass('active');
+		});
+
+		//Add active class for pre opened items
+		$('.collapse.in').each(function(){
+			$(this).closest('.panel').find('.panel-heading').addClass('active');
+		});
+	}
+
+	/*
+	 * Notifications (flash messages)
+	 */
+	$('.notification-container .alert').each(function(){
+		var message = $(this).find('span.message').text();
+		var type = $(this).hasClass('alert-success') ? 'success' : 'inverse';
+		notify(message, type);
+	});
+	function notify(message, type){
+		$.growl({
+			message: message
+		},{
+			type: type,
+			allow_dismiss: true,
+			label: 'Cancel',
+			className: 'btn-xs btn-inverse',
+			placement: {
+				from: 'top',
+				align: 'right'
+			},
+			delay: 25000,
+			animate: {
+				enter: 'animated bounceIn',
+				exit: 'animated bounceOut'
+			},
+			offset: {
+				x: 20,
+				y: 70
+			}
+		});
+	}
+
+	/*
 	 * Cloudinary upload (cf http://cloudinary.com/documentation/upload_widget#upload_widget_options)
 	 */
 	$('.cloudinary-upload').each(function(){
@@ -292,37 +343,5 @@ $(document).ready(function(){
 	}
 	function cleanCloudinaryUrl(url){
 		return url.replace(new RegExp('(.*/upload/).*(v[0-9].*)', 'gi'), '$1$2');
-	}
-
-	/*
-	 * Notifications (flash messages)
-	 */
-	$('.notification-container .alert').each(function(){
-		var message = $(this).find('span.message').text();
-		var type = $(this).hasClass('alert-success') ? 'success' : 'inverse';
-		notify(message, type);
-	});
-	function notify(message, type){
-		$.growl({
-			message: message
-		},{
-			type: type,
-			allow_dismiss: true,
-			label: 'Cancel',
-			className: 'btn-xs btn-inverse',
-			placement: {
-				from: 'top',
-				align: 'right'
-			},
-			delay: 25000,
-			animate: {
-				enter: 'animated bounceIn',
-				exit: 'animated bounceOut'
-			},
-			offset: {
-				x: 20,
-				y: 70
-			}
-		});
 	}
 });

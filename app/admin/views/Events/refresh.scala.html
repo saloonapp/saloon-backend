@@ -2,7 +2,7 @@
 @import common.models.event.Attendee
 @import common.models.event.Session
 @import common.models.event.Exponent
-@import common.services.UserActionSrv
+@import org.joda.time.DateTime
 @import play.api.libs.json.Json
 @import play.api.libs.json.JsObject
 @import admin.views.html.format._
@@ -34,7 +34,7 @@
 						<li>@deletedExponents.length exposants supprimés</li>
 						<li>@updatedExponents.length exposants modifiés</li>
 					</ul>
-					@if(event != updatedEvent){
+					@if(event.copy(meta = event.meta.copy(updated = new DateTime(0))) != updatedEvent.copy(meta = updatedEvent.meta.copy(updated = new DateTime(0)))){
 						<h3>Modification de l'événement</h3>
 						<div class="panel-group" id="accordion-updateEvent">
 							<div class="panel panel-default">
