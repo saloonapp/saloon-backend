@@ -62,7 +62,7 @@ object EventImport {
 
   private def build(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: WebsiteUrl): (Event, List[Attendee], List[Exponent], List[Session]) = {
     val now = new DateTime()
-    val event = build(eventFull.event, EventId.generate(), organizationId, Some(importUrl), now)
+    val event = build(eventFull.event, EventId.generate(), organizationId, EventStatus.draft, Some(importUrl), now)
     val attendees = eventFull.attendees.map { attendee => build(attendee, AttendeeId.generate(), event.uuid, now) }
     val exponents = eventFull.exponents.map { exponent => build(exponent, ExponentId.generate(), event.uuid, now, eventFull.exponentTeam, attendees) }
     val sessions = eventFull.sessions.map { session => build(session, SessionId.generate(), event.uuid, now, eventFull.sessionSpeakers, attendees) }
@@ -71,7 +71,7 @@ object EventImport {
 
   private def build(eventFull: GenericEventFull, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): (Event, List[Attendee], List[Exponent], List[Session]) = {
     val now = new DateTime()
-    val newEvent = build(eventFull.event, event.uuid, event.ownerId, event.meta.refreshUrl, now)
+    val newEvent = build(eventFull.event, event.uuid, event.ownerId, event.meta.status, event.meta.refreshUrl, now)
     val newAttendees = eventFull.attendees.map { attendee =>
       val attendeeId: AttendeeId = findAttendeeByRef(attendees, attendee.source.ref).map(_.uuid).getOrElse(AttendeeId.generate())
       build(attendee, attendeeId, event.uuid, now)
@@ -87,7 +87,7 @@ object EventImport {
     (newEvent, newAttendees, newExponents, newSessions)
   }
 
-  private def build(event: GenericEvent, eventId: EventId, organizationId: OrganizationId, importUrl: Option[WebsiteUrl], now: DateTime): Event = Event(
+  private def build(event: GenericEvent, eventId: EventId, organizationId: OrganizationId, status: EventStatus, importUrl: Option[WebsiteUrl], now: DateTime): Event = Event(
     eventId,
     organizationId,
     FullName(event.name),
@@ -105,7 +105,7 @@ object EventImport {
       EventInfoSocial(EventInfoSocialTwitter(None, None))),
     EventEmail(None),
     EventConfig(None, Map(), None),
-    EventMeta(List(), EventStatus.draft, importUrl, Some(event.source), now, now))
+    EventMeta(List(), status, importUrl, Some(event.source), now, now))
 
   private def build(attendee: GenericAttendee, attendeeId: AttendeeId, eventId: EventId, now: DateTime): Attendee = Attendee(
     attendeeId,
