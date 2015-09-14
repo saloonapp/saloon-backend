@@ -1,28 +1,15 @@
 package tools.scrapers.lanyrd.models
 
-import org.joda.time.DateTime
+import tools.utils.CsvElt
+import tools.utils.CsvUtils
 import play.api.libs.json.Json
-
-case class LanyrdEventDetails(
-  baseLine: String,
-  description: String,
-  venue: Option[LanyrdVenue],
-  website: Option[LanyrdLink],
-  schedule: Option[LanyrdLink],
-  twitterAccount: Option[LanyrdLink],
-  twitterHashtag: Option[LanyrdLink])
-object LanyrdEventDetails {
-  implicit val format = Json.format[LanyrdEventDetails]
-}
+import org.joda.time.DateTime
 
 case class LanyrdEvent(
-  name: String,
-  url: String,
-  places: List[LanyrdLink],
-  start: Option[DateTime],
-  end: Option[DateTime],
-  tags: List[LanyrdLink],
-  details: Option[LanyrdEventDetails])
+  name: String) extends CsvElt {
+  def toCsv(): Map[String, String] = LanyrdEvent.toCsv(this)
+}
 object LanyrdEvent {
   implicit val format = Json.format[LanyrdEvent]
+  def toCsv(e: LanyrdEvent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(e), 4)
 }

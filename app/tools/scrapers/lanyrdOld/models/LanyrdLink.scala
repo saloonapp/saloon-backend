@@ -1,4 +1,4 @@
-package tools.scrapers.lanyrd.models
+package tools.scrapers.lanyrdOld.models
 
 import play.api.libs.json.Json
 

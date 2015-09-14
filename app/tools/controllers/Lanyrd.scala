@@ -1,6 +1,6 @@
 package tools.controllers
 
-import tools.scrapers.lanyrd.LanyrdScraper
+import tools.scrapers.lanyrdOld.LanyrdScraper
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
