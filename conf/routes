@@ -263,9 +263,6 @@ DELETE    /api/v1/tools/crashs/:crashId                                         
 #GET       /api/v1/tools/scrapers/events/voxxrin/:eventId/day/:dayId                         tools.controllers.Voxxrin.getEventDay(eventId: String, dayId: String)
 #GET       /api/v1/tools/scrapers/events/voxxrin/:eventId/speakers/:speakerId                tools.controllers.Voxxrin.getEventSpeaker(eventId: String, speakerId: String)
 #GET       /api/v1/tools/scrapers/events/rivieradev                                          tools.controllers.RivieraDev.loadRivieraDev()
-GET       /api/v1/tools/scrapers/events/foiresetsalons/details                              tools.controllers.FoiresEtSalons.getEvent(url: String)
-GET       /api/v1/tools/scrapers/events/foiresetsalons/:page                                tools.controllers.FoiresEtSalons.getEvents(page: String, format: String ?= "csv")
-GET       /api/v1/tools/scrapers/events/foiresetsalons/:page/full                           tools.controllers.FoiresEtSalons.getEventsFull(page: String, offset: Int ?= 0, size: Int ?= 5, format: String ?= "csv")
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors                                 tools.controllers.Innorobo.getExibitors()
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                            tools.controllers.Innorobo.getFullExibitors(offset: Int ?= 0, limit: Int ?= 5, format: String ?= "json")
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId                    tools.controllers.Innorobo.getExibitor(exhibitorId: String)
@@ -280,6 +277,7 @@ GET       /tools/scrapers/eventseye/test                                        
 GET       /tools/scrapers/foiresetsalons/details                                            tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/foiresetsalons/listUrls                                           tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/foiresetsalons/listDetails                                        tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, format: String ?= "json")
+GET       /tools/scrapers/foiresetsalons/test                                               tools.scrapers.foiresetsalons.FoiresEtSalonsScraperTest.test
 GET       /tools/scrapers/lanyrd/details                                                    tools.scrapers.lanyrd.LanyrdScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/listUrls                                                   tools.scrapers.lanyrd.LanyrdScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/listDetails                                                tools.scrapers.lanyrd.LanyrdScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, format: String ?= "json")
