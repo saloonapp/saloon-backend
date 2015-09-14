@@ -1,6 +1,7 @@
 package tools.scrapers.eventseye
 
 import tools.utils.Scraper
+import tools.utils.ScraperUtils
 import tools.scrapers.eventseye.models.EventsEyeEvent
 import tools.scrapers.eventseye.models.EventsEyeAttendance
 import tools.scrapers.eventseye.models.EventsEyeOrganizer
@@ -79,33 +80,23 @@ object EventsEyeScraper extends Scraper[EventsEyeEvent] {
   private val dateRegex1 = "([a-zA-Z.]+) ([0-9]+) - (?:[a-zA-Z.]+ )?([0-9]+), ([0-9]+)".r.unanchored
   private val dateRegex2 = "on ([a-zA-Z.]+) ([0-9]+), ([0-9]+)".r.unanchored
   private val dateRegex3 = "on ([a-zA-Z.]+) ([0-9]+) \\(\\?\\)".r.unanchored
-  val parseDate = DateTimeFormat.forPattern("dd MMMM yyyy").withLocale(Locale.ENGLISH)
   val formatDate = DateTimeFormat.forPattern("dd/MM/yyyy").withLocale(Locale.FRENCH)
   private def extractDates(date: String): String = date match {
-    case dateRegex1(month, dayStart, dayEnd, year) => parseDate.parseDateTime(s"$dayStart ${monthReplace(month)} $year").toString(formatDate)
-    case dateRegex2(month, day, year) => parseDate.parseDateTime(s"$day ${monthReplace(month)} $year").toString(formatDate)
-    case dateRegex3(month, year) => parseDate.parseDateTime(s"01 ${monthReplace(month)} $year").toString(formatDate)
+    case dateRegex1(month, dayStart, dayEnd, year) => ScraperUtils.parseDate(s"$month $dayStart, $year").map(_.toString(formatDate)).getOrElse("")
+    case dateRegex2(month, day, year) => ScraperUtils.parseDate(s"$month $day, $year").map(_.toString(formatDate)).getOrElse("")
+    case dateRegex3(month, year) => ScraperUtils.parseDate(s"$month 01, $year").map(_.toString(formatDate)).getOrElse("")
     case _ => date
-  }
-  private def monthReplace(month: String): String = month match {
-    case "Jan." => "January"
-    case "Feb." => "February"
-    case "Sept." => "September"
-    case "Oct." => "October"
-    case "Nov." => "November"
-    case "Dec." => "December"
-    case _ => month
   }
 
   private val rOrgaName = "<a [^<>]+>(.*?)</a>\\s+"
   private val rOrgaAddress = "<br>(?:(.*?)<br>\\s)?(?:(.*?)<br>\\s)?(?:(.*?)<br>\\s)?(?:(.*?)\\s)?<br><b>(.*?)</b>\\s+"
   private val rOrgaPhone = "(?:<br><img src=\"/i/tel.gif\" border=\"0\" alt=\"\">&nbsp;([+ ()0-9]+)\\s)?"
   private val rOrgaWebsite = "<a href=\"([^\"]+)\""
-  private val rOrgaEmail = "(?:<a href=\"mailto:([^\"]+)\")?"
+  private val rOrgaEmail = "<a href=\"mailto:([^\"]+)\""
   private val orgaRegex = (rOrgaName + rOrgaAddress + rOrgaPhone + ".*?" + rOrgaWebsite + ".*?" + rOrgaEmail).r.unanchored
   private def extractOrganizer(html: String): EventsEyeOrganizer = html match {
     case orgaRegex(name, addressName, addressComplement, addressStreet, addressCity, country, phone, site, email) =>
-      EventsEyeOrganizer(Jsoup.parse(name).text(), EventsEyeAddress(notNull(addressName), notNull(addressComplement), notNull(addressStreet), notNull(addressCity), notNull(country)), notNull(phone), notNull(site), notNull(email))
+      EventsEyeOrganizer(Jsoup.parse(name).text().replace("\u00a0", ""), EventsEyeAddress(notNull(addressName), notNull(addressComplement), notNull(addressStreet), notNull(addressCity), notNull(country)), notNull(phone), notNull(site), notNull(email))
     case _ => EventsEyeOrganizer(html, EventsEyeAddress("", "", "", "", ""), "", "", "")
   }
 

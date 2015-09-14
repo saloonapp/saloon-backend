@@ -50,8 +50,8 @@ object LanyrdScraper extends Scraper[LanyrdEvent] {
     val description = doc.select("#event-description").html()
     val tagline = doc.select("h2.tagline").html()
     val descriptionHTML = if (description.isEmpty()) tagline else description
-    val start = ScraperUtils.parseDetailsDate(doc.select(".date .dtstart").attr("title"))
-    val end = ScraperUtils.parseDetailsDate(doc.select(".date .dtend").attr("title")).orElse(start)
+    val start = ScraperUtils.parseDate(doc.select(".date .dtstart").attr("title"))
+    val end = ScraperUtils.parseDate(doc.select(".date .dtend").attr("title")).orElse(start)
     val websiteUrl = ScraperUtils.getLink(doc.select("a.website")).map(_._2).getOrElse("")
     val scheduleUrl = ScraperUtils.getLink(doc.select("a.official")).map(_._2).getOrElse("")
     val eventCity = doc.select("p.prominent-place a.sub-place").text()

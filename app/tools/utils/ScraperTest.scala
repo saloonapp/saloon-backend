@@ -23,7 +23,7 @@ trait ScraperTest[T <: CsvElt] extends Controller {
       val res = results.map {
         case (url, expected, result) =>
           val check = result match {
-            case Success(value) => if (value == expected) { Json.obj("status" -> "Ok") } else { Json.obj("status" -> "KO", "expected" -> expected, "result" -> value) }
+            case Success(value) => if (value == expected) { Json.obj("status" -> "Ok") } else { Json.obj("status" -> "KO", "diff" -> JsonUtils.diff(Json.toJson(expected), Json.toJson(value)), "expected" -> expected, "result" -> value) }
             case Failure(e) => Json.obj("status" -> "KO", "error" -> e.getMessage())
             case _ => Json.obj("status" -> "unknown")
           }

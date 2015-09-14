@@ -22,7 +22,7 @@ object ScraperUtils {
   /*
    * Date functions
    */
-  def parseDetailsDate(date: String, pattern: String = "MMM dd, yyyy", locale: Locale = Locale.ENGLISH): Option[DateTime] =
+  def parseDate(date: String, pattern: String = "MMM dd, yyyy", locale: Locale = Locale.ENGLISH): Option[DateTime] =
     if (date.isEmpty()) {
       None
     } else {
