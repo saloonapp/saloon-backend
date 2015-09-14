@@ -15,6 +15,7 @@ import play.api.mvc._
 trait Scraper[T <: CsvElt] extends Controller {
   val baseUrl: String
   def extractLinkList(html: String, baseUrl: String): List[String]
+  def extractLinkPages(html: String): List[String] = List()
   def extractDetails(html: String, baseUrl: String, pageUrl: String): T
 
   /*
@@ -59,7 +60,7 @@ trait Scraper[T <: CsvElt] extends Controller {
           }.flatten
           format match {
             case "csv" => Ok(CsvUtils.makeCsv(successResult.map(_.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
-            case _ => Ok(Json.obj("results" -> successResult, "errors" -> errorResult))
+            case _ => Ok(Json.obj("results" -> successResult, "errors" -> errorResult, "nbElts" -> urls.length, "offset" -> offset, "limit" -> limit))
           }
         }
         case Failure(e) => Future(Ok(Json.obj("error" -> e.getMessage())))
@@ -72,6 +73,17 @@ trait Scraper[T <: CsvElt] extends Controller {
    */
 
   def fetchLinkList(listUrl: String): Future[Try[List[String]]] = {
+    WS.url(listUrl).get().flatMap { response =>
+      val page1 = Try(extractLinkList(response.body, baseUrl))
+      Future.sequence(extractLinkPages(response.body).map { otherPageUrl => fetchLinkListPage(otherPageUrl) }).map { otherPages =>
+        Try(page1.get ++ otherPages.flatMap(_.get))
+      }
+    }.recover {
+      case e => Failure(e)
+    }
+  }
+
+  private def fetchLinkListPage(listUrl: String): Future[Try[List[String]]] = {
     WS.url(listUrl).get().map { response =>
       Try(extractLinkList(response.body, baseUrl))
     }.recover {
