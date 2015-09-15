@@ -282,11 +282,11 @@ GET       /tools/scrapers/lanyrd/details                                        
 GET       /tools/scrapers/lanyrd/listUrls                                                   tools.scrapers.lanyrd.LanyrdScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/listDetails                                                tools.scrapers.lanyrd.LanyrdScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/test                                                       tools.scrapers.lanyrd.LanyrdScraperTest.test
-GET       /tools/api/devoxx/events                                                          tools.api.Devoxx.DevoxxApi.getEventLinks(url: String)
-GET       /tools/api/devoxx/event                                                           tools.api.Devoxx.DevoxxApi.getEvent(url: String)
-GET       /tools/api/devoxx/speakers                                                        tools.api.Devoxx.DevoxxApi.getSpeakers(url: String)
-GET       /tools/api/devoxx/sessions                                                        tools.api.Devoxx.DevoxxApi.getSessions(url: String)
-GET       /tools/api/devoxx/event/full                                                      tools.api.Devoxx.DevoxxApi.getEventFull(url: String)
+GET       /tools/api/devoxx/events                                                          tools.api.devoxx.DevoxxApi.getEventLinks(url: String)
+GET       /tools/api/devoxx/event                                                           tools.api.devoxx.DevoxxApi.getEvent(url: String)
+GET       /tools/api/devoxx/speakers                                                        tools.api.devoxx.DevoxxApi.getSpeakers(url: String)
+GET       /tools/api/devoxx/sessions                                                        tools.api.devoxx.DevoxxApi.getSessions(url: String)
+GET       /tools/api/devoxx/event/full                                                      tools.api.devoxx.DevoxxApi.getEventFull(url: String)
 
 # Allow cross-origin for API
 OPTIONS   /api/v1/*all                                                                      common.controllers.Application.corsPreflight(all: String)

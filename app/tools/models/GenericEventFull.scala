@@ -1,8 +1,8 @@
 package tools.models
 
-import tools.api.Devoxx.models.DevoxxEvent
-import tools.api.Devoxx.models.DevoxxSpeaker
-import tools.api.Devoxx.models.DevoxxSession
+import tools.api.devoxx.models.DevoxxEvent
+import tools.api.devoxx.models.DevoxxSpeaker
+import tools.api.devoxx.models.DevoxxSession
 import common.models.values.typed.AttendeeRole
 import play.api.libs.json.Json
 

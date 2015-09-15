@@ -1,4 +1,4 @@
-package tools.api.Devoxx
+package tools.api.devoxx
 
 object DevoxxUrl {
   def conferences(cfpUrl: String): String = s"$cfpUrl/conferences"

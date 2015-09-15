@@ -1,4 +1,4 @@
-package tools.api.Devoxx.models
+package tools.api.devoxx.models
 
 import play.api.libs.json.Json
 import org.joda.time.DateTime
