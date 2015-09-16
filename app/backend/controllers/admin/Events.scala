@@ -26,9 +26,12 @@ import play.api.libs.json.JsValue
 import reactivemongo.core.commands.LastError
 
 object Events extends SilhouetteEnvironment with ControllerHelpers {
-  val eventImportForm = Form(tuple(
+  val eventImportUrlForm = Form(tuple(
     "organizationId" -> of[OrganizationId],
     "importUrl" -> of[WebsiteUrl]))
+  val eventImportDataForm = Form(tuple(
+    "organizationId" -> of[OrganizationId],
+    "importData" -> nonEmptyText))
   val refreshForm = Form(single(
     "data" -> nonEmptyText))
 
@@ -48,7 +51,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
   def urlImport = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateSalooN()) {
-      urlImportView(eventImportForm)
+      urlImportView(eventImportUrlForm, eventImportDataForm)
     } else {
       Future(Redirect(backend.controllers.routes.Application.index()))
     }
@@ -57,8 +60,8 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
   def doUrlImport = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateSalooN()) {
-      eventImportForm.bindFromRequest.fold(
-        formWithErrors => urlImportView(formWithErrors, BadRequest),
+      eventImportUrlForm.bindFromRequest.fold(
+        formWithErrors => urlImportView(formWithErrors, eventImportDataForm, BadRequest),
         formData => {
           val organizationId = formData._1
           val importUrl = formData._2
@@ -67,11 +70,38 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
               _.map { event =>
                 refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
               }.getOrElse {
-                EventImport.create(eventFull, organizationId, importUrl).map { eventId =>
+                EventImport.create(eventFull, organizationId, Some(importUrl)).map { eventId =>
                   Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Félicitations, votre événement vient d'être importé avec succès !")
                 }
               }
             }
+          }
+        })
+    } else {
+      Future(Redirect(backend.controllers.routes.Application.index()))
+    }
+  }
+
+  def doDataImport = SecuredAction.async(parse.urlFormEncoded(maxLength = 1024 * 1000)) { implicit req =>
+    implicit val user = req.identity
+    if (user.canAdministrateSalooN()) {
+      eventImportDataForm.bindFromRequest.fold(
+        formWithErrors => urlImportView(eventImportUrlForm, formWithErrors, BadRequest),
+        formData => {
+          val organizationId = formData._1
+          val importData = formData._2
+          Try(Json.parse(importData)).toOption.flatMap(_.asOpt[GenericEventFull]).map { eventFull =>
+            EventRepository.getBySource(eventFull.event.source).flatMap {
+              _.map { event =>
+                refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
+              }.getOrElse {
+                EventImport.create(eventFull, organizationId, None).map { eventId =>
+                  Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Félicitations, votre événement vient d'être importé avec succès !")
+                }
+              }
+            }
+          }.getOrElse {
+            Future(Redirect(backend.controllers.admin.routes.Events.urlImport()).flashing("error" -> s"Your JSON is not formatted as a GenericEventFull instance..."))
           }
         })
     } else {
@@ -149,11 +179,11 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
    * Private methods
    */
 
-  private def urlImportView(eventImportForm: Form[(OrganizationId, WebsiteUrl)], status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def urlImportView(eventImportUrlForm: Form[(OrganizationId, WebsiteUrl)], eventImportDataForm: Form[(OrganizationId, String)], status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     for {
       organizations <- OrganizationRepository.findAllowed(user)
     } yield {
-      status(backend.views.html.admin.Events.urlImport(eventImportForm, organizations))
+      status(backend.views.html.admin.Events.urlImport(eventImportUrlForm, eventImportDataForm, organizations))
     }
   }
 

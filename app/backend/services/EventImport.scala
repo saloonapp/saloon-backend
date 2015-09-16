@@ -35,7 +35,7 @@ object EventImport {
     }
   }
 
-  def create(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: WebsiteUrl): Future[EventId] = {
+  def create(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: Option[WebsiteUrl]): Future[EventId] = {
     val (event, attendees, exponents, sessions) = build(eventFull, organizationId, importUrl)
     for {
       eventRes <- EventRepository.insert(event)
@@ -60,9 +60,9 @@ object EventImport {
    * Private methods
    */
 
-  private def build(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: WebsiteUrl): (Event, List[Attendee], List[Exponent], List[Session]) = {
+  private def build(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: Option[WebsiteUrl]): (Event, List[Attendee], List[Exponent], List[Session]) = {
     val now = new DateTime()
-    val event = build(eventFull.event, EventId.generate(), organizationId, EventStatus.draft, Some(importUrl), now)
+    val event = build(eventFull.event, EventId.generate(), organizationId, EventStatus.draft, importUrl, now)
     val attendees = eventFull.attendees.map { attendee => build(attendee, AttendeeId.generate(), event.uuid, now) }
     val exponents = eventFull.exponents.map { exponent => build(exponent, ExponentId.generate(), event.uuid, now, eventFull.exponentTeam, attendees) }
     val sessions = eventFull.sessions.map { session => build(session, SessionId.generate(), event.uuid, now, eventFull.sessionSpeakers, attendees) }

@@ -53,7 +53,7 @@ object SalonReunirSessionScraper extends Controller {
           case (session, itemIndex) =>
             val cells = session.select("td")
             ScraperUtils.getSafe(cells, 0).flatMap { first =>
-              val day = if (listIndex % 2 == 0 && (listIndex == 4 && itemIndex < 6)) { "17/09/2015" } else { "18/09/2015" }
+              val day = if ((listIndex % 2 == 0 && listIndex < 4) || (listIndex == 4 && itemIndex < 6)) { "17/09/2015" } else { "18/09/2015" }
               getDates(first.text(), day).map {
                 case (start, end) =>
                   val (name, animator, format) = ScraperUtils.getSafe(cells, 1).map { cell =>
@@ -65,7 +65,7 @@ object SalonReunirSessionScraper extends Controller {
                     (name, animator, format)
                   }.getOrElse(("", "", ""))
                   val place = ScraperUtils.getSafe(cells, 3).map(_.text()).getOrElse("")
-                  SalonReunirSession(name, parseDate(start), parseDate(end), name, animator, format, place, pageUrl)
+                  SalonReunirSession(name, parseDate(start), parseDate(end), start.toString() + " // " + name, animator, format, place, pageUrl)
               }
             }
         }.flatten

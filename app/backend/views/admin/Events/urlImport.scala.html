@@ -5,21 +5,40 @@
 @import common.views.html.forms._
 @import backend.views.html._
 @import backend.views.html.partials._
-@(eventImportForm: Form[(OrganizationId, WebsiteUrl)], organizations: List[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@(eventImportUrlForm: Form[(OrganizationId, WebsiteUrl)], eventImportDataForm: Form[(OrganizationId, String)], organizations: List[Organization])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Importer un événement"){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Importer un événement :</h2>
 		</div>
 		<div class="card-body card-padding">
+			<h4>Depuis une API :</h4>
 			@helper.form(action=backend.controllers.admin.routes.Events.doUrlImport(), 'class->"form-horizontal"){
-				@fieldHorizontal(eventImportForm("organizationId"), 'label -> "Organisation", 'constraints->"false"){field =>
+				@fieldHorizontal(eventImportUrlForm("organizationId"), 'label -> "Organisation", 'constraints->"false"){field =>
 					@inputSelect2(field, organizations.map(o => (o.uuid.unwrap,o.name.unwrap)))
 					<p class="help-block">L'événement sera lié à cette organisation.</p>
 				}
-				@fieldHorizontal(eventImportForm("importUrl"), 'label -> "Url", 'constraints->"false"){field =>
+				@fieldHorizontal(eventImportUrlForm("importUrl"), 'label -> "Url", 'constraints->"false"){field =>
 					<div class="fg-line">@inputText(field, 'placeholder -> "ex: https://saloonapp.herokuapp.com/tools/api/devoxx/event/full?url=http://cfp.bdx.io/api/conferences/BdxIO2015")</div>
 					<p class="help-block">L'url doit renvoyer un json formaté comme un GenericEventFull.</p>
+				}
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Importer</button>
+					</div>
+				</div>
+			}
+			<br><br>
+			<h4>Avec ses données :</h4>
+			@helper.form(action=backend.controllers.admin.routes.Events.doDataImport(), 'class->"form-horizontal"){
+				@fieldHorizontal(eventImportDataForm("organizationId"), 'label -> "Organisation", 'constraints->"false"){field =>
+					@inputSelect2(field, organizations.map(o => (o.uuid.unwrap,o.name.unwrap)))
+					<p class="help-block">L'événement sera lié à cette organisation.</p>
+				}
+				@fieldHorizontal(eventImportDataForm("importData"), 'label -> "Url", 'constraints->"false"){field =>
+					<div class="fg-line">@inputTextarea(field, 'rows -> "15", 'placeholder -> "Your JSON here")</div>
+					<p class="help-block">Le JSON doit être formaté comme un GenericEventFull.</p>
 				}
 				<div class="form-group">
 					<div class="col-md-offset-2 col-md-10">
