@@ -65,7 +65,7 @@ object SalonReunirSessionScraper extends Controller {
                     (name, animator, format)
                   }.getOrElse(("", "", ""))
                   val place = ScraperUtils.getSafe(cells, 3).map(_.text()).getOrElse("")
-                  SalonReunirSession(name, parseDate(start), parseDate(end), start.toString() + " // " + name, animator, format, place, pageUrl)
+                  SalonReunirSession(name, parseDate(start), parseDate(end), name, animator, format, place, pageUrl)
               }
             }
         }.flatten
