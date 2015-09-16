@@ -1,16 +1,15 @@
 package tools.utils
 
 import scala.util.Try
-import scala.util.Failure
 import scala.util.Success
+import scala.util.Failure
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import play.api.libs.json.Writes
-import play.api.libs.ws.WS
-import play.api.Play.current
 import play.api.mvc._
+import org.joda.time.DateTime
 
 trait Scraper[T <: CsvElt] extends Controller {
   val baseUrl: String
@@ -46,10 +45,11 @@ trait Scraper[T <: CsvElt] extends Controller {
     }
   }
 
-  def getEventListDetails(eventListUrl: String, offset: Int, limit: Int, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
+  def getEventListDetails(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
+    val start = new DateTime()
     fetchLinkList(eventListUrl).flatMap {
       _ match {
-        case Success(urls) => Future.sequence(urls.drop(offset).take(limit).map { url => fetchDetails(url).map(r => (url, r)) }).map { list =>
+        case Success(urls) => fetchDetailsList(urls.drop(offset).take(limit), sequentially).map { list =>
           val (successList, errorList) = list.partition { case (url, elt) => elt.isSuccess }
           val successResult = successList.map { case (url, elt) => elt.toOption }.flatten
           val errorResult = errorList.map {
@@ -60,7 +60,7 @@ trait Scraper[T <: CsvElt] extends Controller {
           }.flatten
           format match {
             case "csv" => Ok(CsvUtils.makeCsv(successResult.map(_.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
-            case _ => Ok(Json.obj("results" -> successResult, "errors" -> errorResult, "nbElts" -> urls.length, "offset" -> offset, "limit" -> limit))
+            case _ => Ok(Json.obj("results" -> successResult, "errors" -> errorResult, "nbElts" -> urls.length, "offset" -> offset, "limit" -> limit, "duration" -> (new DateTime().getMillis() - start.getMillis()) / 1000))
           }
         }
         case Failure(e) => Future(Ok(Json.obj("error" -> e.getMessage())))
@@ -73,29 +73,46 @@ trait Scraper[T <: CsvElt] extends Controller {
    */
 
   def fetchLinkList(listUrl: String): Future[Try[List[String]]] = {
-    WS.url(listUrl).get().flatMap { response =>
-      val page1 = Try(extractLinkList(response.body, baseUrl))
-      Future.sequence(extractLinkPages(response.body).map { otherPageUrl => fetchLinkListPage(otherPageUrl) }).map { otherPages =>
-        Try(page1.get ++ otherPages.flatMap(_.get))
+    ScraperUtils.fetch(listUrl).flatMap { responseTry =>
+      responseTry match {
+        case Success(response) => {
+          val page1 = Try(extractLinkList(response.body, baseUrl))
+          Future.sequence(extractLinkPages(response.body).map { otherPageUrl => fetchLinkListPage(otherPageUrl) }).map { otherPages =>
+            Try(page1.get ++ otherPages.flatMap(_.get))
+          }
+        }
+        case Failure(e) => Future(Failure(e))
       }
-    }.recover {
-      case e => Failure(e)
     }
   }
 
   private def fetchLinkListPage(listUrl: String): Future[Try[List[String]]] = {
-    WS.url(listUrl).get().map { response =>
-      Try(extractLinkList(response.body, baseUrl))
-    }.recover {
-      case e => Failure(e)
+    ScraperUtils.fetch(listUrl).map { responseTry =>
+      responseTry.flatMap { response => Try(extractLinkList(response.body, baseUrl)) }
     }
   }
 
   def fetchDetails(detailsUrl: String): Future[Try[T]] = {
-    WS.url(detailsUrl).get().map { response =>
-      Try(extractDetails(response.body, baseUrl, detailsUrl))
-    }.recover {
-      case e => Failure(e)
+    ScraperUtils.fetch(detailsUrl).map { responseTry =>
+      responseTry.flatMap { response => Try(extractDetails(response.body, baseUrl, detailsUrl)) }
+    }
+  }
+
+  def fetchDetailsList(detailsUrls: List[String], sequentially: Boolean = false): Future[List[(String, Try[T])]] = {
+    if (sequentially) {
+      fetchListSequentially(detailsUrls, List())
+    } else {
+      Future.sequence(detailsUrls.map(url => fetchDetails(url).map(r => (url, r))))
+    }
+  }
+
+  private def fetchListSequentially(urls: List[String], results: List[(String, Try[T])]): Future[List[(String, Try[T])]] = {
+    if (urls.length > 0) {
+      fetchDetails(urls.head).flatMap { r =>
+        fetchListSequentially(urls.tail, results ++ List((urls.head, r)))
+      }
+    } else {
+      Future(results)
     }
   }
 

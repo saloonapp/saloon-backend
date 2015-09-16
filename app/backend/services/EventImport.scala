@@ -135,18 +135,18 @@ object EventImport {
   private def build(exponent: GenericExponent, exponentId: ExponentId, eventId: EventId, now: DateTime, exponentTeam: Map[String, List[String]], attendees: List[Attendee]): Exponent = Exponent(
     exponentId,
     eventId,
-    None,
+    None, //ownerId
     FullName(exponent.name),
-    TextMultiline(""),
-    TextHTML(""),
+    TextMultiline(exponent.description),
+    TextHTML(exponent.descriptionHTML),
     ExponentImages(
-      ImageUrl(""),
-      ImageUrl("")),
+      ImageUrl(""), //logo
+      ImageUrl("")), //landing
     ExponentInfo(
       WebsiteUrl(""),
-      EventLocation(""),
+      EventLocation(exponent.place),
       findAttendeeIds(exponentTeam.get(exponent.source.ref), attendees),
-      None),
+      None), //sponsorLevel
     ExponentConfig(false),
     ExponentMeta(Some(exponent.source), now, now))
 
