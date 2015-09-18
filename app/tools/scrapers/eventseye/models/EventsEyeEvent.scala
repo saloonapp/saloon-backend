@@ -13,7 +13,19 @@ case class EventsEyeAddress(
 object EventsEyeAddress {
   implicit val format = Json.format[EventsEyeAddress]
 }
-case class EventsEyeOrganizer(name: String,
+case class EventsEyeVenue(
+  logo: String,
+  name: String,
+  address: EventsEyeAddress,
+  phone: String,
+  site: String,
+  email: String)
+object EventsEyeVenue {
+  implicit val format = Json.format[EventsEyeVenue]
+}
+case class EventsEyeOrganizer(
+  logo: String,
+  name: String,
   address: EventsEyeAddress,
   phone: String,
   site: String,
@@ -32,12 +44,13 @@ object EventsEyeAttendance {
 case class EventsEyeEvent(
   logo: String,
   name: String,
+  industries: List[String],
   decription: String,
   audience: String,
   cycle: String,
   nextDate: String,
   otherDates: List[String],
-  venue: String,
+  venue: EventsEyeVenue,
   orgas: List[EventsEyeOrganizer],
   attendance: Option[EventsEyeAttendance],
   website: String,

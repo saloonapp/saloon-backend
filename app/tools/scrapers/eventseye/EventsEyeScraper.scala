@@ -5,6 +5,7 @@ import tools.utils.ScraperUtils
 import tools.scrapers.eventseye.models.EventsEyeEvent
 import tools.scrapers.eventseye.models.EventsEyeAttendance
 import tools.scrapers.eventseye.models.EventsEyeOrganizer
+import tools.scrapers.eventseye.models.EventsEyeVenue
 import tools.scrapers.eventseye.models.EventsEyeAddress
 import scala.collection.JavaConversions._
 import org.jsoup.Jsoup
@@ -52,16 +53,16 @@ object EventsEyeScraper extends Scraper[EventsEyeEvent] {
     val logo = baseUrl + headerSection.select("tr:eq(0) td:eq(0) img").attr("src")
     val name = headerSection.select("tr:eq(1) td:eq(0) h1").text()
 
+    val industries = descriptionSection.select("a.otherlink-bold").map(_.text()).toList
     val decription = descriptionSection.select("tr:eq(2) td:eq(2)").text()
     val audience = descriptionSection.select("tr:eq(2) td:eq(4)").text()
     val cycle = descriptionSection.select("tr:eq(2) td:eq(6)").text()
 
     val nextDates = datesSection.select("tr:eq(2) td:eq(0) table tr").map { row => extractDates(row.select("td:eq(0) span").text()) }.toList
 
-    val venueInfo = venueSection.select("tr:eq(0) td:eq(0) table tr:eq(0) td:eq(1)")
-    val venue = venueInfo.select(".etb").text()
+    val venue = extractVenue(venueSection.select("tr:eq(0) td:eq(0) table").html())
 
-    val orgas = orgaSection.select("td table").map { orga => extractOrganizer(orga.select("td:eq(1)").html()) }.toList
+    val orgas = orgaSection.select("td table").map { orga => extractOrganizer(orga.html()) }.toList
 
     val attendance = attendanceSectionOpt.map { attendanceSection =>
       val year = attendanceSection.select("td:eq(0) b").text().replace(" ", "")
@@ -74,7 +75,7 @@ object EventsEyeScraper extends Scraper[EventsEyeEvent] {
     val more = moreSection.select("tr:eq(2) td:eq(0) a").map { a => a.attr("href").replace("mailto:", "") }.toList
     val (website, email, phone) = extractMore(moreSection.select("tr:eq(2) td:eq(0)").html())
 
-    EventsEyeEvent(logo, name, decription, audience, cycle, nextDates.headOption.getOrElse(""), nextDates.drop(1), venue, orgas, attendance, website, email, phone, pageUrl)
+    EventsEyeEvent(logo, name, industries, decription, audience, cycle, nextDates.headOption.getOrElse(""), nextDates.drop(1), venue, orgas, attendance, website, email, phone, pageUrl)
   }
 
   private val dateRegex1 = "([a-zA-Z.]+) ([0-9]+) - (?:[a-zA-Z.]+ )?([0-9]+), ([0-9]+)".r.unanchored
@@ -88,16 +89,42 @@ object EventsEyeScraper extends Scraper[EventsEyeEvent] {
     case _ => date
   }
 
-  private val rOrgaName = "<a [^<>]+>(.*?)</a>\\s+"
-  private val rOrgaAddress = "<br>(?:(.*?)<br>\\s)?(?:(.*?)<br>\\s)?(?:(.*?)<br>\\s)?(?:(.*?)\\s)?<br><b>(.*?)</b>\\s+"
-  private val rOrgaPhone = "(?:<br><img src=\"/i/tel.gif\" border=\"0\" alt=\"\">&nbsp;([+ ()0-9]+)\\s)?"
-  private val rOrgaWebsite = "<a href=\"([^\"]+)\""
-  private val rOrgaEmail = "<a href=\"mailto:([^\"]+)\""
-  private val orgaRegex = (rOrgaName + rOrgaAddress + rOrgaPhone + ".*?" + rOrgaWebsite + ".*?" + rOrgaEmail).r.unanchored
-  private def extractOrganizer(html: String): EventsEyeOrganizer = html match {
-    case orgaRegex(name, addressName, addressComplement, addressStreet, addressCity, country, phone, site, email) =>
-      EventsEyeOrganizer(Jsoup.parse(name).text().replace("\u00a0", ""), EventsEyeAddress(notNull(addressName), notNull(addressComplement), notNull(addressStreet), notNull(addressCity), notNull(country)), notNull(phone), notNull(site), notNull(email))
-    case _ => EventsEyeOrganizer(html, EventsEyeAddress("", "", "", "", ""), "", "", "")
+  private val rVenueLogo = "<img src=\"([^\"]+)\" width=\"".r.unanchored
+  private val rVenueAddress = "<br>\\s+(?:([^<]+)<br>)?([^<]+)<br>\\s+<a[^>]*><b>([^<]+)</b></a><br>".r.unanchored
+  private val rVenuePhone = "<img src=\"/i/tel.gif\"[^>]*>&nbsp;([^<]+)".r.unanchored
+  private val rVenueWebsite = "<a href=\"([^\"]+)\"[^>]*><img src=\"/i/web.gif\"[^>]*>&nbsp;Web Site</a>".r.unanchored
+  private val rVenueEmail = "<a href=\"mailto:([^\"]+)\"[^>]*><img src=\"/i/mail.gif\"[^>]*>&nbsp;E-mail</a>".r.unanchored
+  private def extractVenue(html: String): EventsEyeVenue = {
+    val elt = Jsoup.parse(html)
+    val logo = ScraperUtils.get(html, rVenueLogo).map(baseUrl + _).getOrElse("")
+    val name = elt.select("a .etb").text()
+    val address = html match {
+      case rVenueAddress(name, street, country) => EventsEyeAddress(notNull(name), "", notNull(street), "", notNull(country))
+      case _ => EventsEyeAddress("", "", "", "", "")
+    }
+    val phone = ScraperUtils.get(html, rVenuePhone).getOrElse("")
+    val site = ScraperUtils.get(html, rVenueWebsite).getOrElse("")
+    val email = ScraperUtils.get(html, rVenueEmail).getOrElse("")
+    EventsEyeVenue(logo, name, address, phone, site, email)
+  }
+
+  private val rOrganizerLogo = rVenueLogo
+  private val rOrganizerAddress = "<br>(?:(.*?)<br>\\s)?(?:(.*?)<br>\\s)?(?:(.*?)<br>\\s)?(?:(.*?)\\s)?<br><b>(.*?)</b>\\s+".r.unanchored
+  private val rOrganizerPhone = rVenuePhone
+  private val rOrganizerWebsite = rVenueWebsite
+  private val rOrganizerEmail = rVenueEmail
+  private def extractOrganizer(html: String): EventsEyeOrganizer = {
+    val elt = Jsoup.parse(html)
+    val logo = ScraperUtils.get(html, rOrganizerLogo).map(baseUrl + _).getOrElse("")
+    val name = elt.select("a .et").text().replace("\u00a0", "")
+    val address = html match {
+      case rOrganizerAddress(name, complement, street, city, country) => EventsEyeAddress(notNull(name), notNull(complement), notNull(street), notNull(city), notNull(country))
+      case _ => EventsEyeAddress("", "", "", "", "")
+    }
+    val phone = ScraperUtils.get(html, rOrganizerPhone).getOrElse("").trim
+    val site = ScraperUtils.get(html, rOrganizerWebsite).getOrElse("")
+    val email = ScraperUtils.get(html, rOrganizerEmail).getOrElse("")
+    EventsEyeOrganizer(logo, name, address, phone, site, email)
   }
 
   private val contactWebsiteRegex = "<a href=\"([^\"]+)\" rel=\"nofollow\"".r.unanchored

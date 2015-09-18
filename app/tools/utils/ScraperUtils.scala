@@ -1,5 +1,6 @@
 package tools.utils
 
+import scala.util.matching.Regex
 import scala.util.Try
 import scala.util.Failure
 import scala.collection.JavaConversions._
@@ -25,6 +26,15 @@ object ScraperUtils {
   def getSafe(elts: Elements, index: Int): Option[Element] = if (elts != null && elts.length > index) Some(elts.get(index)) else None
   def getLink(elt: Element, baseUrl: String): Option[(String, String)] = if (elt == null) None else Some((elt.text(), baseUrl + elt.attr("href")))
   def getLink(elts: Elements, baseUrl: String = ""): Option[(String, String)] = firstSafe(elts).flatMap(elt => getLink(elt, baseUrl))
+
+  /*
+   * Regex helpers
+   */
+  def get(source: String, regex: Regex): Option[String] = source match {
+    case regex(value) => Some(value)
+    case _ => None
+  }
+  def get(source: String, regex: Regex, default: String): String = get(source, regex).getOrElse(default)
 
   /*
    * Date functions
