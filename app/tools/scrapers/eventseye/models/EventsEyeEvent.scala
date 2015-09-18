@@ -3,6 +3,7 @@ package tools.scrapers.eventseye.models
 import tools.utils.CsvElt
 import tools.utils.CsvUtils
 import play.api.libs.json.Json
+import org.joda.time.DateTime
 
 case class EventsEyeAddress(
   name: String,
@@ -18,7 +19,7 @@ case class EventsEyeVenue(
   name: String,
   address: EventsEyeAddress,
   phone: String,
-  site: String,
+  website: String,
   email: String)
 object EventsEyeVenue {
   implicit val format = Json.format[EventsEyeVenue]
@@ -28,7 +29,7 @@ case class EventsEyeOrganizer(
   name: String,
   address: EventsEyeAddress,
   phone: String,
-  site: String,
+  website: String,
   email: String)
 object EventsEyeOrganizer {
   implicit val format = Json.format[EventsEyeOrganizer]
@@ -48,8 +49,8 @@ case class EventsEyeEvent(
   decription: String,
   audience: String,
   cycle: String,
-  nextDate: String,
-  otherDates: List[String],
+  nextDate: Option[DateTime],
+  otherDates: List[DateTime],
   venue: EventsEyeVenue,
   orgas: List[EventsEyeOrganizer],
   attendance: Option[EventsEyeAttendance],

@@ -70,6 +70,7 @@ object ScraperUtils {
     }
   }
   private def wsFetch(url: String): Future[Try[String]] = {
+    play.Logger.info("WS " + url)
     WS.url(url).get().map { response =>
       WebpageCacheRepository.set(url, response.body)
       Try(response.body)
