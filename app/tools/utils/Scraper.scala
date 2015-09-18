@@ -76,8 +76,8 @@ trait Scraper[T <: CsvElt] extends Controller {
     ScraperUtils.fetch(listUrl).flatMap { responseTry =>
       responseTry match {
         case Success(response) => {
-          val page1 = Try(extractLinkList(response.body, baseUrl))
-          Future.sequence(extractLinkPages(response.body).map { otherPageUrl => fetchLinkListPage(otherPageUrl) }).map { otherPages =>
+          val page1 = Try(extractLinkList(response, baseUrl))
+          Future.sequence(extractLinkPages(response).map { otherPageUrl => fetchLinkListPage(otherPageUrl) }).map { otherPages =>
             Try(page1.get ++ otherPages.flatMap(_.get))
           }
         }
@@ -88,13 +88,13 @@ trait Scraper[T <: CsvElt] extends Controller {
 
   private def fetchLinkListPage(listUrl: String): Future[Try[List[String]]] = {
     ScraperUtils.fetch(listUrl).map { responseTry =>
-      responseTry.flatMap { response => Try(extractLinkList(response.body, baseUrl)) }
+      responseTry.flatMap { response => Try(extractLinkList(response, baseUrl)) }
     }
   }
 
   def fetchDetails(detailsUrl: String): Future[Try[T]] = {
     ScraperUtils.fetch(detailsUrl).map { responseTry =>
-      responseTry.flatMap { response => Try(extractDetails(response.body, baseUrl, detailsUrl)) }
+      responseTry.flatMap { response => Try(extractDetails(response, baseUrl, detailsUrl)) }
     }
   }
 

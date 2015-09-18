@@ -1,7 +1,9 @@
 package tools.utils
 
+import tools.repositories.WebpageCacheRepository
 import scala.util.matching.Regex
 import scala.util.Try
+import scala.util.Success
 import scala.util.Failure
 import scala.collection.JavaConversions._
 import scala.concurrent.Future
@@ -58,9 +60,19 @@ object ScraperUtils {
   /*
    * WS helpers
    */
-  def fetch(url: String): Future[Try[WSResponse]] = {
+  def fetch(url: String, useCache: Boolean = true): Future[Try[String]] = {
+    if (useCache) {
+      WebpageCacheRepository.get(url).flatMap { resOpt =>
+        resOpt.map { res => Future(Success(res.page)) }.getOrElse(wsFetch(url))
+      }
+    } else {
+      wsFetch(url)
+    }
+  }
+  private def wsFetch(url: String): Future[Try[String]] = {
     WS.url(url).get().map { response =>
-      Try(response)
+      WebpageCacheRepository.set(url, response.body)
+      Try(response.body)
     }.recover {
       // http://www.bimeanalytics.com/engineering-blog/retrying-http-request-in-scala/
       case e => Failure(e)
