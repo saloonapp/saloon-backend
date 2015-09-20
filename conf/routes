@@ -124,6 +124,13 @@ GET       /backend/admin/events/:eventId                                        
 GET       /backend/admin/events/:eventId/refresh                                            backend.controllers.admin.Events.refresh(eventId: EventId)
 POST      /backend/admin/events/:eventId/refresh                                            backend.controllers.admin.Events.doRefresh(eventId: EventId)
 
+GET       /backend/eventDirectory                                                           backend.controllers.eventDirectory.Application.index
+GET       /backend/eventDirectory/scrapers                                                  backend.controllers.eventDirectory.Scrapers.list
+GET       /backend/eventDirectory/scrapers/create                                           backend.controllers.eventDirectory.Scrapers.create
+POST      /backend/eventDirectory/scrapers                                                  backend.controllers.eventDirectory.Scrapers.doCreate
+POST      /backend/eventDirectory/scrapers/:scraperId/delete                                backend.controllers.eventDirectory.Scrapers.doDelete(scraperId: String)
+GET       /backend/eventDirectory/events                                                    backend.controllers.eventDirectory.Events.list
+
 # Old Admin
 GET       /admin                                                                            admin.controllers.Application.index
 GET       /admin/sample                                                                     admin.controllers.Application.sample

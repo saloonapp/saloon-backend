@@ -42,6 +42,7 @@ object Breadcrumb {
       case "organizations" => (backend.controllers.routes.Profile.details(), "Organisations")
       case ItemType.events.value => list(index - 1) match {
         case "admin" => (backend.controllers.admin.routes.Events.list(), "Tous les événements")
+        case "eventDirectory" => (backend.controllers.eventDirectory.routes.Events.list(), "Événement")
         case _ => (backend.controllers.routes.Events.list(), "Mes événements")
       }
       case ItemType.attendees.value => (backend.controllers.routes.Attendees.list(getEventId(identifiers)), "Participants")
@@ -57,6 +58,7 @@ object Breadcrumb {
         case "team" => (backend.controllers.routes.AttendeeTeam.create(getEventId(identifiers), ItemType.exponents, getExponentId(identifiers)), "Nouveau membre")
         case ItemType.sessions.value => (backend.controllers.routes.Sessions.create(getEventId(identifiers)), "Nouvelle session")
         case "speakers" => (backend.controllers.routes.AttendeeTeam.create(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers)), "Nouveau speaker")
+        case "scrapers" => (backend.controllers.eventDirectory.routes.Scrapers.create, "Nouveau scraper")
       }
       case "edit" => list(index - 1) match {
         case "profile" => (backend.controllers.routes.Profile.details, "Modification")
@@ -93,6 +95,9 @@ object Breadcrumb {
       case "admin" => (backend.controllers.admin.routes.Application.index(), "Admin")
       case "urlImport" => (backend.controllers.admin.routes.Events.urlImport(), "Importer un événement")
       case "refresh" => (backend.controllers.admin.routes.Events.refresh(getEventId(identifiers)), "Mettre à jour l'événement")
+
+      case "eventDirectory" => (backend.controllers.eventDirectory.routes.Application.index(), "Annuaire des événements")
+      case "scrapers" => (backend.controllers.eventDirectory.routes.Scrapers.list(), "Scrapers")
 
       case "mockups" => (backend.controllers.routes.Application.mockups(), "Mockups")
       case "activityWall" => (backend.controllers.routes.Application.mockupActivityWall(), "Activity Wall")

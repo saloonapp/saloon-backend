@@ -12,4 +12,5 @@ object CollectionReferences {
   val REQUESTS = "Requests"
   val USERACTIONS = "UserActions"
   val CRASHS = "Crashs"
+  val CONFIGS = "Configs"
 }

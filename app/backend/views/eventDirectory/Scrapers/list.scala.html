@@ -1,0 +1,29 @@
+@import common.models.user.User
+@import backend.models.ScrapersConfig
+@import backend.views.html._
+@import common.views.html.format._
+@(scrapersConfig: ScrapersConfig)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Scrapers"){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Scrapers :</h2>
+			<a href="@backend.controllers.eventDirectory.routes.Scrapers.create()" class="btn bgm-red btn-float"><i class="md md-add"></i></a>
+		</div>
+		<div class="card-body card-padding">
+			@scrapersConfig.scrapers.map { scraper =>
+				<div class="media">
+					<ul class="actions pull-right">
+						<li>@helper.form(action=backend.controllers.eventDirectory.routes.Scrapers.doDelete(scraper.uuid)){<button type="submit" class="confirm" title="Supprimer le scraper @scraper.name"><i class="md md-delete"></i></button>}</li>
+					</ul>
+					<div class="media-body">
+						<h4 class="media-heading">@scraper.name @scraper.lastExec.map{d => <small>@datetime(d)</small>}</h4>
+						@scraper.url
+					</div>
+				</div>
+			}
+			@if(scrapersConfig.scrapers.length == 0){
+				Aucun scraper d'enregistré.
+			}
+		</div>
+	</div>
+}

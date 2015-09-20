@@ -1,0 +1,24 @@
+@import common.models.user.User
+@import backend.forms.ScraperData
+@import backend.views.html._
+@import common.views.html.forms._
+@(scraperForm: Form[ScraperData])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Nouveau scraper"){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Nouveau scraper :</h2>
+		</div>
+		<div class="card-body card-padding">
+			@helper.form(action=backend.controllers.eventDirectory.routes.Scrapers.doCreate, 'class->"form-horizontal"){
+				@fieldHorizontal(scraperForm("name"), 'label -> "Nom", 'constraints -> "false"){field => <div class="fg-line">@inputText(field)</div> }
+				@fieldHorizontal(scraperForm("url"), 'label -> "Url", 'constraints -> "false"){field => <div class="fg-line">@inputText(field)</div> }
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Créer</button>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}

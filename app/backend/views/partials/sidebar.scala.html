@@ -26,6 +26,13 @@
 						<li><a href="@admin.controllers.routes.Application.index()">Ancien backend</a></li>
 					</ul>
 				</li>
+				<li class="sub-menu @if(uri.startsWith("/backend/eventDirectory")){toggled active}">
+					<a href=""><i class="md md-view-list"></i> Annuaire des événements</a>
+					<ul>
+						<li @if(uri.startsWith("/backend/eventDirectory/scrapers")){class="active"}><a href="@backend.controllers.eventDirectory.routes.Scrapers.list()">Scrapers</a></li>
+						<li @if(uri.startsWith("/backend/eventDirectory/events")){class="active"}><a href="@backend.controllers.eventDirectory.routes.Events.list()">Événement</a></li>
+					</ul>
+				</li>
 			}
 			<li><a href="@authentication.controllers.routes.Auth.logout()"><i class="md md-history"></i> Déconnexion</a></li>
 		</ul>
