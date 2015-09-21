@@ -1,5 +1,6 @@
-package tools.models
+package common.models.event
 
+import common.models.values.Source
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 

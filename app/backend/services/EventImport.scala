@@ -19,23 +19,23 @@ import org.joda.time.DateTime
 
 object EventImport {
 
-  def fetchGenericEvent(url: WebsiteUrl): Future[Option[GenericEventFull]] = {
+  def fetchGenericEvent(url: WebsiteUrl): Future[Option[GenericEvent]] = {
     WS.url(url.unwrap).get().map { response =>
-      response.json.asOpt[GenericEventFull]
+      response.json.asOpt[GenericEvent]
     }
   }
 
-  def withGenericEvent(url: WebsiteUrl)(block: GenericEventFull => Future[Result]): Future[Result] = {
+  def withGenericEvent(url: WebsiteUrl)(block: GenericEvent => Future[Result]): Future[Result] = {
     fetchGenericEvent(url).flatMap { fullEventOpt =>
       fullEventOpt.map { fullEvent =>
         block(fullEvent)
       }.getOrElse {
-        Future(Redirect(backend.controllers.admin.routes.Events.urlImport()).flashing("error" -> s"Url ${url.unwrap} does not return an GenericEventFull instance..."))
+        Future(Redirect(backend.controllers.admin.routes.Events.urlImport()).flashing("error" -> s"Url ${url.unwrap} does not return an GenericEvent instance..."))
       }
     }
   }
 
-  def create(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: Option[WebsiteUrl]): Future[EventId] = {
+  def create(eventFull: GenericEvent, organizationId: OrganizationId, importUrl: Option[WebsiteUrl]): Future[EventId] = {
     val (event, attendees, exponents, sessions) = build(eventFull, organizationId, importUrl)
     for {
       eventRes <- EventRepository.insert(event)
@@ -47,7 +47,7 @@ object EventImport {
     }
   }
 
-  def makeDiff(eventFull: GenericEventFull, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): (Event, List[Attendee], List[Attendee], List[(Attendee, Attendee)], List[Exponent], List[Exponent], List[(Exponent, Exponent)], List[Session], List[Session], List[(Session, Session)]) = {
+  def makeDiff(eventFull: GenericEvent, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): (Event, List[Attendee], List[Attendee], List[(Attendee, Attendee)], List[Exponent], List[Exponent], List[(Exponent, Exponent)], List[Session], List[Session], List[(Session, Session)]) = {
     val (newEvent, newAttendees, newExponents, newSessions) = build(eventFull, event, attendees, exponents, sessions)
     val updatedEvent = event.merge(newEvent)
     val (createdAttendees, deletedAttendees, updatedAttendees) = attendeeDiff(attendees, newAttendees)
@@ -60,18 +60,18 @@ object EventImport {
    * Private methods
    */
 
-  private def build(eventFull: GenericEventFull, organizationId: OrganizationId, importUrl: Option[WebsiteUrl]): (Event, List[Attendee], List[Exponent], List[Session]) = {
+  private def build(eventFull: GenericEvent, organizationId: OrganizationId, importUrl: Option[WebsiteUrl]): (Event, List[Attendee], List[Exponent], List[Session]) = {
     val now = new DateTime()
-    val event = build(eventFull.event, EventId.generate(), organizationId, EventStatus.draft, importUrl, now)
+    val event = build(eventFull, EventId.generate(), organizationId, EventStatus.draft, importUrl, now)
     val attendees = eventFull.attendees.map { attendee => build(attendee, AttendeeId.generate(), event.uuid, now) }
     val exponents = eventFull.exponents.map { exponent => build(exponent, ExponentId.generate(), event.uuid, now, eventFull.exponentTeam, attendees) }
     val sessions = eventFull.sessions.map { session => build(session, SessionId.generate(), event.uuid, now, eventFull.sessionSpeakers, attendees) }
     (event, attendees, exponents, sessions)
   }
 
-  private def build(eventFull: GenericEventFull, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): (Event, List[Attendee], List[Exponent], List[Session]) = {
+  private def build(eventFull: GenericEvent, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): (Event, List[Attendee], List[Exponent], List[Session]) = {
     val now = new DateTime()
-    val newEvent = build(eventFull.event, event.uuid, event.ownerId, event.meta.status, event.meta.refreshUrl, now)
+    val newEvent = build(eventFull, event.uuid, event.ownerId, event.meta.status, event.meta.refreshUrl, now)
     val newAttendees = eventFull.attendees.map { attendee =>
       val attendeeId: AttendeeId = findAttendeeByRef(attendees, attendee.source.ref).map(_.uuid).getOrElse(AttendeeId.generate())
       build(attendee, attendeeId, event.uuid, now)

@@ -1,11 +1,11 @@
 package backend.controllers.admin
 
-import tools.models.GenericEventFull
 import common.models.values.typed.WebsiteUrl
 import common.models.user.User
 import common.models.user.OrganizationId
 import common.models.event.Event
 import common.models.event.EventId
+import common.models.event.GenericEvent
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
@@ -66,7 +66,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
           val organizationId = formData._1
           val importUrl = formData._2
           EventImport.withGenericEvent(importUrl) { eventFull =>
-            EventRepository.getBySource(eventFull.event.source).flatMap {
+            EventRepository.getBySource(eventFull.source).flatMap {
               _.map { event =>
                 refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
               }.getOrElse {
@@ -90,8 +90,8 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
         formData => {
           val organizationId = formData._1
           val importData = formData._2
-          Try(Json.parse(importData)).toOption.flatMap(_.asOpt[GenericEventFull]).map { eventFull =>
-            EventRepository.getBySource(eventFull.event.source).flatMap {
+          Try(Json.parse(importData)).toOption.flatMap(_.asOpt[GenericEvent]).map { eventFull =>
+            EventRepository.getBySource(eventFull.source).flatMap {
               _.map { event =>
                 refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
               }.getOrElse {
@@ -101,7 +101,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
               }
             }
           }.getOrElse {
-            Future(Redirect(backend.controllers.admin.routes.Events.urlImport()).flashing("error" -> s"Your JSON is not formatted as a GenericEventFull instance..."))
+            Future(Redirect(backend.controllers.admin.routes.Events.urlImport()).flashing("error" -> s"Your JSON is not formatted as a GenericEvent instance..."))
           }
         })
     } else {
@@ -136,7 +136,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       refreshForm.bindFromRequest.fold(
         formWithErrors => Future(Redirect(backend.controllers.admin.routes.Events.refresh(eventId)).flashing("error" -> "Format de données incorrect...")),
         formData => {
-          Try(Json.parse(formData)).toOption.flatMap(_.asOpt[GenericEventFull]).map { eventFull =>
+          Try(Json.parse(formData)).toOption.flatMap(_.asOpt[GenericEvent]).map { eventFull =>
             withEvent(eventId) { event =>
               val res: Future[Future[Result]] = for {
                 attendees <- AttendeeRepository.findByEvent(event.uuid)
@@ -187,7 +187,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def refreshView(refreshForm: Form[String], eventFull: GenericEventFull, event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def refreshView(refreshForm: Form[String], eventFull: GenericEvent, event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     for {
       attendees <- AttendeeRepository.findByEvent(event.uuid)
       exponents <- ExponentRepository.findByEvent(event.uuid)

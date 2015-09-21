@@ -6,10 +6,10 @@ import common.models.utils.tStringHelper
 import common.models.values.UUID
 import common.models.values.Address
 import common.models.values.Link
+import common.models.values.Source
 import common.models.values.typed._
 import common.models.user.OrganizationId
 import common.services.FileImporter
-import tools.models.Source
 import org.joda.time.DateTime
 import scala.util.Try
 import play.api.data.Forms._

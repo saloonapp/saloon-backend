@@ -1,6 +1,6 @@
 package tools.scrapers.salonreunir
 
-import tools.models.GenericEventFull
+import tools.scrapers.salonreunir.models.SalonReunirEvent
 import tools.scrapers.salonreunir.models.SalonReunirSession
 import tools.scrapers.salonreunir.models.SalonReunirExponent
 import scala.util.Try
@@ -24,7 +24,7 @@ object SalonReunirScraper extends Controller {
       }
       sessions: List[SalonReunirSession] <- SalonReunirSessionScraper.fetchListDetails(sessionsUrl).map(_.toOption.getOrElse(List()))
     } yield {
-      Ok(Json.toJson(GenericEventFull.build("21ème Salon Réunir", "SalonReunir2015", baseUrl, exponents, sessions)))
+      Ok(Json.toJson(SalonReunirEvent.toGenericEvent("21ème Salon Réunir", "SalonReunir2015", baseUrl, exponents, sessions)))
     }
   }
 }

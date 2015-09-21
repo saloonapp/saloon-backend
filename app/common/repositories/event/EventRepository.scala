@@ -1,7 +1,7 @@
 package common.repositories.event
 
-import tools.models.Source
 import common.models.utils.Page
+import common.models.values.Source
 import common.models.values.typed.EventStatus
 import common.models.user.OrganizationId
 import common.models.event.Event

@@ -2,6 +2,7 @@ package tools.controllers
 
 import common.models.values.Address
 import common.models.values.Link
+import common.models.values.Source
 import common.models.event.Event
 import common.models.event.EventImages
 import common.models.event.EventInfo
@@ -29,7 +30,6 @@ import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
-import tools.models.Source
 import tools.scrapers.meta.MetaScraper
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

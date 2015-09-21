@@ -5,7 +5,6 @@ import tools.api.devoxx.models.Link
 import tools.api.devoxx.models.DevoxxEvent
 import tools.api.devoxx.models.DevoxxSpeaker
 import tools.api.devoxx.models.DevoxxSession
-import tools.models.GenericEventFull
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
@@ -53,7 +52,7 @@ object DevoxxApi extends Controller {
       speakers <- fetchSpeakers(conferenceUrl)
       sessions <- fetchSessions(conferenceUrl)
     } yield {
-      Ok(Json.toJson(GenericEventFull.build(event, speakers, sessions)))
+      Ok(Json.toJson(DevoxxEvent.toGenericEvent(event, speakers, sessions)))
     }
   }
 
