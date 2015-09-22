@@ -18,9 +18,9 @@ case class GenericEventVenue(
   logo: String,
   name: String,
   address: GenericEventAddress,
-  website: String,
-  email: String,
-  phone: String)
+  website: Option[String],
+  email: Option[String],
+  phone: Option[String])
 object GenericEventVenue {
   implicit val format = Json.format[GenericEventVenue]
 }
@@ -28,11 +28,25 @@ case class GenericEventOrganizer(
   logo: String,
   name: String,
   address: GenericEventAddress,
-  website: String,
-  email: String,
-  phone: String)
+  website: Option[String],
+  email: Option[String],
+  phone: Option[String])
 object GenericEventOrganizer {
   implicit val format = Json.format[GenericEventOrganizer]
+}
+case class GenericEventInfo(
+  logo: String,
+  start: Option[DateTime],
+  end: Option[DateTime],
+  description: String,
+  descriptionHTML: String,
+  venue: Option[GenericEventVenue],
+  organizers: List[GenericEventOrganizer],
+  website: Option[String],
+  email: Option[String],
+  phone: Option[String])
+object GenericEventInfo {
+  implicit val format = Json.format[GenericEventInfo]
 }
 case class GenericEventStats(
   year: Option[Int],
@@ -45,17 +59,9 @@ object GenericEventStats {
 }
 case class GenericEvent(
   sources: List[Source],
-  logo: String,
+  uuid: String,
   name: String,
-  start: Option[DateTime],
-  end: Option[DateTime],
-  description: String,
-  descriptionHTML: String,
-  venue: Option[GenericEventVenue],
-  organizers: List[GenericEventOrganizer],
-  website: String,
-  email: String,
-  phone: String,
+  info: GenericEventInfo,
   tags: List[String],
   socialUrls: Map[String, String],
   stats: GenericEventStats,

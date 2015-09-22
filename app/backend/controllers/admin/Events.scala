@@ -16,6 +16,8 @@ import backend.utils.ControllerHelpers
 import backend.services.EventImport
 import authentication.environments.SilhouetteEnvironment
 import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
@@ -136,38 +138,39 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       refreshForm.bindFromRequest.fold(
         formWithErrors => Future(Redirect(backend.controllers.admin.routes.Events.refresh(eventId)).flashing("error" -> "Format de données incorrect...")),
         formData => {
-          Try(Json.parse(formData)).toOption.flatMap(_.asOpt[GenericEvent]).map { eventFull =>
-            withEvent(eventId) { event =>
-              val res: Future[Future[Result]] = for {
-                attendees <- AttendeeRepository.findByEvent(event.uuid)
-                exponents <- ExponentRepository.findByEvent(event.uuid)
-                sessions <- SessionRepository.findByEvent(event.uuid)
-              } yield {
-                val (updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions) = EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
-                val err = new LastError(true, None, None, None, None, 0, false)
-                for {
-                  eventUpdated <- EventRepository.update(event.uuid, updatedEvent)
-                  attendeesCreated <- if (createdAttendees.length > 0) { AttendeeRepository.bulkInsert(createdAttendees) } else { Future(0) }
-                  attendeesDeleted <- if (deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(deletedAttendees.map(_.uuid)) } else { Future(err) }
-                  attendeesUpdated <- if (updatedAttendees.length > 0) { AttendeeRepository.bulkUpdate(updatedAttendees.map(s => (s._2.uuid, s._2))) } else { Future(0) }
-                  exponentsCreated <- if (createdExponents.length > 0) { ExponentRepository.bulkInsert(createdExponents) } else { Future(0) }
-                  exponentsDeleted <- if (deletedExponents.length > 0) { ExponentRepository.bulkDelete(deletedExponents.map(_.uuid)) } else { Future(err) }
-                  exponentsUpdated <- if (updatedExponents.length > 0) { ExponentRepository.bulkUpdate(updatedExponents.map(e => (e._2.uuid, e._2))) } else { Future(0) }
-                  sessionsCreated <- if (createdSessions.length > 0) { SessionRepository.bulkInsert(createdSessions) } else { Future(0) }
-                  sessionsDeleted <- if (deletedSessions.length > 0) { SessionRepository.bulkDelete(deletedSessions.map(_.uuid)) } else { Future(err) }
-                  sessionsUpdated <- if (updatedSessions.length > 0) { SessionRepository.bulkUpdate(updatedSessions.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+          Try(Json.parse(formData).as[GenericEvent]) match {
+            case Success(eventFull) => {
+              withEvent(eventId) { event =>
+                val res: Future[Future[Result]] = for {
+                  attendees <- AttendeeRepository.findByEvent(event.uuid)
+                  exponents <- ExponentRepository.findByEvent(event.uuid)
+                  sessions <- SessionRepository.findByEvent(event.uuid)
                 } yield {
-                  Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" ->
-                    (s"${updatedEvent.name} updated :" +
-                      s"Attendees: $attendeesCreated/$attendeesUpdated/${deletedAttendees.length}, " +
-                      s"Exponents: $exponentsCreated/$exponentsUpdated/${deletedExponents.length}, " +
-                      s"Sessions: $sessionsCreated/$sessionsUpdated/${deletedSessions.length} (create/update/delete)"))
+                  val (updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions) = EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
+                  val err = new LastError(true, None, None, None, None, 0, false)
+                  for {
+                    eventUpdated <- EventRepository.update(event.uuid, updatedEvent)
+                    attendeesCreated <- if (createdAttendees.length > 0) { AttendeeRepository.bulkInsert(createdAttendees) } else { Future(0) }
+                    attendeesDeleted <- if (deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(deletedAttendees.map(_.uuid)) } else { Future(err) }
+                    attendeesUpdated <- if (updatedAttendees.length > 0) { AttendeeRepository.bulkUpdate(updatedAttendees.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+                    exponentsCreated <- if (createdExponents.length > 0) { ExponentRepository.bulkInsert(createdExponents) } else { Future(0) }
+                    exponentsDeleted <- if (deletedExponents.length > 0) { ExponentRepository.bulkDelete(deletedExponents.map(_.uuid)) } else { Future(err) }
+                    exponentsUpdated <- if (updatedExponents.length > 0) { ExponentRepository.bulkUpdate(updatedExponents.map(e => (e._2.uuid, e._2))) } else { Future(0) }
+                    sessionsCreated <- if (createdSessions.length > 0) { SessionRepository.bulkInsert(createdSessions) } else { Future(0) }
+                    sessionsDeleted <- if (deletedSessions.length > 0) { SessionRepository.bulkDelete(deletedSessions.map(_.uuid)) } else { Future(err) }
+                    sessionsUpdated <- if (updatedSessions.length > 0) { SessionRepository.bulkUpdate(updatedSessions.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+                  } yield {
+                    Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" ->
+                      (s"${updatedEvent.name} updated :" +
+                        s"Attendees: $attendeesCreated/$attendeesUpdated/${deletedAttendees.length}, " +
+                        s"Exponents: $exponentsCreated/$exponentsUpdated/${deletedExponents.length}, " +
+                        s"Sessions: $sessionsCreated/$sessionsUpdated/${deletedSessions.length} (create/update/delete)"))
+                  }
                 }
+                res.flatMap(identity)
               }
-              res.flatMap(identity)
             }
-          }.getOrElse {
-            Future(Redirect(backend.controllers.admin.routes.Events.refresh(eventId)).flashing("error" -> "Format de données incorrect..."))
+            case Failure(e) => Future(Redirect(backend.controllers.admin.routes.Events.refresh(eventId)).flashing("error" -> "Format de données incorrect..."))
           }
         })
     } else {

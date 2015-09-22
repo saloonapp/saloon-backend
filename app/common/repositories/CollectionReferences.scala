@@ -1,6 +1,7 @@
 package common.repositories
 
 object CollectionReferences {
+  val GENERICEVENTS = "GenericEvents"
   val EVENTS = "Events"
   val SESSIONS = "Sessions"
   val EXPONENTS = "Exponents"

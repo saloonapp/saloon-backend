@@ -21,6 +21,7 @@ object Utils {
   def toTwitterHashtag(str: String): String = if (str.startsWith("#")) str.substring(1) else str
   def toTwitterAccount(str: String): String = if (str.startsWith("@")) str.substring(1) else str
   def parseDate(format: DateTimeFormatter)(date: String): Option[DateTime] = if (date.isEmpty()) None else Some(DateTime.parse(date, format))
+  def toOpt(str: String): Option[String] = if (str == null || str == "") None else Some(str)
 
   def getFormParam(key: String)(implicit req: Request[AnyContent]): Option[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.flatMap { _.headOption }
   def getFormMultiParam(key: String)(implicit req: Request[AnyContent]): Seq[String] = req.body.asFormUrlEncoded.flatMap { _.get(key) }.getOrElse { Seq() }

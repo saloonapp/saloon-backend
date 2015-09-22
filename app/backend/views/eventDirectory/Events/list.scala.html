@@ -1,13 +1,41 @@
 @import common.models.user.User
+@import common.models.event.GenericEvent
+@import common.views.html.format._
 @import backend.views.html._
-@()(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
-@layout("Events"){
+@(events: List[GenericEvent])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Événements"){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>Événements :</h2>
 		</div>
-		<div class="card-body card-padding">
-			List...
+		<div class="table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Nom</th>
+						<th>Date</th>
+						<th>Liens</th>
+					</tr>
+				</thead>
+				<tbody>
+					@events.zipWithIndex.map { case (event, index) =>
+						<tr>
+							<td>@{index+1}</td>
+							<td><a href="@backend.controllers.eventDirectory.routes.Events.details(event.uuid)">@event.name</a></td>
+							<td>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</td>
+							<td>
+								@event.info.website.map{ url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }
+								@event.info.email.map{ email => <a href="mailto:@email" target="_blank"><i class="md md-email"></i></a> }
+								@event.info.phone.map{ tel => <a href="tel:@tel" target="_blank"><i class="md md-phone"></i></a> }
+								@event.sources.map { source =>
+									<a href="@source.url" target="_blank"><i class="md md-launch"></i></a>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
 		</div>
 	</div>
 }

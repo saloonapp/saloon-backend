@@ -1,10 +1,13 @@
 package tools.api.devoxx
 
-import tools.utils.WSUtils
+import tools.utils.ScraperUtils
 import tools.api.devoxx.models.Link
 import tools.api.devoxx.models.DevoxxEvent
 import tools.api.devoxx.models.DevoxxSpeaker
 import tools.api.devoxx.models.DevoxxSession
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
@@ -23,36 +26,56 @@ object DevoxxApi extends Controller {
    */
 
   def getEventLinks(cfpUrl: String) = Action.async {
-    fetchEventLinks(cfpUrl).map { links =>
-      Ok(Json.toJson(links))
+    fetchEventLinks(cfpUrl).map {
+      _ match {
+        case Success(value) => Ok(Json.toJson(value))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
     }
   }
 
   def getEvent(conferenceUrl: String) = Action.async {
-    fetchEvent(conferenceUrl).map { event =>
-      Ok(Json.toJson(event))
+    fetchEvent(conferenceUrl).map {
+      _ match {
+        case Success(value) => Ok(Json.toJson(value))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
     }
   }
 
   def getSpeakers(conferenceUrl: String) = Action.async {
-    fetchSpeakers(conferenceUrl).map { speakers =>
-      Ok(Json.toJson(speakers))
+    fetchSpeakers(conferenceUrl).map {
+      _ match {
+        case Success(value) => Ok(Json.toJson(value))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
     }
   }
 
   def getSessions(conferenceUrl: String) = Action.async {
-    fetchSessions(conferenceUrl).map { sessions =>
-      Ok(Json.toJson(sessions))
+    fetchSessions(conferenceUrl).map {
+      _ match {
+        case Success(value) => Ok(Json.toJson(value))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
     }
   }
 
   def getEventFull(conferenceUrl: String) = Action.async {
     for {
-      event <- fetchEvent(conferenceUrl)
-      speakers <- fetchSpeakers(conferenceUrl)
-      sessions <- fetchSessions(conferenceUrl)
+      eventTry <- fetchEvent(conferenceUrl)
+      speakersTry <- fetchSpeakers(conferenceUrl)
+      sessionsTry <- fetchSessions(conferenceUrl)
     } yield {
-      Ok(Json.toJson(DevoxxEvent.toGenericEvent(event, speakers, sessions)))
+      val res = for {
+        event <- eventTry
+        speakers <- speakersTry
+        sessions <- sessionsTry
+      } yield DevoxxEvent.toGenericEvent(event, speakers, sessions)
+      res match {
+        case Success(value) => Ok(Json.toJson(value))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
     }
   }
 
@@ -60,55 +83,62 @@ object DevoxxApi extends Controller {
    * Basic methods
    */
 
-  def fetchEventLinks(cfpUrl: String): Future[List[String]] = {
-    WSUtils.fetch(DevoxxUrl.conferences(cfpUrl)).map { res =>
-      (res.json \ "links").as[List[Link]].map(_.href)
+  def fetchEventLinks(cfpUrl: String): Future[Try[List[String]]] = {
+    ScraperUtils.fetchJson(DevoxxUrl.conferences(cfpUrl)).map {
+      _.flatMap { res => Try((res \ "links").as[List[Link]].map(_.href)) }
     }
   }
 
-  def fetchEvent(conferenceUrl: String): Future[DevoxxEvent] = {
-    WSUtils.fetch(conferenceUrl).map { res =>
-      res.json.as[DevoxxEvent].copy(sourceUrl = Some(conferenceUrl))
+  def fetchEvent(conferenceUrl: String): Future[Try[DevoxxEvent]] = {
+    ScraperUtils.fetchJson(conferenceUrl).map {
+      _.flatMap { res => Try(res.as[DevoxxEvent].copy(sourceUrl = Some(conferenceUrl))) }
     }
   }
 
-  def fetchSpeakers(conferenceUrl: String): Future[List[DevoxxSpeaker]] = {
-    fetchSpeakerLinks(conferenceUrl).flatMap { speakerLinks =>
-      Future.sequence(speakerLinks.map { link => fetchSpeaker(link) })
-    }
-  }
-
-  def fetchSpeakerLinks(conferenceUrl: String): Future[List[String]] = {
-    WSUtils.fetch(DevoxxUrl.speakers(conferenceUrl)).map { res =>
-      (res.json \\ "links").map(_.as[List[Link]]).flatMap(identity).map(_.href).toList
-    }
-  }
-
-  def fetchSpeaker(speakerUrl: String): Future[DevoxxSpeaker] = {
-    WSUtils.fetch(speakerUrl).map { res =>
-      res.json.as[DevoxxSpeaker].copy(sourceUrl = Some(speakerUrl))
-    }
-  }
-
-  def fetchSessions(conferenceUrl: String): Future[List[DevoxxSession]] = {
-    fetchSchedules(conferenceUrl).flatMap { schedules =>
-      Future.sequence(schedules.map { schedule => fetchSchedule(schedule) }).map { _.flatMap(identity) }
-    }
-  }
-
-  def fetchSchedules(conferenceUrl: String): Future[List[String]] = {
-    WSUtils.fetch(DevoxxUrl.schedules(conferenceUrl)).map { res =>
-      (res.json \ "links").as[List[Link]].map(_.href)
-    }
-  }
-
-  def fetchSchedule(scheduleUrl: String): Future[List[DevoxxSession]] = {
-    WSUtils.fetch(scheduleUrl).map { res =>
-      (res.json \ "slots").as[List[DevoxxSession]].map { session =>
-        session.copy(sourceUrl = Some(scheduleUrl))
+  def fetchSpeakers(conferenceUrl: String): Future[Try[List[DevoxxSpeaker]]] = {
+    fetchSpeakerLinks(conferenceUrl).flatMap { speakerLinksTry =>
+      speakerLinksTry.map { speakerLinks =>
+        Future.sequence(speakerLinks.map { link => fetchSpeaker(link) }).map { _.collect { case Success(speaker) => speaker } }
+      } match {
+        case Success(futureList) => futureList.map(list => Success(list))
+        case Failure(err) => Future(Failure(err))
       }
     }
   }
 
+  def fetchSpeakerLinks(conferenceUrl: String): Future[Try[List[String]]] = {
+    ScraperUtils.fetchJson(DevoxxUrl.speakers(conferenceUrl)).map {
+      _.flatMap { res => Try((res \\ "links").map(_.as[List[Link]]).flatMap(identity).map(_.href).toList) }
+    }
+  }
+
+  def fetchSpeaker(speakerUrl: String): Future[Try[DevoxxSpeaker]] = {
+    ScraperUtils.fetchJson(speakerUrl).map {
+      _.flatMap { res => Try(res.as[DevoxxSpeaker].copy(sourceUrl = Some(speakerUrl))) }
+    }
+  }
+
+  def fetchSessions(conferenceUrl: String): Future[Try[List[DevoxxSession]]] = {
+    fetchSchedules(conferenceUrl).flatMap { scheduleUrlsTry =>
+      scheduleUrlsTry.map { schedules =>
+        Future.sequence(schedules.map { scheduleUrl => fetchSchedule(scheduleUrl) }).map { _.collect { case Success(schedule) => schedule }.flatMap(identity) }
+      } match {
+        case Success(futureList) => futureList.map(list => Success(list))
+        case Failure(err) => Future(Failure(err))
+      }
+    }
+  }
+
+  def fetchSchedules(conferenceUrl: String): Future[Try[List[String]]] = {
+    ScraperUtils.fetchJson(DevoxxUrl.schedules(conferenceUrl)).map {
+      _.flatMap { res => Try((res \ "links").as[List[Link]].map(_.href)) }
+    }
+  }
+
+  def fetchSchedule(scheduleUrl: String): Future[Try[List[DevoxxSession]]] = {
+    ScraperUtils.fetchJson(scheduleUrl).map {
+      _.flatMap { res => Try((res \ "slots").as[List[DevoxxSession]].map { session => session.copy(sourceUrl = Some(scheduleUrl)) }) }
+    }
+  }
 
 }

@@ -8,6 +8,8 @@ import scala.util.Failure
 import scala.collection.JavaConversions._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.json.Json
+import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
 import play.api.libs.ws.WSResponse
 import play.api.Play.current
@@ -69,6 +71,7 @@ object ScraperUtils {
       wsFetch(url)
     }
   }
+  def fetchJson(url: String, useCache: Boolean = true): Future[Try[JsValue]] = fetch(url, useCache).map(_.flatMap(r => Try(Json.parse(r))))
   private def wsFetch(url: String): Future[Try[String]] = {
     play.Logger.info("WS " + url)
     WS.url(url).get().map { response =>

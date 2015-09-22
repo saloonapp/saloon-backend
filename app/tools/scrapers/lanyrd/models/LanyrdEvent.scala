@@ -1,7 +1,9 @@
 package tools.scrapers.lanyrd.models
 
+import common.Utils
 import common.models.values.Source
 import common.models.event.GenericEvent
+import common.models.event.GenericEventInfo
 import common.models.event.GenericEventVenue
 import common.models.event.GenericEventAddress
 import common.models.event.GenericEventStats
@@ -40,17 +42,19 @@ object LanyrdEvent {
   def toGenericEvent(event: LanyrdEvent): GenericEvent = {
     GenericEvent(
       List(Source(getRef(event.url), sourceName, event.url)),
-      "", // logo
+      "", // uuid
       event.name,
-      event.start,
-      event.end,
-      Jsoup.parse(event.descriptionHTML).text(), // decription
-      event.descriptionHTML, // decriptionHTML
-      Some(GenericEventVenue("", "", event.address.toGeneric, "", "", "")),
-      List(), // orgas
-      event.websiteUrl, // website
-      "", // email
-      "", // phone
+      GenericEventInfo(
+        "", // logo
+        event.start,
+        event.end,
+        Jsoup.parse(event.descriptionHTML).text(), // decription
+        event.descriptionHTML, // decriptionHTML
+        Some(GenericEventVenue("", "", event.address.toGeneric, None, None, None)),
+        List(), // orgas
+        Utils.toOpt(event.websiteUrl), // website
+        None, // email
+        None), // phone
       event.tags, // tags
       Map(
         GenericEvent.Social.twitterAccount -> event.twitterAccountUrl,

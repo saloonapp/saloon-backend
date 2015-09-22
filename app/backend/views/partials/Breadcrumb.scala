@@ -83,18 +83,25 @@ object Breadcrumb {
         setId(identifiers, list(index - 1), id)
         list(index - 1) match {
           case "organizations" => (backend.controllers.routes.Organizations.details(getOrganizationId(identifiers)), titles.get(id).get)
-          case ItemType.events.value => (backend.controllers.routes.Events.details(getEventId(identifiers)), titles.get(id).get)
+          case ItemType.events.value => list(index - 2) match {
+            case "eventDirectory" => (backend.controllers.eventDirectory.routes.Events.details(getId(identifiers, "event")), titles.get(id).get)
+            case _ => (backend.controllers.routes.Events.details(getEventId(identifiers)), titles.get(id).get)
+          }
           case ItemType.attendees.value => (backend.controllers.routes.Attendees.details(getEventId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
           case ItemType.exponents.value => (backend.controllers.routes.Exponents.details(getEventId(identifiers), getExponentId(identifiers)), titles.get(id).get)
           case "team" => (backend.controllers.routes.AttendeeTeam.details(getEventId(identifiers), ItemType.exponents, getExponentId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
           case ItemType.sessions.value => (backend.controllers.routes.Sessions.details(getEventId(identifiers), getSessionId(identifiers)), titles.get(id).get)
           case "speakers" => (backend.controllers.routes.AttendeeTeam.details(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers), getAttendeeId(identifiers)), titles.get(id).get)
+          case "scrapers" => (backend.controllers.eventDirectory.routes.Scrapers.list(), "Scrapers")
         }
       }
 
       case "admin" => (backend.controllers.admin.routes.Application.index(), "Admin")
       case "urlImport" => (backend.controllers.admin.routes.Events.urlImport(), "Importer un événement")
-      case "refresh" => (backend.controllers.admin.routes.Events.refresh(getEventId(identifiers)), "Mettre à jour l'événement")
+      case "refresh" => list(index - 2) match {
+        case "events" => (backend.controllers.admin.routes.Events.refresh(getEventId(identifiers)), "Mettre à jour l'événement")
+        case "scrapers" => (backend.controllers.eventDirectory.routes.Scrapers.refresh(getId(identifiers, "scraper")), "Mettre à jour les événements")
+      }
 
       case "eventDirectory" => (backend.controllers.eventDirectory.routes.Application.index(), "Annuaire des événements")
       case "scrapers" => (backend.controllers.eventDirectory.routes.Scrapers.list(), "Scrapers")
@@ -116,10 +123,12 @@ object Breadcrumb {
     case "team" => identifiers.put("attendee", id)
     case ItemType.sessions.value => identifiers.put("session", id)
     case "speakers" => identifiers.put("attendee", id)
+    case "scrapers" => identifiers.put("scraper", id)
   }
   private def getOrganizationId(identifiers: HashMap[String, String]): OrganizationId = OrganizationId(identifiers.get("organization").get)
   private def getEventId(identifiers: HashMap[String, String]): EventId = EventId(identifiers.get("event").get)
   private def getAttendeeId(identifiers: HashMap[String, String]): AttendeeId = AttendeeId(identifiers.get("attendee").get)
   private def getExponentId(identifiers: HashMap[String, String]): ExponentId = ExponentId(identifiers.get("exponent").get)
   private def getSessionId(identifiers: HashMap[String, String]): SessionId = SessionId(identifiers.get("session").get)
+  private def getId(identifiers: HashMap[String, String], item: String): String = identifiers.get(item).get
 }

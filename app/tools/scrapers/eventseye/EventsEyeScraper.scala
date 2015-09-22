@@ -38,7 +38,7 @@ import org.joda.time.format.DateTimeFormatter
 object EventsEyeScraper extends Scraper[EventsEyeEvent] {
   val baseUrl = "http://www.eventseye.com"
   override def toCsv(value: EventsEyeEvent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
-  override def toGenericEvent(value: EventsEyeEvent): List[GenericEvent] = (List(value) ++ value.otherDates.map { p => value.copy(start = p.start, end = p.end) }).map(e => EventsEyeEvent.toGenericEvent(e))
+  override def toGenericEvent(value: EventsEyeEvent): List[GenericEvent] = (List(value) ++ value.otherDates.map { p => value.copy(start = p.start, end = p.end) }).zipWithIndex.map { case (e, i) => EventsEyeEvent.toGenericEvent(e, i) }
 
   /*
    * Scraper

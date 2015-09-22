@@ -94,8 +94,8 @@ trait Scraper[T] extends Controller {
     withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
       val genericEvents = elts.flatMap { case (url, elt) => toGenericEvent(elt) }
       val contacts = genericEvents
-        .filter(e => e.end.map(d => isInNextMonths(d, 1, 10)).getOrElse(false)) // keep only upcoming events
-        .flatMap(e => List(toMap(e)) ++ e.organizers.map(o => toMap(e, o))) // expand events to all contacts
+        .filter(e => e.info.end.map(d => isInNextMonths(d, 1, 10)).getOrElse(false)) // keep only upcoming events
+        .flatMap(e => List(toMap(e)) ++ e.info.organizers.map(o => toMap(e, o))) // expand events to all contacts
         .groupBy(_.get("email").getOrElse("")) // group contacts by emails
         .filter { case (email, events) => !email.isEmpty } // remove empty email
         .map { case (email, events) => events.sortWith(dateSort).head } // keep only the first event (by date) for each email
@@ -178,20 +178,20 @@ trait Scraper[T] extends Controller {
   }
   private def toMap(e: GenericEvent, o: GenericEventOrganizer): Map[String, String] = Map(
     "eventUrl" -> e.sources.headOption.map(_.url).getOrElse(""),
-    "eventDate" -> formatDate(e.start),
+    "eventDate" -> formatDate(e.info.start),
     "eventName" -> e.name,
     "contactName" -> o.name,
-    "contactSite" -> o.website,
-    "email" -> o.email,
-    "contactPhone" -> formatPhone(o.phone))
+    "contactSite" -> o.website.getOrElse(""),
+    "email" -> o.email.getOrElse(""),
+    "contactPhone" -> formatPhone(o.phone.getOrElse("")))
   private def toMap(e: GenericEvent): Map[String, String] = Map(
     "eventUrl" -> e.sources.headOption.map(_.url).getOrElse(""),
-    "eventDate" -> formatDate(e.start),
+    "eventDate" -> formatDate(e.info.start),
     "eventName" -> e.name,
     "contactName" -> "",
-    "contactSite" -> e.website,
-    "email" -> e.email,
-    "contactPhone" -> formatPhone(e.phone))
+    "contactSite" -> e.info.website.getOrElse(""),
+    "email" -> e.info.email.getOrElse(""),
+    "contactPhone" -> formatPhone(e.info.phone.getOrElse("")))
   private def dateSort(e1: Map[String, String], e2: Map[String, String]): Boolean = {
     val d1 = e1.get("eventDate").get
     val d2 = e2.get("eventDate").get

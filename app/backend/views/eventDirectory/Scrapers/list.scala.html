@@ -1,7 +1,7 @@
 @import common.models.user.User
 @import backend.models.ScrapersConfig
-@import backend.views.html._
 @import common.views.html.format._
+@import backend.views.html._
 @(scrapersConfig: ScrapersConfig)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Scrapers"){
 	<div class="card">
@@ -13,10 +13,11 @@
 			@scrapersConfig.scrapers.map { scraper =>
 				<div class="media">
 					<ul class="actions pull-right">
+						<li><a href="@backend.controllers.eventDirectory.routes.Scrapers.refresh(scraper.uuid)" class="confirm" title="Lancer le scraper : @scraper.name"><i class="md md-refresh"></i></a></li>
 						<li>@helper.form(action=backend.controllers.eventDirectory.routes.Scrapers.doDelete(scraper.uuid)){<button type="submit" class="confirm" title="Supprimer le scraper @scraper.name"><i class="md md-delete"></i></button>}</li>
 					</ul>
 					<div class="media-body">
-						<h4 class="media-heading">@scraper.name @scraper.lastExec.map{d => <small>@datetime(d)</small>}</h4>
+						<h4 class="media-heading">@scraper.name @scraper.lastExec.map{d => <small>dernier lancement : @datetime(d)</small>}</h4>
 						@scraper.url
 					</div>
 				</div>

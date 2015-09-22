@@ -1,7 +1,9 @@
 package tools.scrapers.eventseye.models
 
+import common.Utils
 import common.models.values.Source
 import common.models.event.GenericEvent
+import common.models.event.GenericEventInfo
 import common.models.event.GenericEventVenue
 import common.models.event.GenericEventOrganizer
 import common.models.event.GenericEventAddress
@@ -34,7 +36,7 @@ case class EventsEyeVenue(
   phone: String,
   website: String,
   email: String) {
-  def toGeneric: GenericEventVenue = GenericEventVenue(this.logo, this.name, this.address.toGeneric, this.website, this.email, this.phone)
+  def toGeneric: GenericEventVenue = GenericEventVenue(this.logo, this.name, this.address.toGeneric, Utils.toOpt(this.website), Utils.toOpt(this.email), Utils.toOpt(this.phone))
 }
 object EventsEyeVenue {
   implicit val format = Json.format[EventsEyeVenue]
@@ -46,7 +48,7 @@ case class EventsEyeOrganizer(
   phone: String,
   website: String,
   email: String) {
-  def toGeneric: GenericEventOrganizer = GenericEventOrganizer(this.logo, this.name, this.address.toGeneric, this.website, this.email, this.phone)
+  def toGeneric: GenericEventOrganizer = GenericEventOrganizer(this.logo, this.name, this.address.toGeneric, Utils.toOpt(this.website), Utils.toOpt(this.email), Utils.toOpt(this.phone))
 }
 object EventsEyeOrganizer {
   implicit val format = Json.format[EventsEyeOrganizer]
@@ -87,20 +89,23 @@ object EventsEyeEvent {
   implicit val format = Json.format[EventsEyeEvent]
 
   val sourceName = "EventsEyeScraper"
-  def toGenericEvent(event: EventsEyeEvent): GenericEvent = {
+  def toGenericEvent(event: EventsEyeEvent, index: Int): GenericEvent = {
+    val refSuffix = if (index == 0) "" else "~" + index
     GenericEvent(
-      List(Source(getRef(event.url), sourceName, event.url)),
-      event.logo,
+      List(Source(getRef(event.url) + refSuffix, sourceName, event.url)),
+      "", // uuid
       event.name,
-      event.start,
-      event.end,
-      event.decription,
-      event.decription,
-      Some(event.venue.toGeneric),
-      event.orgas.map(_.toGeneric),
-      event.website,
-      event.email,
-      event.phone,
+      GenericEventInfo(
+        event.logo,
+        event.start,
+        event.end,
+        event.decription,
+        event.decription,
+        Some(event.venue.toGeneric),
+        event.orgas.map(_.toGeneric),
+        Utils.toOpt(event.website),
+        Utils.toOpt(event.email),
+        Utils.toOpt(event.phone)),
       event.industries, // tags
       Map(), // socialUrls
       event.attendance.map(_.toGeneric).getOrElse(GenericEventStats(None, None, None, None, None)),

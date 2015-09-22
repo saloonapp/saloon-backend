@@ -3,6 +3,7 @@ package tools.api.devoxx.models
 import common.models.values.Source
 import common.models.values.typed.AttendeeRole
 import common.models.event.GenericEvent
+import common.models.event.GenericEventInfo
 import common.models.event.GenericEventStats
 import common.models.event.GenericAttendee
 import common.models.event.GenericExponent
@@ -66,17 +67,19 @@ object DevoxxEvent {
 
     GenericEvent(
       List(Source(event.eventCode, sourceName, event.sourceUrl.get)),
-      "", // logo
+      "", // uuid
       event.label,
-      Some(gSessions.map(_.start).flatten.minBy(_.getMillis())),
-      Some(gSessions.map(_.end).flatten.maxBy(_.getMillis())),
-      "", // decription
-      "", // decriptionHTML
-      None, // venue
-      List(), // organizers
-      "", // website
-      "", // email
-      "", // phone
+      GenericEventInfo(
+        "", // logo
+        Some(gSessions.map(_.start).flatten.minBy(_.getMillis())),
+        Some(gSessions.map(_.end).flatten.maxBy(_.getMillis())),
+        "", // decription
+        "", // decriptionHTML
+        None, // venue
+        List(), // organizers
+        None, // website
+        None, // email
+        None), // phone
       List(), // tags
       Map(), // socialUrls
       GenericEventStats(None, None, None, None, None),

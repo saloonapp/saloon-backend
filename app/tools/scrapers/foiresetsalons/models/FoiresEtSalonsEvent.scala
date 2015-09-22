@@ -1,7 +1,9 @@
 package tools.scrapers.foiresetsalons.models
 
+import common.Utils
 import common.models.values.Source
 import common.models.event.GenericEvent
+import common.models.event.GenericEventInfo
 import common.models.event.GenericEventVenue
 import common.models.event.GenericEventOrganizer
 import common.models.event.GenericEventAddress
@@ -41,7 +43,7 @@ case class FoiresEtSalonsOrga(
   address: FoiresEtSalonsAddress,
   phone: String,
   site: String) {
-  def toGeneric: GenericEventOrganizer = GenericEventOrganizer("", this.name, this.address.toGeneric, this.site, "", this.phone)
+  def toGeneric: GenericEventOrganizer = GenericEventOrganizer("", this.name, this.address.toGeneric, Utils.toOpt(this.site), None, Utils.toOpt(this.phone))
 }
 object FoiresEtSalonsOrga {
   implicit val format = Json.format[FoiresEtSalonsOrga]
@@ -65,17 +67,19 @@ object FoiresEtSalonsEvent {
   def toGenericEvent(event: FoiresEtSalonsEvent): GenericEvent = {
     GenericEvent(
       List(Source(getRef(event.url), sourceName, event.url)),
-      "", // logo
+      "", // uuid
       event.name,
-      event.start,
-      event.end,
-      "", // decription
-      "", // decriptionHTML
-      Some(GenericEventVenue("", "", event.address.toGeneric, "", "", "")),
-      List(event.orga.toGeneric),
-      "", // website
-      "", // email
-      "", // phone
+      GenericEventInfo(
+        "", // logo
+        event.start,
+        event.end,
+        "", // decription
+        "", // decriptionHTML
+        Some(GenericEventVenue("", "", event.address.toGeneric, None, None, None)),
+        List(event.orga.toGeneric),
+        None, // website
+        None, // email
+        None), // phone
       event.products, // tags
       Map(), // socialUrls
       event.stats.toGeneric,

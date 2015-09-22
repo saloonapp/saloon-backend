@@ -1,0 +1,78 @@
+@import common.models.user.User
+@import common.models.event.GenericEvent
+@import backend.models.ScrapersConfig
+@import backend.models.Scraper
+@import play.api.libs.json.Json
+@import play.api.libs.json.JsValue
+@import common.views.html.forms._
+@import common.views.html.format._
+@import backend.views.html._
+@(refreshForm: Form[String], scraper: Scraper, newEvents: List[GenericEvent], createdEvents: List[GenericEvent], deletedEvents: List[GenericEvent], updatedEvents: List[(GenericEvent, GenericEvent)])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@singleGroup(title: String, id: String, elts: List[(String, String, JsValue)]) = {
+	@if(elts.length > 0){
+		<p class="c-black f-500 m-b-5">@title</p>
+		<div class="panel-group" role="tablist" aria-multiselectable="false" id="accordion-@id">
+			@elts.map { case (uuid, name, elt) =>
+				<div class="panel panel-collapse">
+					<div class="panel-heading" role="tab" id="@id-@uuid-head">
+						<h4 class="panel-title">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion-@id" href="#@id-@uuid" aria-expanded="false" aria-controls="@id-@uuid">@name</a>
+						</h4>
+					</div>
+					<div id="@id-@uuid" class="collapse" role="tabpanel" aria-labelledby="@id-@uuid-head">
+						<div class="panel-body">@json(elt)</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+@diffGroup(title: String, id: String, elts: List[(String, String, JsValue, JsValue)]) = {
+	@if(elts.length > 0){
+		<p class="c-black f-500 m-b-5">@title</p>
+		<div class="panel-group" role="tablist" aria-multiselectable="false" id="accordion-@id">
+			@elts.map { case (uuid, name, oldElt, elt) =>
+				<div class="panel panel-collapse">
+					<div class="panel-heading" role="tab" id="@id-@uuid-head">
+						<h4 class="panel-title">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion-@id" href="#@id-@uuid" aria-expanded="false" aria-controls="@id-@uuid">@name</a>
+						</h4>
+					</div>
+					<div id="@id-@uuid" class="collapse" role="tabpanel" aria-labelledby="@id-@uuid-head">
+						<div class="panel-body">@jsonDiff(oldElt, elt)</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+@layout("Mise à jour de la base de données"){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Modification des événements :</h2>
+		</div>
+		<div class="card-body card-padding">
+			<ul>
+				@if(createdEvents.length>0){<li>@createdEvents.length événements créés</li>}
+				@if(deletedEvents.length>0){<li>@deletedEvents.length événements supprimés</li>}
+				@if(updatedEvents.length>0){<li>@updatedEvents.length événements modifiés</li>}
+			</ul>
+			
+			@singleGroup("Événements à créer", "createdEvents", createdEvents.map(e => (e.uuid.take(10), e.name, Json.toJson(e))))
+			@singleGroup("Événements à supprimer", "deletedEvents", deletedEvents.map(e => (e.uuid, e.name, Json.toJson(e))))
+			@diffGroup("Événements à modifier", "updatedEvents", updatedEvents.map{case (oldElt, elt) => (elt.uuid, elt.name, Json.toJson(oldElt), Json.toJson(elt))})
+			
+			@if(createdEvents.length == 0 && deletedEvents.length == 0 && updatedEvents.length == 0){
+				<p>Aucune modification identifiée !</p>
+			}
+			
+			@helper.form(action=backend.controllers.eventDirectory.routes.Scrapers.doRefresh(scraper.uuid)){
+				@inputHidden(refreshForm("data"), 'value -> Json.stringify(Json.toJson(newEvents)))
+				<div class="form-group">
+					<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
+					<button type="submit" class="btn btn-success">Faire la mise à jour</button>
+				</div>
+			}
+		</div>
+	</div>
+}
