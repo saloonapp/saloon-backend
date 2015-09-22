@@ -61,7 +61,8 @@ object Scrapers extends SilhouetteEnvironment {
               val sourceName = newEvents.flatMap(_.sources).map(_.name).filter(_ != "").headOption.getOrElse("")
               GenericEventRepository.findBySourceName(sourceName).map { existingEvents =>
                 val (createdEvents, deletedEvents, updatedEvents) = GenericEventImport.makeDiff(existingEvents, newEvents)
-                Ok(backend.views.html.eventDirectory.Scrapers.refresh(refreshForm, scraper, newEvents, createdEvents, deletedEvents, updatedEvents))
+                val disableDeleteEvents = List[GenericEvent]()
+                Ok(backend.views.html.eventDirectory.Scrapers.refresh(refreshForm, scraper, newEvents, createdEvents, disableDeleteEvents, updatedEvents))
               }
             }
             case Failure(e) => Future(Redirect(backend.controllers.eventDirectory.routes.Scrapers.list).flashing("error" -> e.getMessage()))
@@ -84,14 +85,15 @@ object Scrapers extends SilhouetteEnvironment {
               val sourceName = newEvents.flatMap(_.sources).map(_.name).filter(_ != "").headOption.getOrElse("")
               GenericEventRepository.findBySourceName(sourceName).flatMap { existingEvents =>
                 val (createdEvents, deletedEvents, updatedEvents) = GenericEventImport.makeDiff(existingEvents, newEvents)
+                val disableDeleteEvents = List[GenericEvent]()
                 val err = new LastError(true, None, None, None, None, 0, false)
                 for {
                   scraperUpdated <- ConfigRepository.scraperExecuted(scraperId)
                   eventsCreated <- if (createdEvents.length > 0) { GenericEventRepository.bulkInsert(createdEvents) } else { Future(0) }
-                  eventsDeleted <- if (deletedEvents.length > 0) { GenericEventRepository.bulkDelete(deletedEvents.map(_.uuid)) } else { Future(err) }
+                  eventsDeleted <- if (disableDeleteEvents.length > 0) { GenericEventRepository.bulkDelete(disableDeleteEvents.map(_.uuid)) } else { Future(err) }
                   eventsUpdated <- if (updatedEvents.length > 0) { GenericEventRepository.bulkUpdate(updatedEvents.map(s => (s._2.uuid, s._2))) } else { Future(0) }
                 } yield {
-                  Redirect(backend.controllers.eventDirectory.routes.Scrapers.list).flashing("success" -> s"Modifications des événements: $eventsCreated/$eventsUpdated/${deletedEvents.length} (create/update/delete)")
+                  Redirect(backend.controllers.eventDirectory.routes.Scrapers.list).flashing("success" -> s"Modifications des événements: $eventsCreated/$eventsUpdated/${disableDeleteEvents.length} (create/update/delete)")
                 }
               }
             }
