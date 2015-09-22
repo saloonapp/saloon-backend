@@ -3,6 +3,7 @@ package backend.repositories
 import common.repositories.CollectionReferences
 import backend.models.ScrapersConfig
 import backend.models.Scraper
+import backend.models.ScraperResult
 import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -27,6 +28,6 @@ object ConfigRepository {
     }
   }
   def updateScraper(scraperId: String, scraper: Scraper): Future[LastError] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$" -> scraper)))
-  def scraperExecuted(scraperId: String): Future[LastError] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$.lastExec" -> new DateTime())))
+  def scraperExecuted(scraperId: String, nbElts: Int): Future[LastError] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$.lastExec" -> ScraperResult(new DateTime(), nbElts))))
   def deleteScraper(scraperId: String): Future[LastError] = collection.update(scraperConfigSelector, Json.obj("$pull" -> Json.obj("scrapers" -> Json.obj("uuid" -> scraperId))))
 }

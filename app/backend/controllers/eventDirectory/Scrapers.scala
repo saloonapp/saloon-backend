@@ -35,10 +35,10 @@ object Scrapers extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
   private def dateSort(s1: Scraper, s2: Scraper): Boolean = {
-    if (s1.lastExec == s2.lastExec) { s1.name < s2.name }
+    if (s1.lastExec.isEmpty && s2.lastExec.isEmpty) { s1.name < s2.name }
     else if (s1.lastExec.isEmpty) { false }
     else if (s2.lastExec.isEmpty) { true }
-    else { s2.lastExec.get.isBefore(s1.lastExec.get) }
+    else { s2.lastExec.get.date.isBefore(s1.lastExec.get.date) }
   }
 
   def create = SecuredAction { implicit req =>
@@ -118,7 +118,7 @@ object Scrapers extends SilhouetteEnvironment with ControllerHelpers {
                 val disableDeleteEvents = List[GenericEvent]()
                 val err = new LastError(true, None, None, None, None, 0, false)
                 for {
-                  scraperUpdated <- ConfigRepository.scraperExecuted(scraperId)
+                  scraperUpdated <- ConfigRepository.scraperExecuted(scraperId, newEvents.length)
                   eventsCreated <- if (createdEvents.length > 0) { GenericEventRepository.bulkInsert(createdEvents) } else { Future(0) }
                   eventsDeleted <- if (disableDeleteEvents.length > 0) { GenericEventRepository.bulkDelete(disableDeleteEvents.map(_.uuid)) } else { Future(err) }
                   eventsUpdated <- if (updatedEvents.length > 0) { GenericEventRepository.bulkUpdate(updatedEvents.map(s => (s._2.uuid, s._2))) } else { Future(0) }

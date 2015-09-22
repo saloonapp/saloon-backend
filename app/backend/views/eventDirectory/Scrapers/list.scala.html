@@ -18,7 +18,7 @@
 						<li>@helper.form(action=backend.controllers.eventDirectory.routes.Scrapers.doDelete(scraper.uuid)){<button type="submit" class="confirm" title="Supprimer le scraper @scraper.name"><i class="md md-delete"></i></button>}</li>
 					</ul>
 					<div class="media-body">
-						<h4 class="media-heading">@scraper.name @scraper.lastExec.map{d => <small>dernier lancement : @datetime(d)</small>}</h4>
+						<h4 class="media-heading">@scraper.name @scraper.lastExec.map{e => <small>exécuté le @{datetime(e.date)} (@e.nbElts événements)</small>}</h4>
 						@scraper.url
 					</div>
 				</div>
