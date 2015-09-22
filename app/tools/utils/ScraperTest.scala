@@ -18,8 +18,8 @@ trait ScraperTest[T] extends Controller {
    * Play Controller
    */
 
-  def test()(implicit format: Format[T]) = Action.async { implicit req =>
-    Future.sequence(tests.map { case (url, expected) => scraper.fetchDetails(url).map { result => (url, expected, result) } }).map { results =>
+  def test(useCache: Boolean)(implicit format: Format[T]) = Action.async { implicit req =>
+    Future.sequence(tests.map { case (url, expected) => scraper.fetchDetails(url, useCache).map { result => (url, expected, result) } }).map { results =>
       val res = results.map {
         case (url, expected, result) =>
           val check = result match {

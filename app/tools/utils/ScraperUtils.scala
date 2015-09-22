@@ -62,7 +62,7 @@ object ScraperUtils {
   /*
    * WS helpers
    */
-  def fetch(url: String, useCache: Boolean = true): Future[Try[String]] = {
+  def fetch(url: String, useCache: Boolean): Future[Try[String]] = {
     if (useCache) {
       WebpageCacheRepository.get(url).flatMap { resOpt =>
         resOpt.map { res => Future(Success(res.page)) }.getOrElse(wsFetch(url))

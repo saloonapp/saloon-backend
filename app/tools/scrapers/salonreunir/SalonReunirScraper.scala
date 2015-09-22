@@ -15,14 +15,15 @@ object SalonReunirScraper extends Controller {
   val exponentsUrl = s"$baseUrl/liste-des-exposants/"
   val sessionsUrl = s"$baseUrl/conferences/"
 
-  def getEventFull = Action.async {
+  def getEventFull(useCache: Boolean) = Action.async {
+    val sequentially = true
     for {
-      exponentLinksTry: Try[List[String]] <- SalonReunirExponentScraper.fetchLinkList(exponentsUrl)
+      exponentLinksTry: Try[List[String]] <- SalonReunirExponentScraper.fetchLinkList(exponentsUrl, useCache)
       exponents: List[SalonReunirExponent] <- exponentLinksTry match {
-        case Success(urls) => SalonReunirExponentScraper.fetchDetailsList(urls, true).map(_.map { case (url, res) => res.toOption }.flatten)
+        case Success(urls) => SalonReunirExponentScraper.fetchDetailsList(urls, sequentially, useCache).map(_.map { case (url, res) => res.toOption }.flatten)
         case _ => Future(List())
       }
-      sessions: List[SalonReunirSession] <- SalonReunirSessionScraper.fetchListDetails(sessionsUrl).map(_.toOption.getOrElse(List()))
+      sessions: List[SalonReunirSession] <- SalonReunirSessionScraper.fetchListDetails(sessionsUrl, useCache).map(_.toOption.getOrElse(List()))
     } yield {
       Ok(Json.toJson(SalonReunirEvent.toGenericEvent("21ème Salon Réunir", "SalonReunir2015", baseUrl, exponents, sessions)))
     }

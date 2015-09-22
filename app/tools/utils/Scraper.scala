@@ -28,8 +28,8 @@ trait Scraper[T] extends Controller {
    * Play Controller
    */
 
-  def getDetails(detailsUrl: String, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
-    fetchDetails(detailsUrl).map {
+  def getDetails(detailsUrl: String, format: String, useCache: Boolean)(implicit writer: Writes[T]) = Action.async { implicit req =>
+    fetchDetails(detailsUrl, useCache).map {
       _ match {
         case Success(value) => format match {
           case "csv" => Ok(CsvUtils.makeCsv(List(toCsv(value)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
@@ -40,8 +40,8 @@ trait Scraper[T] extends Controller {
     }
   }
 
-  def getLinkList(eventListUrl: String, format: String) = Action.async { implicit req =>
-    fetchLinkList(eventListUrl).map {
+  def getLinkList(eventListUrl: String, format: String, useCache: Boolean) = Action.async { implicit req =>
+    fetchLinkList(eventListUrl, useCache).map {
       _ match {
         case Success(urls) => format match {
           case "csv" => Ok(CsvUtils.makeCsv(urls.map(url => Map("url" -> url)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
@@ -52,9 +52,9 @@ trait Scraper[T] extends Controller {
     }
   }
 
-  def getEventListDetails(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
+  def getEventListDetails(eventListUrl: String, offset: Int, limit: Int, format: String, sequentially: Boolean, useCache: Boolean)(implicit writer: Writes[T]) = Action.async { implicit req =>
     val start = new DateTime()
-    withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
+    withDetailsList(eventListUrl, offset, limit, sequentially, useCache) { (urls, elts, errors) =>
       val successResult = elts.map(_._2)
       val errorResult = errors.map { case (url, e) => Json.obj("error" -> e.getMessage(), "url" -> url) }
       format match {
@@ -64,8 +64,8 @@ trait Scraper[T] extends Controller {
     }
   }
 
-  def getGenericDetails(detailsUrl: String, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
-    fetchDetails(detailsUrl).map {
+  def getGenericDetails(detailsUrl: String, format: String, useCache: Boolean)(implicit writer: Writes[T]) = Action.async { implicit req =>
+    fetchDetails(detailsUrl, useCache).map {
       _ match {
         case Success(value) => {
           val genericEvents = toGenericEvent(value)
@@ -79,8 +79,8 @@ trait Scraper[T] extends Controller {
     }
   }
 
-  def getGenericEventListDetails(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String) = Action.async { implicit req =>
-    withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
+  def getGenericEventListDetails(eventListUrl: String, offset: Int, limit: Int, format: String, sequentially: Boolean, useCache: Boolean) = Action.async { implicit req =>
+    withDetailsList(eventListUrl, offset, limit, sequentially, useCache) { (urls, elts, errors) =>
       val genericEvents = elts.flatMap { case (url, elt) => toGenericEvent(elt) }
       format match {
         case "csv" => Future(CsvUtils.OkCsv(genericEvents.map(toCsv), "scraper_export.csv"))
@@ -89,9 +89,9 @@ trait Scraper[T] extends Controller {
     }
   }
 
-  def getContactList(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String) = Action.async { implicit req =>
+  def getContactList(eventListUrl: String, offset: Int, limit: Int, format: String, sequentially: Boolean, useCache: Boolean) = Action.async { implicit req =>
     val start = new DateTime()
-    withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
+    withDetailsList(eventListUrl, offset, limit, sequentially, useCache) { (urls, elts, errors) =>
       val genericEvents = elts.flatMap { case (url, elt) => toGenericEvent(elt) }
       val contacts = genericEvents
         .filter(e => e.info.end.map(d => isInNextMonths(d, 1, 10)).getOrElse(false)) // keep only upcoming events
@@ -111,12 +111,12 @@ trait Scraper[T] extends Controller {
    * Basic methods
    */
 
-  def fetchLinkList(listUrl: String): Future[Try[List[String]]] = {
-    ScraperUtils.fetch(listUrl).flatMap { responseTry =>
+  def fetchLinkList(listUrl: String, useCache: Boolean): Future[Try[List[String]]] = {
+    ScraperUtils.fetch(listUrl, useCache).flatMap { responseTry =>
       responseTry match {
         case Success(response) => {
           val page1 = Try(extractLinkList(response, baseUrl))
-          Future.sequence(extractLinkPages(response).map { otherPageUrl => fetchLinkListPage(otherPageUrl) }).map { otherPages =>
+          Future.sequence(extractLinkPages(response).map { otherPageUrl => fetchLinkListPage(otherPageUrl, useCache) }).map { otherPages =>
             Try(page1.get ++ otherPages.flatMap(_.get))
           }
         }
@@ -125,40 +125,40 @@ trait Scraper[T] extends Controller {
     }
   }
 
-  private def fetchLinkListPage(listUrl: String): Future[Try[List[String]]] = {
-    ScraperUtils.fetch(listUrl).map { responseTry =>
+  private def fetchLinkListPage(listUrl: String, useCache: Boolean): Future[Try[List[String]]] = {
+    ScraperUtils.fetch(listUrl, useCache).map { responseTry =>
       responseTry.flatMap { response => Try(extractLinkList(response, baseUrl)) }
     }
   }
 
-  def fetchDetails(detailsUrl: String): Future[Try[T]] = {
-    ScraperUtils.fetch(detailsUrl).map { responseTry =>
+  def fetchDetails(detailsUrl: String, useCache: Boolean): Future[Try[T]] = {
+    ScraperUtils.fetch(detailsUrl, useCache).map { responseTry =>
       responseTry.flatMap { response => Try(extractDetails(response, baseUrl, detailsUrl)) }
     }
   }
 
-  def fetchDetailsList(detailsUrls: List[String], sequentially: Boolean = false): Future[List[(String, Try[T])]] = {
+  def fetchDetailsList(detailsUrls: List[String], sequentially: Boolean, useCache: Boolean): Future[List[(String, Try[T])]] = {
     if (sequentially) {
-      fetchListSequentially(detailsUrls, List())
+      fetchListSequentially(detailsUrls, List(), useCache)
     } else {
-      Future.sequence(detailsUrls.map(url => fetchDetails(url).map(r => (url, r))))
+      Future.sequence(detailsUrls.map(url => fetchDetails(url, useCache).map(r => (url, r))))
     }
   }
 
-  private def fetchListSequentially(urls: List[String], results: List[(String, Try[T])]): Future[List[(String, Try[T])]] = {
+  private def fetchListSequentially(urls: List[String], results: List[(String, Try[T])], useCache: Boolean): Future[List[(String, Try[T])]] = {
     if (urls.length > 0) {
-      fetchDetails(urls.head).flatMap { r =>
-        fetchListSequentially(urls.tail, results ++ List((urls.head, r)))
+      fetchDetails(urls.head, useCache).flatMap { r =>
+        fetchListSequentially(urls.tail, results ++ List((urls.head, r)), useCache)
       }
     } else {
       Future(results)
     }
   }
 
-  def withDetailsList(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean)(block: (List[String], List[(String, T)], List[(String, Throwable)]) => Future[Result]): Future[Result] = {
-    fetchLinkList(eventListUrl).flatMap {
+  def withDetailsList(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean, useCache: Boolean)(block: (List[String], List[(String, T)], List[(String, Throwable)]) => Future[Result]): Future[Result] = {
+    fetchLinkList(eventListUrl, useCache).flatMap {
       _ match {
-        case Success(urls) => fetchDetailsList(urls.drop(offset).take(limit), sequentially).flatMap { results =>
+        case Success(urls) => fetchDetailsList(urls.drop(offset).take(limit), sequentially, useCache).flatMap { results =>
           val elts = results.collect { case (url, Success(elt)) => (url, elt) }
           val errors = results.collect { case (url, Failure(e)) => (url, e) }
           block(urls, elts, errors)

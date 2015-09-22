@@ -26,8 +26,8 @@ import org.joda.time.format.DateTimeFormat
 object SalonReunirSessionScraper extends Controller {
   def toCsv(value: SalonReunirSession): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
 
-  def getListDetails(listUrl: String, format: String) = Action.async { implicit req =>
-    fetchListDetails(listUrl).map {
+  def getListDetails(listUrl: String, format: String, useCache: Boolean) = Action.async { implicit req =>
+    fetchListDetails(listUrl, useCache).map {
       _ match {
         case Success(elts) => format match {
           case "csv" => Ok(CsvUtils.makeCsv(elts.map(e => toCsv(e)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
@@ -38,11 +38,9 @@ object SalonReunirSessionScraper extends Controller {
     }
   }
 
-  def fetchListDetails(listUrl: String): Future[Try[List[SalonReunirSession]]] = {
-    WS.url(listUrl).get().map { response =>
-      Try(extractListDetails(response.body, listUrl))
-    }.recover {
-      case e => Failure(e)
+  def fetchListDetails(listUrl: String, useCache: Boolean): Future[Try[List[SalonReunirSession]]] = {
+    ScraperUtils.fetch(listUrl, useCache).map { responseTry =>
+      responseTry.flatMap { response => Try(extractListDetails(response, listUrl)) }
     }
   }
 
