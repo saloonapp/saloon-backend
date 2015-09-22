@@ -66,7 +66,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
           val organizationId = formData._1
           val importUrl = formData._2
           EventImport.withGenericEvent(importUrl) { eventFull =>
-            EventRepository.getBySource(eventFull.source).flatMap {
+            EventRepository.getBySources(eventFull.sources).flatMap {
               _.map { event =>
                 refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
               }.getOrElse {
@@ -91,7 +91,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
           val organizationId = formData._1
           val importData = formData._2
           Try(Json.parse(importData)).toOption.flatMap(_.asOpt[GenericEvent]).map { eventFull =>
-            EventRepository.getBySource(eventFull.source).flatMap {
+            EventRepository.getBySources(eventFull.sources).flatMap {
               _.map { event =>
                 refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
               }.getOrElse {

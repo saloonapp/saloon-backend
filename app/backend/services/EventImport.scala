@@ -87,87 +87,91 @@ object EventImport {
     (newEvent, newAttendees, newExponents, newSessions)
   }
 
-  private def build(event: GenericEvent, eventId: EventId, organizationId: OrganizationId, status: EventStatus, importUrl: Option[WebsiteUrl], now: DateTime): Event = Event(
-    eventId,
-    organizationId,
-    FullName(event.name),
-    TextMultiline(""),
-    TextHTML(""),
-    EventImages(
-      ImageUrl(""),
-      ImageUrl("")),
-    EventInfo(
-      WebsiteUrl(""),
-      event.start,
-      event.end,
-      Address("", "", "", ""),
-      Link("", ""),
-      EventInfoSocial(EventInfoSocialTwitter(None, None))),
-    EventEmail(None),
-    EventConfig(None, Map(), None),
-    EventMeta(List(), status, importUrl, Some(event.source), now, now))
+  private def build(event: GenericEvent, eventId: EventId, organizationId: OrganizationId, status: EventStatus, importUrl: Option[WebsiteUrl], now: DateTime): Event =
+    Event(
+      eventId,
+      organizationId,
+      FullName(event.name),
+      TextMultiline(event.description),
+      TextHTML(event.descriptionHTML),
+      EventImages(
+        ImageUrl(event.logo),
+        ImageUrl("")),
+      EventInfo(
+        WebsiteUrl(event.website),
+        event.start,
+        event.end,
+        event.venue.map(v => Address(v.address.name, v.address.street, v.address.zipCode, v.address.city)).getOrElse(Address("", "", "", "")),
+        Link("", ""),
+        EventInfoSocial(EventInfoSocialTwitter(None, None))),
+      EventEmail(None),
+      EventConfig(None, Map(), None),
+      EventMeta(List(), status, importUrl, event.sources.headOption, now, now))
 
-  private def build(attendee: GenericAttendee, attendeeId: AttendeeId, eventId: EventId, now: DateTime): Attendee = Attendee(
-    attendeeId,
-    eventId,
-    FullName.build(FirstName(attendee.firstName), LastName(attendee.lastName)),
-    TextMultiline(attendee.description),
-    TextHTML(attendee.descriptionHTML),
-    AttendeeImages(
-      ImageUrl(attendee.avatar)),
-    AttendeeInfo(
-      AttendeeRole(attendee.role),
-      Genre(""),
-      FirstName(attendee.firstName),
-      LastName(attendee.lastName),
+  private def build(attendee: GenericAttendee, attendeeId: AttendeeId, eventId: EventId, now: DateTime): Attendee =
+    Attendee(
+      attendeeId,
+      eventId,
+      FullName.build(FirstName(attendee.firstName), LastName(attendee.lastName)),
+      TextMultiline(attendee.description),
+      TextHTML(attendee.descriptionHTML),
+      AttendeeImages(
+        ImageUrl(attendee.avatar)),
+      AttendeeInfo(
+        AttendeeRole(attendee.role),
+        Genre(""),
+        FirstName(attendee.firstName),
+        LastName(attendee.lastName),
+        None,
+        Email(""),
+        PhoneNumber(""),
+        Address("", "", "", ""),
+        JobTitle(""),
+        CompanyName(attendee.company),
+        attendee.siteUrl.map(url => WebsiteUrl(url))),
       None,
-      Email(""),
-      PhoneNumber(""),
-      Address("", "", "", ""),
-      JobTitle(""),
-      CompanyName(attendee.company),
-      attendee.siteUrl.map(url => WebsiteUrl(url))),
-    None,
-    AttendeeSocial(None, None, attendee.twitterUrl.map(url => WebsiteUrl(url)), None, None, None),
-    List(),
-    AttendeeMeta(Some(attendee.source), now, now))
+      AttendeeSocial(None, None, attendee.twitterUrl.map(url => WebsiteUrl(url)), None, None, None),
+      List(),
+      AttendeeMeta(Some(attendee.source), now, now))
 
-  private def build(exponent: GenericExponent, exponentId: ExponentId, eventId: EventId, now: DateTime, exponentTeam: Map[String, List[String]], attendees: List[Attendee]): Exponent = Exponent(
-    exponentId,
-    eventId,
-    None, //ownerId
-    FullName(exponent.name),
-    TextMultiline(exponent.description),
-    TextHTML(exponent.descriptionHTML),
-    ExponentImages(
-      ImageUrl(""), //logo
-      ImageUrl("")), //landing
-    ExponentInfo(
-      WebsiteUrl(""),
-      EventLocation(exponent.place),
-      findAttendeeIds(exponentTeam.get(exponent.source.ref), attendees),
-      None), //sponsorLevel
-    ExponentConfig(false),
-    ExponentMeta(Some(exponent.source), now, now))
+  private def build(exponent: GenericExponent, exponentId: ExponentId, eventId: EventId, now: DateTime, exponentTeam: Map[String, List[String]], attendees: List[Attendee]): Exponent =
+    Exponent(
+      exponentId,
+      eventId,
+      None, //ownerId
+      FullName(exponent.name),
+      TextMultiline(exponent.description),
+      TextHTML(exponent.descriptionHTML),
+      ExponentImages(
+        ImageUrl(""), //logo
+        ImageUrl("")), //landing
+      ExponentInfo(
+        WebsiteUrl(""),
+        EventLocation(exponent.place),
+        findAttendeeIds(exponentTeam.get(exponent.source.ref), attendees),
+        None), //sponsorLevel
+      ExponentConfig(false),
+      ExponentMeta(Some(exponent.source), now, now))
 
-  private def build(session: GenericSession, sessionId: SessionId, eventId: EventId, now: DateTime, sessionSpeakers: Map[String, List[String]], attendees: List[Attendee]): Session = Session(
-    sessionId,
-    eventId,
-    FullName(session.name),
-    TextMultiline(session.description),
-    TextHTML(session.descriptionHTML),
-    SessionImages(
-      ImageUrl("")),
-    SessionInfo(
-      session.format,
-      session.theme,
-      EventLocation(session.place),
-      session.start,
-      session.end,
-      findAttendeeIds(sessionSpeakers.get(session.source.ref), attendees),
-      None,
-      None),
-    SessionMeta(Some(session.source), now, now))
+  private def build(session: GenericSession, sessionId: SessionId, eventId: EventId, now: DateTime, sessionSpeakers: Map[String, List[String]], attendees: List[Attendee]): Session =
+    Session(
+      sessionId,
+      eventId,
+      FullName(session.name),
+      TextMultiline(session.description),
+      TextHTML(session.descriptionHTML),
+      SessionImages(
+        ImageUrl("")),
+      SessionInfo(
+        session.format,
+        session.theme,
+        EventLocation(session.place),
+        session.start,
+        session.end,
+        findAttendeeIds(sessionSpeakers.get(session.source.ref), attendees),
+        None,
+        None),
+      SessionMeta(Some(session.source), now, now))
 
   private def findAttendeeIds(refs: Option[List[String]], attendees: List[Attendee]): List[AttendeeId] = {
     refs.map {

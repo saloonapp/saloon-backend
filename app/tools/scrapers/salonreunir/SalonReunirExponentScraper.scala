@@ -1,9 +1,12 @@
 package tools.scrapers.salonreunir
 
+import common.models.event.GenericEvent
 import tools.scrapers.salonreunir.models.SalonReunirExponent
+import tools.utils.CsvUtils
 import tools.utils.Scraper
 import tools.utils.ScraperUtils
 import scala.collection.JavaConversions._
+import play.api.libs.json.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -14,6 +17,8 @@ import org.jsoup.nodes.Element
  */
 object SalonReunirExponentScraper extends Scraper[SalonReunirExponent] {
   val baseUrl = "http://salon.reunir.com"
+  override def toCsv(value: SalonReunirExponent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
+  override def toGenericEvent(value: SalonReunirExponent): List[GenericEvent] = List()
 
   override def extractLinkList(html: String, baseUrl: String): List[String] = {
     val doc = Jsoup.parse(html)

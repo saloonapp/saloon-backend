@@ -58,7 +58,7 @@ trait MongoDbEventRepository extends Repository[Event, EventId] {
     }
   }
 
-  def getBySource(source: Source): Future[Option[Event]] = crud.get(Json.obj("meta.source" -> source))
+  def getBySources(sources: List[Source]): Future[Option[Event]] = crud.get(Json.obj("meta.source" -> sources.head)) // TODO build OR for all sources
   def findByUuids(eventIds: List[EventId]): Future[List[Event]] = crud.findByUuids(eventIds.map(_.unwrap))
   def findForOrganizations(organizationIds: List[OrganizationId]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> organizationIds.map(_.unwrap))))
   def setDraft(eventId: EventId): Future[LastError] = setStatus(eventId, EventStatus.draft)

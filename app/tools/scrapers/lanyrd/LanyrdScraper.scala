@@ -1,10 +1,13 @@
 package tools.scrapers.lanyrd
 
+import common.models.event.GenericEvent
+import tools.utils.CsvUtils
 import tools.utils.Scraper
 import tools.utils.ScraperUtils
 import tools.scrapers.lanyrd.models.LanyrdEvent
 import tools.scrapers.lanyrd.models.LanyrdAddress
 import scala.collection.JavaConversions._
+import play.api.libs.json.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -22,6 +25,8 @@ import java.util.Locale
  */
 object LanyrdScraper extends Scraper[LanyrdEvent] {
   val baseUrl = "http://lanyrd.com"
+  override def toCsv(value: LanyrdEvent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
+  override def toGenericEvent(value: LanyrdEvent): List[GenericEvent] = List(value).map(e => LanyrdEvent.toGenericEvent(e))
 
   override def extractLinkList(html: String, baseUrl: String): List[String] = {
     val doc = Jsoup.parse(html)

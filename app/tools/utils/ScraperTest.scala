@@ -10,7 +10,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsString
 import play.api.mvc._
 
-trait ScraperTest[T <: CsvElt] extends Controller {
+trait ScraperTest[T] extends Controller {
   val scraper: Scraper[T]
   val tests: Map[String, T]
 

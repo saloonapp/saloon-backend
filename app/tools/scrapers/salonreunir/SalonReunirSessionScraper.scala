@@ -24,12 +24,13 @@ import org.joda.time.format.DateTimeFormat
  * 	- http://salon.reunir.com/conferences/
  */
 object SalonReunirSessionScraper extends Controller {
+  def toCsv(value: SalonReunirSession): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
 
   def getListDetails(listUrl: String, format: String) = Action.async { implicit req =>
     fetchListDetails(listUrl).map {
       _ match {
         case Success(elts) => format match {
-          case "csv" => Ok(CsvUtils.makeCsv(elts.map(_.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
+          case "csv" => Ok(CsvUtils.makeCsv(elts.map(e => toCsv(e)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
           case _ => Ok(Json.obj("results" -> elts))
         }
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))

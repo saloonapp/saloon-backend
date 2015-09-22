@@ -1,5 +1,7 @@
 package tools.utils
 
+import common.models.event.GenericEvent
+import common.models.event.GenericEventOrganizer
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
@@ -9,10 +11,15 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import play.api.libs.json.Writes
 import play.api.mvc._
+import java.util.Locale
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
-trait Scraper[T <: CsvElt] extends Controller {
+trait Scraper[T] extends Controller {
   val baseUrl: String
+  def toCsv(value: T): Map[String, String]
+  def toCsv(value: GenericEvent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
+  def toGenericEvent(value: T): List[GenericEvent]
   def extractLinkList(html: String, baseUrl: String): List[String]
   def extractLinkPages(html: String): List[String] = List()
   def extractDetails(html: String, baseUrl: String, pageUrl: String): T
@@ -25,7 +32,7 @@ trait Scraper[T <: CsvElt] extends Controller {
     fetchDetails(detailsUrl).map {
       _ match {
         case Success(value) => format match {
-          case "csv" => Ok(CsvUtils.makeCsv(List(value.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
+          case "csv" => Ok(CsvUtils.makeCsv(List(toCsv(value)))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
           case _ => Ok(Json.toJson(value))
         }
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -47,23 +54,55 @@ trait Scraper[T <: CsvElt] extends Controller {
 
   def getEventListDetails(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
     val start = new DateTime()
-    fetchLinkList(eventListUrl).flatMap {
+    withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
+      val successResult = elts.map(_._2)
+      val errorResult = errors.map { case (url, e) => Json.obj("error" -> e.getMessage(), "url" -> url) }
+      format match {
+        case "csv" => Future(CsvUtils.OkCsv(successResult.map(toCsv), "scraper_export.csv"))
+        case _ => Future(Ok(Json.obj("results" -> successResult, "errors" -> errorResult, "nbElts" -> urls.length, "offset" -> offset, "limit" -> limit, "duration" -> (new DateTime().getMillis() - start.getMillis()) / 1000)))
+      }
+    }
+  }
+
+  def getGenericDetails(detailsUrl: String, format: String)(implicit writer: Writes[T]) = Action.async { implicit req =>
+    fetchDetails(detailsUrl).map {
       _ match {
-        case Success(urls) => fetchDetailsList(urls.drop(offset).take(limit), sequentially).map { list =>
-          val (successList, errorList) = list.partition { case (url, elt) => elt.isSuccess }
-          val successResult = successList.map { case (url, elt) => elt.toOption }.flatten
-          val errorResult = errorList.map {
-            case (url, elt) => elt match {
-              case Failure(e) => Some(Json.obj("error" -> e.getMessage(), "url" -> url))
-              case _ => None
-            }
-          }.flatten
+        case Success(value) => {
+          val genericEvents = toGenericEvent(value)
           format match {
-            case "csv" => Ok(CsvUtils.makeCsv(successResult.map(_.toCsv))).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"scraper_export.csv\"")).as("text/csv")
-            case _ => Ok(Json.obj("results" -> successResult, "errors" -> errorResult, "nbElts" -> urls.length, "offset" -> offset, "limit" -> limit, "duration" -> (new DateTime().getMillis() - start.getMillis()) / 1000))
+            case "csv" => CsvUtils.OkCsv(genericEvents.map(toCsv), "scraper_export.csv")
+            case _ => Ok(Json.toJson(genericEvents))
           }
         }
-        case Failure(e) => Future(Ok(Json.obj("error" -> e.getMessage())))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
+    }
+  }
+
+  def getGenericEventListDetails(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String) = Action.async { implicit req =>
+    withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
+      val genericEvents = elts.flatMap { case (url, elt) => toGenericEvent(elt) }
+      format match {
+        case "csv" => Future(CsvUtils.OkCsv(genericEvents.map(toCsv), "scraper_export.csv"))
+        case _ => Future(Ok(Json.toJson(genericEvents)))
+      }
+    }
+  }
+
+  def getContactList(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean = false, format: String) = Action.async { implicit req =>
+    val start = new DateTime()
+    withDetailsList(eventListUrl, offset, limit, sequentially) { (urls, elts, errors) =>
+      val genericEvents = elts.flatMap { case (url, elt) => toGenericEvent(elt) }
+      val contacts = genericEvents
+        .filter(e => e.end.map(d => isInNextMonths(d, 1, 10)).getOrElse(false)) // keep only upcoming events
+        .flatMap(e => List(toMap(e)) ++ e.organizers.map(o => toMap(e, o))) // expand events to all contacts
+        .groupBy(_.get("email").getOrElse("")) // group contacts by emails
+        .filter { case (email, events) => !email.isEmpty } // remove empty email
+        .map { case (email, events) => events.sortWith(dateSort).head } // keep only the first event (by date) for each email
+        .toList.sortWith(dateSort) // sort contacts by event date
+      format match {
+        case "csv" => Future(CsvUtils.OkCsv(contacts, "scraper_export.csv"))
+        case _ => Future(Ok(Json.obj("contacts" -> contacts, "nbElts" -> urls.length, "offset" -> offset, "limit" -> limit, "duration" -> (new DateTime().getMillis() - start.getMillis()) / 1000)))
       }
     }
   }
@@ -115,5 +154,56 @@ trait Scraper[T <: CsvElt] extends Controller {
       Future(results)
     }
   }
+
+  def withDetailsList(eventListUrl: String, offset: Int, limit: Int, sequentially: Boolean)(block: (List[String], List[(String, T)], List[(String, Throwable)]) => Future[Result]): Future[Result] = {
+    fetchLinkList(eventListUrl).flatMap {
+      _ match {
+        case Success(urls) => fetchDetailsList(urls.drop(offset).take(limit), sequentially).flatMap { results =>
+          val elts = results.collect { case (url, Success(elt)) => (url, elt) }
+          val errors = results.collect { case (url, Failure(e)) => (url, e) }
+          block(urls, elts, errors)
+        }
+        case Failure(e) => Future(Ok(Json.obj("error" -> e.getMessage())))
+      }
+    }
+  }
+
+  /*
+   * Utils methods
+   */
+
+  private def isInNextMonths(date: DateTime, start: Int, end: Int): Boolean = {
+    val now = new DateTime()
+    return date.isAfter(now.plusMonths(start)) && date.isBefore(now.plusMonths(end))
+  }
+  private def toMap(e: GenericEvent, o: GenericEventOrganizer): Map[String, String] = Map(
+    "eventUrl" -> e.sources.headOption.map(_.url).getOrElse(""),
+    "eventDate" -> formatDate(e.start),
+    "eventName" -> e.name,
+    "contactName" -> o.name,
+    "contactSite" -> o.website,
+    "email" -> o.email,
+    "contactPhone" -> formatPhone(o.phone))
+  private def toMap(e: GenericEvent): Map[String, String] = Map(
+    "eventUrl" -> e.sources.headOption.map(_.url).getOrElse(""),
+    "eventDate" -> formatDate(e.start),
+    "eventName" -> e.name,
+    "contactName" -> "",
+    "contactSite" -> e.website,
+    "email" -> e.email,
+    "contactPhone" -> formatPhone(e.phone))
+  private def dateSort(e1: Map[String, String], e2: Map[String, String]): Boolean = {
+    val d1 = e1.get("eventDate").get
+    val d2 = e2.get("eventDate").get
+    if (d1 == d2) {
+      e1.get("eventName").get < e2.get("eventName").get
+    } else {
+      parseDate(d1).isBefore(parseDate(d2))
+    }
+  }
+  private val dateFormat = DateTimeFormat.forPattern("dd/MM/yyyy").withLocale(Locale.FRENCH)
+  private def parseDate(d: String): DateTime = DateTime.parse(d, dateFormat)
+  private def formatDate(d: Option[DateTime]): String = d.map(_.toString(dateFormat)).getOrElse("")
+  private def formatPhone(str: String): String = str.replace("+33 (0)", "0").replace("-", " ").replace(".", " ")
 
 }

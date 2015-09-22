@@ -4,11 +4,62 @@ import common.models.values.Source
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 
+case class GenericEventAddress(
+  name: String,
+  complement: String,
+  street: String,
+  zipCode: String,
+  city: String,
+  country: String)
+object GenericEventAddress {
+  implicit val format = Json.format[GenericEventAddress]
+}
+case class GenericEventVenue(
+  logo: String,
+  name: String,
+  address: GenericEventAddress,
+  website: String,
+  email: String,
+  phone: String)
+object GenericEventVenue {
+  implicit val format = Json.format[GenericEventVenue]
+}
+case class GenericEventOrganizer(
+  logo: String,
+  name: String,
+  address: GenericEventAddress,
+  website: String,
+  email: String,
+  phone: String)
+object GenericEventOrganizer {
+  implicit val format = Json.format[GenericEventOrganizer]
+}
+case class GenericEventStats(
+  year: Option[Int],
+  area: Option[Int],
+  exponents: Option[Int],
+  registration: Option[Int],
+  visitors: Option[Int])
+object GenericEventStats {
+  implicit val format = Json.format[GenericEventStats]
+}
 case class GenericEvent(
-  source: Source,
+  sources: List[Source],
+  logo: String,
   name: String,
   start: Option[DateTime],
   end: Option[DateTime],
+  description: String,
+  descriptionHTML: String,
+  venue: Option[GenericEventVenue],
+  organizers: List[GenericEventOrganizer],
+  website: String,
+  email: String,
+  phone: String,
+  tags: List[String],
+  socialUrls: Map[String, String],
+  stats: GenericEventStats,
+  status: String, // draft, publishing, published
 
   attendees: List[GenericAttendee],
   exponents: List[GenericExponent],
@@ -17,4 +68,13 @@ case class GenericEvent(
   sessionSpeakers: Map[String, List[String]])
 object GenericEvent {
   implicit val format = Json.format[GenericEvent]
+  object Social {
+    val twitterAccount = "twitterAccount"
+    val twitterHashtag = "twitterHashtag"
+  }
+  object Status {
+    val draft = "draft"
+    val publishing = "publishing"
+    val published = "published"
+  }
 }

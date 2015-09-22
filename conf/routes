@@ -275,7 +275,7 @@ GET       /api/v1/tools/scrapers/events/innorobo/exhibitors                     
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                            tools.controllers.Innorobo.getFullExibitors(offset: Int ?= 0, limit: Int ?= 5, format: String ?= "json")
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId                    tools.controllers.Innorobo.getExibitor(exhibitorId: String)
 
-# New tools
+# Generic tools
 GET       /tools/scrapers/utils/page                                                        tools.utils.GenericScraper.getPage(url: String)
 GET       /tools/scrapers/utils/metas                                                       tools.utils.GenericScraper.getMetas(url: String)
 
@@ -283,15 +283,21 @@ GET       /tools/scrapers/utils/metas                                           
 GET       /tools/scrapers/eventseye/details                                                 tools.scrapers.eventseye.EventsEyeScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listUrls                                                tools.scrapers.eventseye.EventsEyeScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listDetails                                             tools.scrapers.eventseye.EventsEyeScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
+GET       /tools/scrapers/eventseye/genericDetails                                          tools.scrapers.eventseye.EventsEyeScraper.getGenericDetails(url: String, format: String ?= "json")
+GET       /tools/scrapers/eventseye/genericListDetails                                      tools.scrapers.eventseye.EventsEyeScraper.getGenericEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
 GET       /tools/scrapers/eventseye/listContacts                                            tools.scrapers.eventseye.EventsEyeScraper.getContactList(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
 GET       /tools/scrapers/eventseye/test                                                    tools.scrapers.eventseye.EventsEyeScraperTest.test
 GET       /tools/scrapers/foiresetsalons/details                                            tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/foiresetsalons/listUrls                                           tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/foiresetsalons/listDetails                                        tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
+GET       /tools/scrapers/foiresetsalons/genericDetails                                     tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getGenericDetails(url: String, format: String ?= "json")
+GET       /tools/scrapers/foiresetsalons/genericListDetails                                 tools.scrapers.foiresetsalons.FoiresEtSalonsScraper.getGenericEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
 GET       /tools/scrapers/foiresetsalons/test                                               tools.scrapers.foiresetsalons.FoiresEtSalonsScraperTest.test
 GET       /tools/scrapers/lanyrd/details                                                    tools.scrapers.lanyrd.LanyrdScraper.getDetails(url: String, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/listUrls                                                   tools.scrapers.lanyrd.LanyrdScraper.getLinkList(url: String, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/listDetails                                                tools.scrapers.lanyrd.LanyrdScraper.getEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
+GET       /tools/scrapers/lanyrd/genericDetails                                             tools.scrapers.lanyrd.LanyrdScraper.getGenericDetails(url: String, format: String ?= "json")
+GET       /tools/scrapers/lanyrd/genericListDetails                                         tools.scrapers.lanyrd.LanyrdScraper.getGenericEventListDetails(url: String, offset: Int ?= 0, limit: Int ?= 10, sequentially: Boolean ?= false, format: String ?= "json")
 GET       /tools/scrapers/lanyrd/test                                                       tools.scrapers.lanyrd.LanyrdScraperTest.test
 
 # Event scrapers

@@ -1,5 +1,7 @@
 package tools.scrapers.foiresetsalons
 
+import common.models.event.GenericEvent
+import tools.utils.CsvUtils
 import tools.utils.Scraper
 import tools.utils.ScraperUtils
 import tools.scrapers.foiresetsalons.models.FoiresEtSalonsEvent
@@ -7,6 +9,7 @@ import tools.scrapers.foiresetsalons.models.FoiresEtSalonsAddress
 import tools.scrapers.foiresetsalons.models.FoiresEtSalonsStats
 import tools.scrapers.foiresetsalons.models.FoiresEtSalonsOrga
 import scala.collection.JavaConversions._
+import play.api.libs.json.Json
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -22,6 +25,8 @@ import org.joda.time.DateTime
  */
 object FoiresEtSalonsScraper extends Scraper[FoiresEtSalonsEvent] {
   val baseUrl = "https://www.foiresetsalons.entreprises.gouv.fr"
+  override def toCsv(value: FoiresEtSalonsEvent): Map[String, String] = CsvUtils.jsonToCsv(Json.toJson(value), 4)
+  override def toGenericEvent(value: FoiresEtSalonsEvent): List[GenericEvent] = List(value).map(e => FoiresEtSalonsEvent.toGenericEvent(e))
 
   override def extractLinkList(html: String, baseUrl: String): List[String] = {
     val doc = Jsoup.parse(fixEncodage(html))

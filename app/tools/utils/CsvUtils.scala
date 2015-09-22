@@ -1,10 +1,15 @@
 package tools.utils
 
 import play.api.libs.json._
+import play.api.mvc.Result
+import play.api.mvc.Results.Ok
+import play.api.http.HeaderNames.CONTENT_DISPOSITION
 import com.github.tototoshi.csv.CSVWriter
 import com.github.tototoshi.csv.DefaultCSVFormat
 
 object CsvUtils {
+  def OkCsv(data: List[Map[String, String]], filename: String): Result = Ok(makeCsv(data)).withHeaders(CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\"")).as("text/csv")
+
   def jsonToCsv(json: JsValue, maxDeep: Int = 1): Map[String, String] = toCsv(json, maxDeep).toMap
 
   private def toCsv(json: JsValue, maxDeep: Int, prefix: String = ""): List[(String, String)] = {

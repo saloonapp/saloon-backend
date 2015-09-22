@@ -2,6 +2,7 @@ package tools.scrapers.salonreunir.models
 
 import common.models.values.Source
 import common.models.event.GenericEvent
+import common.models.event.GenericEventStats
 import common.models.event.GenericAttendee
 import common.models.event.GenericExponent
 import common.models.event.GenericSession
@@ -45,10 +46,22 @@ object SalonReunirEvent {
     val sessionSpeakers = Map[String, List[String]]()
 
     GenericEvent(
-      Source(code, sourceName, url),
+      List(Source(code, sourceName, url)),
+      "", // logo
       name,
       Some(gSessions.map(_.start).flatten.minBy(_.getMillis())),
       Some(gSessions.map(_.end).flatten.maxBy(_.getMillis())),
+      "", // decription
+      "", // decriptionHTML
+      None, // venue
+      List(), // organizers
+      "", // website
+      "", // email
+      "", // phone
+      List(), // tags
+      Map(), // socialUrls
+      GenericEventStats(None, None, None, None, None),
+      GenericEvent.Status.draft,
       gAttendees,
       gExponent,
       gSessions,
