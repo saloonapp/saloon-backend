@@ -128,6 +128,8 @@ GET       /backend/eventDirectory                                               
 GET       /backend/eventDirectory/scrapers                                                  backend.controllers.eventDirectory.Scrapers.list
 GET       /backend/eventDirectory/scrapers/create                                           backend.controllers.eventDirectory.Scrapers.create
 POST      /backend/eventDirectory/scrapers                                                  backend.controllers.eventDirectory.Scrapers.doCreate
+GET       /backend/eventDirectory/scrapers/:scraperId/edit                                  backend.controllers.eventDirectory.Scrapers.update(scraperId: String)
+POST      /backend/eventDirectory/scrapers/:scraperId                                       backend.controllers.eventDirectory.Scrapers.doUpdate(scraperId: String)
 GET       /backend/eventDirectory/scrapers/:scraperId/refresh                               backend.controllers.eventDirectory.Scrapers.refresh(scraperId: String)
 POST      /backend/eventDirectory/scrapers/:scraperId/refresh                               backend.controllers.eventDirectory.Scrapers.doRefresh(scraperId: String)
 POST      /backend/eventDirectory/scrapers/:scraperId/delete                                backend.controllers.eventDirectory.Scrapers.doDelete(scraperId: String)

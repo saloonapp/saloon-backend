@@ -16,4 +16,6 @@ object ScraperData {
     "url" -> of[WebsiteUrl].verifying(nonEmpty))(ScraperData.apply)(ScraperData.unapply)
 
   def toModel(d: ScraperData): Scraper = Scraper(UUID.generate(), d.name, d.url, None)
+  def fromModel(d: Scraper): ScraperData = ScraperData(d.name, d.url)
+  def merge(s: Scraper, d: ScraperData): Scraper = s.copy(name = d.name, url = d.url)
 }

@@ -26,6 +26,8 @@ import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.EventItemRepository
+import backend.models.Scraper
+import backend.repositories.ConfigRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
@@ -72,6 +74,15 @@ trait ControllerHelpers {
       } yield {
         block(attendee, attendeeSessions, attendeeExponents)
       }).flatMap(identity)
+    }
+  }
+  def withScraper(scraperId: String)(block: Scraper => Future[Result])(implicit flash: Flash, req: RequestHeader, format: String = "html"): Future[Result] = {
+    ConfigRepository.getScraper(scraperId).flatMap {
+      case Some(data) => block(data)
+      case None => format match {
+        case "json" => Future(NotFound(Json.obj("message" -> "Scraper not found...")))
+        case _ => Future(NotFound(backend.views.html.error("404", "Scraper not found...")))
+      }
     }
   }
 

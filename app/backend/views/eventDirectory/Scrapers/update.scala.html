@@ -1,0 +1,27 @@
+@import common.models.values.typed.GenericId
+@import common.models.values.typed.FullName
+@import common.models.user.User
+@import backend.models.Scraper
+@import backend.forms.ScraperData
+@import backend.views.html._
+@import common.views.html.forms._
+@(scraperForm: Form[ScraperData], scraper: Scraper)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
+@layout("Modifier "+scraper.name, Map(GenericId(scraper.uuid) -> FullName(scraper.name))){
+	<div class="card">
+		<div class="card-header ch-alt">
+			<h2>Modifier @scraper.name :</h2>
+		</div>
+		<div class="card-body card-padding">
+			@helper.form(action=backend.controllers.eventDirectory.routes.Scrapers.doUpdate(scraper.uuid), 'class->"form-horizontal"){
+				@fieldHorizontal(scraperForm("name"), 'label -> "Nom", 'constraints -> "false"){field => <div class="fg-line">@inputText(field)</div> }
+				@fieldHorizontal(scraperForm("url"), 'label -> "Url", 'constraints -> "false"){field => <div class="fg-line">@inputText(field)</div> }
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<a href="@req.headers("referer")" class="btn btn-default">Annuler</a>
+						<button type="submit" class="btn btn-success">Modifier</button>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}

@@ -71,6 +71,7 @@ object Breadcrumb {
             case "team" => (backend.controllers.routes.AttendeeTeam.update(getEventId(identifiers), ItemType.exponents, getExponentId(identifiers), getAttendeeId(identifiers)), "Modification")
             case ItemType.sessions.value => (backend.controllers.routes.Sessions.update(getEventId(identifiers), getSessionId(identifiers)), "Modification")
             case "speakers" => (backend.controllers.routes.AttendeeTeam.update(getEventId(identifiers), ItemType.sessions, getSessionId(identifiers), getAttendeeId(identifiers)), "Modification")
+            case "scrapers" => (backend.controllers.eventDirectory.routes.Scrapers.update(getId(identifiers, "scraper")), "Modification")
           }
       }
       case "delete" => list(index - 2) match {

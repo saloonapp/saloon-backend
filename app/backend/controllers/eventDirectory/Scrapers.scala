@@ -4,7 +4,9 @@ import common.models.values.UUID
 import common.models.event.GenericEvent
 import common.repositories.event.GenericEventRepository
 import backend.utils.WSUtils
+import backend.utils.ControllerHelpers
 import backend.models.ScrapersConfig
+import backend.models.Scraper
 import backend.repositories.ConfigRepository
 import backend.services.GenericEventImport
 import backend.forms.ScraperData
@@ -20,7 +22,7 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import reactivemongo.core.commands.LastError
 
-object Scrapers extends SilhouetteEnvironment {
+object Scrapers extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[ScraperData] = Form(ScraperData.fields)
   val refreshForm = Form(single(
     "data" -> nonEmptyText))
@@ -29,8 +31,14 @@ object Scrapers extends SilhouetteEnvironment {
     implicit val user = req.identity
     ConfigRepository.getScrapersConfig().map { scrapersConfigOpt =>
       val scraperConfig = scrapersConfigOpt.getOrElse(ScrapersConfig())
-      Ok(backend.views.html.eventDirectory.Scrapers.list(scraperConfig))
+      Ok(backend.views.html.eventDirectory.Scrapers.list(scraperConfig.scrapers.sortWith(dateSort)))
     }
+  }
+  private def dateSort(s1: Scraper, s2: Scraper): Boolean = {
+    if (s1.lastExec == s2.lastExec) { s1.name < s2.name }
+    else if (s1.lastExec.isEmpty) { false }
+    else if (s2.lastExec.isEmpty) { true }
+    else { s2.lastExec.get.isBefore(s1.lastExec.get) }
   }
 
   def create = SecuredAction { implicit req =>
@@ -49,6 +57,28 @@ object Scrapers extends SilhouetteEnvironment {
           Redirect(backend.controllers.eventDirectory.routes.Scrapers.list).flashing("error" -> s"Problème lors de la création du scraper '${formData.name}' :(")
         }
       })
+  }
+
+  def update(scraperId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withScraper(scraperId) { scraper =>
+      Future(Ok(backend.views.html.eventDirectory.Scrapers.update(createForm.fill(ScraperData.fromModel(scraper)), scraper)))
+    }
+  }
+
+  def doUpdate(scraperId: String) = SecuredAction.async { implicit req =>
+    implicit val user = req.identity
+    withScraper(scraperId) { scraper =>
+      createForm.bindFromRequest.fold(
+        formWithErrors => Future(BadRequest(backend.views.html.eventDirectory.Scrapers.update(formWithErrors, scraper))),
+        formData => ConfigRepository.updateScraper(scraperId, ScraperData.merge(scraper, formData)).map { err =>
+          if (err.ok) {
+            Redirect(backend.controllers.eventDirectory.routes.Scrapers.list).flashing("success" -> s"Le scraper '${formData.name}' a bien été modifié")
+          } else {
+            InternalServerError(backend.views.html.eventDirectory.Scrapers.update(createForm.fill(formData), scraper))
+          }
+        })
+    }
   }
 
   def refresh(scraperId: String) = SecuredAction.async { implicit req =>
