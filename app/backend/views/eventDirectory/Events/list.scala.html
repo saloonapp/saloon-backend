@@ -6,9 +6,65 @@
 @layout("Événements"){
 	<div class="card">
 		<div class="card-header ch-alt">
-			<h2>Événements :</h2>
+			<h2>
+				Événements :
+				<small>
+					<form>
+						<div class="row">
+							<div class="col-md-3">
+								<div class="form-group fg-float" style="margin: 0px;">
+									<div class="fg-line"><input type="text" class="form-control fg-input"></div>
+									<label class="fg-label">Chercher ...</label>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group fg-float" style="margin: 0px;">
+									<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="start" id="start"></div>
+									<label class="fg-label">Début (dd/MM/yyyy)</label>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group fg-float" style="margin: 0px;">
+									<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="end" id="end"></div>
+									<label class="fg-label">Fin (dd/MM/yyyy)</label>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<button type="submit" class="btn btn-success"><i class="md md-search"></i></button>
+							</div>
+						</div>
+					</form>
+				</small>
+			</h2>
+			<ul class="actions">
+				<li class="dropdown">
+					<a href="" data-toggle="dropdown" title="Filtrer les résultats"><i class="md md-filter-list"></i></a>
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li><a href="">Événements publiés</a></li>
+						<li><a href="">Événements avec un email de contact</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="" data-toggle="dropdown" title="Trier les résultats"><i class="md md-sort"></i></a>
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li><a href="">Par date</a></li>
+						<li><a href="">Par nom</a></li>
+						<li><a href="">Par organisateur</a></li>
+						<li><a href="">Par lieu</a></li>
+						<li><a href="">Par source</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" data-toggle="dropdown" title="Exporter"><i class="md md-file-download"></i></a>
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li><a href="">Télécharger les événements</a></li>
+						<li><a href="">Télécharger les contacts pour les événements</a></li>
+					</ul>
+				</li>
+			</ul>
+			<a href="" class="btn bgm-red btn-float"><i class="md md-add"></i></a>
 		</div>
-		<div class="table-responsive">
+		<div class="card-body">
 			<table class="table table-hover">
 				<thead>
 					<tr>

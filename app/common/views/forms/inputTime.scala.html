@@ -1,0 +1,11 @@
+@import common.views._
+@(field: Field, args: (Symbol, String)*)
+<input
+  type="@Helpers.getArg(args, "type", "text")"
+  class="form-control timepicker @Helpers.getArg(args, "class")"
+  name="@field.name"
+  id="@field.id"
+  value="@field.value"
+  placeholder="@Helpers.getArg(args, "placeholder", "HH:mm")"
+  @Helpers.toHtmlArgs(args, Seq("type", "class", "placeholder"))
+  @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>

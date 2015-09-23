@@ -8,6 +8,12 @@ $(document).ready(function(){
 	if($('.datetimepicker')[0]){
 		$('.datetimepicker').datetimepicker();
 	}
+	if($('.datepicker')[0]){
+		$('.datepicker').datetimepicker({format: 'DD/MM/YYYY'});
+	}
+	if($('.timepicker')[0]){
+		$('.timepicker').datetimepicker({format: 'LT'});
+	}
 	if($('.select2')[0]){
 		$('.select2').each(function(){
 			$(this).select2({
