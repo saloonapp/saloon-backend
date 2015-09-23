@@ -7,24 +7,24 @@
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>
-				Événements :
+				Événements (@events.length) :
 				<small>
 					<form>
 						<div class="row">
 							<div class="col-md-3">
-								<div class="form-group fg-float" style="margin: 0px;">
+								<div class="form-group fg-float">
 									<div class="fg-line"><input type="text" class="form-control fg-input"></div>
 									<label class="fg-label">Chercher ...</label>
 								</div>
 							</div>
 							<div class="col-md-3">
-								<div class="form-group fg-float" style="margin: 0px;">
+								<div class="form-group fg-float">
 									<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="start" id="start"></div>
 									<label class="fg-label">Début (dd/MM/yyyy)</label>
 								</div>
 							</div>
 							<div class="col-md-3">
-								<div class="form-group fg-float" style="margin: 0px;">
+								<div class="form-group fg-float">
 									<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="end" id="end"></div>
 									<label class="fg-label">Fin (dd/MM/yyyy)</label>
 								</div>
@@ -64,34 +64,41 @@
 			</ul>
 			<a href="" class="btn bgm-red btn-float"><i class="md md-add"></i></a>
 		</div>
-		<div class="card-body">
-			<table class="table table-hover">
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Nom</th>
-						<th>Date</th>
-						<th>Liens</th>
-					</tr>
-				</thead>
-				<tbody>
-					@events.zipWithIndex.map { case (event, index) =>
+		@if(events.length > 0){
+			<div class="card-body">
+				<table class="table table-hover">
+					<thead>
 						<tr>
-							<td>@{index+1}</td>
-							<td><a href="@backend.controllers.eventDirectory.routes.Events.details(event.uuid)">@event.name</a></td>
-							<td>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</td>
-							<td>
-								@event.info.website.map{ url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }
-								@event.info.email.map{ email => <a href="mailto:@email" target="_blank"><i class="md md-email"></i></a> }
-								@event.info.phone.map{ tel => <a href="tel:@tel" target="_blank"><i class="md md-phone"></i></a> }
-								@event.sources.map { source =>
-									<a href="@source.url" target="_blank"><i class="md md-launch"></i></a>
-								}
-							</td>
+							<th>#</th>
+							<th>Nom</th>
+							<th>Date</th>
+							<th>Liens</th>
 						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
+					</thead>
+					<tbody>
+						@events.zipWithIndex.map { case (event, index) =>
+							<tr>
+								<td>@{index+1}</td>
+								<td><a href="@backend.controllers.eventDirectory.routes.Events.details(event.uuid)">@event.name</a></td>
+								<td>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</td>
+								<td>
+									@event.info.website.map{ url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }
+									@event.info.email.map{ email => <a href="mailto:@email" target="_blank"><i class="md md-email"></i></a> }
+									@event.info.phone.map{ tel => <a href="tel:@tel" target="_blank"><i class="md md-phone"></i></a> }
+									@event.sources.map { source =>
+										<a href="@source.url" target="_blank"><i class="md md-launch"></i></a>
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+		@if(events.length == 0){
+			<div class="card-body card-padding">
+				Aucun scraper d'enregistré.
+			</div>
+		}
 	</div>
 }
