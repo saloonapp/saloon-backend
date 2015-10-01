@@ -36,6 +36,14 @@ Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
 
 Avec contact orga :
 
+- DONE (tel only) https://www.foiresetsalons.entreprises.gouv.fr/
+- (email & tel) http://www.parisinfo.com/ou-sortir-a-paris/foires-et-salons-a-paris
+- (email & tel) http://www.salonsparis.cci-paris-idf.fr/index.asp?idmetapage=4&t=multi&secteur=&acces=&date=&organisateur=&parcs1=
+- (via formulaire) http://www.salons-online.com/
+- (via formulaire) http://www.gazette-salons.fr/agenda-des-salons-paris-ile-de-france
+- (login nécessaire) http://www.allconferences.com/
+
 Sans contact :
 
 - http://www.viparis.com/viparisFront/do/salon/paris-nord-villepinte/recherche/listecongres
+- http://www.salon-entre-pros.fr/rechercher/

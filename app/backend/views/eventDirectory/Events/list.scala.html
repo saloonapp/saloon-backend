@@ -4,101 +4,123 @@
 @import backend.views.html._
 @(events: List[GenericEvent])(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @layout("Événements"){
-	<div class="card">
-		<div class="card-header ch-alt">
-			<h2>
-				Événements (@events.length) :
-				<small>
-					<form>
-						<div class="row">
-							<div class="col-md-3">
-								<div class="form-group fg-float">
-									<div class="fg-line"><input type="text" class="form-control fg-input"></div>
-									<label class="fg-label">Chercher ...</label>
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header ch-alt">
+					<h2>
+						Événements (@events.length) :
+						<small>
+							<form>
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group fg-float">
+											<div class="fg-line"><input type="text" class="form-control fg-input"></div>
+											<label class="fg-label">Chercher ...</label>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group fg-float">
+											<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="start" id="start"></div>
+											<label class="fg-label">Début (dd/MM/yyyy)</label>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group fg-float">
+											<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="end" id="end"></div>
+											<label class="fg-label">Fin (dd/MM/yyyy)</label>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<button type="submit" class="btn btn-success"><i class="md md-search"></i></button>
+									</div>
 								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="form-group fg-float">
-									<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="start" id="start"></div>
-									<label class="fg-label">Début (dd/MM/yyyy)</label>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="form-group fg-float">
-									<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="end" id="end"></div>
-									<label class="fg-label">Fin (dd/MM/yyyy)</label>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<button type="submit" class="btn btn-success"><i class="md md-search"></i></button>
-							</div>
-						</div>
-					</form>
-				</small>
-			</h2>
-			<ul class="actions">
-				<li class="dropdown">
-					<a href="" data-toggle="dropdown" title="Filtrer les résultats"><i class="md md-filter-list"></i></a>
-					<ul class="dropdown-menu dropdown-menu-right">
-						<li><a href="">Événements publiés</a></li>
-						<li><a href="">Événements avec un email de contact</a></li>
+							</form>
+						</small>
+					</h2>
+					<ul class="actions">
+						<li class="dropdown">
+							<a href="" data-toggle="dropdown" title="Filtrer les résultats"><i class="md md-filter-list"></i></a>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li><a href="">Événements publiés</a></li>
+								<li><a href="">Événements avec un email de contact</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="" data-toggle="dropdown" title="Trier les résultats"><i class="md md-sort"></i></a>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li><a href="">Par date</a></li>
+								<li><a href="">Par nom</a></li>
+								<li><a href="">Par organisateur</a></li>
+								<li><a href="">Par lieu</a></li>
+								<li><a href="">Par source</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" data-toggle="dropdown" title="Exporter"><i class="md md-file-download"></i></a>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li><a href="">Télécharger les événements</a></li>
+								<li><a href="">Télécharger les contacts pour les événements</a></li>
+							</ul>
+						</li>
 					</ul>
-				</li>
-				<li class="dropdown">
-					<a href="" data-toggle="dropdown" title="Trier les résultats"><i class="md md-sort"></i></a>
-					<ul class="dropdown-menu dropdown-menu-right">
-						<li><a href="">Par date</a></li>
-						<li><a href="">Par nom</a></li>
-						<li><a href="">Par organisateur</a></li>
-						<li><a href="">Par lieu</a></li>
-						<li><a href="">Par source</a></li>
-					</ul>
-				</li>
-				<li class="dropdown">
-					<a href="#" data-toggle="dropdown" title="Exporter"><i class="md md-file-download"></i></a>
-					<ul class="dropdown-menu dropdown-menu-right">
-						<li><a href="">Télécharger les événements</a></li>
-						<li><a href="">Télécharger les contacts pour les événements</a></li>
-					</ul>
-				</li>
-			</ul>
-			<a href="" class="btn bgm-red btn-float"><i class="md md-add"></i></a>
+					<a href="" class="btn bgm-red btn-float"><i class="md md-add"></i></a>
+				</div>
+				@if(events.length > 0){
+					<div class="card-body">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Nom</th>
+									<th>Date</th>
+									<th>Liens</th>
+								</tr>
+							</thead>
+							<tbody>
+								@events.zipWithIndex.map { case (event, index) =>
+									<tr>
+										<td>@{index+1}</td>
+										<td><a href="@backend.controllers.eventDirectory.routes.Events.details(event.uuid)">@event.name</a></td>
+										<td>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</td>
+										<td>
+											@event.info.website.map{ url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }
+											@event.info.email.map{ email => <a href="mailto:@email" target="_blank"><i class="md md-email"></i></a> }
+											@event.info.phone.map{ tel => <a href="tel:@tel" target="_blank"><i class="md md-phone"></i></a> }
+											@event.sources.map { source =>
+												<a href="@source.url" target="_blank"><i class="md md-launch"></i></a>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+				@if(events.length == 0){
+					<div class="card-body card-padding">
+						Aucun événement enregistré.
+					</div>
+				}
+			</div>
 		</div>
-		@if(events.length > 0){
-			<div class="card-body">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th>#</th>
-							<th>Nom</th>
-							<th>Date</th>
-							<th>Liens</th>
-						</tr>
-					</thead>
-					<tbody>
-						@events.zipWithIndex.map { case (event, index) =>
-							<tr>
-								<td>@{index+1}</td>
-								<td><a href="@backend.controllers.eventDirectory.routes.Events.details(event.uuid)">@event.name</a></td>
-								<td>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</td>
-								<td>
-									@event.info.website.map{ url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }
-									@event.info.email.map{ email => <a href="mailto:@email" target="_blank"><i class="md md-email"></i></a> }
-									@event.info.phone.map{ tel => <a href="tel:@tel" target="_blank"><i class="md md-phone"></i></a> }
-									@event.sources.map { source =>
-										<a href="@source.url" target="_blank"><i class="md md-launch"></i></a>
-									}
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header ch-alt"><h2>Tags :</h2></div>
+				<div class="card-body card-padding" style="max-height: 400px; overflow: auto;">
+					@events.flatMap(_.tags).groupBy(identity).map(e => (e._1, e._2.length)).filter(_._2 > 4).toList.sortBy(_._1).map { case (tag, occurences) =>
+						<a href="#" title="@occurences occurences" style="font-size: @{8+occurences/4}pt;">@tag</a>
+					}
+				</div>
 			</div>
-		}
-		@if(events.length == 0){
-			<div class="card-body card-padding">
-				Aucun scraper d'enregistré.
+			<div class="card">
+				<div class="card-header ch-alt"><h2>Timeline :</h2></div>
+				<div class="card-body card-padding" style="max-height: 400px; overflow: auto;">
+					@events.map(_.info.start).flatten.groupBy(_.toString("MM yyyy")).map(e => (e._2.head, e._2.length)).toList.sortWith((e1, e2) => e1._1.isBefore(e2._1)).map { case (month, nbEvents) =>
+						<a href="#">@{date(month, "MMMM yyyy")} (@nbEvents)</a><br>
+					}
+				</div>
 			</div>
-		}
+		</div>
 	</div>
 }
