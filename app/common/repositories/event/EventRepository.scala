@@ -18,7 +18,8 @@ import reactivemongo.api.DB
 import reactivemongo.bson.BSONDocument
 import reactivemongo.bson.BSONArray
 import reactivemongo.core.commands.RawCommand
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.UpdateWriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.BSONFormats
@@ -61,11 +62,11 @@ trait MongoDbEventRepository extends Repository[Event, EventId] {
   def getBySources(sources: List[Source]): Future[Option[Event]] = crud.get(Json.obj("meta.source" -> sources.head)) // TODO build OR for all sources
   def findByUuids(eventIds: List[EventId]): Future[List[Event]] = crud.findByUuids(eventIds.map(_.unwrap))
   def findForOrganizations(organizationIds: List[OrganizationId]): Future[List[Event]] = crud.find(Json.obj("ownerId" -> Json.obj("$in" -> organizationIds.map(_.unwrap))))
-  def setDraft(eventId: EventId): Future[LastError] = setStatus(eventId, EventStatus.draft)
-  def setPublishing(eventId: EventId): Future[LastError] = setStatus(eventId, EventStatus.publishing)
-  def setPublished(eventId: EventId): Future[LastError] = setStatus(eventId, EventStatus.published)
-  private def setStatus(eventId: EventId, status: EventStatus): Future[LastError] = crud.update(Json.obj("uuid" -> eventId), Json.obj("$set" -> Json.obj("meta.status" -> status)))
-  def bulkInsert(elts: List[Event]): Future[Int] = crud.bulkInsert(elts)
+  def setDraft(eventId: EventId): Future[UpdateWriteResult] = setStatus(eventId, EventStatus.draft)
+  def setPublishing(eventId: EventId): Future[UpdateWriteResult] = setStatus(eventId, EventStatus.publishing)
+  def setPublished(eventId: EventId): Future[UpdateWriteResult] = setStatus(eventId, EventStatus.published)
+  private def setStatus(eventId: EventId, status: EventStatus): Future[UpdateWriteResult] = crud.update(Json.obj("uuid" -> eventId), Json.obj("$set" -> Json.obj("meta.status" -> status)))
+  def bulkInsert(elts: List[Event]): Future[MultiBulkWriteResult] = crud.bulkInsert(elts)
   def drop(): Future[Boolean] = crud.drop()
 }
 object EventRepository extends MongoDbEventRepository

@@ -11,6 +11,7 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import reactivemongo.api.DB
+import reactivemongo.api.commands.MultiBulkWriteResult
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -34,6 +35,6 @@ trait MongoDbDeviceRepository extends Repository[Device, DeviceId] {
 
   def findByUuids(deviceIds: List[DeviceId]): Future[List[Device]] = crud.findByUuids(deviceIds.map(_.unwrap))
   def getByDeviceId(deviceUuid: String): Future[Option[Device]] = crud.getBy("info.uuid", deviceUuid)
-  def bulkInsert(devices: List[Device]): Future[Int] = crud.bulkInsert(devices)
+  def bulkInsert(devices: List[Device]): Future[MultiBulkWriteResult] = crud.bulkInsert(devices)
 }
 object DeviceRepository extends MongoDbDeviceRepository

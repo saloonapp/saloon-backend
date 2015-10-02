@@ -15,7 +15,9 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.UpdateWriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -44,13 +46,13 @@ trait MongoDbExponentRepository extends Repository[Exponent, ExponentId] {
   def findByEventAttendee(eventId: EventId, attendeeId: AttendeeId): Future[List[Exponent]] = crud.findAll(filter = Json.obj("eventId" -> eventId.unwrap, "info.team" -> attendeeId.unwrap))
   def countForEvent(eventId: EventId): Future[Int] = crud.countFor("eventId", eventId.unwrap)
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
-  def addTeamMember(exponentId: ExponentId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> exponentId.unwrap), Json.obj("$addToSet" -> Json.obj("info.team" -> attendeeId.unwrap)))
-  def removeTeamMember(exponentId: ExponentId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> exponentId.unwrap), Json.obj("$pull" -> Json.obj("info.team" -> attendeeId.unwrap)))
-  def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
-  def bulkInsert(elts: List[Exponent]): Future[Int] = crud.bulkInsert(elts)
+  def addTeamMember(exponentId: ExponentId, attendeeId: AttendeeId): Future[UpdateWriteResult] = crud.update(Json.obj("uuid" -> exponentId.unwrap), Json.obj("$addToSet" -> Json.obj("info.team" -> attendeeId.unwrap)))
+  def removeTeamMember(exponentId: ExponentId, attendeeId: AttendeeId): Future[UpdateWriteResult] = crud.update(Json.obj("uuid" -> exponentId.unwrap), Json.obj("$pull" -> Json.obj("info.team" -> attendeeId.unwrap)))
+  def deleteByEvent(eventId: EventId): Future[WriteResult] = crud.deleteBy("eventId", eventId.unwrap)
+  def bulkInsert(elts: List[Exponent]): Future[MultiBulkWriteResult] = crud.bulkInsert(elts)
   def bulkUpdate(elts: List[(ExponentId, Exponent)]): Future[Int] = crud.bulkUpdate(elts.map(p => (p._1.unwrap, p._2)))
   def bulkUpsert(elts: List[(ExponentId, Exponent)]): Future[Int] = crud.bulkUpsert(elts.map(p => (p._1.unwrap, p._2)))
-  def bulkDelete(exponentIds: List[ExponentId]): Future[LastError] = crud.bulkDelete(exponentIds.map(_.unwrap))
+  def bulkDelete(exponentIds: List[ExponentId]): Future[WriteResult] = crud.bulkDelete(exponentIds.map(_.unwrap))
   def drop(): Future[Boolean] = crud.drop()
 }
 object ExponentRepository extends MongoDbExponentRepository

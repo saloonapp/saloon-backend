@@ -20,7 +20,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.DefaultWriteResult
 
 object Scrapers extends SilhouetteEnvironment with ControllerHelpers {
   val createForm: Form[ScraperData] = Form(ScraperData.fields)
@@ -116,11 +116,11 @@ object Scrapers extends SilhouetteEnvironment with ControllerHelpers {
               GenericEventRepository.findBySourceName(sourceName).flatMap { existingEvents =>
                 val (createdEvents, deletedEvents, updatedEvents) = GenericEventImport.makeDiff(existingEvents, newEvents)
                 val disableDeleteEvents = List[GenericEvent]()
-                val err = new LastError(true, None, None, None, None, 0, false)
+                val res = DefaultWriteResult(false, 0, Seq(), None, None, None)
                 for {
                   scraperUpdated <- ConfigRepository.scraperExecuted(scraperId, newEvents.length)
                   eventsCreated <- if (createdEvents.length > 0) { GenericEventRepository.bulkInsert(createdEvents) } else { Future(0) }
-                  eventsDeleted <- if (disableDeleteEvents.length > 0) { GenericEventRepository.bulkDelete(disableDeleteEvents.map(_.uuid)) } else { Future(err) }
+                  eventsDeleted <- if (disableDeleteEvents.length > 0) { GenericEventRepository.bulkDelete(disableDeleteEvents.map(_.uuid)) } else { Future(res) }
                   eventsUpdated <- if (updatedEvents.length > 0) { GenericEventRepository.bulkUpdate(updatedEvents.map(s => (s._2.uuid, s._2))) } else { Future(0) }
                 } yield {
                   Redirect(backend.controllers.eventDirectory.routes.Scrapers.list).flashing("success" -> s"Modifications des événements: $eventsCreated/$eventsUpdated/${disableDeleteEvents.length} (create/update/delete)")

@@ -20,7 +20,9 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
+import play.modules.reactivemongo.json.JsObjectDocumentWriter
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -36,18 +38,18 @@ trait MongoDbUserActionRepository {
 
   def getFavorite(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[Option[UserAction]] = getAction(FavoriteUserAction.className)(deviceId, itemType, itemId)
   def insertFavorite(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.favorite(deviceId, itemType, itemId, eventId, time))
-  def deleteFavorite(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[LastError] = deleteAction(FavoriteUserAction.className)(deviceId, itemType, itemId)
+  def deleteFavorite(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[WriteResult] = deleteAction(FavoriteUserAction.className)(deviceId, itemType, itemId)
 
   def getDone(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[Option[UserAction]] = getAction(DoneUserAction.className)(deviceId, itemType, itemId)
   def insertDone(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.done(deviceId, itemType, itemId, eventId, time))
-  def deleteDone(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[LastError] = deleteAction(DoneUserAction.className)(deviceId, itemType, itemId)
+  def deleteDone(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[WriteResult] = deleteAction(DoneUserAction.className)(deviceId, itemType, itemId)
 
   def getMood(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[Option[UserAction]] = getAction(MoodUserAction.className)(deviceId, itemType, itemId)
   def setMood(rating: String)(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, eventId: EventId, oldElt: Option[UserAction], time: Option[DateTime] = None): Future[Option[UserAction]] = {
     val elt = oldElt.map(e => e.withContent(MoodUserAction(rating), time)).getOrElse(UserAction.mood(deviceId, itemType, itemId, rating, eventId, time))
     crud.upsert(Json.obj("userId" -> deviceId.unwrap, "action." + MoodUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
-  def deleteMood(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[LastError] = deleteAction(MoodUserAction.className)(deviceId, itemType, itemId)
+  def deleteMood(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[WriteResult] = deleteAction(MoodUserAction.className)(deviceId, itemType, itemId)
 
   def getComment(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, uuid: UserActionId): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
   def insertComment(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, text: TextMultiline, eventId: EventId, time: Option[DateTime] = None): Future[Option[UserAction]] = insertAction(UserAction.comment(deviceId, itemType, itemId, text, eventId, time))
@@ -55,7 +57,7 @@ trait MongoDbUserActionRepository {
     val elt = oldElt.withContent(CommentUserAction(text), time)
     crud.update(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
-  def deleteComment(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, uuid: UserActionId): Future[LastError] = crud.delete(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
+  def deleteComment(deviceId: DeviceId, itemType: ItemType, itemId: GenericId, uuid: UserActionId): Future[WriteResult] = crud.delete(Json.obj("userId" -> deviceId.unwrap, "action." + CommentUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> uuid))
 
   def getSubscribe(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[Option[UserAction]] = getAction(SubscribeUserAction.className)(deviceId, itemType, itemId)
   def findSubscribes(itemType: ItemType, itemId: GenericId): Future[List[UserAction]] = crud.find(Json.obj("action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
@@ -63,19 +65,19 @@ trait MongoDbUserActionRepository {
     val elt = oldElt.map(e => e.withContent(SubscribeUserAction(email, filter), time)).getOrElse(UserAction.subscribe(deviceId, itemType, itemId, email, filter, eventId, time))
     crud.upsert(Json.obj("userId" -> deviceId.unwrap, "action." + SubscribeUserAction.className -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap, "uuid" -> elt.uuid), elt).map { err => if (err.ok) Some(elt) else None }
   }
-  def deleteSubscribe(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[LastError] = deleteAction(SubscribeUserAction.className)(deviceId, itemType, itemId)
+  def deleteSubscribe(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[WriteResult] = deleteAction(SubscribeUserAction.className)(deviceId, itemType, itemId)
 
   def countForEvent(eventId: EventId): Future[Int] = crud.countFor("eventId", eventId.unwrap)
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
-  def bulkInsert(elts: List[UserAction]): Future[Int] = crud.bulkInsert(elts)
-  def deleteByEventUser(eventId: EventId, deviceId: DeviceId): Future[LastError] = collection.remove(Json.obj("eventId" -> eventId.unwrap, "userId" -> deviceId.unwrap))
+  def bulkInsert(elts: List[UserAction]): Future[MultiBulkWriteResult] = crud.bulkInsert(elts)
+  def deleteByEventUser(eventId: EventId, deviceId: DeviceId): Future[WriteResult] = collection.remove(Json.obj("eventId" -> eventId.unwrap, "userId" -> deviceId.unwrap))
 
-  def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
-  def deleteByItem(itemType: ItemType, itemId: String): Future[LastError] = collection.remove(Json.obj("itemType" -> itemType, "itemId" -> itemId))
-  def deleteByUser(deviceId: DeviceId): Future[LastError] = crud.deleteBy("userId", deviceId.unwrap)
+  def deleteByEvent(eventId: EventId): Future[WriteResult] = crud.deleteBy("eventId", eventId.unwrap)
+  def deleteByItem(itemType: ItemType, itemId: String): Future[WriteResult] = collection.remove(Json.obj("itemType" -> itemType, "itemId" -> itemId))
+  def deleteByUser(deviceId: DeviceId): Future[WriteResult] = crud.deleteBy("userId", deviceId.unwrap)
 
   private def getAction(actionType: String)(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[Option[UserAction]] = crud.get(Json.obj("userId" -> deviceId.unwrap, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
   private def insertAction(action: UserAction): Future[Option[UserAction]] = crud.insert(action).map { err => if (err.ok) Some(action) else None }
-  private def deleteAction(actionType: String)(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[LastError] = crud.delete(Json.obj("userId" -> deviceId.unwrap, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
+  private def deleteAction(actionType: String)(deviceId: DeviceId, itemType: ItemType, itemId: GenericId): Future[WriteResult] = crud.delete(Json.obj("userId" -> deviceId.unwrap, "action." + actionType -> true, "itemType" -> itemType, "itemId" -> itemId.unwrap))
 }
 object UserActionRepository extends MongoDbUserActionRepository

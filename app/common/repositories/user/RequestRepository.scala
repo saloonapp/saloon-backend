@@ -14,7 +14,8 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.UpdateWriteResult
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -37,13 +38,13 @@ trait MongoDbRequestRepository {
   def findPendingOrganizationInvitesByOrganization(organizationId: OrganizationId): Future[List[Request]] = crud.find(Json.obj("status" -> RequestStatus.pending.unwrap, "content.organizationInvite" -> true, "content.organizationId" -> organizationId))
   def countPendingOrganizationRequestsFor(organizationIds: List[OrganizationId]): Future[Map[OrganizationId, Int]] = crud.count(Json.obj("status" -> RequestStatus.pending.unwrap, "content.organizationRequest" -> true, "content.organizationId" -> Json.obj("$in" -> organizationIds)), "content.organizationId").map { _.map { case (key, value) => (OrganizationId(key), value) } }
 
-  def insert(request: Request): Future[LastError] = crud.insert(request)
-  def update(request: Request): Future[LastError] = crud.update(request.uuid.unwrap, request)
-  def setAccepted(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.accepted)
-  def setCanceled(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.canceled)
-  def setRejected(requestId: RequestId): Future[LastError] = setStatus(requestId, RequestStatus.rejected)
-  private def setStatus(requestId: RequestId, status: RequestStatus): Future[LastError] = crud.update(Json.obj("uuid" -> requestId), Json.obj("$set" -> Json.obj("status" -> status.unwrap, "updated" -> new DateTime())))
+  def insert(request: Request): Future[WriteResult] = crud.insert(request)
+  def update(request: Request): Future[UpdateWriteResult] = crud.update(request.uuid.unwrap, request)
+  def setAccepted(requestId: RequestId): Future[UpdateWriteResult] = setStatus(requestId, RequestStatus.accepted)
+  def setCanceled(requestId: RequestId): Future[UpdateWriteResult] = setStatus(requestId, RequestStatus.canceled)
+  def setRejected(requestId: RequestId): Future[UpdateWriteResult] = setStatus(requestId, RequestStatus.rejected)
+  private def setStatus(requestId: RequestId, status: RequestStatus): Future[UpdateWriteResult] = crud.update(Json.obj("uuid" -> requestId), Json.obj("$set" -> Json.obj("status" -> status.unwrap, "updated" -> new DateTime())))
 
-  // TODO : def incrementVisited(requestId: String): Future[LastError] cf Auth.createAccount
+  // TODO : def incrementVisited(requestId: String): Future[UpdateWriteResult] cf Auth.createAccount
 }
 object RequestRepository extends MongoDbRequestRepository

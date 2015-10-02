@@ -32,8 +32,8 @@ object Crashs extends Controller {
 
   def receiveBatch() = Action.async(parse.json) { implicit req =>
     req.body.asOpt[List[JsValue]].map { batch =>
-      CrashRepository.bulkInsert(batch).map { n =>
-        if (n == batch.length) Ok(Json.obj("inserted" -> n)) else InternalServerError
+      CrashRepository.bulkInsert(batch).map { res =>
+        if (res.n == batch.length) Ok(Json.obj("inserted" -> res.n)) else InternalServerError
       }
     }.getOrElse(Future(BadRequest))
   }

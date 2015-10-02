@@ -15,7 +15,9 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.UpdateWriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -47,13 +49,13 @@ trait MongoDbSessionRepository extends Repository[Session, SessionId] {
   def findEventPlaces(eventId: EventId): Future[List[String]] = crud.distinct("info.place", Json.obj("eventId" -> eventId.unwrap)).map(_.filter(_ != ""))
   def countForEvent(eventId: EventId): Future[Int] = crud.countFor("eventId", eventId.unwrap)
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
-  def addSpeaker(sessionId: SessionId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> sessionId.unwrap), Json.obj("$addToSet" -> Json.obj("info.speakers" -> attendeeId.unwrap)))
-  def removeSpeaker(sessionId: SessionId, attendeeId: AttendeeId): Future[LastError] = crud.update(Json.obj("uuid" -> sessionId.unwrap), Json.obj("$pull" -> Json.obj("info.speakers" -> attendeeId.unwrap)))
-  def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
-  def bulkInsert(elts: List[Session]): Future[Int] = crud.bulkInsert(elts)
+  def addSpeaker(sessionId: SessionId, attendeeId: AttendeeId): Future[UpdateWriteResult] = crud.update(Json.obj("uuid" -> sessionId.unwrap), Json.obj("$addToSet" -> Json.obj("info.speakers" -> attendeeId.unwrap)))
+  def removeSpeaker(sessionId: SessionId, attendeeId: AttendeeId): Future[UpdateWriteResult] = crud.update(Json.obj("uuid" -> sessionId.unwrap), Json.obj("$pull" -> Json.obj("info.speakers" -> attendeeId.unwrap)))
+  def deleteByEvent(eventId: EventId): Future[WriteResult] = crud.deleteBy("eventId", eventId.unwrap)
+  def bulkInsert(elts: List[Session]): Future[MultiBulkWriteResult] = crud.bulkInsert(elts)
   def bulkUpdate(elts: List[(SessionId, Session)]): Future[Int] = crud.bulkUpdate(elts.map(p => (p._1.unwrap, p._2)))
   def bulkUpsert(elts: List[(SessionId, Session)]): Future[Int] = crud.bulkUpsert(elts.map(p => (p._1.unwrap, p._2)))
-  def bulkDelete(sessionIds: List[SessionId]): Future[LastError] = crud.bulkDelete(sessionIds.map(_.unwrap))
+  def bulkDelete(sessionIds: List[SessionId]): Future[WriteResult] = crud.bulkDelete(sessionIds.map(_.unwrap))
   def drop(): Future[Boolean] = crud.drop()
 }
 object SessionRepository extends MongoDbSessionRepository

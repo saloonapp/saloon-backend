@@ -18,7 +18,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.DefaultWriteResult
 
 object Users extends SilhouetteEnvironment {
   val form: Form[UserData] = Form(UserData.fields)
@@ -115,11 +116,11 @@ object Users extends SilhouetteEnvironment {
   /*def deleteAction(userId: UserId, itemType: String, itemId: GenericId, actionType: String, actionId: String) = SecuredAction.async { implicit req =>
     repository.getByUuid(userId).flatMap {
       _.map { elt =>
-        val res: Future[LastError] =
+        val res: Future[WriteResult] =
           if (actionType == "favorite") UserActionRepository.deleteFavorite(userId, itemType, itemId)
           else if (actionType == "mood") UserActionRepository.deleteMood(userId, itemType, itemId)
           else if (actionType == "comment") UserActionRepository.deleteComment(userId, itemType, itemId, actionId)
-          else Future.successful(LastError(false, Some("Unknown actionType <" + actionType + ">"), None, None, None, 0, false))
+          else Future.successful(DefaultWriteResult(false, 0, Seq(), None, None, Some("Unknown actionType <" + actionType + ">")))
 
         res.map(err => Redirect(mainRoute.details(userId)))
       }.getOrElse(Future(NotFound(admin.views.html.error404())))

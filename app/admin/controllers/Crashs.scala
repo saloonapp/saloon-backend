@@ -39,7 +39,7 @@ object Crashs extends SilhouetteEnvironment {
       crashOpt.map { crash =>
         CrashRepository.markAsSolved(Json.obj("error" -> crash \ "error")).map { err =>
           if (err.ok) Redirect(routes.Crashs.list()).flashing("success" -> s"Crashs marked as solved !")
-          else Redirect(routes.Crashs.details(uuid)).flashing("error" -> err.errMsg.getOrElse(err.message))
+          else Redirect(routes.Crashs.details(uuid)).flashing("error" -> err.errmsg.getOrElse(err.message))
         }
       }.getOrElse(Future(Redirect(routes.Crashs.list()).flashing("error" -> s"Unable to find crash $uuid")))
     }

@@ -25,7 +25,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.DefaultWriteResult
 
 object Events extends SilhouetteEnvironment with ControllerHelpers {
   val eventImportUrlForm = Form(tuple(
@@ -147,17 +147,17 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
                   sessions <- SessionRepository.findByEvent(event.uuid)
                 } yield {
                   val (updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions) = EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
-                  val err = new LastError(true, None, None, None, None, 0, false)
+                  val res = DefaultWriteResult(false, 0, Seq(), None, None, None)
                   for {
                     eventUpdated <- EventRepository.update(event.uuid, updatedEvent)
                     attendeesCreated <- if (createdAttendees.length > 0) { AttendeeRepository.bulkInsert(createdAttendees) } else { Future(0) }
-                    attendeesDeleted <- if (deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(deletedAttendees.map(_.uuid)) } else { Future(err) }
+                    attendeesDeleted <- if (deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(deletedAttendees.map(_.uuid)) } else { Future(res) }
                     attendeesUpdated <- if (updatedAttendees.length > 0) { AttendeeRepository.bulkUpdate(updatedAttendees.map(s => (s._2.uuid, s._2))) } else { Future(0) }
                     exponentsCreated <- if (createdExponents.length > 0) { ExponentRepository.bulkInsert(createdExponents) } else { Future(0) }
-                    exponentsDeleted <- if (deletedExponents.length > 0) { ExponentRepository.bulkDelete(deletedExponents.map(_.uuid)) } else { Future(err) }
+                    exponentsDeleted <- if (deletedExponents.length > 0) { ExponentRepository.bulkDelete(deletedExponents.map(_.uuid)) } else { Future(res) }
                     exponentsUpdated <- if (updatedExponents.length > 0) { ExponentRepository.bulkUpdate(updatedExponents.map(e => (e._2.uuid, e._2))) } else { Future(0) }
                     sessionsCreated <- if (createdSessions.length > 0) { SessionRepository.bulkInsert(createdSessions) } else { Future(0) }
-                    sessionsDeleted <- if (deletedSessions.length > 0) { SessionRepository.bulkDelete(deletedSessions.map(_.uuid)) } else { Future(err) }
+                    sessionsDeleted <- if (deletedSessions.length > 0) { SessionRepository.bulkDelete(deletedSessions.map(_.uuid)) } else { Future(res) }
                     sessionsUpdated <- if (updatedSessions.length > 0) { SessionRepository.bulkUpdate(updatedSessions.map(s => (s._2.uuid, s._2))) } else { Future(0) }
                   } yield {
                     Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" ->

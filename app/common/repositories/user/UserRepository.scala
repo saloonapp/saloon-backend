@@ -16,7 +16,8 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.UpdateWriteResult
+import play.modules.reactivemongo.json.JsObjectDocumentWriter
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -48,6 +49,6 @@ trait MongoDbUserRepository extends Repository[User, UserId] {
   def findByEmails(emails: List[Email]): Future[List[User]] = crud.findBy("email", emails.map(_.unwrap))
   def getOrganizationOwner(organizationId: OrganizationId): Future[Option[User]] = crud.get(Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId, "role" -> UserRole.owner.unwrap)))
   def findOrganizationMembers(organizationId: OrganizationId): Future[List[User]] = crud.find(Json.obj("organizationIds.organizationId" -> organizationId))
-  def removeOrganization(organizationId: OrganizationId): Future[LastError] = collection.update(Json.obj("organizationIds.organizationId" -> organizationId), Json.obj("$pull" -> Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId))), multi = true)
+  def removeOrganization(organizationId: OrganizationId): Future[UpdateWriteResult] = collection.update(Json.obj("organizationIds.organizationId" -> organizationId), Json.obj("$pull" -> Json.obj("organizationIds" -> Json.obj("organizationId" -> organizationId))), multi = true)
 }
 object UserRepository extends MongoDbUserRepository

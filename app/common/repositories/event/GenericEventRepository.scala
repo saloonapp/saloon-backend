@@ -7,10 +7,12 @@ import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
-import play.modules.reactivemongo.json.collection.JSONCollection
-import play.modules.reactivemongo.ReactiveMongoPlugin
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
+import play.modules.reactivemongo.ReactiveMongoPlugin
+import play.modules.reactivemongo.json.JsObjectDocumentWriter
+import play.modules.reactivemongo.json.collection.JSONCollection
 
 trait MongoDbGenericEventRepository {
   val db = ReactiveMongoPlugin.db
@@ -20,8 +22,8 @@ trait MongoDbGenericEventRepository {
   def getByUuid(eventId: String): Future[Option[GenericEvent]] = collection.find(Json.obj("uuid" -> eventId)).one[GenericEvent]
   def findBySourceName(sourceName: String): Future[List[GenericEvent]] = collection.find(Json.obj("sources.name" -> sourceName)).cursor[GenericEvent].collect[List]()
 
-  def bulkInsert(elts: List[GenericEvent]): Future[Int] = MongoDbCrudUtils.bulkInsert(elts, collection)
+  def bulkInsert(elts: List[GenericEvent]): Future[MultiBulkWriteResult] = MongoDbCrudUtils.bulkInsert(elts, collection)
   def bulkUpdate(elts: List[(String, GenericEvent)]): Future[Int] = MongoDbCrudUtils.bulkUpdate(elts.map(p => (p._1, p._2)), collection)
-  def bulkDelete(eventIds: List[String]): Future[LastError] = MongoDbCrudUtils.bulkDelete(eventIds, collection)
+  def bulkDelete(eventIds: List[String]): Future[WriteResult] = MongoDbCrudUtils.bulkDelete(eventIds, collection)
 }
 object GenericEventRepository extends MongoDbGenericEventRepository

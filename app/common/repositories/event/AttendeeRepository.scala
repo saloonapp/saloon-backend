@@ -14,7 +14,8 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
 
@@ -43,11 +44,11 @@ trait MongoDbAttendeeRepository extends Repository[Attendee, AttendeeId] {
   def findEventRoles(eventId: EventId): Future[List[String]] = crud.distinct("info.role", Json.obj("eventId" -> eventId.unwrap)).map(_.filter(_ != ""))
   def countForEvent(eventId: EventId): Future[Int] = crud.countFor("eventId", eventId.unwrap)
   def countForEvents(eventIds: Seq[EventId]): Future[Map[EventId, Int]] = crud.countFor("eventId", eventIds.map(_.unwrap)).map(_.map { case (key, value) => (EventId(key), value) })
-  def deleteByEvent(eventId: EventId): Future[LastError] = crud.deleteBy("eventId", eventId.unwrap)
-  def bulkInsert(elts: List[Attendee]): Future[Int] = crud.bulkInsert(elts)
+  def deleteByEvent(eventId: EventId): Future[WriteResult] = crud.deleteBy("eventId", eventId.unwrap)
+  def bulkInsert(elts: List[Attendee]): Future[MultiBulkWriteResult] = crud.bulkInsert(elts)
   def bulkUpdate(elts: List[(AttendeeId, Attendee)]): Future[Int] = crud.bulkUpdate(elts.map(p => (p._1.unwrap, p._2)))
   def bulkUpsert(elts: List[(AttendeeId, Attendee)]): Future[Int] = crud.bulkUpsert(elts.map(p => (p._1.unwrap, p._2)))
-  def bulkDelete(attendeeIds: List[AttendeeId]): Future[LastError] = crud.bulkDelete(attendeeIds.map(_.unwrap))
+  def bulkDelete(attendeeIds: List[AttendeeId]): Future[WriteResult] = crud.bulkDelete(attendeeIds.map(_.unwrap))
   def drop(): Future[Boolean] = crud.drop()
 }
 object AttendeeRepository extends MongoDbAttendeeRepository

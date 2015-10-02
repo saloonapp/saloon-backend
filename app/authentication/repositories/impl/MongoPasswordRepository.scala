@@ -8,8 +8,9 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import play.api.Play.current
 import reactivemongo.api.DB
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
 import play.modules.reactivemongo.ReactiveMongoPlugin
+import play.modules.reactivemongo.json.JsObjectDocumentWriter
 import play.modules.reactivemongo.json.collection.JSONCollection
 import com.mohiva.play.silhouette.core.LoginInfo
 import com.mohiva.play.silhouette.core.providers.PasswordInfo
@@ -30,5 +31,5 @@ object MongoPasswordRepository extends PasswordRepository {
     }
   }
 
-  def remove(loginInfo: LoginInfo): Future[LastError] = collection.remove(Json.obj("loginInfo" -> loginInfo))
+  def remove(loginInfo: LoginInfo): Future[WriteResult] = collection.remove(Json.obj("loginInfo" -> loginInfo))
 }

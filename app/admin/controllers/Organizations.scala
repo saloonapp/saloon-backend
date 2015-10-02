@@ -13,7 +13,6 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
-import reactivemongo.core.commands.LastError
 
 object Organizations extends SilhouetteEnvironment {
   val form: Form[OrganizationData] = Form(OrganizationData.fields)

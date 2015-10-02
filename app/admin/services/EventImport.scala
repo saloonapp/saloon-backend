@@ -65,7 +65,7 @@ object EventImport {
           attendeeCount <- AttendeeRepository.bulkInsert(attendees)
           sessionCount <- SessionRepository.bulkInsert(sessions)
           exponentCount <- ExponentRepository.bulkInsert(exponents)
-        } yield Some((inserted, attendeeCount, sessionCount, exponentCount))
+        } yield Some((inserted, attendeeCount.n, sessionCount.n, exponentCount.n))
       }.getOrElse(Future(None))
     }
   }

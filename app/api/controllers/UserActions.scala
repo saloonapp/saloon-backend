@@ -20,7 +20,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
 
 object UserActions extends Controller with ControllerHelpers {
   def favorite(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
@@ -48,8 +48,8 @@ object UserActions extends Controller with ControllerHelpers {
   def deleteMood(eventId: EventId, itemType: ItemType, itemId: GenericId) = Action.async { implicit req =>
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        UserActionRepository.deleteMood(device.uuid, itemType, item.uuid).map { lastError =>
-          if (lastError.ok) { if (lastError.n == 0) NotFound(Json.obj("message" -> s"Unable to find mood for item $itemType.$itemId")) else NoContent } else { InternalServerError }
+        UserActionRepository.deleteMood(device.uuid, itemType, item.uuid).map { res =>
+          if (res.ok) { if (res.n == 0) NotFound(Json.obj("message" -> s"Unable to find mood for item $itemType.$itemId")) else NoContent } else { InternalServerError }
         }
       }
     }
@@ -86,8 +86,8 @@ object UserActions extends Controller with ControllerHelpers {
   def deleteComment(eventId: EventId, itemType: ItemType, itemId: GenericId, uuid: UserActionId) = Action.async { implicit req =>
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        UserActionRepository.deleteComment(device.uuid, itemType, item.uuid, uuid).map { lastError =>
-          if (lastError.ok) { if (lastError.n == 0) NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid")) else NoContent } else { InternalServerError }
+        UserActionRepository.deleteComment(device.uuid, itemType, item.uuid, uuid).map { res =>
+          if (res.ok) { if (res.n == 0) NotFound(Json.obj("message" -> s"Unable to find comment with id $uuid")) else NoContent } else { InternalServerError }
         }
       }
     }
@@ -150,11 +150,11 @@ object UserActions extends Controller with ControllerHelpers {
   /*
    * Delete the unique action
    */
-  private def deleteActionUnique(eventId: EventId, itemType: ItemType, itemId: GenericId)(delete: (DeviceId, ItemType, GenericId) => Future[LastError])(implicit req: Request[Any]): Future[Result] = {
+  private def deleteActionUnique(eventId: EventId, itemType: ItemType, itemId: GenericId)(delete: (DeviceId, ItemType, GenericId) => Future[WriteResult])(implicit req: Request[Any]): Future[Result] = {
     deviceFromHeader() { device =>
       withData(eventId, itemType, itemId) { (event, item) =>
-        delete(device.uuid, itemType, item.uuid).map { lastError =>
-          if (lastError.ok) { NoContent } else { InternalServerError }
+        delete(device.uuid, itemType, item.uuid).map { res =>
+          if (res.ok) { NoContent } else { InternalServerError }
         }
       }
     }

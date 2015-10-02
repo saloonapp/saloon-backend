@@ -3,12 +3,19 @@ package common.repositories.utils
 import common.models.utils.Page
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json._
-import play.api.libs.iteratee.Enumerator
-import play.modules.reactivemongo.json.collection.JSONCollection
+import play.api.libs.json.Format
+import play.api.libs.json.Json
+import play.api.libs.json.JsObject
+import play.api.libs.json.Reads
+import play.api.libs.json.Writes
+import play.api.libs.json.OWrites
 import play.modules.reactivemongo.json.BSONFormats
+import play.modules.reactivemongo.json.JsObjectDocumentWriter
+import play.modules.reactivemongo.json.collection.JSONCollection
 import reactivemongo.api.QueryOpts
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.UpdateWriteResult
+import reactivemongo.api.commands.MultiBulkWriteResult
 import reactivemongo.core.commands.Count
 import reactivemongo.core.commands.Drop
 import reactivemongo.core.commands.RawCommand
@@ -27,13 +34,14 @@ case class MongoDbCrudUtils[T](
   fieldUuid: String) {
   implicit val r: Reads[T] = format
   implicit val w: Writes[T] = format
+  implicit val ow = new OWrites[T] { override def writes(value: T): JsObject = w.writes(value).as[JsObject] }
   def find(filter: JsObject = Json.obj(), sort: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.find(collection, filter, sort)
   def get(filter: JsObject = Json.obj()): Future[Option[T]] = MongoDbCrudUtils.get(collection, filter)
-  def insert(elt: T): Future[LastError] = MongoDbCrudUtils.insert(collection, elt)
-  def update(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt)
-  def update(filter: JsObject, elt: JsObject, multi: Boolean = false): Future[LastError] = MongoDbCrudUtils.update(collection, filter, elt, false, multi)
-  def upsert(filter: JsObject, elt: T): Future[LastError] = MongoDbCrudUtils.upsert(collection, filter, elt)
-  def delete(filter: JsObject = Json.obj()): Future[LastError] = MongoDbCrudUtils.delete(collection, filter)
+  def insert(elt: T): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt)
+  def update(filter: JsObject, elt: T): Future[UpdateWriteResult] = MongoDbCrudUtils.update(collection, filter, elt)
+  def update(filter: JsObject, elt: JsObject, multi: Boolean = false): Future[UpdateWriteResult] = MongoDbCrudUtils.update(collection, filter, elt, false, multi)
+  def upsert(filter: JsObject, elt: T): Future[UpdateWriteResult] = MongoDbCrudUtils.upsert(collection, filter, elt)
+  def delete(filter: JsObject = Json.obj()): Future[WriteResult] = MongoDbCrudUtils.delete(collection, filter)
   def findAll(query: String = "", sort: String = "", filter: JsObject = Json.obj()): Future[List[T]] = MongoDbCrudUtils.findAll(collection, filter, query, filterFields, sort)
   def findPage(query: String = "", page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "", filter: JsObject = Json.obj()): Future[Page[T]] = MongoDbCrudUtils.findPage(collection, filter, query, filterFields, page, pageSize, sort)
   def findBy(fieldName: String, fieldValue: String): Future[List[T]] = MongoDbCrudUtils.findBy(fieldValue, collection, fieldName)
@@ -45,13 +53,13 @@ case class MongoDbCrudUtils[T](
   def countFor(fieldName: String, fieldValues: Seq[String]): Future[Map[String, Int]] = MongoDbCrudUtils.countForList(fieldValues, collection, fieldName)
   def count(filter: JsObject, group: String): Future[Map[String, Int]] = MongoDbCrudUtils.count(filter, group, collection)
   def distinct(field: String, filter: JsObject = Json.obj()): Future[List[String]] = MongoDbCrudUtils.distinct(field, filter, collection)
-  def update(uuid: String, elt: T): Future[LastError] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
-  def delete(uuid: String): Future[LastError] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
-  def deleteBy(fieldName: String, fieldValue: String): Future[LastError] = MongoDbCrudUtils.deleteBy(fieldValue, collection, fieldName)
-  def bulkInsert(elts: List[T]): Future[Int] = MongoDbCrudUtils.bulkInsert(elts, collection)
+  def update(uuid: String, elt: T): Future[UpdateWriteResult] = MongoDbCrudUtils.update(uuid, elt, collection, fieldUuid)
+  def delete(uuid: String): Future[WriteResult] = MongoDbCrudUtils.deleteBy(uuid, collection, fieldUuid)
+  def deleteBy(fieldName: String, fieldValue: String): Future[WriteResult] = MongoDbCrudUtils.deleteBy(fieldValue, collection, fieldName)
+  def bulkInsert(elts: List[T]): Future[MultiBulkWriteResult] = MongoDbCrudUtils.bulkInsert(elts, collection)
   def bulkUpdate(elts: List[(String, T)]): Future[Int] = MongoDbCrudUtils.bulkUpdate(elts, collection)
   def bulkUpsert(elts: List[(String, T)]): Future[Int] = MongoDbCrudUtils.bulkUpsert(elts, collection)
-  def bulkDelete(uuids: List[String]): Future[LastError] = MongoDbCrudUtils.bulkDelete(uuids, collection)
+  def bulkDelete(uuids: List[String]): Future[WriteResult] = MongoDbCrudUtils.bulkDelete(uuids, collection)
   def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
 object MongoDbCrudUtils {
@@ -63,23 +71,23 @@ object MongoDbCrudUtils {
     collection.find(filter).one[T]
   }
 
-  def insert[T](collection: JSONCollection, elt: T)(implicit w: Writes[T]): Future[LastError] = {
+  def insert[T](collection: JSONCollection, elt: T)(implicit w: Writes[T]): Future[WriteResult] = {
     collection.save(elt)
   }
 
-  def update[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T]): Future[LastError] = {
+  def update[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
     collection.update(filter, elt)
   }
 
-  def update[T](collection: JSONCollection, query: JsObject, update: JsObject, upsert: Boolean, multi: Boolean): Future[LastError] = {
+  def update[T](collection: JSONCollection, query: JsObject, update: JsObject, upsert: Boolean, multi: Boolean): Future[UpdateWriteResult] = {
     collection.update(query, update)
   }
 
-  def upsert[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T]): Future[LastError] = {
+  def upsert[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
     collection.update(filter, elt, upsert = true)
   }
 
-  def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[LastError] = {
+  def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[WriteResult] = {
     collection.remove(filter)
   }
 
@@ -159,24 +167,24 @@ object MongoDbCrudUtils {
     }
   }
 
-  def update[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[LastError] = {
+  def update[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
     collection.update(Json.obj(fieldUuid -> uuid), elt)
   }
 
-  def upsert[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[LastError] = {
+  def upsert[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
     collection.update(Json.obj(fieldUuid -> uuid), elt, upsert = true)
   }
 
-  def deleteBy(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
+  def deleteBy(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[WriteResult] = {
     collection.remove(Json.obj(fieldUuid -> uuid))
   }
 
-  def bulkInsert[T](elts: List[T], collection: JSONCollection)(implicit w: Writes[T]): Future[Int] = {
-    collection.bulkInsert(Enumerator.enumerate(elts))
+  def bulkInsert[T](elts: List[T], collection: JSONCollection)(implicit w: Writes[T]): Future[MultiBulkWriteResult] = {
+    collection.bulkInsert(elts.map(e => w.writes(e).as[JsObject]).toStream, true)
   }
 
   // TODO : make a real bulk update !!!
-  def bulkUpdate[T](elts: List[(String, T)], collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[Int] = {
+  def bulkUpdate[T](elts: List[(String, T)], collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[Int] = {
     val futureList = elts.map { elt => update(elt._1, elt._2, collection, fieldUuid) }
     Future.sequence(futureList).map { list =>
       list.filter(_.ok).length
@@ -184,14 +192,14 @@ object MongoDbCrudUtils {
   }
 
   // TODO : make a real bulk upsert !!!
-  def bulkUpsert[T](elts: List[(String, T)], collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T]): Future[Int] = {
+  def bulkUpsert[T](elts: List[(String, T)], collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[Int] = {
     val futureList = elts.map { elt => upsert(elt._1, elt._2, collection, fieldUuid) }
     Future.sequence(futureList).map { list =>
       list.filter(_.ok).length
     }
   }
 
-  def bulkDelete(uuids: List[String], collection: JSONCollection, fieldUuid: String = "uuid"): Future[LastError] = {
+  def bulkDelete(uuids: List[String], collection: JSONCollection, fieldUuid: String = "uuid"): Future[WriteResult] = {
     collection.remove(Json.obj(fieldUuid -> Json.obj("$in" -> uuids)))
   }
 

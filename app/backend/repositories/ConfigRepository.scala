@@ -8,9 +8,10 @@ import scala.concurrent.Future
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
-import reactivemongo.core.commands.LastError
-import play.modules.reactivemongo.json.collection.JSONCollection
+import reactivemongo.api.commands.WriteResult
 import play.modules.reactivemongo.ReactiveMongoPlugin
+import play.modules.reactivemongo.json.JsObjectDocumentWriter
+import play.modules.reactivemongo.json.collection.JSONCollection
 import org.joda.time.DateTime
 
 object ConfigRepository {
@@ -20,14 +21,14 @@ object ConfigRepository {
   private val scraperConfigSelector = Json.obj("scrapersConfig" -> true)
   def getScrapersConfig(): Future[Option[ScrapersConfig]] = collection.find(scraperConfigSelector).one[ScrapersConfig]
   def getScraper(scraperId: String): Future[Option[Scraper]] = getScrapersConfig().map { _.flatMap(_.scrapers.find(_.uuid == scraperId)) }
-  def addScraper(scraper: Scraper): Future[LastError] = getScrapersConfig().flatMap { configOpt =>
+  def addScraper(scraper: Scraper): Future[WriteResult] = getScrapersConfig().flatMap { configOpt =>
     configOpt.map { config =>
       collection.update(scraperConfigSelector, Json.obj("$addToSet" -> Json.obj("scrapers" -> Json.toJson(scraper))))
     }.getOrElse {
       collection.insert(ScrapersConfig(List(scraper)))
     }
   }
-  def updateScraper(scraperId: String, scraper: Scraper): Future[LastError] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$" -> scraper)))
-  def scraperExecuted(scraperId: String, nbElts: Int): Future[LastError] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$.lastExec" -> ScraperResult(new DateTime(), nbElts))))
-  def deleteScraper(scraperId: String): Future[LastError] = collection.update(scraperConfigSelector, Json.obj("$pull" -> Json.obj("scrapers" -> Json.obj("uuid" -> scraperId))))
+  def updateScraper(scraperId: String, scraper: Scraper): Future[WriteResult] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$" -> scraper)))
+  def scraperExecuted(scraperId: String, nbElts: Int): Future[WriteResult] = collection.update(Json.obj("scrapersConfig" -> true, "scrapers.uuid" -> scraperId), Json.obj("$set" -> Json.obj("scrapers.$.lastExec" -> ScraperResult(new DateTime(), nbElts))))
+  def deleteScraper(scraperId: String): Future[WriteResult] = collection.update(scraperConfigSelector, Json.obj("$pull" -> Json.obj("scrapers" -> Json.obj("uuid" -> scraperId))))
 }
