@@ -19,7 +19,7 @@ case class DevoxxSpeaker(
   twitter: Option[String],
   company: Option[String],
   companyLogoUrl: Option[String],
-  zipCode: String,
+  zipCode: Option[String],
   lang: Option[String],
   acceptedTalks: List[DevoxxSpeakerTalk],
   sourceUrl: Option[String])

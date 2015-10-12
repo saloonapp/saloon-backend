@@ -36,7 +36,7 @@ object DevoxxEvent {
     val gSessions = sessions.map { session =>
       session.talk.map { talk =>
         GenericSession(
-          Source(session.slotId, sourceName, session.sourceUrl.get),
+          Source(talk.id, sourceName, session.sourceUrl.get),
           talk.title,
           talk.summary,
           talk.summaryAsHtml,
@@ -61,7 +61,7 @@ object DevoxxEvent {
     val exponentTeam = Map[String, List[String]]()
     val sessionSpeakers = sessions.map { session =>
       session.talk.map { talk =>
-        (session.slotId, talk.speakers.map(_.link.href.split("/speakers/")(1)))
+        (talk.id, talk.speakers.map(_.link.href.split("/speakers/")(1)))
       }
     }.flatten.toMap
 

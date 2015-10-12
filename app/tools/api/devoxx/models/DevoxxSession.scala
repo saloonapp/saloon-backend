@@ -8,7 +8,7 @@ case class DevoxxRoom(
   name: String,
   capacity: Int,
   setup: String,
-  recorded: Boolean)
+  recorded: Option[Boolean])
 case class DevoxxSessionBreak(
   id: String,
   nameFR: String,
@@ -26,9 +26,9 @@ case class DevoxxSessionTalk(
   summaryAsHtml: String,
   lang: String,
   speakers: List[DevoxxSessionTalkSpeaker],
-  demoLevel: String,
-  audienceLevel: String,
-  livecoding: Boolean)
+  demoLevel: Option[String],
+  audienceLevel: Option[String],
+  livecoding: Option[Boolean])
 case class DevoxxSession(
   slotId: String,
   day: String,

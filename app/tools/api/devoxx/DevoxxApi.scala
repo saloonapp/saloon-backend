@@ -18,6 +18,7 @@ import play.api.libs.json.Json
  * As this backend is deployed over multiple instances (one by event), you must provide the base url.
  * Ex :
  * 	- http://cfp.bdx.io/api
+ *  - http://cfp.codeursenseine.com/api
  */
 object DevoxxApi extends Controller {
 
@@ -66,12 +67,13 @@ object DevoxxApi extends Controller {
       eventTry <- fetchEvent(conferenceUrl)
       speakersTry <- fetchSpeakers(conferenceUrl)
       sessionsTry <- fetchSessions(conferenceUrl)
+      otherSpeakers <- sessionsTry.map(sessions => fetchUnlistedSpeakers(sessions, speakersTry.getOrElse(List()))).getOrElse(Future(List()))
     } yield {
       val res = for {
         event <- eventTry
         speakers <- speakersTry
         sessions <- sessionsTry
-      } yield DevoxxEvent.toGenericEvent(event, speakers, sessions)
+      } yield DevoxxEvent.toGenericEvent(event, speakers ++ otherSpeakers, sessions)
       res match {
         case Success(value) => Ok(Json.toJson(value))
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -139,6 +141,13 @@ object DevoxxApi extends Controller {
     ScraperUtils.fetchJson(scheduleUrl).map {
       _.flatMap { res => Try((res \ "slots").as[List[DevoxxSession]].map { session => session.copy(sourceUrl = Some(scheduleUrl)) }) }
     }
+  }
+
+  // fetch speakers asigned to talks but not listed in speaker list...
+  def fetchUnlistedSpeakers(sessions: List[DevoxxSession], speakers: List[DevoxxSpeaker]): Future[List[DevoxxSpeaker]] = {
+    val sessionSpeakers = sessions.map(_.talk).flatten.flatMap(_.speakers).map(_.link.href).distinct.map(url => DevoxxUrl.speakerIdFromUrl(url).map((url, _))).flatten
+    val otherSpeakers = sessionSpeakers.filter { case (url, id) => speakers.find(_.uuid == id).isEmpty }
+    Future.sequence(otherSpeakers.map { case (url, id) => fetchSpeaker(url) }).map { _.collect { case Success(speaker) => speaker } }
   }
 
 }
