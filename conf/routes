@@ -13,6 +13,9 @@ POST      /login                                                                
 POST      /accountRequest                                                                   authentication.controllers.Auth.doAccountRequest
 GET       /createAccount/:requestId                                                         authentication.controllers.Auth.createAccount(requestId: RequestId)
 POST      /createAccount/:requestId                                                         authentication.controllers.Auth.doCreateAccount(requestId: RequestId)
+POST      /passwordReset                                                                    authentication.controllers.Auth.doPasswordResetRequest
+GET       /passwordReset/:requestId                                                         authentication.controllers.Auth.passwordReset(requestId: RequestId)
+POST      /passwordReset/:requestId                                                         authentication.controllers.Auth.doPasswordReset(requestId: RequestId)
 GET       /logout                                                                           authentication.controllers.Auth.logout
 
 # Backend

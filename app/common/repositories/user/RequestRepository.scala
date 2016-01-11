@@ -31,7 +31,7 @@ trait MongoDbRequestRepository {
   def getPendingAccountRequestByEmail(email: Email): Future[Option[Request]] = crud.get(Json.obj("status" -> RequestStatus.pending.unwrap, "content.accountRequest" -> true, "content.email" -> email.unwrap))
   //def getAccountRequest(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "content.accountRequest" -> true))
   def getPendingInviteForRequest(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("status" -> RequestStatus.pending.unwrap, "content.accountInvite" -> true, "content.next" -> requestId))
-  //def getPasswordReset(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "content.passwordReset" -> true, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-15))))
+  def getPasswordReset(requestId: RequestId): Future[Option[Request]] = crud.get(Json.obj("uuid" -> requestId, "content.passwordReset" -> true, "status" -> RequestStatus.pending.unwrap, "created" -> Json.obj("$gte" -> new DateTime().plusMinutes(-30))))
   def findPendingOrganizationRequestsByUser(userId: UserId): Future[List[Request]] = crud.find(Json.obj("userId" -> userId, "status" -> RequestStatus.pending.unwrap, "content.organizationRequest" -> true))
   def findPendingOrganizationInvitesByEmail(email: Email): Future[List[Request]] = crud.find(Json.obj("content.email" -> email.unwrap, "status" -> RequestStatus.pending.unwrap, "content.organizationInvite" -> true))
   def findPendingOrganizationRequestsByOrganization(organizationId: OrganizationId): Future[List[Request]] = crud.find(Json.obj("status" -> RequestStatus.pending.unwrap, "content.organizationRequest" -> true, "content.organizationId" -> organizationId))

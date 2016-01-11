@@ -65,6 +65,12 @@ object EmailSrv {
     EmailData(Defaults.contactName, Defaults.contactEmail, email, "Invitation à SalooN", html, html.toPlainText)
   }
 
+  def generatePasswordResetRequestEmail(email: Email, requestId: RequestId)(implicit req: RequestHeader): EmailData = {
+    val inviteUrl = authentication.controllers.routes.Auth.passwordReset(requestId).absoluteURL(Defaults.secureUrl)
+    val html = TextHTML(authentication.views.html.Emails.passwordResetRequest(inviteUrl).toString)
+    EmailData(Defaults.contactName, Defaults.contactEmail, email, "Réinitialisation du mot de passe SalooN", html, html.toPlainText)
+  }
+
   def generateOrganizationRequestEmail(user: User, organization: Organization, organizationOwner: User, request: Request)(implicit req: RequestHeader): EmailData = {
     val acceptUrl = backend.controllers.routes.Requests.doAccept(request.uuid).absoluteURL(Defaults.secureUrl)
     val rejectUrl = backend.controllers.routes.Requests.doReject(request.uuid).absoluteURL(Defaults.secureUrl)

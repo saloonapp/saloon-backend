@@ -6,6 +6,7 @@ import common.models.user.Request
 import common.models.user.RequestId
 import common.models.user.AccountRequest
 import common.models.user.AccountInvite
+import common.models.user.PasswordReset
 import common.repositories.user.UserRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
@@ -136,6 +137,73 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
 
               result.recover { case UserCreationException(msg, t) => Forbidden(msg) }
             }.getOrElse(Future(BadRequest(backend.views.html.error("403", "Bad Request"))))
+          }.getOrElse(Future(NotFound(backend.views.html.error("404", "Not found..."))))
+        }
+      })
+  }
+
+  def doPasswordResetRequest = Action.async { implicit req =>
+    LoginForm.email.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(authentication.views.html.login(LoginForm.credentials, formWithErrors))),
+      formData => {
+        val email = formData
+        UserRepository.getByEmail(email).flatMap(userOpt => {
+          userOpt.map { u =>
+            val passwordReset = Request.passwordReset(email)
+            RequestRepository.insert(passwordReset).flatMap { err =>
+              val emailData = EmailSrv.generatePasswordResetRequestEmail(email, passwordReset.uuid)
+              MandrillSrv.sendEmail(emailData).map { res =>
+                Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Demande de réinitialisation du mot de passe envoyée")
+              }
+            }
+          }.getOrElse {
+            Future(Redirect(authentication.controllers.routes.Auth.login).flashing("error" -> s"L'email ${email.unwrap} n'existe pas !"))
+          }
+        })
+      })
+  }
+
+  def passwordReset(requestId: RequestId) = Action.async { implicit req =>
+    RequestRepository.getPasswordReset(requestId).map { requestOpt =>
+      requestOpt.map { request =>
+        request.content match {
+          case passwordReset: PasswordReset => {
+            RequestRepository.update(request.copy(content = passwordReset.copy(visited = passwordReset.visited + 1))) // TODO : replace with : RequestRepository.incrementVisited(requestId)
+            Ok(authentication.views.html.passwordReset(requestId, LoginForm.passwordReset))
+          }
+          case _ => BadRequest(backend.views.html.error("403", "Bad Request", false))
+        }
+      }.getOrElse(NotFound(backend.views.html.error("404", "Not found...", false)))
+    }
+  }
+
+  def doPasswordReset(requestId: RequestId) = Action.async { implicit req =>
+    LoginForm.passwordReset.bindFromRequest.fold(
+      formWithErrors => Future(BadRequest(authentication.views.html.passwordReset(requestId, formWithErrors))),
+      formData => {
+        val password = formData
+        RequestRepository.getPasswordReset(requestId).flatMap { requestOpt =>
+          requestOpt.map { request =>
+            request.content match {
+              case PasswordReset(email, _, _) => {
+                UserRepository.getByEmail(email).flatMap(_.map(user => {
+                  val authInfo = passwordHasher.hash(password)
+                  for {
+                    authInfo <- authInfoService.save(user.loginInfo, authInfo)
+                    authenticatorOpt <- env.authenticatorService.create(user)
+                    requestUpdated <- RequestRepository.setAccepted(requestId)
+                  } yield authenticatorOpt.map { authenticator =>
+                    env.eventBus.publish(LoginEvent(user, req, request2lang))
+                    env.authenticatorService.send(authenticator, Redirect(backend.controllers.routes.Application.index))
+                  }.getOrElse {
+                    throw new AuthenticationException("Couldn't create an authenticator")
+                  }
+                }).getOrElse {
+                  Future(BadRequest(backend.views.html.error("403", "Bad Request")))
+                })
+              }
+              case _ => Future(Redirect(backend.controllers.routes.Application.welcome))
+            }
           }.getOrElse(Future(NotFound(backend.views.html.error("404", "Not found..."))))
         }
       })

@@ -55,6 +55,6 @@ object Request {
 sealed trait RequestContent
 case class AccountRequest(email: Email, visited: Int = 0, accountRequest: Boolean = true) extends RequestContent
 case class AccountInvite(email: Email, next: Option[RequestId], visited: Int = 0, accountInvite: Boolean = true) extends RequestContent
-case class PasswordReset(email: Email, passwordReset: Boolean = true) extends RequestContent
+case class PasswordReset(email: Email, visited: Int = 0, passwordReset: Boolean = true) extends RequestContent
 case class OrganizationRequest(organizationId: OrganizationId, comment: Option[TextMultiline], organizationRequest: Boolean = true) extends RequestContent
 case class OrganizationInvite(organizationId: OrganizationId, email: Email, comment: Option[TextMultiline], organizationInvite: Boolean = true) extends RequestContent

@@ -28,7 +28,7 @@
 		@helper.form(action=authentication.controllers.routes.Auth.doLogin()){
 			<div class="input-group m-b-20 @if(credentialsForm("identifier").hasErrors){has-error}">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
-				<div class="fg-line">@inputText(credentialsForm("identifier"), 'type->"email", 'placeholder->"Email", 'autofocus->"true")</div>
+				<div class="fg-line">@inputText(credentialsForm("identifier"), 'type->"email", 'required->"true", 'placeholder->"Email", 'autofocus->"true")</div>
 			</div>
 			<div class="input-group m-b-20 @if(credentialsForm("password").hasErrors){has-error}">
 				<span class="input-group-addon"><i class="md md-lock"></i></span>
@@ -38,7 +38,7 @@
 		}
 		<ul class="login-navigation">
 			<li data-block="#l-accountRequest" class="bgm-red">Demander une invitation</li>
-			<!-- <li data-block="#l-forget-password" class="bgm-orange">Mot de passe oublié ?</li> -->
+			<li data-block="#l-forget-password" class="bgm-orange">Mot de passe oublié ?</li>
 		</ul>
 	</div>
 
@@ -48,7 +48,7 @@
 		@helper.form(action=authentication.controllers.routes.Auth.doAccountRequest()){
 			<div class="input-group m-b-20">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
-				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'placeholder->"Votre email")</div>
+				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'required->"true", 'placeholder->"Votre email")</div>
 			</div>
 			<button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
 		}
@@ -57,20 +57,20 @@
 		</ul>
 	</div>
 
-	@*<!-- Forgot Password -->
+	<!-- Forgot Password -->
 	<div class="lc-block left" id="l-forget-password">
 		<p class="text-left">Entrez votre email pour réinitialiser votre mot de passe.</p>
-		@helper.form(action=authentication.controllers.routes.Auth.doLogin()){
+		@helper.form(action=authentication.controllers.routes.Auth.doPasswordResetRequest()){
 			<div class="input-group m-b-20">
 				<span class="input-group-addon"><i class="md md-email"></i></span>
-				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'placeholder->"Votre email")</div>
+				<div class="fg-line">@inputText(emailForm("email"), 'type->"email", 'required->"true", 'placeholder->"Votre email")</div>
 			</div>
 			<button class="btn btn-login btn-danger btn-float" type="submit"><i class="md md-arrow-forward"></i></button>
 		}
 		<ul class="login-navigation">
 			<li data-block="#l-login" class="bgm-green">Se connecter</li>
 		</ul>
-	</div>*@
+	</div>
 
 	<!-- Javascript Libraries -->
 	<script type="text/javascript" src="@routes.Assets.at("libs/jquery/jquery-2.1.4.min.js")"></script>

@@ -26,7 +26,7 @@ object MongoPasswordRepository extends PasswordRepository {
   }
 
   def save(loginInfo: LoginInfo, passwordInfo: PasswordInfo): Future[PasswordInfo] = {
-    collection.save(Json.obj("loginInfo" -> loginInfo, "passwordInfo" -> passwordInfo)).map { err =>
+    collection.update(Json.obj("loginInfo" -> loginInfo), Json.obj("loginInfo" -> loginInfo, "passwordInfo" -> passwordInfo), upsert = true).map { err =>
       passwordInfo
     }
   }

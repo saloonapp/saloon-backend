@@ -11,4 +11,7 @@ object LoginForm {
       "identifier" -> nonEmptyText,
       "password" -> nonEmptyText)(Credentials.apply)(Credentials.unapply))
   val email = Form(single("email" -> of[Email]))
+  val passwordReset = Form(
+    single(
+      "password" -> nonEmptyText))
 }
