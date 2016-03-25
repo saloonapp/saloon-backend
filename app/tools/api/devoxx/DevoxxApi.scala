@@ -85,18 +85,21 @@ object DevoxxApi extends Controller {
    * Basic methods
    */
 
+  // TODO replace Try by JsResult !
   def fetchEventLinks(cfpUrl: String): Future[Try[List[String]]] = {
     ScraperUtils.fetchJson(DevoxxUrl.conferences(cfpUrl)).map {
       _.flatMap { res => Try((res \ "links").as[List[Link]].map(_.href)) }
     }
   }
 
+  // TODO replace Try by JsResult !
   def fetchEvent(conferenceUrl: String): Future[Try[DevoxxEvent]] = {
     ScraperUtils.fetchJson(conferenceUrl).map {
       _.flatMap { res => Try(res.as[DevoxxEvent].copy(sourceUrl = Some(conferenceUrl))) }
     }
   }
 
+  // TODO replace Try by JsResult !
   def fetchSpeakers(conferenceUrl: String): Future[Try[List[DevoxxSpeaker]]] = {
     fetchSpeakerLinks(conferenceUrl).flatMap { speakerLinksTry =>
       speakerLinksTry.map { speakerLinks =>
@@ -108,18 +111,21 @@ object DevoxxApi extends Controller {
     }
   }
 
+  // TODO replace Try by JsResult !
   def fetchSpeakerLinks(conferenceUrl: String): Future[Try[List[String]]] = {
     ScraperUtils.fetchJson(DevoxxUrl.speakers(conferenceUrl)).map {
       _.flatMap { res => Try((res \\ "links").map(_.as[List[Link]]).flatMap(identity).map(_.href).toList) }
     }
   }
 
+  // TODO replace Try by JsResult !
   def fetchSpeaker(speakerUrl: String): Future[Try[DevoxxSpeaker]] = {
     ScraperUtils.fetchJson(speakerUrl).map {
       _.flatMap { res => Try(res.as[DevoxxSpeaker].copy(sourceUrl = Some(speakerUrl))) }
     }
   }
 
+  // TODO replace Try by JsResult !
   def fetchSessions(conferenceUrl: String): Future[Try[List[DevoxxSession]]] = {
     fetchSchedules(conferenceUrl).flatMap { scheduleUrlsTry =>
       scheduleUrlsTry.map { schedules =>
@@ -131,6 +137,7 @@ object DevoxxApi extends Controller {
     }
   }
 
+  // TODO replace Try by JsResult !
   def fetchSchedules(conferenceUrl: String): Future[Try[List[String]]] = {
     ScraperUtils.fetchJson(DevoxxUrl.schedules(conferenceUrl)).map {
       _.flatMap { res => Try((res \ "links").as[List[Link]].map(_.href)) }

@@ -1,6 +1,6 @@
 package tools.api.devoxx.models
 
-import play.api.libs.json.Json
+import play.api.libs.json._
 import org.joda.time.DateTime
 
 case class DevoxxRoom(
@@ -8,7 +8,7 @@ case class DevoxxRoom(
   name: String,
   capacity: Int,
   setup: String,
-  recorded: Option[Boolean])
+  recorded: Either[Boolean, String])
 case class DevoxxSessionBreak(
   id: String,
   nameFR: String,
@@ -45,6 +45,7 @@ case class DevoxxSession(
   talk: Option[DevoxxSessionTalk],
   sourceUrl: Option[String])
 object DevoxxSession {
+  import common.Formatters.eitherFormatter
   implicit val formatDevoxxRoom = Json.format[DevoxxRoom]
   implicit val formatDevoxxSessionBreak = Json.format[DevoxxSessionBreak]
   implicit val formatDevoxxSessionTalkSpeaker = Json.format[DevoxxSessionTalkSpeaker]
