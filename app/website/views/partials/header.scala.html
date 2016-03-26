@@ -9,7 +9,7 @@
                 <img id="logo-image" class="logo-image" src="@routes.Assets.at("website/images/logo/logo.png")" alt="Logo">
                 <span class="logo-title">SalooN</span>
             </a>
-        </h1><!--//logo-->
+        </h1>
         <nav id="main-nav" class="main-nav navbar-right" role="navigation">
             <div class="navbar-header">
                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-collapse">
@@ -17,25 +17,25 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                </button><!--//nav-toggle-->
-            </div><!--//navbar-header-->
+                </button>
+            </div>
             <div class="navbar-collapse collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav">
                     <li class="active nav-item sr-only"><a class="scrollto" href="#promo">Home</a></li>
-                    <!-- <li class="nav-item"><a class="scrollto" href="#features">Features</a></li> -->
-                    <!-- <li class="nav-item"><a class="scrollto" href="#how">How it works</a></li> -->
+                    <li class="nav-item"><a class="scrollto" href="#features">Fonctionnalités</a></li>
+                    <li class="nav-item"><a class="scrollto" href="#story">Histoire</a></li>
                     <li class="nav-item"><a class="scrollto" href="#faq">FAQ</a></li>
-                    <li class="nav-item"><a class="scrollto" href="#story">Story</a></li>
-                    <!-- <li class="nav-item"><a class="scrollto" href="#pricing">Pricing</a></li> -->
-                    <li class="nav-item"><a class="scrollto" href="#testimonials">Clients</a></li>
+                    @*<li class="nav-item"><a class="scrollto" href="#how">How it works</a></li>
+                    <li class="nav-item"><a class="scrollto" href="#pricing">Pricing</a></li>
+                    <li class="nav-item"><a class="scrollto" href="#testimonials">Clients</a></li>*@
                     <li class="nav-item"><a class="scrollto" href="#contact">Contact</a></li>
                     @userOpt.map { user =>
                         <li class="nav-item"><a href="@backend.controllers.routes.Application.index()">Backend</a></li>
                     }.getOrElse {
                         <li class="nav-item"><a href="@authentication.controllers.routes.Auth.login()">Login</a></li>
                     }
-                </ul><!--//nav-->
-            </div><!--//navabr-collapse-->
-        </nav><!--//main-nav-->
+                </ul>
+            </div>
+        </nav>
     </div>
-</header><!--//header-->
+</header>

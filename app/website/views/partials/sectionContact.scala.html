@@ -7,40 +7,44 @@
         <div class="row text-center">
             <h2 class="title">Nous contacter</h2>
             <div class="intro col-md-6 col-sm-12 col-xs-12 col-md-offset-3">
-                <p>We’d love to hear from you. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut erat magna. Aliquam porta sem a lacus imperdiet posuere. Integer semper eget ligula id eleifend.</p>
+                <p>
+                    Ce projet nous tiens vraiment à coeur et nous adorons en discuter.<br>
+                    N'hésitez pas à nous contacter pour toute question, remarque, suggestion ou simplement pour discuter.<br>
+                    A bientôt
+                </p>
                 <ul class="list-unstyled contact-details">
                     <li><i class="fa fa-envelope"></i><a href="mailto:contact@@saloonapp.co">contact@@saloonapp.co</a></li>
-                    <!-- <li><i class="fa fa-phone-square"></i>0800 123 456</li> -->
+                    @*<li><i class="fa fa-phone-square"></i>0800 123 456</li>*@
                 </ul>
             </div>
-        </div><!--//row-->
+        </div>
         <div class="row text-center">
             <div class="contact-form col-md-6 col-sm-12 col-xs-12 col-md-offset-3">
                 <form class="form" method="POST" action="@common.controllers.routes.Application.sendContactEmail()">
                     <input type="hidden" name="url" value="@website.controllers.routes.Application.index()">
                     <div class="form-group name">
-                        <label class="sr-only" for="name">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="@userOpt.map(u => u.info.firstName+" "+u.info.lastName).getOrElse("")" placeholder="Name:" required>
-                    </div><!--//form-group-->
+                        <label class="sr-only" for="name">Npm</label>
+                        <input type="text" class="form-control" id="name" name="name" value="@userOpt.map(u => u.info.firstName+" "+u.info.lastName).getOrElse("")" placeholder="Nom:" required>
+                    </div>
                     <div class="form-group email">
                         <label class="sr-only" for="email">Email</label>
                         <input type="email" class="form-control" id="email" name="email" value="@userOpt.map(_.email).getOrElse("")" placeholder="Email:" required>
-                    </div><!--//form-group-->
+                    </div>
                     <div class="form-group message">
                         <label class="sr-only" for="message">Message</label>
                         <textarea class="form-control" id="message" name="message" rows="6" placeholder="Message:" required></textarea>
-                    </div><!--//form-group-->
-                    <button type="submit" class="btn btn-lg btn-theme">Send Message</button>
-                </form><!--//form-->
-            </div><!--//contact-form-->
-        </div><!--//row-->
+                    </div>
+                    <button type="submit" class="btn btn-lg btn-theme">Envoyer</button>
+                </form>
+            </div>
+        </div>
         <div class="text-center">
              <ul class="social-icons list-inline">
-                <li><a href="https://twitter.com/getsaloon" target="_blank"><i class="fa fa-twitter"></i></a></li>
-                <!-- <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                <li><a href="https://twitter.com/getSalooN" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                @*<li><a href="#"><i class="fa fa-facebook"></i></a></li>
                 <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                <li><a href="#"><i class="fa fa-google-plus"></i></a></li> -->
-            </ul><!--//social-icons-->
-        </div><!--//row-->
-    </div><!--//container-->
-</section><!--//contact-->
+                <li><a href="#"><i class="fa fa-google-plus"></i></a></li>*@
+            </ul>
+        </div>
+    </div>
+</section>

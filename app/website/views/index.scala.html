@@ -2,15 +2,17 @@
 @import common.views.html._
 @(userOpt: Option[User])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
+@* from https://wrapbootstrap.com/theme/delta-promote-mobile-app-effectively-WB09R23P8 *@
+
 @main("SalooN"){
     @notifications(flash)
     @partials.header(userOpt)
     @partials.sectionPromo()
-    @*@partials.sectionFeatures()*@
+    @partials.sectionFeatures()
     @*@partials.sectionHow()*@
-    @partials.sectionFaq()
     @partials.sectionStory()
-    @partials.sectionTestimonials()
+    @partials.sectionFaq()
+    @*@partials.sectionTestimonials()*@
     @*@partials.sectionPricing()*@
     @partials.sectionContact(userOpt)
     @partials.footer()
