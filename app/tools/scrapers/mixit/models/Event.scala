@@ -3,6 +3,7 @@ package tools.scrapers.mixit.models
 import common.models.event._
 import common.models.values.Source
 import common.models.values.typed.AttendeeRole
+import org.joda.time.DateTime
 import tools.scrapers.mixit.MixitScraper
 
 object Event {
@@ -57,8 +58,8 @@ object Event {
           format = session.format,
           theme = "",
           place = session.room.getOrElse(""),
-          start = session.start,
-          end = session.end)
+          start = session.start.map(d => new DateTime(d)),
+          end = session.end.map(d => new DateTime(d)))
       },
       exponentTeam = Map(),
       sessionSpeakers = sessions.map { session =>

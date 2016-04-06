@@ -1,5 +1,6 @@
 package tools.scrapers.mixit
 
+import play.api.libs.json.Json
 import play.api.mvc.{Controller, Action}
 import tools.scrapers.ScraperUtils
 import tools.scrapers.mixit.models._
@@ -9,7 +10,9 @@ object MixitScraper extends Controller {
   val baseUrl = "https://www.mix-it.fr"
 
   def sessions(year: Int) = Action.async {
-    ScraperUtils.scrapeJson(Session.allUrl(year))(_.asOpt[List[Session]].getOrElse(List()))
+    ScraperUtils.scrapeJson(Session.allUrl(year)){ json =>
+      json.asOpt[List[Session]].getOrElse(List())
+    }
   }
 
   def speakers(year: Int) = Action.async {
@@ -26,7 +29,7 @@ object MixitScraper extends Controller {
       speakers <- ScraperUtils.fetchJson(Attendee.allSpeakerUrl(year)).map(_.asOpt[List[Attendee]].getOrElse(List()))
       staff <- ScraperUtils.fetchJson(Attendee.allStaffUrl(year)).map(_.asOpt[List[Attendee]].getOrElse(List()))
     } yield {
-      ScraperUtils.write(Event.toGenericEvent(year, staff, speakers, sessions))
+      Ok(Json.toJson(Event.toGenericEvent(year, staff, speakers, sessions))).withHeaders("Content-Type" -> "application/json; charset=utf-8")
     }
   }
 }
