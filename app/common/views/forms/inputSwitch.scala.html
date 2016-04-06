@@ -1,0 +1,15 @@
+@import common.views._
+@(field: Field, args: (Symbol, String)*)
+<div class="toggle-switch">
+    <label for="@field.id" class="ts-label"></label>
+    <input
+        type="checkbox"
+        id="@field.id"
+        name="@field.name"
+        value="true"
+        @Helpers.toHtmlArgs(args)
+        @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}
+        @if(field.value == Some("true")){checked="checked"}
+        hidden="hidden">
+    <label for="@field.id" class="ts-helper"></label>
+</div>

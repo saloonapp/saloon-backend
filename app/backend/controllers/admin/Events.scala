@@ -1,11 +1,10 @@
 package backend.controllers.admin
 
+import backend.forms.EventUpdateData
 import common.models.values.typed.WebsiteUrl
 import common.models.user.User
 import common.models.user.OrganizationId
-import common.models.event.Event
-import common.models.event.EventId
-import common.models.event.GenericEvent
+import common.models.event._
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
 import common.repositories.event.ExponentRepository
@@ -24,8 +23,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import reactivemongo.api.commands.DefaultWriteResult
+import reactivemongo.api.commands.{MultiBulkWriteResult, DefaultWriteResult}
 
 object Events extends SilhouetteEnvironment with ControllerHelpers {
   val eventImportUrlForm = Form(tuple(
@@ -34,8 +32,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
   val eventImportDataForm = Form(tuple(
     "organizationId" -> of[OrganizationId],
     "importData" -> nonEmptyText))
-  val refreshForm = Form(single(
-    "data" -> nonEmptyText))
+  val refreshForm = Form(EventUpdateData.fields)
 
   def list = SecuredAction.async { implicit req =>
     implicit val user = req.identity
@@ -70,7 +67,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
           EventImport.withGenericEvent(importUrl) { eventFull =>
             EventRepository.getBySources(eventFull.sources).flatMap {
               _.map { event =>
-                refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
+                refreshView(refreshForm, eventFull, event)
               }.getOrElse {
                 EventImport.create(eventFull, organizationId, Some(importUrl)).map { eventId =>
                   Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Félicitations, votre événement vient d'être importé avec succès !")
@@ -95,7 +92,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
           Try(Json.parse(importData)).toOption.flatMap(_.asOpt[GenericEvent]).map { eventFull =>
             EventRepository.getBySources(eventFull.sources).flatMap {
               _.map { event =>
-                refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
+                refreshView(refreshForm, eventFull, event)
               }.getOrElse {
                 EventImport.create(eventFull, organizationId, None).map { eventId =>
                   Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Félicitations, votre événement vient d'être importé avec succès !")
@@ -118,7 +115,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
         event.meta.refreshUrl.map { refreshUrl =>
           EventImport.fetchGenericEvent(refreshUrl).flatMap { eventFullOpt =>
             eventFullOpt.map { eventFull =>
-              refreshView(refreshForm.fill(Json.stringify(Json.toJson(eventFull))), eventFull, event)
+              refreshView(refreshForm, eventFull, event)
             }.getOrElse {
               Future(Redirect(backend.controllers.routes.Events.details(eventId)).flashing("error" -> "Impossible de mettre à jour l'événement :("))
             }
@@ -132,45 +129,51 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  def doRefresh(eventId: EventId) = SecuredAction.async(parse.urlFormEncoded(maxLength = 1024 * 1000)) { implicit req =>
+  def doRefresh(eventId: EventId) = SecuredAction.async { implicit req =>
     implicit val user = req.identity
     if (user.canAdministrateSalooN()) {
       refreshForm.bindFromRequest.fold(
         formWithErrors => Future(Redirect(backend.controllers.admin.routes.Events.refresh(eventId)).flashing("error" -> "Format de données incorrect...")),
         formData => {
-          Try(Json.parse(formData).as[GenericEvent]) match {
-            case Success(eventFull) => {
-              withEvent(eventId) { event =>
-                val res: Future[Future[Result]] = for {
-                  attendees <- AttendeeRepository.findByEvent(event.uuid)
-                  exponents <- ExponentRepository.findByEvent(event.uuid)
-                  sessions <- SessionRepository.findByEvent(event.uuid)
-                } yield {
-                  val (updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions) = EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
-                  val res = DefaultWriteResult(false, 0, Seq(), None, None, None)
-                  for {
-                    eventUpdated <- EventRepository.update(event.uuid, updatedEvent)
-                    attendeesCreated <- if (createdAttendees.length > 0) { AttendeeRepository.bulkInsert(createdAttendees) } else { Future(0) }
-                    attendeesDeleted <- if (deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(deletedAttendees.map(_.uuid)) } else { Future(res) }
-                    attendeesUpdated <- if (updatedAttendees.length > 0) { AttendeeRepository.bulkUpdate(updatedAttendees.map(s => (s._2.uuid, s._2))) } else { Future(0) }
-                    exponentsCreated <- if (createdExponents.length > 0) { ExponentRepository.bulkInsert(createdExponents) } else { Future(0) }
-                    exponentsDeleted <- if (deletedExponents.length > 0) { ExponentRepository.bulkDelete(deletedExponents.map(_.uuid)) } else { Future(res) }
-                    exponentsUpdated <- if (updatedExponents.length > 0) { ExponentRepository.bulkUpdate(updatedExponents.map(e => (e._2.uuid, e._2))) } else { Future(0) }
-                    sessionsCreated <- if (createdSessions.length > 0) { SessionRepository.bulkInsert(createdSessions) } else { Future(0) }
-                    sessionsDeleted <- if (deletedSessions.length > 0) { SessionRepository.bulkDelete(deletedSessions.map(_.uuid)) } else { Future(res) }
-                    sessionsUpdated <- if (updatedSessions.length > 0) { SessionRepository.bulkUpdate(updatedSessions.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+          withEvent(eventId) { event =>
+            event.meta.refreshUrl.map { refreshUrl =>
+              EventImport.fetchGenericEvent(refreshUrl).flatMap { eventFullOpt =>
+                eventFullOpt.map { eventFull =>
+                  (for {
+                    attendees <- AttendeeRepository.findByEvent(event.uuid)
+                    exponents <- ExponentRepository.findByEvent(event.uuid)
+                    sessions <- SessionRepository.findByEvent(event.uuid)
                   } yield {
-                    Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" ->
-                      (s"${updatedEvent.name} updated :" +
-                        s"Attendees: $attendeesCreated/$attendeesUpdated/${deletedAttendees.length}, " +
-                        s"Exponents: $exponentsCreated/$exponentsUpdated/${deletedExponents.length}, " +
-                        s"Sessions: $sessionsCreated/$sessionsUpdated/${deletedSessions.length} (create/update/delete)"))
-                  }
+                    val diff = EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
+                    val toUpdate = diff.filterWith(formData)
+                    val res = DefaultWriteResult(ok = true, n = 0, writeErrors = Seq(), writeConcernError = None, code = None, errmsg = None)
+                    val res2 = MultiBulkWriteResult(ok = true, n = 0, nModified = 0, upserted = Seq(), writeErrors = Seq(), writeConcernError = None, code = None, errmsg = None, totalN = 0)
+                    for { // TODO : use EventDiff.persist() instead...
+                      eventUpdated <- if(formData.updateEvent){ EventRepository.update(event.uuid, toUpdate.newEvent) } else { Future(None) }
+                      attendeesCreated <- if (toUpdate.createdAttendees.length > 0) { AttendeeRepository.bulkInsert(toUpdate.createdAttendees) } else { Future(res2) }
+                      attendeesDeleted <- if (toUpdate.deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(toUpdate.deletedAttendees.map(_.uuid)) } else { Future(res) }
+                      attendeesUpdated <- if (toUpdate.updatedAttendees.length > 0) { AttendeeRepository.bulkUpdate(toUpdate.updatedAttendees.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+                      exponentsCreated <- if (toUpdate.createdExponents.length > 0) { ExponentRepository.bulkInsert(toUpdate.createdExponents) } else { Future(res2) }
+                      exponentsDeleted <- if (toUpdate.deletedExponents.length > 0) { ExponentRepository.bulkDelete(toUpdate.deletedExponents.map(_.uuid)) } else { Future(res) }
+                      exponentsUpdated <- if (toUpdate.updatedExponents.length > 0) { ExponentRepository.bulkUpdate(toUpdate.updatedExponents.map(e => (e._2.uuid, e._2))) } else { Future(0) }
+                      sessionsCreated  <- if  (toUpdate.createdSessions.length > 0) {  SessionRepository.bulkInsert(toUpdate.createdSessions) } else { Future(res2) }
+                      sessionsDeleted  <- if  (toUpdate.deletedSessions.length > 0) {  SessionRepository.bulkDelete(toUpdate.deletedSessions.map(_.uuid)) } else { Future(res) }
+                      sessionsUpdated  <- if  (toUpdate.updatedSessions.length > 0) {  SessionRepository.bulkUpdate(toUpdate.updatedSessions.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+                    } yield {
+                      Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" ->
+                        (s"${toUpdate.newEvent.name} updated : " +
+                          s"Attendees: ${attendeesCreated.n}/$attendeesUpdated/${attendeesDeleted.n}, " +
+                          s"Exponents: ${exponentsCreated.n}/$exponentsUpdated/${exponentsDeleted.n}, " +
+                          s"Sessions: ${sessionsCreated.n}/$sessionsUpdated/${sessionsDeleted.n} (create/update/delete)"))
+                    }
+                  }).flatMap(identity)
+                }.getOrElse {
+                  Future(Redirect(backend.controllers.routes.Events.details(eventId)).flashing("error" -> "Impossible de mettre à jour l'événement :("))
                 }
-                res.flatMap(identity)
               }
+            }.getOrElse {
+              Future(Redirect(backend.controllers.routes.Events.details(eventId)).flashing("error" -> "Impossible de mettre à jour l'événement :("))
             }
-            case Failure(e) => Future(Redirect(backend.controllers.admin.routes.Events.refresh(eventId)).flashing("error" -> "Format de données incorrect..."))
           }
         })
     } else {
@@ -190,16 +193,14 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
     }
   }
 
-  private def refreshView(refreshForm: Form[String], eventFull: GenericEvent, event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
+  private def refreshView(refreshForm: Form[EventUpdateData], eventFull: GenericEvent, event: Event, status: Status = Ok)(implicit req: RequestHeader, user: User): Future[Result] = {
     for {
       attendees <- AttendeeRepository.findByEvent(event.uuid)
       exponents <- ExponentRepository.findByEvent(event.uuid)
       sessions <- SessionRepository.findByEvent(event.uuid)
     } yield {
-      val (updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions) =
-        EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
-      status(backend.views.html.admin.Events.refresh(refreshForm, event, updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions))
+      val diff = EventImport.makeDiff(eventFull, event, attendees, exponents, sessions)
+      status(backend.views.html.admin.Events.refresh(refreshForm.fill(diff.toUpdateForm()), diff))
     }
   }
-
 }

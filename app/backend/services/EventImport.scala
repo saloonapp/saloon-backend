@@ -1,5 +1,7 @@
 package backend.services
 
+import backend.forms.EventUpdateData
+import reactivemongo.api.commands.{MultiBulkWriteResult, DefaultWriteResult}
 import tools.models._
 import common.models.values._
 import common.models.values.typed._
@@ -16,6 +18,62 @@ import play.api.Play.current
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import org.joda.time.DateTime
+
+case class EventDiff(
+  oldEvent: Event,
+  newEvent: Event,
+  createdAttendees: List[Attendee],
+  deletedAttendees: List[Attendee],
+  updatedAttendees: List[(Attendee, Attendee)],
+  createdExponents: List[Exponent],
+  deletedExponents: List[Exponent],
+  updatedExponents: List[(Exponent, Exponent)],
+  createdSessions: List[Session],
+  deletedSessions: List[Session],
+  updatedSessions: List[(Session, Session)]) {
+  def hasEventDataChanged(): Boolean = this.oldEvent.copy(meta = this.oldEvent.meta.copy(updated = new DateTime(0))) != this.newEvent.copy(meta = this.newEvent.meta.copy(updated = new DateTime(0)))
+  def hasChanged(): Boolean = this.hasEventDataChanged() || createdAttendees.length > 0 || deletedAttendees.length > 0 || updatedAttendees.length > 0 || createdExponents.length > 0 || deletedExponents.length > 0 || updatedExponents.length > 0 || createdSessions.length > 0 || deletedSessions.length > 0 || updatedSessions.length > 0
+  def toUpdateForm(): EventUpdateData = EventUpdateData(
+    updateEvent = true,
+    this.createdAttendees.map(a => (a.meta.source.map(_.ref).getOrElse(a.name.unwrap), true)),
+    this.deletedAttendees.map(a => (a.uuid, true)),
+    this.updatedAttendees.map{case (a1, a2) => (a1.uuid, true)},
+    this.createdSessions.map(a => (a.meta.source.map(_.ref).getOrElse(a.name.unwrap), true)),
+    this.deletedSessions.map(a => (a.uuid, true)),
+    this.updatedSessions.map{case (a1, a2) => (a1.uuid, true)},
+    this.createdExponents.map(a => (a.meta.source.map(_.ref).getOrElse(a.name.unwrap), true)),
+    this.deletedExponents.map(a => (a.uuid, true)),
+    this.updatedExponents.map{case (a1, a2) => (a1.uuid, true)})
+  def filterWith(formData: EventUpdateData): EventDiff = EventDiff(
+    this.oldEvent,
+    this.newEvent, // TODO : should save formData.updateEvent
+    this.createdAttendees.filter(a => formData.createdAttendees.exists { case (id, update) => id == a.meta.source.map(_.ref).getOrElse(a.name.unwrap) && update}),
+    this.deletedAttendees.filter(a => formData.deletedAttendees.exists { case (id, update) => id == a.uuid && update}),
+    this.updatedAttendees.filter{ case (a1, a2) => formData.updatedAttendees.exists { case (id, update) => id == a1.uuid && update}},
+    this.createdExponents.filter(a => formData.createdExponents.exists { case (id, update) => id == a.meta.source.map(_.ref).getOrElse(a.name.unwrap) && update}),
+    this.deletedExponents.filter(a => formData.deletedExponents.exists { case (id, update) => id == a.uuid && update}),
+    this.updatedExponents.filter{ case (a1, a2) => formData.updatedExponents.exists { case (id, update) => id == a1.uuid && update}},
+    this.createdSessions.filter(a => formData.createdSessions.exists { case (id, update) => id == a.meta.source.map(_.ref).getOrElse(a.name.unwrap) && update}),
+    this.deletedSessions.filter(a => formData.deletedSessions.exists { case (id, update) => id == a.uuid && update}),
+    this.updatedSessions.filter{ case (a1, a2) => formData.updatedSessions.exists { case (id, update) => id == a1.uuid && update}})
+  /*def persist(): Future[Int] = {
+    val res = DefaultWriteResult(ok = true, n = 0, writeErrors = Seq(), writeConcernError = None, code = None, errmsg = None)
+    val res2 = MultiBulkWriteResult(ok = true, n = 0, nModified = 0, upserted = Seq(), writeErrors = Seq(), writeConcernError = None, code = None, errmsg = None, totalN = 0)
+    val eventFut = EventRepository.update(this.oldEvent.uuid, this.newEvent) // TODO : should check !
+    val createdAttendeesFut = if (this.createdAttendees.length > 0) { AttendeeRepository.bulkInsert(this.createdAttendees) } else { Future(res2) }
+    val deletedAttendeesFut = if (this.deletedAttendees.length > 0) { AttendeeRepository.bulkDelete(this.deletedAttendees.map(_.uuid)) } else { Future(res) }
+    val updatedAttendeesFut = if (this.updatedAttendees.length > 0) { AttendeeRepository.bulkUpdate(this.updatedAttendees.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+    val createdExponentsFut = if (this.createdExponents.length > 0) { ExponentRepository.bulkInsert(this.createdExponents) } else { Future(res2) }
+    val deletedExponentsFut = if (this.deletedExponents.length > 0) { ExponentRepository.bulkDelete(this.deletedExponents.map(_.uuid)) } else { Future(res) }
+    val updatedExponentsFut = if (this.updatedExponents.length > 0) { ExponentRepository.bulkUpdate(this.updatedExponents.map(e => (e._2.uuid, e._2))) } else { Future(0) }
+    val createdSessionsFut  = if  (this.createdSessions.length > 0) {  SessionRepository.bulkInsert(this.createdSessions) } else { Future(res2) }
+    val deletedSessionsFut  = if  (this.deletedSessions.length > 0) {  SessionRepository.bulkDelete(this.deletedSessions.map(_.uuid)) } else { Future(res) }
+    val updatedSessionsFut  = if  (this.updatedSessions.length > 0) {  SessionRepository.bulkUpdate(this.updatedSessions.map(s => (s._2.uuid, s._2))) } else { Future(0) }
+    Future.sequence(List(eventFut, createdAttendeesFut, deletedAttendeesFut, updatedAttendeesFut, createdExponentsFut, deletedExponentsFut, updatedExponentsFut, createdSessionsFut, deletedSessionsFut, updatedSessionsFut)).map { _ =>
+      0
+    }
+  }*/
+}
 
 object EventImport {
 
@@ -47,13 +105,13 @@ object EventImport {
     }
   }
 
-  def makeDiff(eventFull: GenericEvent, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): (Event, List[Attendee], List[Attendee], List[(Attendee, Attendee)], List[Exponent], List[Exponent], List[(Exponent, Exponent)], List[Session], List[Session], List[(Session, Session)]) = {
+  def makeDiff(eventFull: GenericEvent, event: Event, attendees: List[Attendee], exponents: List[Exponent], sessions: List[Session]): EventDiff = {
     val (newEvent, newAttendees, newExponents, newSessions) = build(eventFull, event, attendees, exponents, sessions)
     val updatedEvent = event.merge(newEvent)
     val (createdAttendees, deletedAttendees, updatedAttendees) = attendeeDiff(attendees, newAttendees)
     val (createdExponents, deletedExponents, updatedExponents) = exponentDiff(exponents, newExponents)
     val (createdSessions, deletedSessions, updatedSessions) = EventImport.sessionDiff(sessions, newSessions)
-    (updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions)
+    EventDiff(event, updatedEvent, createdAttendees, deletedAttendees, updatedAttendees, createdExponents, deletedExponents, updatedExponents, createdSessions, deletedSessions, updatedSessions)
   }
 
   /*
