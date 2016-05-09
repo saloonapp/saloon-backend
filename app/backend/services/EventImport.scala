@@ -201,10 +201,10 @@ object EventImport {
       TextMultiline(exponent.description),
       TextHTML(exponent.descriptionHTML),
       ExponentImages(
-        ImageUrl(""), //logo
+        ImageUrl(exponent.logo), //logo
         ImageUrl("")), //landing
       ExponentInfo(
-        WebsiteUrl(""),
+        WebsiteUrl(exponent.website),
         EventLocation(exponent.place),
         findAttendeeIds(exponentTeam.get(exponent.source.ref), attendees),
         None), //sponsorLevel

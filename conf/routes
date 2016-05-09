@@ -318,6 +318,7 @@ GET       /tools/scrapers/mixit/sessions                                        
 GET       /tools/scrapers/mixit/speakers                                                    tools.scrapers.mixit.MixitScraper.speakers(year: Int)
 GET       /tools/scrapers/mixit/staff                                                       tools.scrapers.mixit.MixitScraper.staff(year: Int)
 GET       /tools/scrapers/mixit/event                                                       tools.scrapers.mixit.MixitScraper.event(year: Int)
+GET       /tools/scrapers/bestofweb/event                                                   tools.scrapers.bestofweb.BestOfWebScraper.event()
 GET       /tools/api/devoxx/events                                                          tools.api.devoxx.DevoxxApi.getEventLinks(url: String)
 GET       /tools/api/devoxx/event                                                           tools.api.devoxx.DevoxxApi.getEvent(url: String)
 GET       /tools/api/devoxx/speakers                                                        tools.api.devoxx.DevoxxApi.getSpeakers(url: String)

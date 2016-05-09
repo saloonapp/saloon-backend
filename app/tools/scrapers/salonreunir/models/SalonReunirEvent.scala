@@ -29,6 +29,8 @@ object SalonReunirEvent {
         exponent.name,
         Jsoup.parse(descHTML).text(),
         descHTML,
+        "",
+        "",
         exponent.place)
     }
     val gSessions = sessions.map { session =>

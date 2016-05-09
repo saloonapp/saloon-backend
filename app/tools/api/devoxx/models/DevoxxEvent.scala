@@ -6,7 +6,6 @@ import common.models.event.GenericEvent
 import common.models.event.GenericEventInfo
 import common.models.event.GenericEventStats
 import common.models.event.GenericAttendee
-import common.models.event.GenericExponent
 import common.models.event.GenericSession
 import play.api.libs.json.Json
 

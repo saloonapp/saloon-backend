@@ -65,7 +65,7 @@ case class GenericEvent(
   tags: List[String],
   socialUrls: Map[String, String],
   stats: GenericEventStats,
-  status: String, // draft, publishing, published
+  status: String, // from GenericEvent.Status : draft, publishing, published
 
   attendees: List[GenericAttendee],
   exponents: List[GenericExponent],
