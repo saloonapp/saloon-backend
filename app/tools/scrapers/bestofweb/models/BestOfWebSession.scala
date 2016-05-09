@@ -9,6 +9,7 @@ import tools.utils.TextUtils
 import scala.collection.JavaConversions._
 
 case class BestOfWebSession(
+  ref: String,
   name: String,
   description: String,
   descriptionHTML: String,
@@ -19,7 +20,7 @@ case class BestOfWebSession(
     val startOpt = hours.headOption.map(h => changeTime(day, h))
     val endOpt = hours.drop(1).headOption.map(h => changeTime(day, h))
     GenericSession(
-      source = Source(TextUtils.tokenify(this.name), sourceName, BestOfWebScraper.baseUrl),
+      source = Source(this.ref, sourceName, BestOfWebScraper.baseUrl),
       name = this.name,
       description = this.description,
       descriptionHTML = this.descriptionHTML,
@@ -35,10 +36,15 @@ case class BestOfWebSession(
   }
 }
 object BestOfWebSession {
-  def fromMedia(m: Element): BestOfWebSession = BestOfWebSession(
-    name = m.select(".media-heading").text(),
-    description = m.select("p").text(),
-    descriptionHTML = m.select("p").html(),
-    hour = m.select(".time-label").text(), // 08:00, 09:00, 09:30... || 10:00-13:00, 14:00-17:00...
-    speakers = m.select(".media-left a").map(_.attr("href")).toList)
+  def fromMedia(m: Element): BestOfWebSession = {
+    val name = m.select(".media-heading").text()
+    val hour = m.select(".time-label").text() // 08:00, 09:00, 09:30... || 10:00-13:00, 14:00-17:00...
+    BestOfWebSession(
+      ref = TextUtils.tokenify(hour+"-"+name),
+      name = name,
+      description = m.select("p").text(),
+      descriptionHTML = m.select("p").html(),
+      hour = hour,
+      speakers = m.select(".media-left a").map(_.attr("href")).toList)
+  }
 }

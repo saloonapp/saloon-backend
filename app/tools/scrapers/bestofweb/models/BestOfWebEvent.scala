@@ -63,7 +63,7 @@ object BestOfWebEvent {
     val conferences = conferencesTmp.sliding(2).map(list => list.head.copy(hour = list(0).hour+"-"+list(1).hour)).toList ++ List(conferencesTmp.last.copy(hour = conferencesTmp.last.hour+"-18:00"))
     val sessions = formations.map(_.toGenericSession(sourceName, start, "Formation")) ++ conferences.map(_.toGenericSession(sourceName, start.plusDays(1), "Conference"))
     val sessionSpeakers = (formations ++ conferences).map { s =>
-      (TextUtils.tokenify(s.name), s.speakers)
+      (s.ref, s.speakers)
     }.toMap
     val exponents = doc.select(".sponsors").map { e =>
       // TODO : add logo / site for exponent !

@@ -79,7 +79,7 @@ object EventImport {
 
   def fetchGenericEvent(url: WebsiteUrl): Future[Option[GenericEvent]] = {
     WS.url(url.unwrap).get().map { response =>
-      response.json.asOpt[GenericEvent]
+      (response.json \ "result").asOpt[GenericEvent].orElse(response.json.asOpt[GenericEvent])
     }
   }
 
