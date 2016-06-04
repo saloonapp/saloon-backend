@@ -1,6 +1,7 @@
 @import common.models.event.Event
 @import common.models.event.Session
 @import common.models.user.User
+@import backend.views.Events.Sessions.ScheduleHelper
 @import org.joda.time.DateTime
 @import common.views.html._
 @import common.views.html.format._
@@ -8,30 +9,12 @@
 @import backend.views.html.partials._
 @(sessionsByDay: List[(DateTime, List[Session])], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, user: User)
 @hourData(sessionsOfDay: List[Session]) = @{
-	val start: DateTime = sessionsOfDay.map(_.info.start).flatten.reduceLeft((d1, d2) => if(d1.isBefore(d2)) d1 else d2)
-	val end: DateTime = sessionsOfDay.map(_.info.end).flatten.reduceLeft((d1, d2) => if(d1.isAfter(d2)) d1 else d2)
-	val maxHeight = 1000
-	val minuteDuration: Long = (end.millisOfDay().get() - start.millisOfDay().get())/(60*1000)
-	val pxByMinute: Double = maxHeight.toDouble / minuteDuration.toDouble
-	(start, end, maxHeight, pxByMinute)
-}
-@hourPosition(pxByMinute: Double, min: DateTime, start: DateTime) = @{
-	val minuteDuration: Long = (start.millisOfDay().get() - min.millisOfDay().get())/(60*1000)
-	minuteDuration*pxByMinute
-}
-@heightDuration(pxByMinute: Double, start: DateTime, end: DateTime) = @{
-	val minuteDuration: Long = (end.millisOfDay().get() - start.millisOfDay().get())/(60*1000)
-	minuteDuration*pxByMinute
-}
-@conflicts(s1: Session, sessionsOfPlace: List[Session]) = @{
-	// s1.start = s2.start || s1.end = s2.end || (s1.start < s2.start < s1.end) || (s1.start < s2.end < s1.end) || (s2.start < s1.start && s1.end < s2.end)
-	sessionsOfPlace.filter(s2 =>
-		s1.info.start.get.isEqual(s2.info.start.get) ||
-		s1.info.end.get.isEqual(s2.info.end.get) ||
-		(s1.info.start.get.isBefore(s2.info.start.get) && s2.info.start.get.isBefore(s1.info.end.get)) ||
-		(s1.info.start.get.isBefore(s2.info.end.get) && s2.info.end.get.isBefore(s1.info.end.get)) ||
-		(s2.info.start.get.isBefore(s1.info.start.get) && s1.info.end.get.isBefore(s2.info.end.get))
-	)
+	val dayStart: DateTime = sessionsOfDay.map(_.info.start).flatten.reduceLeft((d1, d2) => if(d1.isBefore(d2)) d1 else d2)
+	val dayEnd: DateTime = sessionsOfDay.map(_.info.end).flatten.reduceLeft((d1, d2) => if(d1.isAfter(d2)) d1 else d2)
+	val duration = dayEnd.getMillis - dayStart.getMillis
+	val pxPerMinute = 2
+	val totalHeight = ScheduleHelper.toPx(duration, pxPerMinute)
+	(dayStart, dayEnd, totalHeight, pxPerMinute)
 }
 @metaInfos(session: Session) = {
 	@timeOpt(session.info.start)-@timeOpt(session.info.end)
@@ -93,7 +76,7 @@
 									</div>
 								} else {
 									<div class="agenda">
-										@defining(hourData(sessionsOfDay)){ case (min, max, maxHeight, pxByMinute) =>
+										@defining(hourData(sessionsOfDay)){ case (dayStart, dayEnd, totalHeight, pxPerMinute) =>
 											<div class="flex-row">
 												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 													<div class="col">
@@ -103,12 +86,11 @@
 											</div>
 											<div class="flex-row">
 												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
-													<div class="col agenda-col" style="height: @{maxHeight}px;">
+													<div class="col agenda-col" style="height: @{totalHeight}px;">
 														@sessionsOfPlace.map { session =>
-															<a
-																href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)"
-																class="agenda-item @if(conflicts(session, sessionsOfPlace).length > 0){warning}"
-																style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">
+															<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)"
+															   class="agenda-item @if(ScheduleHelper.getConflicts(session, sessionsOfPlace).length > 0){warning}"
+															   style="@ScheduleHelper.absolutePosition(session, sessionsOfPlace, dayStart, pxPerMinute)">
 																<p class="meta">@metaInfos(session)</p>
 																<h4>@session.name</h4>
 																<p>
