@@ -89,7 +89,7 @@
 													<div class="col agenda-col" style="height: @{totalHeight}px;">
 														@sessionsOfPlace.map { session =>
 															<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)"
-															   class="agenda-item @if(ScheduleHelper.getConflicts(session, sessionsOfPlace).length > 0){warning}"
+															   class="agenda-item @if(ScheduleHelper.getConflicts(session, sessionsOfPlace).length > 1){warning}"
 															   style="@ScheduleHelper.absolutePosition(session, sessionsOfPlace, dayStart, pxPerMinute)">
 																<p class="meta">@metaInfos(session)</p>
 																<h4>@session.name</h4>
