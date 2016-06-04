@@ -10,17 +10,17 @@ object MixitScraper extends Controller {
   val baseUrl = "https://www.mix-it.fr"
 
   def sessions(year: Int) = Action.async {
-    ScraperUtils.scrapeJson(Session.allUrl(year)){ json =>
+    ScraperUtils.scrapeJson(Session.allUrl(year)){ case (json, url) =>
       json.asOpt[List[Session]].getOrElse(List())
     }
   }
 
   def speakers(year: Int) = Action.async {
-    ScraperUtils.scrapeJson(Attendee.allSpeakerUrl(year))(_.asOpt[List[Attendee]].getOrElse(List()))
+    ScraperUtils.scrapeJson(Attendee.allSpeakerUrl(year)){ case (json, url) => json.asOpt[List[Attendee]].getOrElse(List()) }
   }
 
   def staff(year: Int) = Action.async {
-    ScraperUtils.scrapeJson(Attendee.allStaffUrl(year))(_.asOpt[List[Attendee]].getOrElse(List()))
+    ScraperUtils.scrapeJson(Attendee.allStaffUrl(year)){ case (json, url) => json.asOpt[List[Attendee]].getOrElse(List()) }
   }
 
   def event(year: Int) = Action.async {

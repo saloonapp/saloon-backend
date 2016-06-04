@@ -23,19 +23,26 @@
 	val minuteDuration: Long = (end.millisOfDay().get() - start.millisOfDay().get())/(60*1000)
 	minuteDuration*pxByMinute
 }
-@hasConflict(start: DateTime, sessionsOfPlace: List[Session]) = @{
-	sessionsOfPlace.find(s => s.info.start.get.isBefore(start) && s.info.end.get.isAfter(start)).map(s => true)getOrElse(false)
+@conflicts(s1: Session, sessionsOfPlace: List[Session]) = @{
+	// s1.start = s2.start || s1.end = s2.end || (s1.start < s2.start < s1.end) || (s1.start < s2.end < s1.end) || (s2.start < s1.start && s1.end < s2.end)
+	sessionsOfPlace.filter(s2 =>
+		s1.info.start.get.isEqual(s2.info.start.get) ||
+		s1.info.end.get.isEqual(s2.info.end.get) ||
+		(s1.info.start.get.isBefore(s2.info.start.get) && s2.info.start.get.isBefore(s1.info.end.get)) ||
+		(s1.info.start.get.isBefore(s2.info.end.get) && s2.info.end.get.isBefore(s1.info.end.get)) ||
+		(s2.info.start.get.isBefore(s1.info.start.get) && s1.info.end.get.isBefore(s2.info.end.get))
+	)
 }
 @metaInfos(session: Session) = {
 	@timeOpt(session.info.start)-@timeOpt(session.info.end)
 	@if(!session.info.format.isEmpty){<span class="label label-primary" title="@session.info.format">@session.info.format</span>}
 	@if(!session.info.theme.isEmpty){<span class="label label-danger" title="@session.info.theme">@session.info.theme</span>}
 }
-@layout("Sessions à "+event.name, Map(event.uuid -> event.name)){
+@layout("Sessions de "+event.name, Map(event.uuid -> event.name)){
 	<div class="card">
 		<div class="card-header ch-alt">
 			<h2>
-				Sessions pour @event.name :
+				Sessions de @event.name :
 				<small>@if(req.getQueryString("query").isDefined && !req.getQueryString("query").get.isEmpty){Résultats pour la recherche "<b>@req.getQueryString("query")</b>"}&nbsp;</small>
 			</h2>
 			<ul class="actions">
@@ -69,7 +76,7 @@
 									<div class="flex-row">
 										@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 											<div class="col media-list">
-												<h3>@place</h3>
+												<h3>@if(place.value.trim.length == 0){Pas de salle}else{@place}</h3>
 												@sessionsOfPlace.map { session =>
 													<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="media">
 														<div class="media-body">
@@ -84,14 +91,13 @@
 											</div>
 										}
 									</div>
-								}
-								@if(date.getMillis() != 0){
+								} else {
 									<div class="agenda">
 										@defining(hourData(sessionsOfDay)){ case (min, max, maxHeight, pxByMinute) =>
 											<div class="flex-row">
 												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 													<div class="col">
-														<h3>@place</h3>
+														<h3>@if(place.value.trim.length == 0){Pas de salle}else{@place}</h3>
 													</div>
 												}
 											</div>
@@ -99,7 +105,10 @@
 												@sessionsOfDay.groupBy(_.info.place).toList.sortBy(_._1.unwrap.toLowerCase).map { case (place, sessionsOfPlace) =>
 													<div class="col agenda-col" style="height: @{maxHeight}px;">
 														@sessionsOfPlace.map { session =>
-															<a href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)" class="agenda-item @if(hasConflict(session.info.start.get, sessionsOfPlace)){warning}" style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">
+															<a
+																href="@backend.controllers.routes.Sessions.details(event.uuid, session.uuid)"
+																class="agenda-item @if(conflicts(session, sessionsOfPlace).length > 0){warning}"
+																style="top: @hourPosition(pxByMinute, min, session.info.start.get)px; min-height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px; height: @heightDuration(pxByMinute, session.info.start.get, session.info.end.get)px;">
 																<p class="meta">@metaInfos(session)</p>
 																<h4>@session.name</h4>
 																<p>

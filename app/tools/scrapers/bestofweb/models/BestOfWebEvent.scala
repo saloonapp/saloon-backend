@@ -9,7 +9,7 @@ import tools.utils.{ScraperUtils, TextUtils}
 import scala.collection.JavaConversions._
 
 object BestOfWebEvent {
-  def fromHTML(html: String): GenericEvent = {
+  def fromHTML(html: String, url: String): GenericEvent = {
     val doc = Jsoup.parse(html)
     val sourceName = "BestOfWebScraper"
     val source = Source("2016", sourceName, BestOfWebScraper.baseUrl)
@@ -86,7 +86,7 @@ object BestOfWebEvent {
       info = GenericEventInfo(
         logo = "",
         start = Some(start),
-        end = None,//Some(sessions.map(_.end).flatten.max),
+        end = sessions.map(_.end).flatten.sortBy(-_.getMillis).headOption,
         description = description.map(_.text()).getOrElse(""),
         descriptionHTML = description.map(_.html()).getOrElse(""),
         venue = Some(GenericEventVenue(
@@ -108,7 +108,7 @@ object BestOfWebEvent {
         phone = None),
       tags = List(),
       socialUrls = Map("twitter" -> "https://twitter.com/bestofwebconf"),
-      stats = GenericEventStats( year = None, area = None, exponents = None, registration = None, visitors = None),
+      stats = GenericEventStats(None, None, None, None, None),
       status = GenericEvent.Status.draft,
       attendees = speakers ++ orgas,
       exponents = exponents,
