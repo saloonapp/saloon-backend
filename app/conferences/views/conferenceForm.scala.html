@@ -1,0 +1,198 @@
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("Ajouter une conférence") {
+    @partials.header("edit")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <h1>Ajouter une conférence</h1>
+        </div>
+
+        <form class="form-horizontal">
+            <div class="panel-group" role="tablist">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#global-panel">Général</a></h4>
+                    </div>
+                    <div id="global-panel" class="panel-collapse collapse in" role="tabpanel">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="name" class="col-md-2 control-label">Nom</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="ex: Devoxx France 2016">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description" class="col-md-2 control-label">Description</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="3" id="description" name="description" placeholder="ex: La conférence pour les Développeurs Passionnés"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="start" class="col-md-2 control-label">Début</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="start" name="start" placeholder="ex: 20/04/2016">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="end" class="col-md-2 control-label">Fin</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="end" name="end" placeholder="ex: 22/04/2016">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="venue.name" class="col-md-2 control-label">Lieu</label>
+                                <div class="col-sm-10">
+                                    <div class="row">
+                                        <div class="col-md-3"><input type="text" class="form-control" id="venue.name" name="venue.name" placeholder="ex: Palais des congrès"></div>
+                                        <div class="col-md-3"><input type="text" class="form-control" id="venue.street" name="venue.street" placeholder="ex: 2 Place de la Porte Maillot"></div>
+                                        <div class="col-md-2"><input type="text" class="form-control" id="venue.zipCode" name="venue.zipCode" placeholder="ex: 75017"></div>
+                                        <div class="col-md-2"><input type="text" class="form-control" id="venue.city" name="venue.city" placeholder="ex: Paris"></div>
+                                        <div class="col-md-2"><input type="text" class="form-control" id="venue.country" name="venue.country" placeholder="ex: France"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tags" class="col-md-2 control-label">Tags</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="tags" name="tags" placeholder="ex: web, java, tech">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="siteUrl" class="col-md-2 control-label">Site officiel</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="siteUrl" name="siteUrl" placeholder="ex: http://devoxx.fr/">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="siteUrl" class="col-md-2 control-label">Social links</label>
+                                <div class="col-sm-10">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="social.twitter.account">Compte twitter</label>
+                                            <input type="text" class="form-control" id="social.twitter.account" name="social.twitter.account" placeholder="ex: DevoxxFR">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="social.twitter.hashtag">Hashtag twitter</label>
+                                            <input type="text" class="form-control" id="social.twitter.hashtag" name="social.twitter.hashtag" placeholder="ex: DevoxxFr">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="videosUrl" class="col-md-2 control-label">Vidéos</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="videosUrl" name="videosUrl" placeholder="ex: https://www.youtube.com/channel/UCsVPQfo5RZErDL41LoWvk0A">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#cfp-panel">Call For Paper</a></h4>
+                    </div>
+                    <div id="cfp-panel" class="panel-collapse collapse" role="tabpanel">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="cfp.siteUrl" class="col-md-2 control-label">Site</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="cfp.siteUrl" name="cfp.siteUrl" placeholder="ex: http://cfp.devoxx.fr/">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cfp.start" class="col-md-2 control-label">Début</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="cfp.start" name="cfp.start" placeholder="ex: 01/12/2015">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cfp.end" class="col-md-2 control-label">Fin</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="cfp.end" name="cfp.end" placeholder="ex: 31/01/2016">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#ticket-panel">Tickets</a></h4>
+                    </div>
+                    <div id="ticket-panel" class="panel-collapse collapse" role="tabpanel">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="ticket.siteUrl" class="col-md-2 control-label">Site</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="ticket.siteUrl" name="ticket.siteUrl" placeholder="ex: https://reg.devoxx.fr/">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticket.start" class="col-md-2 control-label">Début</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="ticket.start" name="ticket.start" placeholder="ex: 01/12/2015">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticket.end" class="col-md-2 control-label">Fin</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="ticket.end" name="ticket.end" placeholder="ex: 31/03/2016">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticket.from" class="col-md-2 control-label">Prix min</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="ticket.from" name="ticket.from" placeholder="ex: 180">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticket.to" class="col-md-2 control-label">Prix max</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="ticket.to" name="ticket.to" placeholder="ex: 500">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticket.currency" class="col-md-2 control-label">Monaie</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="ticket.currency" name="ticket.currency" placeholder="ex: €">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#metrics-panel">Données</a></h4>
+                    </div>
+                    <div id="metrics-panel" class="panel-collapse collapse" role="tabpanel">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="metrics.attendeeCount" class="col-md-2 control-label">Nombre de participants</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="metrics.attendeeCount" name="metrics.attendeeCount" placeholder="ex: 2500">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="metrics.sessionCount" class="col-md-2 control-label">Nombre de présentations</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="metrics.sessionCount" name="metrics.sessionCount" placeholder="ex: 220">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="metrics.sinceYear" class="col-md-2 control-label">Année de lancement</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="metrics.sinceYear" name="metrics.sinceYear" placeholder="ex: 2012">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary btn-lg">Ajouter la conférence</button>
+                </div>
+            </div>
+        </form>
+    </div>
+}

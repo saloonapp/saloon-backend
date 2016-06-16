@@ -7,6 +7,12 @@ GET       /                                                                     
 GET       /sample                                                                           website.controllers.Application.sample
 POST      /contact                                                                          common.controllers.Application.sendContactEmail
 
+# Conference list
+GET       /conferences                                                                      conferences.controllers.Application.future
+GET       /conferences/past                                                                 conferences.controllers.Application.past
+GET       /conferences/create                                                               conferences.controllers.Application.create
+GET       /conferences/edit/:id                                                             conferences.controllers.Application.edit(id: String)
+
 # Authentication
 GET       /login                                                                            authentication.controllers.Auth.login
 POST      /login                                                                            authentication.controllers.Auth.doLogin
