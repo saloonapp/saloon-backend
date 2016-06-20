@@ -12,7 +12,11 @@
 
         <div class="row">
             <div class="col-md-12">
-                @partials.conferenceItem(conference, List("edit", "history"))
+                @if(req.getQueryString("admin") == Some("SalooN")) {
+                    @partials.conferenceItem(conference, List("edit", "history"))
+                } else {
+                    @partials.conferenceItem(conference, List("edit"))
+                }
             </div>
         </div>
     </div>

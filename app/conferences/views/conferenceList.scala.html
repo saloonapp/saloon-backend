@@ -33,7 +33,11 @@
                     @if(context == "search") { <p>Aucune conférence pour cette recherche...</p> }
                 }
                 @conferenceList.map { conference =>
-                    @partials.conferenceItem(conference, List("edit", "history"))
+                    @if(req.getQueryString("admin") == Some("SalooN")){
+                        @partials.conferenceItem(conference, List("edit", "history"))
+                    } else {
+                        @partials.conferenceItem(conference, List("edit"))
+                    }
                 }
             </div>
         </div>
