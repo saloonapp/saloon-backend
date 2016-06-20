@@ -3,12 +3,7 @@ package common.repositories.utils
 import common.models.utils.Page
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json.Format
-import play.api.libs.json.Json
-import play.api.libs.json.JsObject
-import play.api.libs.json.Reads
-import play.api.libs.json.Writes
-import play.api.libs.json.OWrites
+import play.api.libs.json._
 import play.modules.reactivemongo.json.BSONFormats
 import play.modules.reactivemongo.json.JsObjectDocumentWriter
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -164,6 +159,13 @@ object MongoDbCrudUtils {
     collection.db.command(RawCommand(BSONFormats.BSONDocumentFormat.reads(command).get)).map { result =>
       import play.modules.reactivemongo.json.BSONFormats._
       (Json.toJson(result) \ "result").as[T]
+    }
+  }
+
+  def aggregate2[T](collection: JSONCollection, command: JsObject, extract: JsValue => T) = {
+    collection.db.command(RawCommand(BSONFormats.BSONDocumentFormat.reads(command).get)).map { result =>
+      import play.modules.reactivemongo.json.BSONFormats._
+      extract(Json.toJson(result) \ "result")
     }
   }
 

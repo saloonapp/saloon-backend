@@ -1,6 +1,6 @@
 @import org.joda.time.DateTime
 @import conferences.models.Conference
-@(context: String, conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(context: String, conferenceList: List[Conference], tags: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @main(if(context == "future"){"Conférences à venir"} else if(context == "past") {"Conférences passées"} else {"Recherche de conférences"}){
     @partials.header("list")
@@ -24,7 +24,7 @@
 
         <div class="row">
             <div class="col-md-3 col-md-push-9">
-                @partials.search()
+                @partials.search(tags)
             </div>
             <div class="col-md-9 col-md-pull-3">
                 @if(conferenceList.length == 0) {

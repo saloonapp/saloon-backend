@@ -16,17 +16,23 @@ object Application extends Controller {
   val conferenceForm = Form(ConferenceData.fields)
 
   def list = Action.async { implicit req =>
-    ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime()))).map { conferenceList =>
-      Ok(conferences.views.html.conferenceList("future", conferenceList))
-    }
+    val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime())), Json.obj("start" -> 1))
+    val tagsFut = ConferenceRepository.getTags()
+    for {
+      conferenceList <- conferenceListFut
+      tags <- tagsFut
+    } yield Ok(conferences.views.html.conferenceList("future", conferenceList, tags))
   }
   def search(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String]) = Action.async { implicit req =>
     play.Logger.info("search")
     val filter = buildFilter(q, before, after, tags, cfp, tickets)
     play.Logger.info("filter: "+filter)
-    ConferenceRepository.find(filter).map { conferenceList =>
-      Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList))
-    }
+    val conferenceListFut = ConferenceRepository.find(filter)
+    val tagsFut = ConferenceRepository.getTags()
+    for {
+      conferenceList <- conferenceListFut
+      tags <- tagsFut
+    } yield Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList, tags))
   }
   def detail(id: ConferenceId) = Action.async { implicit req =>
     ConferenceRepository.get(id).map { conferenceOpt =>
