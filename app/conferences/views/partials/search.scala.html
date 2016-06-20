@@ -1,4 +1,36 @@
-@()
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+<h3>Advanced search</h3>
+@helper.form(action=conferences.controllers.routes.Application.search()){
+    <div class="form-group">
+        <input type="search" class="form-control" id="q" name="q" value="@req.getQueryString("q")" placeholder="Your search...">
+    </div>
+    <div class="form-group">
+        <label for="after">From date</label>
+        <input type="text" class="form-control date" id="after" name="after" value="@req.getQueryString("after")" placeholder="ex: 01/01/2015">
+    </div>
+    <div class="form-group">
+        <label for="before">To date</label>
+        <input type="text" class="form-control date" id="before" name="before" value="@req.getQueryString("before")" placeholder="ex: 31/12/2015">
+    </div>
+    <div class="form-group">
+        <label for="tags">Tags</label>
+        <input type="text" class="form-control" id="tags" name="tags" value="@req.getQueryString("tags")" placeholder="ex: java, web, tech">
+    </div>
+    <!-- TODO : add geo-search -->
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" name="cfp" @if(req.getQueryString("cfp") == Some("on")){checked="checked"}> Opened cfp
+        </label>
+    </div>
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" name="tickets" @if(req.getQueryString("tickets") == Some("on")){checked="checked"}> Opened tickets
+        </label>
+    </div>
+    <button type="submit" class="btn btn-default">Search</button>
+}
+<h3>Tags</h3>
+
 Search... (TODO)
 <ul>
     <li>Full text</li>

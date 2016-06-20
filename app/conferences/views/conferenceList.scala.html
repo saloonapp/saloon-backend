@@ -1,12 +1,12 @@
 @import org.joda.time.DateTime
 @import conferences.models.Conference
-@(period: String, conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(context: String, conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@main(if(period == "future"){ "Conférences à venir" } else { "Conférences passées" }){
+@main(if(context == "future"){"Conférences à venir"} else if(context == "past") {"Conférences passées"} else {"Recherche de conférences"}){
     @partials.header("list")
 
     <div class="container" role="main">
-        @if(period != "search") {
+        @if(context != "search") {
             <div class="jumbotron">
                 <h1>Conférence liste</h1>
                 <p>
@@ -17,20 +17,24 @@
         }
 
         <ul class="nav nav-tabs">
-            <li role="presentation" @if(period == "future"){class="active"}><a href="@conferences.controllers.routes.Application.list()">À venir</a></li>
-            <li role="presentation" @if(period == "past"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString("yyyy-MM-dd")))">Passées</a></li>
+            <li role="presentation" @if(context == "future"){class="active"}><a href="@conferences.controllers.routes.Application.list()">À venir</a></li>
+            <li role="presentation" @if(context == "past"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString("dd/MM/yyyy")))">Passées</a></li>
         </ul>
         <br>
 
         <div class="row">
-            <div class="col-md-9">
-                @if(conferenceList.length == 0){<p>Aucune conférence...</p>}
+            <div class="col-md-3 col-md-push-9">
+                @partials.search()
+            </div>
+            <div class="col-md-9 col-md-pull-3">
+                @if(conferenceList.length == 0) {
+                    @if(context == "future") { <p>Aucune conférence à venir...</p> }
+                    @if(context == "past") { <p>Aucune conférence passée...</p> }
+                    @if(context == "search") { <p>Aucune conférence pour cette recherche...</p> }
+                }
                 @conferenceList.map { conference =>
                     @partials.conferenceItem(conference, List("edit", "history"))
                 }
-            </div>
-            <div class="col-md-3">
-                @partials.search()
             </div>
         </div>
     </div>

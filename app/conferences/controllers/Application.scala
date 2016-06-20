@@ -3,6 +3,7 @@ package conferences.controllers
 import common.repositories.conference.ConferenceRepository
 import conferences.models.{ConferenceCfp, ConferenceId, ConferenceMetrics, ConferenceData}
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
@@ -13,34 +14,15 @@ import scala.util.Try
 
 object Application extends Controller {
   val conferenceForm = Form(ConferenceData.fields)
-  val conf = ConferenceData(
-    id = None,
-    name = "Test conf",
-    description = Some("C'est une super conf\nViendez tous !"),
-    start = new DateTime(),
-    end = new DateTime(),
-    siteUrl = "http://localhost:9000/conferences/create",
-    videosUrl = None,
-    tags = "web, java, tech",
-    venue = None,
-    cfp = Some(ConferenceCfp(
-      siteUrl = "http://cfp.devoxx.fr/",
-      start = None,
-      end = new DateTime())),
-    tickets = None,
-    metrics = Some(ConferenceMetrics(
-      attendeeCount = Some(1),
-      sessionCount = Some(2),
-      sinceYear = Some(3))),
-    social = None)
 
   def list = Action.async { implicit req =>
     ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime()))).map { conferenceList =>
       Ok(conferences.views.html.conferenceList("future", conferenceList))
     }
   }
-  def search(section: Option[String], before: Option[String], after: Option[String], tags: Option[String]) = Action.async { implicit req =>
-    val filter = buildFilter(before, after, tags)
+  def search(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String]) = Action.async { implicit req =>
+    play.Logger.info("search")
+    val filter = buildFilter(q, before, after, tags, cfp, tickets)
     play.Logger.info("filter: "+filter)
     ConferenceRepository.find(filter).map { conferenceList =>
       Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList))
@@ -111,20 +93,49 @@ object Application extends Controller {
     }
   }
 
-  private def buildFilter(before: Option[String], after: Option[String], tags: Option[String]): JsObject = {
-    def reduce(l: List[Option[JsObject]]): Option[JsObject] = if(l.flatten.length > 0) Some(l.flatten.reduceLeft(_ ++ _)) else None
-    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d)).toOption
-    def buildDateFilter(before: Option[String], after: Option[String]): Option[JsObject] = {
-      val filterBefore = before.flatMap(parseDate).map(d => Json.obj("$lte" -> d))
-      val filterAfter = after.flatMap(parseDate).map(d => Json.obj("$gte" -> d))
-      reduce(List(filterBefore, filterAfter)).map(f => Json.obj("end" -> f))
+  private val dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+  private def buildFilter(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String]): JsObject = {
+    def reduce(l: List[Option[JsObject]]): Option[JsObject] = l.flatten.headOption.map(_ => l.flatten.reduceLeft(_ ++ _))
+    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, dateFormatter)).toOption
+    def buildTextFilter(q: Option[String]): Option[JsObject] =
+      q.map(_.trim).filter(_.length > 0).map { query =>
+        Json.obj("$or" -> List(
+          "name", "description", "siteUrl", "videosUrl", "tags",
+          "venue.name", "venue.street", "venue.zipCode", "venue.city", "venue.country",
+          "cfp.siteUrl", "tickets.siteUrl", "social.twitter.account", "social.twitter.hashtag"
+        ).map(field => Json.obj(field -> Json.obj("$regex" -> query, "$options" -> "i"))))
+      }
+    def buildDateFilter(before: Option[String], after: Option[String]): Option[JsObject] =
+      reduce(List(
+        before.flatMap(parseDate).map(d => Json.obj("$lte" -> d)),
+        after.flatMap(parseDate).map(d => Json.obj("$gte" -> d))
+      )).map(f => Json.obj("end" -> f))
+    def buildTagFilter(tagsOpt: Option[String]): Option[JsObject] =
+      tagsOpt
+        .map(_.split(",").map(_.trim).filter(_.length > 0))
+        .filter(_.length > 0)
+        .map(tags => Json.obj("tags" -> Json.obj("$in" ->tags)))
+    def buildCfpFilter(cfp: Option[String]): Option[JsObject] = cfp match {
+      case Some("on") => Some(Json.obj("$or" -> Json.arr(
+        Json.obj("cfp.start" -> Json.obj("$lte" -> new DateTime()), "cfp.end" -> Json.obj("$gte" -> new DateTime())),
+        Json.obj("cfp.start" -> Json.obj("$exists" -> false), "cfp.end" -> Json.obj("$gte" -> new DateTime()))
+      )))
+      case _ => None
     }
-    def buildTagFilter(tags: Option[String]): Option[JsObject] = {
-      tags.map(t => Json.obj("tags" -> Json.obj("$in" -> t.split(",").map(_.trim))))
+    def buildTicketsFilter(tickets: Option[String]): Option[JsObject] = tickets match {
+      case Some("on") => Some(Json.obj("$or" -> Json.arr(
+        Json.obj("tickets.start" -> Json.obj("$lte" -> new DateTime()), "tickets.end" -> Json.obj("$gte" -> new DateTime())),
+        Json.obj("tickets.start" -> Json.obj("$exists" -> false), "tickets.end" -> Json.obj("$gte" -> new DateTime()))
+      )))
+      case _ => None
     }
-    reduce(List(
+    val filters = List(
+      buildTextFilter(q),
       buildDateFilter(before, after),
-      buildTagFilter(tags)
-    )).getOrElse(Json.obj())
+      buildTagFilter(tags),
+      buildCfpFilter(cfp),
+      buildTicketsFilter(tickets)
+    ).flatten
+    filters.headOption.map(_ => Json.obj("$and" -> filters)).getOrElse(Json.obj())
   }
 }
