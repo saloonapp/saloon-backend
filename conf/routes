@@ -12,8 +12,13 @@ GET       /conferences                                                          
 GET       /conferences/search                                                               conferences.controllers.Application.search(section: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None)
 GET       /conferences/create                                                               conferences.controllers.Application.create
 POST      /conferences/create                                                               conferences.controllers.Application.doCreate
-GET       /conferences/edit/:id                                                             conferences.controllers.Application.edit(id: ConferenceId)
-POST      /conferences/edit/:id                                                             conferences.controllers.Application.doEdit(id: ConferenceId)
+GET       /conferences/:id                                                                  conferences.controllers.Application.detail(id: ConferenceId)
+GET       /conferences/:id/edit                                                             conferences.controllers.Application.edit(id: ConferenceId)
+GET       /conferences/:id/edit/:created                                                    conferences.controllers.Application.editVersion(id: ConferenceId, created: Long)
+POST      /conferences/:id/edit                                                             conferences.controllers.Application.doEdit(id: ConferenceId)
+GET       /conferences/:id/history                                                          conferences.controllers.Application.history(id: ConferenceId)
+POST      /conferences/:id/delete/:created                                                  conferences.controllers.Application.doDelete(id: ConferenceId, created: Long)
+POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
 
 # Authentication
 GET       /login                                                                            authentication.controllers.Auth.login

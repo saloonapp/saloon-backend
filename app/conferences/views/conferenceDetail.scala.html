@@ -1,0 +1,19 @@
+@import org.joda.time.DateTime
+@import conferences.models.Conference
+@(conference: Conference)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main(conference.name){
+    @partials.header("")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <h1>@conference.name</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                @partials.conferenceItem(conference, List("edit", "history"))
+            </div>
+        </div>
+    </div>
+}

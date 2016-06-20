@@ -16,10 +16,25 @@
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <script src="https://use.fontawesome.com/e05f2a9bf6.js"></script>
         <style>
-        body {
-        padding-top: 70px;
-        padding-bottom: 30px;
-        }
+            body {
+                padding-top: 70px;
+                padding-bottom: 30px;
+            }
+            .close button {
+                background: none;
+                border: none;
+                padding: 0px;
+            }
+            .close + .close {
+                margin-right: 10px;
+            }
+            h2 .anchor {
+                color: #ccc;
+                visibility: hidden;
+            }
+            h2:hover .anchor {
+                visibility: visible;
+            }
         </style>
 
             <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->

@@ -26,7 +26,7 @@
             <div class="col-md-9">
                 @if(conferenceList.length == 0){<p>Aucune conférence...</p>}
                 @conferenceList.map { conference =>
-                    @partials.conferenceItem(conference)
+                    @partials.conferenceItem(conference, List("edit", "history"))
                 }
             </div>
             <div class="col-md-3">

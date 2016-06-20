@@ -1,0 +1,21 @@
+@import org.joda.time.DateTime
+@import conferences.models.Conference
+@(conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("Historique de la conférence \""+conferenceList.head.name+"\""){
+    @partials.header("")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <h1>Historique de @conferenceList.head.name</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                @conferenceList.map { conference =>
+                    @partials.conferenceItem(conference, List("edit-version", "delete"))
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -46,6 +46,15 @@ object Application extends Controller {
       Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList))
     }
   }
+  def detail(id: ConferenceId) = Action.async { implicit req =>
+    ConferenceRepository.get(id).map { conferenceOpt =>
+      conferenceOpt.map { conference =>
+        Ok(conferences.views.html.conferenceDetail(conference))
+      }.getOrElse {
+        NotFound("Not Found !")
+      }
+    }
+  }
   def create = Action { implicit req =>
     Ok(conferences.views.html.conferenceForm(conferenceForm))
   }
@@ -53,14 +62,18 @@ object Application extends Controller {
     conferenceForm.bindFromRequest.fold(
       formWithErrors => Future(BadRequest(conferences.views.html.conferenceForm(formWithErrors))),
       formData => {
-        ConferenceRepository.insert(ConferenceData.toModel(formData)).map { createdOpt =>
-          Redirect(conferences.controllers.routes.Application.list)
+        val conference = ConferenceData.toModel(formData)
+        ConferenceRepository.insert(conference).map { createdOpt =>
+          Redirect(conferences.controllers.routes.Application.detail(conference.id))
         }
       }
     )
   }
-  def edit(id: ConferenceId) = Action.async { implicit req =>
-    ConferenceRepository.get(id).map { conferenceOpt =>
+  def edit(id: ConferenceId) = editPrivate(id, None)
+  def editVersion(id: ConferenceId, created: Long) = editPrivate(id, Some(created))
+  private def editPrivate(id: ConferenceId, created: Option[Long]) = Action.async { implicit req =>
+    val conferenceFut = created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id))
+    conferenceFut.map { conferenceOpt =>
       conferenceOpt.map { conference =>
         Ok(conferences.views.html.conferenceForm(conferenceForm.fill(ConferenceData.fromModel(conference))))
       }.getOrElse {
@@ -73,10 +86,29 @@ object Application extends Controller {
       formWithErrors => Future(BadRequest(conferences.views.html.conferenceForm(formWithErrors))),
       formData => {
         ConferenceRepository.update(id, ConferenceData.toModel(formData)).map { updatedOpt =>
-          Redirect(conferences.controllers.routes.Application.list)
+          Redirect(conferences.controllers.routes.Application.detail(id))
         }
       }
     )
+  }
+  def history(id: ConferenceId) = Action.async { implicit req =>
+    ConferenceRepository.getHistory(id).map { conferenceList =>
+      if(conferenceList.length > 0){
+        Ok(conferences.views.html.conferenceHistory(conferenceList))
+      } else {
+        NotFound("Not Found !")
+      }
+    }
+  }
+  def doDelete(id: ConferenceId, created: Long) = Action.async { implicit req =>
+    ConferenceRepository.deleteVersion(id, new DateTime(created)).map { _ =>
+      Redirect(conferences.controllers.routes.Application.history(id))
+    }
+  }
+  def doDeleteAll(id: ConferenceId) = Action.async { implicit req =>
+    ConferenceRepository.delete(id).map { _ =>
+      Redirect(conferences.controllers.routes.Application.list)
+    }
   }
 
   private def buildFilter(before: Option[String], after: Option[String], tags: Option[String]): JsObject = {

@@ -27,7 +27,9 @@ object ConferenceRepository {
         Json.obj("$sort" -> sort))))
   def insert(elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
   def update(id: ConferenceId, elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(id = id, created = new DateTime()))
+  def get(id: ConferenceId, created: DateTime): Future[Option[Conference]] = MongoDbCrudUtils.get[Conference](collection, Json.obj("id" -> id.unwrap, "created" -> created))
   def get(id: ConferenceId): Future[Option[Conference]] = MongoDbCrudUtils.getFirst[Conference](collection, Json.obj("id" -> id.unwrap), Json.obj("created" -> -1))
   def getHistory(id: ConferenceId): Future[List[Conference]] = MongoDbCrudUtils.find[Conference](collection, Json.obj("id" -> id.unwrap), Json.obj("created" -> -1))
-  def deleteItem(id: ConferenceId, created: DateTime): Unit = ???
+  def deleteVersion(id: ConferenceId, created: DateTime): Future[WriteResult] = MongoDbCrudUtils.delete(collection, Json.obj("id" -> id.unwrap, "created" -> created))
+  def delete(id: ConferenceId): Future[WriteResult] = MongoDbCrudUtils.delete(collection, Json.obj("id" -> id.unwrap))
 }
