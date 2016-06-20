@@ -71,6 +71,10 @@ object MongoDbCrudUtils {
     collection.find(filter).one[T]
   }
 
+  def getFirst[T](collection: JSONCollection, filter: JsObject = Json.obj(), sort: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = {
+    collection.find(filter).sort(sort).cursor[T].headOption
+  }
+
   def insert[T](collection: JSONCollection, elt: T)(implicit w: Writes[T]): Future[WriteResult] = {
     collection.save(elt)
   }
@@ -153,6 +157,13 @@ object MongoDbCrudUtils {
       (Json.toJson(result) \ "result").as[List[JsObject]].map { obj =>
         ((obj \ "_id").as[String], (obj \ "count").as[Int])
       }.toMap
+    }
+  }
+
+  def aggregate[T](collection: JSONCollection, command: JsObject)(implicit r: Reads[T]) = {
+    collection.db.command(RawCommand(BSONFormats.BSONDocumentFormat.reads(command).get)).map { result =>
+      import play.modules.reactivemongo.json.BSONFormats._
+      (Json.toJson(result) \ "result").as[T]
     }
   }
 

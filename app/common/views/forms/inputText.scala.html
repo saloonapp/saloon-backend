@@ -6,5 +6,5 @@
   name="@field.name"
   id="@field.id"
   value="@field.value"
-  @Helpers.toHtmlArgs(args, Seq("type", "class"))
-  @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>
+  @Helpers.toHtmlArgs(args, Seq("type", "class", "constraints"))
+  @if(Helpers.isRequired(field) && !Helpers.hasArg(args, "constraints", "false")){required}>

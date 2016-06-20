@@ -1,27 +1,33 @@
-@(period: String)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import org.joda.time.DateTime
+@import conferences.models.Conference
+@(period: String, conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 @main(if(period == "future"){ "Conférences à venir" } else { "Conférences passées" }){
     @partials.header("list")
 
     <div class="container" role="main">
-        <div class="jumbotron">
-            <h1>Conférence liste</h1>
-            <p>
-                Ce site collaboratif propose de lister les conférences à venir.<br>
-                Plutôt centré sur la France et les conférences autours de l'informatiques mais ouvert à tout :)
-            </p>
-        </div>
+        @if(period != "search") {
+            <div class="jumbotron">
+                <h1>Conférence liste</h1>
+                <p>
+                    Ce site collaboratif propose de lister les conférences à venir.<br>
+                    Plutôt centré sur la France et les conférences autours de l'informatiques mais ouvert à tout :)
+                </p>
+            </div>
+        }
 
         <ul class="nav nav-tabs">
-            <li role="presentation" @if(period == "future"){class="active"}><a href="@conferences.controllers.routes.Application.future()">À venir</a></li>
-            <li role="presentation" @if(period == "past"){class="active"}><a href="@conferences.controllers.routes.Application.past()">Passées</a></li>
+            <li role="presentation" @if(period == "future"){class="active"}><a href="@conferences.controllers.routes.Application.list()">À venir</a></li>
+            <li role="presentation" @if(period == "past"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString("yyyy-MM-dd")))">Passées</a></li>
         </ul>
         <br>
 
         <div class="row">
             <div class="col-md-9">
-                @partials.conferenceItem()
-                @partials.conferenceItem()
+                @if(conferenceList.length == 0){<p>Aucune conférence...</p>}
+                @conferenceList.map { conference =>
+                    @partials.conferenceItem(conference)
+                }
             </div>
             <div class="col-md-3">
                 @partials.search()

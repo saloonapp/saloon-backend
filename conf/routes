@@ -8,10 +8,12 @@ GET       /sample                                                               
 POST      /contact                                                                          common.controllers.Application.sendContactEmail
 
 # Conference list
-GET       /conferences                                                                      conferences.controllers.Application.future
-GET       /conferences/past                                                                 conferences.controllers.Application.past
+GET       /conferences                                                                      conferences.controllers.Application.list
+GET       /conferences/search                                                               conferences.controllers.Application.search(section: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None)
 GET       /conferences/create                                                               conferences.controllers.Application.create
-GET       /conferences/edit/:id                                                             conferences.controllers.Application.edit(id: String)
+POST      /conferences/create                                                               conferences.controllers.Application.doCreate
+GET       /conferences/edit/:id                                                             conferences.controllers.Application.edit(id: ConferenceId)
+POST      /conferences/edit/:id                                                             conferences.controllers.Application.doEdit(id: ConferenceId)
 
 # Authentication
 GET       /login                                                                            authentication.controllers.Auth.login
