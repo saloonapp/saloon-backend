@@ -5,7 +5,7 @@ import conferences.models.{ConferenceCfp, ConferenceId, ConferenceMetrics, Confe
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsNull, JsObject, Json}
 import play.api.mvc._
 
 import scala.concurrent.Future
@@ -23,9 +23,9 @@ object Application extends Controller {
       tags <- tagsFut
     } yield Ok(conferences.views.html.conferenceList("future", conferenceList, tags))
   }
-  def search(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String]) = Action.async { implicit req =>
+  def search(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
     play.Logger.info("search")
-    val filter = buildFilter(q, before, after, tags, cfp, tickets)
+    val filter = buildFilter(q, before, after, tags, cfp, tickets, videos)
     play.Logger.info("filter: "+filter)
     val conferenceListFut = ConferenceRepository.find(filter)
     val tagsFut = ConferenceRepository.getTags()
@@ -109,8 +109,22 @@ object Application extends Controller {
     }
   }
 
+  def apiList = Action.async { implicit req =>
+    ConferenceRepository.find().map { conferences =>
+      Ok(Json.obj("result" -> conferences))
+    }
+  }
+  def apiSearch(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
+    play.Logger.info("search")
+    val filter = buildFilter(q, before, after, tags, cfp, tickets, videos)
+    play.Logger.info("filter: "+filter)
+    ConferenceRepository.find(filter).map { conferences =>
+      Ok(Json.obj("result" -> conferences))
+    }
+  }
+
   private val dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
-  private def buildFilter(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String]): JsObject = {
+  private def buildFilter(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]): JsObject = {
     def reduce(l: List[Option[JsObject]]): Option[JsObject] = l.flatten.headOption.map(_ => l.flatten.reduceLeft(_ ++ _))
     def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, dateFormatter)).toOption
     def buildTextFilter(q: Option[String]): Option[JsObject] =
@@ -145,13 +159,20 @@ object Application extends Controller {
       )))
       case _ => None
     }
+    def buildVideosFilter(videos: Option[String]): Option[JsObject] = videos match {
+      case Some("on") => Some(Json.obj("videosUrl" -> Json.obj("$exists" -> true, "$ne" -> JsNull)))
+      case _ => None
+    }
     val filters = List(
       buildTextFilter(q),
       buildDateFilter(before, after),
       buildTagFilter(tags),
       buildCfpFilter(cfp),
-      buildTicketsFilter(tickets)
+      buildTicketsFilter(tickets),
+      buildVideosFilter(videos)
     ).flatten
-    filters.headOption.map(_ => Json.obj("$and" -> filters)).getOrElse(Json.obj())
+    if(filters.length == 0) Json.obj()
+    else if(filters.length == 1) filters.head
+    else Json.obj("$and" -> filters)
   }
 }

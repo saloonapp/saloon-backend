@@ -27,6 +27,11 @@
             <input type="checkbox" name="tickets" @if(req.getQueryString("tickets") == Some("on")){checked="checked"}> Opened tickets
         </label>
     </div>
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" name="videos" @if(req.getQueryString("videos") == Some("on")){checked="checked"}> With videos
+        </label>
+    </div>
     <button type="submit" class="btn btn-default">Search</button>
 }
 <h3>Tags</h3>
