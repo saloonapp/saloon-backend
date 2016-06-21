@@ -20,8 +20,8 @@
                     <div id="global-panel" class="panel-collapse collapse in" role="tabpanel">
                         <div class="panel-body">
                             @conferenceForm("id").value.map { _ => @inputHidden(conferenceForm("id")) }
-                            @fieldHorizontal(conferenceForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                             @fieldHorizontal(conferenceForm("siteUrl"), 'label -> "Site officiel") { field => @inputText(field, 'placeholder -> "ex: http://devoxx.fr/") }
+                            @fieldHorizontal(conferenceForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                             @fieldHorizontal(conferenceForm("dates"), 'label -> "Dates") { field => @inputDateRange(field, 'placeholder -> "ex: 20/04/2016 - 22/04/2016") }
                             @fieldHorizontal(conferenceForm("tags"), 'label -> "Tags") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
                             @fieldHorizontal(conferenceForm("venue.name"), 'label -> "Lieu", 'constraints -> "false") { field =>
@@ -45,7 +45,7 @@
                                     </div>
                                 </div>
                             }
-                            @fieldHorizontal(conferenceForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés") }
+                            @fieldHorizontal(conferenceForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
                             @fieldHorizontal(conferenceForm("videosUrl"), 'label -> "Vidéos", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/channel/UCsVPQfo5RZErDL41LoWvk0A") }
                         </div>
                     </div>

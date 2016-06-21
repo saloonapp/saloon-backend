@@ -27,9 +27,14 @@
             </div>
             <div class="col-md-9 col-md-pull-3">
                 @if(conferenceList.length == 0) {
-                    @if(context == "future") { <p>Aucune conférence à venir...</p> }
-                    @if(context == "past") { <p>Aucune conférence passée...</p> }
-                    @if(context == "search") { <p>Aucune conférence pour cette recherche...</p> }
+                    <p class="not-found">
+                        @context match {
+                            case "future" => {Aucune conférence à venir...}
+                            case "past" => {Aucune conférence passée...}
+                            case "search" => {Aucune conférence pour cette recherche...}
+                            case _ => {Aucune conférence...}
+                        }
+                    </p>
                 }
                 @conferenceList.map { conference =>
                     @if(req.getQueryString("admin") == Some("SalooN")){

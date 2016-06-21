@@ -11,22 +11,24 @@
             <h2><a href="@conferences.controllers.routes.Application.detail(conference.id)" class="anchor"><i class="fa fa-link"></i></a> @conference.name</h2>
             @conference.description.map { description =>
                 <blockquote>
-                    <p>@description</p>
+                    <p>@Html(description.replaceAll("\\n", "<br>"))</p>
                 </blockquote>
             }
             @conference.cfp.map { cfp =>
                 <p>
                     @if(cfp.opened){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
                     <strong><a href="@cfp.siteUrl" target="_blank">Call For Paper</a></strong> :
-                    jusqu'au <strong>@date(cfp.end)</strong>
+                    fermeture le <strong>@date(cfp.end)</strong>
                 </p>
             }
             @conference.tickets.map { tickets =>
                 <p>
-                    @if(tickets.opened){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
-                    <strong><a href="@tickets.siteUrl" target="_blank">Tickets</a></strong> :
-                    @tickets.price.map{ p => <strong>@p</strong>, }
-                    jusqu'au <strong>@date(tickets.end)</strong>
+                    @if(tickets.opened && conference.end.isAfterNow()){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                    <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong> :
+                    @Html(List(
+                        tickets.price.map(p => s"<strong>$p</strong>"),
+                        tickets.end.map(d => s"fermeture le <strong>${date(d)}</strong>")
+                    ).flatten.mkString(", "))
                 </p>
             }
             <div role="group">

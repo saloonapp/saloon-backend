@@ -43,14 +43,14 @@ case class ConferenceCfp(
     start.isBeforeNow() && end.isAfterNow()
 }
 case class ConferenceTickets(
-  siteUrl: String,
-  start: DateTime,
-  end: DateTime,
+  siteUrl: Option[String],
+  start: Option[DateTime],
+  end: Option[DateTime],
   from: Option[Int],
   to: Option[Int],
   currency: Option[String]) {
   lazy val opened: Boolean =
-    start.isBeforeNow() && end.isAfterNow()
+    start.map(_.isBeforeNow()).getOrElse(true) && end.map(_.isAfterNow()).getOrElse(true)
   lazy val price: Option[String] =
     from.orElse(to).map { d =>
       val prices = List(from, to).flatten
@@ -93,11 +93,11 @@ case class ConferenceDataCfp(
   siteUrl: String,
   dates: DateRange)
 case class ConferenceDataTickets(
-  siteUrl: String,
-  dates: DateRange,
+  siteUrl: Option[String],
+  dates: Option[DateRange],
   from: Option[Int],
   to: Option[Int],
-currency: Option[String])
+  currency: Option[String])
 object ConferenceData {
   val fields = mapping(
     "id" -> optional(nonEmptyText),
@@ -119,8 +119,8 @@ object ConferenceData {
       "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required)
     )(ConferenceDataCfp.apply)(ConferenceDataCfp.unapply)),
     "tickets" -> optional(mapping(
-      "siteUrl" -> nonEmptyText,
-      "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required),
+      "siteUrl" -> optional(nonEmptyText),
+      "dates" -> optional(DateRange.mapping),
       "from" -> optional(number),
       "to" -> optional(number),
       "currency" -> optional(nonEmptyText)
@@ -145,10 +145,10 @@ object ConferenceData {
     d.dates.end,
     d.siteUrl,
     d.videosUrl,
-    d.tags.map(_.trim).filter(_.length > 0),
+    d.tags.map(_.trim.toLowerCase).filter(_.length > 0),
     d.venue,
     d.cfp.map(c => ConferenceCfp(c.siteUrl, c.dates.start, c.dates.end)),
-    d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.start, t.dates.end, t.from, t.to, t.currency)),
+    d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.map(_.start), t.dates.map(_.end), t.from, t.to, t.currency)),
     d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
     d.social,
     new DateTime())
@@ -162,7 +162,7 @@ object ConferenceData {
     m.tags,
     m.venue,
     m.cfp.map(c => ConferenceDataCfp(c.siteUrl, DateRange(c.start, c.end))),
-    m.tickets.map(t => ConferenceDataTickets(t.siteUrl, DateRange(t.start, t.end), t.from, t.to, t.currency)),
+    m.tickets.map(t => ConferenceDataTickets(t.siteUrl, t.start.zip(t.end).headOption.map(d => DateRange(d._1, d._2)), t.from, t.to, t.currency)),
     m.metrics,
     m.social)
 }
