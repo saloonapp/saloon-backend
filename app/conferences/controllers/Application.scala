@@ -43,12 +43,16 @@ object Application extends Controller {
       }
     }
   }
-  def create = Action { implicit req =>
-    Ok(conferences.views.html.conferenceForm(conferenceForm))
+  def create = Action.async { implicit req =>
+    ConferenceRepository.getTags().map { tags =>
+      Ok(conferences.views.html.conferenceForm(conferenceForm, tags))
+    }
   }
   def doCreate = Action.async { implicit req =>
     conferenceForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(conferences.views.html.conferenceForm(formWithErrors))),
+      formWithErrors => ConferenceRepository.getTags().map { tags =>
+        BadRequest(conferences.views.html.conferenceForm(formWithErrors, tags))
+      },
       formData => {
         val conference = ConferenceData.toModel(formData)
         ConferenceRepository.insert(conference).map { createdOpt =>
@@ -60,10 +64,14 @@ object Application extends Controller {
   def edit(id: ConferenceId) = editPrivate(id, None)
   def editVersion(id: ConferenceId, created: Long) = editPrivate(id, Some(created))
   private def editPrivate(id: ConferenceId, created: Option[Long]) = Action.async { implicit req =>
-    val conferenceFut = created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id))
-    conferenceFut.map { conferenceOpt =>
+    val conferenceOptFut = created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id))
+    val tagsFut = ConferenceRepository.getTags()
+    for {
+      conferenceOpt <- conferenceOptFut
+      tags <- tagsFut
+    } yield {
       conferenceOpt.map { conference =>
-        Ok(conferences.views.html.conferenceForm(conferenceForm.fill(ConferenceData.fromModel(conference))))
+        Ok(conferences.views.html.conferenceForm(conferenceForm.fill(ConferenceData.fromModel(conference)), tags))
       }.getOrElse {
         NotFound("Not Found !")
       }
@@ -71,7 +79,9 @@ object Application extends Controller {
   }
   def doEdit(id: ConferenceId) = Action.async { implicit req =>
     conferenceForm.bindFromRequest.fold(
-      formWithErrors => Future(BadRequest(conferences.views.html.conferenceForm(formWithErrors))),
+      formWithErrors => ConferenceRepository.getTags().map { tags =>
+        BadRequest(conferences.views.html.conferenceForm(formWithErrors, tags))
+      },
       formData => {
         ConferenceRepository.update(id, ConferenceData.toModel(formData)).map { updatedOpt =>
           Redirect(conferences.controllers.routes.Application.detail(id))

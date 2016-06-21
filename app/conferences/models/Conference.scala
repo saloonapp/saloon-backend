@@ -1,6 +1,6 @@
 package conferences.models
 
-import common.models.utils.{DateRange, tStringHelper, tString}
+import common.models.utils.{Forms, DateRange, tStringHelper, tString}
 import common.models.values.UUID
 import org.joda.time.DateTime
 import play.api.data.Forms._
@@ -83,7 +83,7 @@ case class ConferenceData(
   dates: DateRange,
   siteUrl: String,
   videosUrl: Option[String],
-  tags: String,
+  tags: List[String],
   venue: Option[ConferenceVenue],
   cfp: Option[ConferenceDataCfp],
   tickets: Option[ConferenceDataTickets],
@@ -103,10 +103,10 @@ object ConferenceData {
     "id" -> optional(nonEmptyText),
     "name" -> nonEmptyText,
     "description" -> optional(nonEmptyText),
-    "dates" -> of[DateRange],
+    "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required),
     "siteUrl" -> nonEmptyText,
     "videosUrl" -> optional(nonEmptyText),
-    "tags" -> nonEmptyText,
+    "tags" -> list(nonEmptyText).verifying(Forms.Constraints.required),
     "venue" -> optional(mapping(
       "name" -> optional(nonEmptyText),
       "street" -> nonEmptyText,
@@ -116,11 +116,11 @@ object ConferenceData {
     )(ConferenceVenue.apply)(ConferenceVenue.unapply)),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
-      "dates" -> of[DateRange]
+      "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required)
     )(ConferenceDataCfp.apply)(ConferenceDataCfp.unapply)),
     "tickets" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
-      "dates" -> of[DateRange],
+      "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required),
       "from" -> optional(number),
       "to" -> optional(number),
       "currency" -> optional(nonEmptyText)
@@ -145,7 +145,7 @@ object ConferenceData {
     d.dates.end,
     d.siteUrl,
     d.videosUrl,
-    d.tags.split(",").map(_.trim).toList,
+    d.tags.map(_.trim).filter(_.length > 0),
     d.venue,
     d.cfp.map(c => ConferenceCfp(c.siteUrl, c.dates.start, c.dates.end)),
     d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.start, t.dates.end, t.from, t.to, t.currency)),
@@ -159,7 +159,7 @@ object ConferenceData {
     DateRange(m.start, m.end),
     m.siteUrl,
     m.videosUrl,
-    m.tags.mkString(", "),
+    m.tags,
     m.venue,
     m.cfp.map(c => ConferenceDataCfp(c.siteUrl, DateRange(c.start, c.end))),
     m.tickets.map(t => ConferenceDataTickets(t.siteUrl, DateRange(t.start, t.end), t.from, t.to, t.currency)),

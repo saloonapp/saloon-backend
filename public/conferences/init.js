@@ -32,3 +32,16 @@
         $(this).val('');
     });
 })();
+
+(function(){
+    if($('.select2-tags')[0]){
+        $('.select2-tags').each(function(){
+            $(this).select2({
+                width: '100%',
+                theme: 'bootstrap',
+                placeholder: $(this).attr('placeholder'),
+                tags: true
+            });
+        });
+    }
+})();
