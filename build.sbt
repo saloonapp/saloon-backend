@@ -6,7 +6,11 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 play.PlayImport.PlayKeys.routesImport ++= Seq("common.models.user._", "common.models.event._", "conferences.models.ConferenceId", "common.models.values.typed.ItemType", "common.models.values.typed.GenericId")
 
-includeFilter in (Assets, LessKeys.less) := "website.sample.less" | "website.local.less" | "website.dev.less" | "website.prod.less" | "backend.local.less" | "backend.dev.less" | "backend.prod.less" | "admin.local.less" | "admin.dev.less" | "admin.prod.less"
+includeFilter in (Assets, LessKeys.less) :=
+  "website.sample.less" | "website.local.less" | "website.dev.less" | "website.prod.less" |
+    "backend.local.less" | "backend.dev.less" | "backend.prod.less" |
+    "admin.local.less" | "admin.dev.less" | "admin.prod.less" |
+    "conferences.local.less" | "conferences.dev.less" | "conferences.prod.less"
 
 scalaVersion := "2.11.1"
 

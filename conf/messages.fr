@@ -3,6 +3,7 @@ error.required=Ce champ est obligatoire
 error.email=L''email doit être valide
 error.number=Un nombre est attendu
 error.date=La date doit être valide
+error.daterange=L''interval de dates doit être valide
 invalid.credentials=Mauvais login/mot de passe
 access.denied=Accès non autorisé
 user.exists=Il existe déjà un utilisateur avec cet email !

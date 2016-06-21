@@ -1,6 +1,6 @@
 package conferences.models
 
-import common.models.utils.{tStringHelper, tString}
+import common.models.utils.{DateRange, tStringHelper, tString}
 import common.models.values.UUID
 import org.joda.time.DateTime
 import play.api.data.Forms._
@@ -37,20 +37,20 @@ case class ConferenceVenue(
   country: String)
 case class ConferenceCfp(
   siteUrl: String,
-  start: Option[DateTime],
+  start: DateTime,
   end: DateTime) {
   lazy val opened: Boolean =
-    start.map(_.isBeforeNow()).getOrElse(true) && end.isAfterNow()
+    start.isBeforeNow() && end.isAfterNow()
 }
 case class ConferenceTickets(
   siteUrl: String,
-  start: Option[DateTime],
+  start: DateTime,
   end: DateTime,
   from: Option[Int],
   to: Option[Int],
   currency: Option[String]) {
   lazy val opened: Boolean =
-    start.map(_.isBeforeNow()).getOrElse(true) && end.isAfterNow()
+    start.isBeforeNow() && end.isAfterNow()
   lazy val price: Option[String] =
     from.orElse(to).map { d =>
       val prices = List(from, to).flatten
@@ -80,23 +80,30 @@ case class ConferenceData(
   id: Option[String],
   name: String,
   description: Option[String],
-  start: DateTime,
-  end: DateTime,
+  dates: DateRange,
   siteUrl: String,
   videosUrl: Option[String],
   tags: String,
   venue: Option[ConferenceVenue],
-  cfp: Option[ConferenceCfp],
-  tickets: Option[ConferenceTickets],
+  cfp: Option[ConferenceDataCfp],
+  tickets: Option[ConferenceDataTickets],
   metrics: Option[ConferenceMetrics],
   social: Option[ConferenceSocial])
+case class ConferenceDataCfp(
+  siteUrl: String,
+  dates: DateRange)
+case class ConferenceDataTickets(
+  siteUrl: String,
+  dates: DateRange,
+  from: Option[Int],
+  to: Option[Int],
+currency: Option[String])
 object ConferenceData {
   val fields = mapping(
     "id" -> optional(nonEmptyText),
     "name" -> nonEmptyText,
     "description" -> optional(nonEmptyText),
-    "start" -> jodaDate(pattern = "dd/MM/yyyy"),
-    "end" -> jodaDate(pattern = "dd/MM/yyyy"),
+    "dates" -> of[DateRange],
     "siteUrl" -> nonEmptyText,
     "videosUrl" -> optional(nonEmptyText),
     "tags" -> nonEmptyText,
@@ -109,17 +116,15 @@ object ConferenceData {
     )(ConferenceVenue.apply)(ConferenceVenue.unapply)),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
-      "start" -> optional(jodaDate(pattern = "dd/MM/yyyy")),
-      "end" -> jodaDate(pattern = "dd/MM/yyyy")
-    )(ConferenceCfp.apply)(ConferenceCfp.unapply)),
+      "dates" -> of[DateRange]
+    )(ConferenceDataCfp.apply)(ConferenceDataCfp.unapply)),
     "tickets" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
-      "start" -> optional(jodaDate(pattern = "dd/MM/yyyy")),
-      "end" -> jodaDate(pattern = "dd/MM/yyyy"),
+      "dates" -> of[DateRange],
       "from" -> optional(number),
       "to" -> optional(number),
       "currency" -> optional(nonEmptyText)
-    )(ConferenceTickets.apply)(ConferenceTickets.unapply)),
+    )(ConferenceDataTickets.apply)(ConferenceDataTickets.unapply)),
     "metrics" -> optional(mapping(
       "attendeeCount" -> optional(number),
       "sessionCount" -> optional(number),
@@ -136,14 +141,14 @@ object ConferenceData {
     d.id.map(s => ConferenceId(s)).getOrElse(ConferenceId.generate()),
     d.name,
     d.description,
-    d.start,
-    d.end,
+    d.dates.start,
+    d.dates.end,
     d.siteUrl,
     d.videosUrl,
     d.tags.split(",").map(_.trim).toList,
     d.venue,
-    d.cfp,
-    d.tickets,
+    d.cfp.map(c => ConferenceCfp(c.siteUrl, c.dates.start, c.dates.end)),
+    d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.start, t.dates.end, t.from, t.to, t.currency)),
     d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
     d.social,
     new DateTime())
@@ -151,14 +156,13 @@ object ConferenceData {
     Some(m.id.unwrap),
     m.name,
     m.description,
-    m.start,
-    m.end,
+    DateRange(m.start, m.end),
     m.siteUrl,
     m.videosUrl,
     m.tags.mkString(", "),
     m.venue,
-    m.cfp,
-    m.tickets,
+    m.cfp.map(c => ConferenceDataCfp(c.siteUrl, DateRange(c.start, c.end))),
+    m.tickets.map(t => ConferenceDataTickets(t.siteUrl, DateRange(t.start, t.end), t.from, t.to, t.currency)),
     m.metrics,
     m.social)
 }

@@ -2,7 +2,7 @@
 @(field: Field, args: (Symbol, String)*)
 <input
   type="@Helpers.getArg(args, "type", "text")"
-  class="form-control datetpicker @Helpers.getArg(args, "class")"
+  class="form-control datepicker @Helpers.getArg(args, "class")"
   name="@field.name"
   id="@field.id"
   value="@field.value"
