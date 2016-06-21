@@ -20,7 +20,6 @@
             <li role="presentation" @if(context == "future"){class="active"}><a href="@conferences.controllers.routes.Application.list()">À venir</a></li>
             <li role="presentation" @if(context == "past"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString("dd/MM/yyyy")))">Passées</a></li>
         </ul>
-        <br>
 
         <div class="row">
             <div class="col-md-3 col-md-push-9">
@@ -42,4 +41,6 @@
             </div>
         </div>
     </div>
+
+    @partials.footer()
 }
