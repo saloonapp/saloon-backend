@@ -33,6 +33,7 @@
     });
 })();
 
+// https://select2.github.io/
 (function(){
     if($('.select2-tags')[0]){
         $('.select2-tags').each(function(){
@@ -47,9 +48,9 @@
     }
 })();
 
-// automatically fill form (when possible)
+// automatically fill conference form with website metas
 (function(){
-    $('input#siteUrl').on('change', function(event){
+    $('input#siteUrl').on('change', function(){
         var url = $(this).val();
         if(isUrl(url)){
             $.get('/tools/scrapers/utils/metas?url='+url, function(metas){
@@ -90,5 +91,48 @@
         var newObj = obj[path[0]];
         var newPath = path.slice(1);
         return getSafe(newObj, newPath);
+    }
+})();
+
+// save and fill conference user data
+(function(){
+    var storageKey = 'conference-createdBy';
+    setFormUser(getStorageUser());
+    $('form.conference-form').on('submit', function(){
+        setStorageUser(getFormUser());
+    });
+    function getFormUser(){
+        return {
+            name: $('input#createdBy_name').val(),
+            email: $('input#createdBy_email').val(),
+            siteUrl: $('input#createdBy_siteUrl').val(),
+            twitter: $('input#createdBy_twitter').val(),
+            public: $('input#createdBy_public').prop('checked')
+        };
+    }
+    function setFormUser(user){
+        function setInput(elt, value){ if(elt.val() === ""){ elt.val(value); } }
+        if(user){
+            setInput($('input#createdBy_name'), user.name);
+            setInput($('input#createdBy_email'), user.email);
+            setInput($('input#createdBy_siteUrl'), user.siteUrl);
+            setInput($('input#createdBy_twitter'), user.twitter);
+            $('input#createdBy_public').prop('checked', user.public);
+        }
+    }
+    function getStorageUser(){
+        if(localStorage){
+            var json = localStorage.getItem(storageKey);
+            try {
+                return JSON.parse(json || '{}');
+            } catch(e) {
+                console.warn('Unable to parse to JSON', json);
+            }
+        }
+    }
+    function setStorageUser(user){
+        if(localStorage && user){
+            localStorage.setItem(storageKey, JSON.stringify(user));
+        }
     }
 })();

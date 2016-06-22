@@ -21,7 +21,12 @@
             }
         </div>
     </td>
-    <td>@datetime(conference.created)</td>
+    <td>
+        @datetime(conference.created)
+        @conference.createdBy.filter(_.public).map { user =>
+            par @user.siteUrl.orElse(user.twitter).map{url => <a href="@url" target="_blank">@user.name</a>}.getOrElse{@user.name}
+        }
+    </td>
     <td>
         @if(context == "public"){
             <a href="@conferences.controllers.routes.Application.edit(conference.id)"><i class="fa fa-pencil"></i></a>

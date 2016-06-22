@@ -1,7 +1,7 @@
 @import common.views._
 @(field: Field, args: (Symbol, String)*)
 <div class="checkbox @if(field.hasErrors){has-error}">
-	<label for="@field.name">
+	<label for="@field.id">
 		<input
 			type="checkbox"
 			name="@field.name"

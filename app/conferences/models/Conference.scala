@@ -28,7 +28,8 @@ case class Conference(
   tickets: Option[ConferenceTickets],
   metrics: Option[ConferenceMetrics],
   social: Option[ConferenceSocial],
-  created: DateTime)
+  created: DateTime,
+  createdBy: Option[ConferenceUser])
 case class ConferenceVenue(
   name: Option[String],
   street: String,
@@ -66,7 +67,14 @@ case class ConferenceSocial(
 case class ConferenceSocialTwitter(
   account: Option[String],
   hashtag: Option[String])
+case class ConferenceUser(
+  name: String,
+  email: Option[String],
+  siteUrl: Option[String],
+  twitter: Option[String],
+  public: Boolean)
 object Conference {
+  implicit val formatConferenceUser = Json.format[ConferenceUser]
   implicit val formatConferenceSocialTwitter = Json.format[ConferenceSocialTwitter]
   implicit val formatConferenceSocial = Json.format[ConferenceSocial]
   implicit val formatConferenceMetrics = Json.format[ConferenceMetrics]
@@ -88,7 +96,8 @@ case class ConferenceData(
   cfp: Option[ConferenceDataCfp],
   tickets: Option[ConferenceDataTickets],
   metrics: Option[ConferenceMetrics],
-  social: Option[ConferenceSocial])
+  social: Option[ConferenceSocial],
+  createdBy: ConferenceUser)
 case class ConferenceDataCfp(
   siteUrl: String,
   dates: DateRange)
@@ -135,7 +144,14 @@ object ConferenceData {
         "account" -> optional(nonEmptyText),
         "hashtag" -> optional(nonEmptyText)
       )(ConferenceSocialTwitter.apply)(ConferenceSocialTwitter.unapply))
-    )(ConferenceSocial.apply)(ConferenceSocial.unapply))
+    )(ConferenceSocial.apply)(ConferenceSocial.unapply)),
+    "createdBy" -> mapping(
+      "name" -> nonEmptyText,
+      "email" -> optional(nonEmptyText),
+      "siteUrl" -> optional(nonEmptyText),
+      "twitter" -> optional(nonEmptyText),
+      "public" -> boolean
+    )(ConferenceUser.apply)(ConferenceUser.unapply)
   )(ConferenceData.apply)(ConferenceData.unapply)
   def toModel(d: ConferenceData): Conference = Conference(
     d.id.map(s => ConferenceId(s)).getOrElse(ConferenceId.generate()),
@@ -151,7 +167,8 @@ object ConferenceData {
     d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.map(_.start), t.dates.map(_.end), t.from, t.to, t.currency)),
     d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
     d.social,
-    new DateTime())
+    new DateTime(),
+    Some(d.createdBy))
   def fromModel(m: Conference): ConferenceData = ConferenceData(
     Some(m.id.unwrap),
     m.name,
@@ -164,5 +181,6 @@ object ConferenceData {
     m.cfp.map(c => ConferenceDataCfp(c.siteUrl, DateRange(c.start, c.end))),
     m.tickets.map(t => ConferenceDataTickets(t.siteUrl, t.start.zip(t.end).headOption.map(d => DateRange(d._1, d._2)), t.from, t.to, t.currency)),
     m.metrics,
-    m.social)
+    m.social,
+    ConferenceUser("", None, None, None, false))
 }

@@ -11,7 +11,7 @@
             <h1>@if(conferenceForm("id").value.getOrElse("") == "") {Ajouter une conférence} else {Modifier la conférence "@conferenceForm("name").value"}</h1>
         </div>
 
-        @helper.form(action=conferenceForm("id").value.map(id => conferences.controllers.routes.Application.doEdit(ConferenceId(id))).getOrElse(conferences.controllers.routes.Application.doCreate()), 'class->"form-horizontal") {
+        @helper.form(action=conferenceForm("id").value.map(id => conferences.controllers.routes.Application.doEdit(ConferenceId(id))).getOrElse(conferences.controllers.routes.Application.doCreate()), 'class->"form-horizontal conference-form") {
             <div class="panel-group" role="tablist">
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab">
@@ -84,6 +84,22 @@
                             @fieldHorizontal(conferenceForm("metrics.attendeeCount"), 'label -> "Nombre de participants") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 2500") }
                             @fieldHorizontal(conferenceForm("metrics.sessionCount"), 'label -> "Nombre de présentations") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 220") }
                             @fieldHorizontal(conferenceForm("metrics.sinceYear"), 'label -> "Année de lancement") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 2012") }
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#user-panel">Vos infos</a></h4>
+                    </div>
+                    <div id="user-panel" class="panel-collapse collapse in" role="tabpanel">
+                        <div class="panel-body">
+                            @fieldHorizontal(conferenceForm("createdBy.name"), 'label -> "Nom/Pseudo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
+                            @fieldHorizontal(conferenceForm("createdBy.email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: mail@example.com") }
+                            @fieldHorizontal(conferenceForm("createdBy.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.johndoe.com/") }
+                            @fieldHorizontal(conferenceForm("createdBy.twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: https://twitter.com/johndoe") }
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">@fieldCheckbox(conferenceForm("createdBy.public"), 'label -> "Affiché publiquement")</div>
+                            </div>
                         </div>
                     </div>
                 </div>

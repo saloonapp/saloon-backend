@@ -118,7 +118,7 @@ object Application extends Controller {
 
   def apiList = Action.async { implicit req =>
     ConferenceRepository.find().map { conferences =>
-      Ok(Json.obj("result" -> conferences))
+      Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
   def apiSearch(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
@@ -126,7 +126,7 @@ object Application extends Controller {
     val filter = buildFilter(q, before, after, tags, cfp, tickets, videos)
     play.Logger.info("filter: "+filter)
     ConferenceRepository.find(filter).map { conferences =>
-      Ok(Json.obj("result" -> conferences))
+      Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
 
