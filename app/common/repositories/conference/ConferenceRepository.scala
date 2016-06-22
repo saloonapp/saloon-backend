@@ -18,6 +18,7 @@ object ConferenceRepository {
   private val conferenceFields = List("id", "name", "description", "start", "end", "siteUrl", "videosUrl", "tags", "venue", "cfp", "tickets", "metrics", "social", "created")
   private def conferenceGroup(fields: List[String]) = Json.parse("{\"_id\":\"$id\","+fields.map(f => "\""+f+"\":{\"$first\":\"$"+f+"\"}").mkString(",")+"}")
 
+  def findHistory(sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.find[Conference](collection, Json.obj(), sort)
   def find(filter: JsObject = Json.obj(), sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
       "aggregate" -> collection.name,
       "pipeline" -> Json.arr(

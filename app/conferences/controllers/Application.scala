@@ -34,8 +34,15 @@ object Application extends Controller {
       tags <- tagsFut
     } yield Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList, tags))
   }
-  def detail(id: ConferenceId) = Action.async { implicit req =>
-    ConferenceRepository.get(id).map { conferenceOpt =>
+  def fullHistory = Action.async { implicit req =>
+    ConferenceRepository.findHistory().map { conferenceList =>
+      Ok(conferences.views.html.conferenceListHistory(conferenceList))
+    }
+  }
+  def detail(id: ConferenceId) = detailPrivate(id, None)
+  def detailVersion(id: ConferenceId, created: Long) = detailPrivate(id, Some(created))
+  private def detailPrivate(id: ConferenceId, created: Option[Long]) = Action.async { implicit req =>
+    created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id)).map { conferenceOpt =>
       conferenceOpt.map { conference =>
         Ok(conferences.views.html.conferenceDetail(conference))
       }.getOrElse {
@@ -100,14 +107,14 @@ object Application extends Controller {
   }
   def doDelete(id: ConferenceId, created: Long) = Action.async { implicit req =>
     ConferenceRepository.deleteVersion(id, new DateTime(created)).map { _ =>
-      Redirect(conferences.controllers.routes.Application.history(id))
+      Redirect(req.headers("referer"))
     }
   }
-  def doDeleteAll(id: ConferenceId) = Action.async { implicit req =>
+  /*def doDeleteAll(id: ConferenceId) = Action.async { implicit req =>
     ConferenceRepository.delete(id).map { _ =>
       Redirect(conferences.controllers.routes.Application.list)
     }
-  }
+  }*/
 
   def apiList = Action.async { implicit req =>
     ConferenceRepository.find().map { conferences =>

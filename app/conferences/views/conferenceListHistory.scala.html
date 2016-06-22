@@ -1,17 +1,16 @@
 @import org.joda.time.DateTime
 @import conferences.models.Conference
-@import common.views.html.format._
 @(conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@main("Historique de la conférence \""+conferenceList.head.name+"\""){
+@main("Historique des modifications"){
     @partials.header("")
 
     <div class="container" role="main">
         <div class="page-header">
-            <h1>Historique de @conferenceList.head.name</h1>
+            <h1>Historique des modifications</h1>
         </div>
 
-        @* <table class="table table-hover table-condensed">
+        <table class="table table-hover table-condensed">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -27,14 +26,7 @@
                     @partials.conferenceRow(conference, "history")
                 }
             </tbody>
-        </table> *@
-        <div class="row">
-            <div class="col-md-12">
-                @conferenceList.map { conference =>
-                    @partials.conferenceCard(conference, "history")
-                }
-            </div>
-        </div>
+        </table>
     </div>
 
     @partials.footer()

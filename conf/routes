@@ -10,15 +10,17 @@ POST      /contact                                                              
 # Conference list
 GET       /conferences                                                                      conferences.controllers.Application.list
 GET       /conferences/search                                                               conferences.controllers.Application.search(section: Option[String] ?= None, q: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
+GET       /conferences/history                                                              conferences.controllers.Application.fullHistory
 GET       /conferences/create                                                               conferences.controllers.Application.create
 POST      /conferences/create                                                               conferences.controllers.Application.doCreate
 GET       /conferences/:id                                                                  conferences.controllers.Application.detail(id: ConferenceId)
+GET       /conferences/:id/detail/:created                                                  conferences.controllers.Application.detailVersion(id: ConferenceId, created: Long)
 GET       /conferences/:id/edit                                                             conferences.controllers.Application.edit(id: ConferenceId)
 GET       /conferences/:id/edit/:created                                                    conferences.controllers.Application.editVersion(id: ConferenceId, created: Long)
 POST      /conferences/:id/edit                                                             conferences.controllers.Application.doEdit(id: ConferenceId)
 GET       /conferences/:id/history                                                          conferences.controllers.Application.history(id: ConferenceId)
 POST      /conferences/:id/delete/:created                                                  conferences.controllers.Application.doDelete(id: ConferenceId, created: Long)
-POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
+#POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
 GET       /api/conferences                                                                  conferences.controllers.Application.apiList
 GET       /api/conferences/search                                                           conferences.controllers.Application.apiSearch(section: Option[String] ?= None, q: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 

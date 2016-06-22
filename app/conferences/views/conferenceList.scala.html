@@ -37,11 +37,7 @@
                     </p>
                 }
                 @conferenceList.map { conference =>
-                    @if(req.getQueryString("admin") == Some("SalooN")){
-                        @partials.conferenceItem(conference, List("edit", "history"))
-                    } else {
-                        @partials.conferenceItem(conference, List("edit"))
-                    }
+                    @partials.conferenceCard(conference, "public")
                 }
             </div>
         </div>

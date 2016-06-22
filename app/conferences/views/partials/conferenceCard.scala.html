@@ -1,14 +1,23 @@
 @import conferences.models.Conference
 @import common.views.html.format._
-@(conference: Conference, actions: List[String])
+@(conference: Conference, context: String)
 <div class="conference-item">
-    @if(actions.contains("delete")){<form method="POST" action="@conferences.controllers.routes.Application.doDelete(conference.id, conference.created.getMillis())" class="close"><button type="submit"><i class="fa fa-trash-o"></i></button></form>}
-    @if(actions.contains("edit-version")){<a href="@conferences.controllers.routes.Application.editVersion(conference.id, conference.created.getMillis())" class="close"><i class="fa fa-pencil"></i></a>}
-    @if(actions.contains("history")){<a href="@conferences.controllers.routes.Application.history(conference.id)" class="close"><i class="fa fa-history"></i></a>}
-    @if(actions.contains("edit")){<a href="@conferences.controllers.routes.Application.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>}
+    @if(context == "public"){
+        @*<a href="@conferences.controllers.routes.Application.history(conference.id)" class="close"><i class="fa fa-history"></i></a>*@
+        <a href="@conferences.controllers.routes.Application.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
+    }
+    @if(context == "history"){
+        <form method="POST" action="@conferences.controllers.routes.Application.doDelete(conference.id, conference.created.getMillis())" class="close"><button type="submit"><i class="fa fa-trash-o"></i></button></form>
+        <a href="@conferences.controllers.routes.Application.editVersion(conference.id, conference.created.getMillis())" class="close"><i class="fa fa-pencil"></i></a>
+    }
     <div class="row">
         <div class="col-md-8">
-            <h2><a href="@conferences.controllers.routes.Application.detail(conference.id)" class="anchor"><i class="fa fa-link"></i></a> @conference.name</h2>
+            @if(context == "public"){
+                <h2><a href="@conferences.controllers.routes.Application.detail(conference.id)" class="anchor"><i class="fa fa-link"></i></a> @conference.name</h2>
+            }
+            @if(context == "history"){
+                <h2><a href="@conferences.controllers.routes.Application.detailVersion(conference.id, conference.created.getMillis())" class="anchor"><i class="fa fa-link"></i></a> @conference.name</h2>
+            }
             @conference.description.map { description =>
                 <blockquote>
                     <p>@Html(description.replaceAll("\\n", "<br>"))</p>
