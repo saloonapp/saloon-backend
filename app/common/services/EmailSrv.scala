@@ -19,6 +19,7 @@ import common.repositories.event.AttendeeRepository
 import common.repositories.event.SessionRepository
 import common.repositories.event.ExponentRepository
 import common.repositories.user.UserActionRepository
+import play.api.libs.json.JsValue
 import scala.concurrent.Future
 import play.api.mvc.RequestHeader
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -26,6 +27,10 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 case class EmailData(fromName: String, fromEmail: Email, to: Email, subject: String, html: TextHTML, text: TextMultiline)
 
 object EmailSrv {
+  def sendEmail(data: EmailData): Future[JsValue] = {
+    MandrillSrv.sendEmail(data)
+  }
+
   def generateEventReport(eventId: EventId, deviceId: DeviceId): Future[Option[EmailData]] = {
     UserActionRepository.findByUserEvent(deviceId, eventId).flatMap { actions =>
       val subscribeOpt = actions.find(_.action.isSubscribe())

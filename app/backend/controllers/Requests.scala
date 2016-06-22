@@ -13,7 +13,6 @@ import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -68,7 +67,7 @@ object Requests extends SilhouetteEnvironment {
                 organizationOwner <- organizationOwnerOpt
               } yield {
                 val emailData = EmailSrv.generateOrganizationRequestEmail(user, organization, organizationOwner, request)
-                MandrillSrv.sendEmail(emailData).map { res =>
+                EmailSrv.sendEmail(emailData).map { res =>
                   Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Demande d'accès à ${organization.name} renvoyée !")
                 }
               }
@@ -89,7 +88,7 @@ object Requests extends SilhouetteEnvironment {
                   requestInviteOpt.map { requestInvite => EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, None, requestInvite) }
                 }
                 emailDataOpt.map { emailData =>
-                  MandrillSrv.sendEmail(emailData).map { res =>
+                  EmailSrv.sendEmail(emailData).map { res =>
                     ("success", s"Demande d'accès à ${organization.name} envoyée !")
                   }
                 }.getOrElse(Future(("error", "L'invitation correspondant à la demande n'a pas été trouvée :(")))
@@ -123,7 +122,7 @@ object Requests extends SilhouetteEnvironment {
               OrganizationRepository.getByUuid(organizationId).flatMap { organizationOpt =>
                 organizationOpt.map { organization =>
                   val emailData = EmailSrv.generateOrganizationInviteCanceledEmail(email, organization)
-                  MandrillSrv.sendEmail(emailData).map { _ =>
+                  EmailSrv.sendEmail(emailData).map { _ =>
                     Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("success" -> s"Invitation annulée !")
                   }
                 }.getOrElse(Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> s"L'organisation n'existe plus :(")))
@@ -221,7 +220,7 @@ object Requests extends SilhouetteEnvironment {
           acceptErr <- RequestRepository.setAccepted(request.uuid)
         } yield {
           val emailData = EmailSrv.generateOrganizationRequestAcceptedEmail(user, organization, organizationOwner)
-          MandrillSrv.sendEmail(emailData).map { _ =>
+          EmailSrv.sendEmail(emailData).map { _ =>
             ("success", "Demande acceptée !")
           }
         }
@@ -242,7 +241,7 @@ object Requests extends SilhouetteEnvironment {
       } yield {
         RequestRepository.setRejected(request.uuid).flatMap { _ =>
           val emailData = EmailSrv.generateOrganizationRequestRejectedEmail(requestUser, organization)
-          MandrillSrv.sendEmail(emailData).map { _ =>
+          EmailSrv.sendEmail(emailData).map { _ =>
             ("success", "Demande refusée !")
           }
         }
@@ -263,7 +262,7 @@ object Requests extends SilhouetteEnvironment {
           RequestRepository.setAccepted(request.uuid).flatMap { _ =>
             organizationOwnerOpt.map { organizationOwner =>
               val emailData = EmailSrv.generateOrganizationInviteAcceptedEmail(invitedUser, organization, organizationOwner)
-              MandrillSrv.sendEmail(emailData).map { _ =>
+              EmailSrv.sendEmail(emailData).map { _ =>
                 ("success", s"Invitation à l'organisation ${organization.name} acceptée !")
               }
             }.getOrElse {
@@ -285,7 +284,7 @@ object Requests extends SilhouetteEnvironment {
         RequestRepository.setRejected(request.uuid).flatMap { _ =>
           organizationOwnerOpt.map { organizationOwner =>
             val emailData = EmailSrv.generateOrganizationInviteRejectedEmail(inviteEmail, organization, organizationOwner)
-            MandrillSrv.sendEmail(emailData).map { _ =>
+            EmailSrv.sendEmail(emailData).map { _ =>
               ("success", s"Invitation à l'organisation ${organization.name} déclinée !")
             }
           }.getOrElse {

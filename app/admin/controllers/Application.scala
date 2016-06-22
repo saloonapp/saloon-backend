@@ -14,7 +14,6 @@ import common.repositories.event.ExponentRepository
 import common.repositories.user.UserRepository
 import common.repositories.user.DeviceRepository
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

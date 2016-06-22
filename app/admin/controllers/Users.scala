@@ -7,7 +7,6 @@ import common.models.user.UserAction
 import common.models.values.typed.GenericId
 import common.models.utils.Page
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import common.repositories.Repository
 import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository

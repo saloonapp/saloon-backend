@@ -17,7 +17,6 @@ import common.services.FileImporter
 import common.services.FileExporter
 import common.services.EventSrv
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import common.repositories.Repository
 import common.repositories.event.EventRepository
 import common.repositories.event.AttendeeRepository
@@ -146,7 +145,7 @@ object Events extends SilhouetteEnvironment {
           case SubscribeUserAction(email, filter, subscribe) => {
             EmailSrv.generateEventReport(eventId, deviceId).flatMap {
               _.map { emailData =>
-                MandrillSrv.sendEmail(emailData.copy(to = email)).map { res =>
+                EmailSrv.sendEmail(emailData.copy(to = email)).map { res =>
                   Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
                 }
               }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $deviceId didn't subscribe to event $eventId")))
@@ -178,7 +177,7 @@ object Events extends SilhouetteEnvironment {
       val listFutures = users.map {
         case (userId, sub) =>
           EmailSrv.generateEventReport(eventId, userId).flatMap {
-            _.map { emailData => MandrillSrv.sendEmail(emailData.copy(to = sub.email)) }.getOrElse(Future(Json.obj("message" -> s"error for ${sub.email}")))
+            _.map { emailData => EmailSrv.sendEmail(emailData.copy(to = sub.email)) }.getOrElse(Future(Json.obj("message" -> s"error for ${sub.email}")))
           }
       }
 

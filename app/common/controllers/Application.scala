@@ -3,7 +3,6 @@ package common.controllers
 import common.Utils
 import common.models.values.typed.Email
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import common.repositories.user.UserRepository
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -31,7 +30,7 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
         formData match {
           case (url, name, email, message) =>
             val emailData = EmailSrv.generateContactEmail("http://" + request.host + url, name, email, message, request.identity)
-            MandrillSrv.sendEmail(emailData).map { res =>
+            EmailSrv.sendEmail(emailData).map { res =>
               Redirect(url).flashing("success" -> "Email de contact envoyé :)")
             }
         }

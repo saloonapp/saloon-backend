@@ -11,7 +11,6 @@ import common.repositories.user.OrganizationRepository
 import common.repositories.user.UserRepository
 import common.services.EventSrv
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import backend.forms.EventCreateData
 import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
@@ -98,7 +97,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       if (event.isDraft || event.isPublishing) {
         for {
           statusRes <- EventRepository.setPublishing(eventId)
-          emailRes <- MandrillSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
+          emailRes <- EmailSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
         } yield {
           Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Demande de publication envoyée")
         }
@@ -114,7 +113,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       if (event.isPublishing) {
         for {
           statusRes <- EventRepository.setDraft(eventId)
-          emailRes <- MandrillSrv.sendEmail(EmailSrv.generateEventPublishRequestCancelEmail(user, event))
+          emailRes <- EmailSrv.sendEmail(EmailSrv.generateEventPublishRequestCancelEmail(user, event))
         } yield {
           Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Demande de publication annulée")
         }
@@ -131,7 +130,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
         for {
           statusRes <- EventRepository.setPublished(eventId)
           members <- UserRepository.findOrganizationMembers(event.ownerId)
-          emailRes <- Future.sequence(members.map { member => MandrillSrv.sendEmail(EmailSrv.generateEventPublishedEmail(member, event)) })
+          emailRes <- Future.sequence(members.map { member => EmailSrv.sendEmail(EmailSrv.generateEventPublishedEmail(member, event)) })
         } yield {
           Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"${event.name} est maintenant publié dans SalooN.")
         }

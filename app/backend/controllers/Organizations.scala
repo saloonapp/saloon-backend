@@ -13,7 +13,6 @@ import common.repositories.user.UserRepository
 import common.repositories.user.OrganizationRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import backend.forms.OrganizationData
 import backend.utils.ControllerHelpers
 import authentication.environments.SilhouetteEnvironment
@@ -98,7 +97,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
         UserRepository.findOrganizationMembers(organizationId).flatMap { members =>
           members.filter(_.uuid != user.uuid).map { u =>
             val emailData = EmailSrv.generateOrganizationDeleteEmail(u, organization, user)
-            MandrillSrv.sendEmail(emailData)
+            EmailSrv.sendEmail(emailData)
           }
           OrganizationRepository.delete(organizationId).map { r =>
             Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> "Organisation supprimée !")
@@ -142,7 +141,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
           organizationOwner <- organizationOwnerOpt
         } yield {
           val emailData = EmailSrv.generateOrganizationLeaveEmail(user, organization, organizationOwner)
-          MandrillSrv.sendEmail(emailData)
+          EmailSrv.sendEmail(emailData)
         }
         Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Vous ne faites plus parti de l'organisation ${organizationOpt.map(_.name).getOrElse("")}")
       }
@@ -165,7 +164,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
           UserRepository.update(userWithoutOrg.uuid, userWithoutOrg).map { updatedUserOpt =>
             organizationOpt.map { organization =>
               val emailData = EmailSrv.generateOrganizationBanEmail(bannedUser, organization, user)
-              MandrillSrv.sendEmail(emailData)
+              EmailSrv.sendEmail(emailData)
             }
             Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("success" -> s"${userWithoutOrg.name()} ne fait plus parti de l'organisation ${organizationOpt.map(_.name).getOrElse("")}")
           }
@@ -230,7 +229,7 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
           RequestRepository.insert(requestInvite) // send SalooN invite only if user doesn't exists
           EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, comment, requestInvite)
         }
-        MandrillSrv.sendEmail(emailData).map { res =>
+        EmailSrv.sendEmail(emailData).map { res =>
           ("success", s"Invitation à ${organization.name} envoyée !")
         }
       }.getOrElse(Future(("error", "L'organisation demandée n'existe pas :(")))

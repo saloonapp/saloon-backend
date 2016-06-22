@@ -10,7 +10,6 @@ import common.models.user.PasswordReset
 import common.repositories.user.UserRepository
 import common.repositories.user.RequestRepository
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import authentication.models.RegisterInfo
 import authentication.forms.LoginForm
 import authentication.forms.RegisterForm
@@ -78,7 +77,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
               RequestRepository.insert(accountRequest).map { err => accountRequest.uuid }
             }.flatMap { requestId =>
               val emailData = EmailSrv.generateAccountRequestEmail(email, requestId)
-              MandrillSrv.sendEmail(emailData).map { res =>
+              EmailSrv.sendEmail(emailData).map { res =>
                 Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Invitation envoyée à ${email.unwrap}")
               }
             }
@@ -152,7 +151,7 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             val passwordReset = Request.passwordReset(email)
             RequestRepository.insert(passwordReset).flatMap { err =>
               val emailData = EmailSrv.generatePasswordResetRequestEmail(email, passwordReset.uuid)
-              MandrillSrv.sendEmail(emailData).map { res =>
+              EmailSrv.sendEmail(emailData).map { res =>
                 Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Demande de réinitialisation du mot de passe envoyée")
               }
             }

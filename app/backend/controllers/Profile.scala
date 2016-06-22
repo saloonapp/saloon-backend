@@ -15,7 +15,6 @@ import common.repositories.user.RequestRepository
 import common.repositories.event.EventRepository
 import common.services.EventSrv
 import common.services.EmailSrv
-import common.services.MandrillSrv
 import backend.forms.UserData
 import authentication.environments.SilhouetteEnvironment
 import scala.concurrent.Future
@@ -135,7 +134,7 @@ object Profile extends SilhouetteEnvironment {
             UserRepository.getOrganizationOwner(organization.uuid).flatMap {
               _.map { organizationOwner =>
                 val emailData = EmailSrv.generateOrganizationRequestEmail(user, organization, organizationOwner, request)
-                MandrillSrv.sendEmail(emailData).map { res =>
+                EmailSrv.sendEmail(emailData).map { res =>
                   ("success", s"Demande d'accès à ${organization.name} envoyée !")
                 }
               }.getOrElse {
