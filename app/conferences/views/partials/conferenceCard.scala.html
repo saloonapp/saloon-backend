@@ -57,7 +57,8 @@
                 <address>
                     @venue.name.map { name => <strong>@name</strong><br> }
                     @venue.street<br>
-                    @venue.zipCode @venue.city, @venue.country<br>
+                    @venue.zipCode @venue.city, @venue.country
+                    <a href="https://www.google.com/maps?q=@venue.name.getOrElse("") @venue.street @venue.zipCode @venue.city @venue.country" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
                 </address>
             }
             @if(conference.tags.length > 0) {
