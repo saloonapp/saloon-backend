@@ -77,7 +77,7 @@
             }
             Posté le @datetime(conference.created)
             @conference.createdBy.filter(_.public).map { user =>
-                par @user.siteUrl.orElse(user.twitter).map{url => <a href="@url" target="_blank">@user.name</a>}.getOrElse{@user.name}
+                par @user.twitter.orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
             }
         </div>
     </div>
