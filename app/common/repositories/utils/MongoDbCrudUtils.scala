@@ -1,5 +1,6 @@
 package common.repositories.utils
 
+import common.Utils
 import common.models.utils.Page
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -58,46 +59,48 @@ case class MongoDbCrudUtils[T](
   def drop(): Future[Boolean] = MongoDbCrudUtils.drop(collection)
 }
 object MongoDbCrudUtils {
-  def find[T](collection: JSONCollection, filter: JsObject = Json.obj(), sort: JsObject = Json.obj())(implicit r: Reads[T]): Future[List[T]] = {
+  implicit val s = play.libs.Akka.system.scheduler
+
+  def find[T](collection: JSONCollection, filter: JsObject = Json.obj(), sort: JsObject = Json.obj())(implicit r: Reads[T]): Future[List[T]] = Utils.retryOnce {
     collection.find(filter).sort(sort).cursor[T].collect[List]()
   }
 
-  def get[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = {
+  def get[T](collection: JSONCollection, filter: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = Utils.retryOnce {
     collection.find(filter).one[T]
   }
 
-  def getFirst[T](collection: JSONCollection, filter: JsObject = Json.obj(), sort: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = {
+  def getFirst[T](collection: JSONCollection, filter: JsObject = Json.obj(), sort: JsObject = Json.obj())(implicit r: Reads[T]): Future[Option[T]] = Utils.retryOnce {
     collection.find(filter).sort(sort).cursor[T].headOption
   }
 
-  def insert[T](collection: JSONCollection, elt: T)(implicit w: Writes[T]): Future[WriteResult] = {
+  def insert[T](collection: JSONCollection, elt: T)(implicit w: Writes[T]): Future[WriteResult] = Utils.retryOnce {
     collection.save(elt)
   }
 
-  def update[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
+  def update[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = Utils.retryOnce {
     collection.update(filter, elt)
   }
 
-  def update[T](collection: JSONCollection, query: JsObject, update: JsObject, upsert: Boolean, multi: Boolean): Future[UpdateWriteResult] = {
+  def update[T](collection: JSONCollection, query: JsObject, update: JsObject, upsert: Boolean, multi: Boolean): Future[UpdateWriteResult] = Utils.retryOnce {
     collection.update(query, update)
   }
 
-  def upsert[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
+  def upsert[T](collection: JSONCollection, filter: JsObject, elt: T)(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = Utils.retryOnce {
     collection.update(filter, elt, upsert = true)
   }
 
-  def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[WriteResult] = {
+  def delete(collection: JSONCollection, filter: JsObject = Json.obj()): Future[WriteResult] = Utils.retryOnce {
     collection.remove(filter)
   }
 
-  def findAll[T](collection: JSONCollection, filter: JsObject, query: String = "", filterFields: List[String] = Nil, sort: String = "")(implicit r: Reads[T]): Future[List[T]] = {
+  def findAll[T](collection: JSONCollection, filter: JsObject, query: String = "", filterFields: List[String] = Nil, sort: String = "")(implicit r: Reads[T]): Future[List[T]] = Utils.retryOnce {
     val mongoFilterJson = buildFilter(filter, query, filterFields)
     val mongoOrder = buildOrder(sort)
 
     collection.find(mongoFilterJson).sort(mongoOrder).cursor[T].collect[List]()
   }
 
-  def findPage[T](collection: JSONCollection, filter: JsObject, query: String = "", filterFields: List[String] = Nil, page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "")(implicit r: Reads[T]): Future[Page[T]] = {
+  def findPage[T](collection: JSONCollection, filter: JsObject, query: String = "", filterFields: List[String] = Nil, page: Int = 1, pageSize: Int = Page.defaultSize, sort: String = "")(implicit r: Reads[T]): Future[Page[T]] = Utils.retryOnce {
     val realPage = if (page > 1) page - 1 else 0
     val offset = pageSize * realPage
 
@@ -111,21 +114,21 @@ object MongoDbCrudUtils {
     ) yield Page(items, realPage + 1, pageSize, totalItems)
   }
 
-  def getBy[T](uuid: String, collection: JSONCollection, fieldUuid: String = "uuid")(implicit r: Reads[T]): Future[Option[T]] = {
+  def getBy[T](uuid: String, collection: JSONCollection, fieldUuid: String = "uuid")(implicit r: Reads[T]): Future[Option[T]] = Utils.retryOnce {
     collection.find(Json.obj(fieldUuid -> uuid)).one[T]
   }
 
-  def findBy[T](value: String, collection: JSONCollection, fieldName: String = "uuid")(implicit r: Reads[T]): Future[List[T]] = {
+  def findBy[T](value: String, collection: JSONCollection, fieldName: String = "uuid")(implicit r: Reads[T]): Future[List[T]] = Utils.retryOnce {
     collection.find(Json.obj(fieldName -> value)).cursor[T].collect[List]()
   }
 
-  def countFor(value: String, collection: JSONCollection, fieldName: String = "uuid"): Future[Int] = {
+  def countFor(value: String, collection: JSONCollection, fieldName: String = "uuid"): Future[Int] = Utils.retryOnce {
     val mongoFilterJson = Json.obj(fieldName -> value)
     val mongoFilter = BSONFormats.BSONDocumentFormat.reads(mongoFilterJson).get
     collection.db.command(Count(collection.name, Some(mongoFilter)))
   }
 
-  def findByList[T](uuids: Seq[String], collection: JSONCollection, fieldUuid: String = "uuid")(implicit r: Reads[T]): Future[List[T]] = {
+  def findByList[T](uuids: Seq[String], collection: JSONCollection, fieldUuid: String = "uuid")(implicit r: Reads[T]): Future[List[T]] = Utils.retryOnce {
     if (uuids.length > 0) {
       val mongoFilter = Json.obj(fieldUuid -> Json.obj("$in" -> uuids))
       collection.find(mongoFilter).cursor[T].collect[List]()
@@ -138,7 +141,7 @@ object MongoDbCrudUtils {
     count(Json.obj(fieldName -> Json.obj("$in" -> values)), fieldName, collection)
   }
 
-  def count[T](filter: JsObject, group: String, collection: JSONCollection): Future[Map[String, Int]] = {
+  def count[T](filter: JsObject, group: String, collection: JSONCollection): Future[Map[String, Int]] = Utils.retryOnce {
     val groupPredicate = Json.obj("_id" -> ("$" + group), "count" -> Json.obj("$sum" -> 1))
     val commandDoc = BSONDocument(
       "aggregate" -> collection.name,
@@ -155,21 +158,21 @@ object MongoDbCrudUtils {
     }
   }
 
-  def aggregate[T](collection: JSONCollection, command: JsObject)(implicit r: Reads[T]) = {
+  def aggregate[T](collection: JSONCollection, command: JsObject)(implicit r: Reads[T]): Future[T] = Utils.retryOnce {
     collection.db.command(RawCommand(BSONFormats.BSONDocumentFormat.reads(command).get)).map { result =>
       import play.modules.reactivemongo.json.BSONFormats._
       (Json.toJson(result) \ "result").as[T]
     }
   }
 
-  def aggregate2[T](collection: JSONCollection, command: JsObject, extract: JsValue => T) = {
+  def aggregate2[T](collection: JSONCollection, command: JsObject, extract: JsValue => T): Future[T] = Utils.retryOnce {
     collection.db.command(RawCommand(BSONFormats.BSONDocumentFormat.reads(command).get)).map { result =>
       import play.modules.reactivemongo.json.BSONFormats._
       extract(Json.toJson(result) \ "result")
     }
   }
 
-  def distinct(field: String, filter: JsObject = Json.obj(), collection: JSONCollection): Future[List[String]] = {
+  def distinct(field: String, filter: JsObject = Json.obj(), collection: JSONCollection): Future[List[String]] = Utils.retryOnce {
     val commandDoc = BSONDocument(
       "distinct" -> collection.name,
       "key" -> field,
@@ -180,19 +183,19 @@ object MongoDbCrudUtils {
     }
   }
 
-  def update[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
+  def update[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = Utils.retryOnce {
     collection.update(Json.obj(fieldUuid -> uuid), elt)
   }
 
-  def upsert[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = {
+  def upsert[T](uuid: String, elt: T, collection: JSONCollection, fieldUuid: String = "uuid")(implicit w: Writes[T], ow: OWrites[T]): Future[UpdateWriteResult] = Utils.retryOnce {
     collection.update(Json.obj(fieldUuid -> uuid), elt, upsert = true)
   }
 
-  def deleteBy(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[WriteResult] = {
+  def deleteBy(uuid: String, collection: JSONCollection, fieldUuid: String = "uuid"): Future[WriteResult] = Utils.retryOnce {
     collection.remove(Json.obj(fieldUuid -> uuid))
   }
 
-  def bulkInsert[T](elts: List[T], collection: JSONCollection)(implicit w: Writes[T]): Future[MultiBulkWriteResult] = {
+  def bulkInsert[T](elts: List[T], collection: JSONCollection)(implicit w: Writes[T]): Future[MultiBulkWriteResult] = Utils.retryOnce {
     collection.bulkInsert(elts.map(e => w.writes(e).as[JsObject]).toStream, true)
   }
 
@@ -212,11 +215,11 @@ object MongoDbCrudUtils {
     }
   }
 
-  def bulkDelete(uuids: List[String], collection: JSONCollection, fieldUuid: String = "uuid"): Future[WriteResult] = {
+  def bulkDelete(uuids: List[String], collection: JSONCollection, fieldUuid: String = "uuid"): Future[WriteResult] = Utils.retryOnce {
     collection.remove(Json.obj(fieldUuid -> Json.obj("$in" -> uuids)))
   }
 
-  def drop(collection: JSONCollection): Future[Boolean] = {
+  def drop(collection: JSONCollection): Future[Boolean] = Utils.retryOnce {
     collection.db.command(new Drop(collection.name))
   }
 

@@ -1,13 +1,15 @@
 package common
 
-import common.services.FileImporter
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormatter
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import java.util.concurrent.TimeUnit
+import akka.actor.Scheduler
+import akka.pattern.after
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import play.api.Play
 import play.api.mvc.Request
 import play.api.mvc.AnyContent
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormatter
 import org.jsoup.Jsoup
 
 object Utils {
@@ -15,7 +17,12 @@ object Utils {
   def getEnv(): String = Play.current.configuration.getString("application.env").getOrElse("undefined")
   def isProd(): Boolean = "prod".equals(getEnv())
 
-  def transform[A](o: Option[Future[A]]): Future[Option[A]] = o.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
+  def retry[T](retries: Int, delay: FiniteDuration)(f: => Future[T])(implicit ec: ExecutionContext, s: Scheduler): Future[T] =
+    f recoverWith { case _ if retries > 0 => after(delay, s)(retry(retries - 1, delay)(f)(ec, s))(ec) }
+  def retryOnce[T](f: => Future[T])(implicit ec: ExecutionContext, s: Scheduler): Future[T] =
+    retry(1, Duration(1, TimeUnit.SECONDS))(f)
+
+  def transform[A](o: Option[Future[A]])(implicit ec: ExecutionContext): Future[Option[A]] = o.map(f => f.map(Option(_))).getOrElse(Future.successful(None))
   def toList(str: String): List[String] = str.split(",").toList.map(_.trim())
   def fromList(tags: List[String]): String = tags.mkString(", ")
   def toTwitterHashtag(str: String): String = if (str.startsWith("#")) str.substring(1) else str
