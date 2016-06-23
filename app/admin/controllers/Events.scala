@@ -145,8 +145,8 @@ object Events extends SilhouetteEnvironment {
           case SubscribeUserAction(email, filter, subscribe) => {
             EmailSrv.generateEventReport(eventId, deviceId).flatMap {
               _.map { emailData =>
-                EmailSrv.sendEmail(emailData.copy(to = email)).map { res =>
-                  Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Email envoyé : ${Json.stringify(res)}")
+                EmailSrv.sendEmail(emailData.copy(to = email)).map { success =>
+                  Redirect(mainRoute.operations(eventId)).flashing(if(success) ("success", "Email envoyé") else ("error", "Email non envoyé"))
                 }
               }.getOrElse(Future(Redirect(mainRoute.operations(eventId)).flashing("error" -> s"User $deviceId didn't subscribe to event $eventId")))
             }
@@ -177,13 +177,12 @@ object Events extends SilhouetteEnvironment {
       val listFutures = users.map {
         case (userId, sub) =>
           EmailSrv.generateEventReport(eventId, userId).flatMap {
-            _.map { emailData => EmailSrv.sendEmail(emailData.copy(to = sub.email)) }.getOrElse(Future(Json.obj("message" -> s"error for ${sub.email}")))
+            _.map { emailData => EmailSrv.sendEmail(emailData.copy(to = sub.email)).map(success => if(success) None else Some(sub.email)) }.getOrElse(Future(Some(sub.email)))
           }
       }
 
       Future.sequence(listFutures).map { results =>
-        val message = "Emails envoyés :<br>" + results.map(r => s" - ${Json.stringify(r)}<br>").mkString("")
-        Redirect(mainRoute.operations(eventId)).flashing("success" -> message)
+        Redirect(mainRoute.operations(eventId)).flashing("success" -> s"Emails envoyés (${results.flatten.length.toString} erreurs)")
       }
     }
   }

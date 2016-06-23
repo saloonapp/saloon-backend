@@ -30,8 +30,8 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
         formData match {
           case (url, name, email, message) =>
             val emailData = EmailSrv.generateContactEmail("http://" + request.host + url, name, email, message, request.identity)
-            EmailSrv.sendEmail(emailData).map { res =>
-              Redirect(url).flashing("success" -> "Email de contact envoyé :)")
+            EmailSrv.sendEmail(emailData).map { success =>
+              Redirect(url).flashing(if(success) ("success", "Email de contact envoyé :)") else ("error", "Problème d'envoi du mail"))
             }
         }
       })

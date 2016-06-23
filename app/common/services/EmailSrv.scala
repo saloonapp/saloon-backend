@@ -27,8 +27,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 case class EmailData(fromName: String, fromEmail: Email, to: Email, subject: String, html: TextHTML, text: TextMultiline)
 
 object EmailSrv {
-  def sendEmail(data: EmailData): Future[JsValue] = {
-    MandrillSrv.sendEmail(data)
+  def sendEmail(data: EmailData): Future[Boolean] = {
+    SendGridSrv.sendEmail(data)
   }
 
   def generateEventReport(eventId: EventId, deviceId: DeviceId): Future[Option[EmailData]] = {

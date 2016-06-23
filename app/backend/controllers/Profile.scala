@@ -134,8 +134,8 @@ object Profile extends SilhouetteEnvironment {
             UserRepository.getOrganizationOwner(organization.uuid).flatMap {
               _.map { organizationOwner =>
                 val emailData = EmailSrv.generateOrganizationRequestEmail(user, organization, organizationOwner, request)
-                EmailSrv.sendEmail(emailData).map { res =>
-                  ("success", s"Demande d'accès à ${organization.name} envoyée !")
+                EmailSrv.sendEmail(emailData).map { success =>
+                  if(success) ("success", s"Demande d'accès à ${organization.name} envoyée !") else ("error", "Problème d'envoi du mail")
                 }
               }.getOrElse {
                 Future(("error", s"Demande d'accès enregistrée mais le propriétaire de l'organisation n'a pas été trouvé :("))

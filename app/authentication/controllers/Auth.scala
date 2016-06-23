@@ -77,8 +77,8 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
               RequestRepository.insert(accountRequest).map { err => accountRequest.uuid }
             }.flatMap { requestId =>
               val emailData = EmailSrv.generateAccountRequestEmail(email, requestId)
-              EmailSrv.sendEmail(emailData).map { res =>
-                Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Invitation envoyée à ${email.unwrap}")
+              EmailSrv.sendEmail(emailData).map { success =>
+                Redirect(authentication.controllers.routes.Auth.login).flashing(if(success) ("success", s"Invitation envoyée à ${email.unwrap}") else ("error", "Problème lors de l'envoi de l'invitation..."))
               }
             }
           }
@@ -151,8 +151,8 @@ object Auth extends Silhouette[User, CachedCookieAuthenticator] with SilhouetteE
             val passwordReset = Request.passwordReset(email)
             RequestRepository.insert(passwordReset).flatMap { err =>
               val emailData = EmailSrv.generatePasswordResetRequestEmail(email, passwordReset.uuid)
-              EmailSrv.sendEmail(emailData).map { res =>
-                Redirect(authentication.controllers.routes.Auth.login).flashing("success" -> s"Demande de réinitialisation du mot de passe envoyée")
+              EmailSrv.sendEmail(emailData).map { success =>
+                Redirect(authentication.controllers.routes.Auth.login).flashing(if(success) ("success", "Demande de réinitialisation du mot de passe envoyée") else ("error", "Problème d'envoi du mail"))
               }
             }
           }.getOrElse {

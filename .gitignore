@@ -16,3 +16,4 @@ tmp
 /upload
 /bin
 
+conf/application.secrets.conf

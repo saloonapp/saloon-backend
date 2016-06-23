@@ -67,8 +67,8 @@ object Requests extends SilhouetteEnvironment {
                 organizationOwner <- organizationOwnerOpt
               } yield {
                 val emailData = EmailSrv.generateOrganizationRequestEmail(user, organization, organizationOwner, request)
-                EmailSrv.sendEmail(emailData).map { res =>
-                  Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Demande d'accès à ${organization.name} renvoyée !")
+                EmailSrv.sendEmail(emailData).map { success =>
+                  Redirect(backend.controllers.routes.Profile.details()).flashing(if(success) ("success", s"Demande d'accès à ${organization.name} renvoyée !") else ("error", "Problème d'envoi du mail"))
                 }
               }
               resOpt.getOrElse(Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation n'existe plus :(")))
@@ -88,8 +88,8 @@ object Requests extends SilhouetteEnvironment {
                   requestInviteOpt.map { requestInvite => EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, None, requestInvite) }
                 }
                 emailDataOpt.map { emailData =>
-                  EmailSrv.sendEmail(emailData).map { res =>
-                    ("success", s"Demande d'accès à ${organization.name} envoyée !")
+                  EmailSrv.sendEmail(emailData).map { success =>
+                    if(success) ("success", s"Demande d'accès à ${organization.name} envoyée !") else ("error", "Problème d'envoi du mail")
                   }
                 }.getOrElse(Future(("error", "L'invitation correspondant à la demande n'a pas été trouvée :(")))
               }.getOrElse(Future(("error", "L'organisation demandée n'existe pas :(")))
@@ -117,18 +117,18 @@ object Requests extends SilhouetteEnvironment {
       requestOpt.map { request =>
         RequestRepository.setCanceled(requestId).flatMap { err =>
           request.content match {
-            case OrganizationRequest(_, _, _) => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> s"Demande annulée !"))
+            case OrganizationRequest(_, _, _) => Future(Redirect(backend.controllers.routes.Profile.details()).flashing("success" -> "Demande annulée !"))
             case OrganizationInvite(organizationId, email, _, _) => {
               OrganizationRepository.getByUuid(organizationId).flatMap { organizationOpt =>
                 organizationOpt.map { organization =>
                   val emailData = EmailSrv.generateOrganizationInviteCanceledEmail(email, organization)
-                  EmailSrv.sendEmail(emailData).map { _ =>
-                    Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing("success" -> s"Invitation annulée !")
+                  EmailSrv.sendEmail(emailData).map { success =>
+                    Redirect(backend.controllers.routes.Organizations.details(organizationId)).flashing(if(success) ("success", "Invitation annulée !") else ("error", "Problème d'envoi du mail"))
                   }
-                }.getOrElse(Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> s"L'organisation n'existe plus :(")))
+                }.getOrElse(Future(Redirect(backend.controllers.routes.Profile.details()).flashing("error" -> "L'organisation n'existe plus :(")))
               }
             }
-            case _ => Future(Redirect(backend.controllers.routes.Application.index()).flashing("success" -> s"Demande annulée !"))
+            case _ => Future(Redirect(backend.controllers.routes.Application.index()).flashing("success" -> "Demande annulée !"))
           }
         }
       }.getOrElse {
@@ -220,8 +220,8 @@ object Requests extends SilhouetteEnvironment {
           acceptErr <- RequestRepository.setAccepted(request.uuid)
         } yield {
           val emailData = EmailSrv.generateOrganizationRequestAcceptedEmail(user, organization, organizationOwner)
-          EmailSrv.sendEmail(emailData).map { _ =>
-            ("success", "Demande acceptée !")
+          EmailSrv.sendEmail(emailData).map { success =>
+            if(success) ("success", "Demande acceptée !") else ("error", "Problème d'envoi du mail")
           }
         }
       }
@@ -241,8 +241,8 @@ object Requests extends SilhouetteEnvironment {
       } yield {
         RequestRepository.setRejected(request.uuid).flatMap { _ =>
           val emailData = EmailSrv.generateOrganizationRequestRejectedEmail(requestUser, organization)
-          EmailSrv.sendEmail(emailData).map { _ =>
-            ("success", "Demande refusée !")
+          EmailSrv.sendEmail(emailData).map { success =>
+            if(success) ("success", "Demande refusée !") else ("error", "Problème d'envoi du mail")
           }
         }
       }
@@ -262,8 +262,8 @@ object Requests extends SilhouetteEnvironment {
           RequestRepository.setAccepted(request.uuid).flatMap { _ =>
             organizationOwnerOpt.map { organizationOwner =>
               val emailData = EmailSrv.generateOrganizationInviteAcceptedEmail(invitedUser, organization, organizationOwner)
-              EmailSrv.sendEmail(emailData).map { _ =>
-                ("success", s"Invitation à l'organisation ${organization.name} acceptée !")
+              EmailSrv.sendEmail(emailData).map { success =>
+                if(success) ("success", s"Invitation à l'organisation ${organization.name} acceptée !") else ("error", "Problème d'envoi du mail")
               }
             }.getOrElse {
               Future(("success", s"Invitation à l'organisation ${organization.name} acceptée !"))
@@ -284,8 +284,8 @@ object Requests extends SilhouetteEnvironment {
         RequestRepository.setRejected(request.uuid).flatMap { _ =>
           organizationOwnerOpt.map { organizationOwner =>
             val emailData = EmailSrv.generateOrganizationInviteRejectedEmail(inviteEmail, organization, organizationOwner)
-            EmailSrv.sendEmail(emailData).map { _ =>
-              ("success", s"Invitation à l'organisation ${organization.name} déclinée !")
+            EmailSrv.sendEmail(emailData).map { success =>
+              if(success) ("success", s"Invitation à l'organisation ${organization.name} déclinée !") else ("error", "Problème d'envoi du mail")
             }
           }.getOrElse {
             Future(("success", s"Invitation à l'organisation ${organization.name} déclinée !"))

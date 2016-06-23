@@ -97,9 +97,9 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       if (event.isDraft || event.isPublishing) {
         for {
           statusRes <- EventRepository.setPublishing(eventId)
-          emailRes <- EmailSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
+          successRes <- EmailSrv.sendEmail(EmailSrv.generateEventPublishRequestEmail(user, event))
         } yield {
-          Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Demande de publication envoyée")
+          Redirect(backend.controllers.routes.Events.details(eventId)).flashing(if(successRes) ("success", "Demande de publication envoyée") else ("error", "Problème d'envoi du mail"))
         }
       } else {
         Future(Redirect(backend.controllers.routes.Events.details(eventId)))
@@ -113,9 +113,9 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
       if (event.isPublishing) {
         for {
           statusRes <- EventRepository.setDraft(eventId)
-          emailRes <- EmailSrv.sendEmail(EmailSrv.generateEventPublishRequestCancelEmail(user, event))
+          successRes <- EmailSrv.sendEmail(EmailSrv.generateEventPublishRequestCancelEmail(user, event))
         } yield {
-          Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> "Demande de publication annulée")
+          Redirect(backend.controllers.routes.Events.details(eventId)).flashing(if(successRes) ("success", "Demande de publication annulée") else ("error", "Problème d'envoi du mail"))
         }
       } else {
         Future(Redirect(backend.controllers.routes.Events.details(eventId)))
@@ -130,7 +130,7 @@ object Events extends SilhouetteEnvironment with ControllerHelpers {
         for {
           statusRes <- EventRepository.setPublished(eventId)
           members <- UserRepository.findOrganizationMembers(event.ownerId)
-          emailRes <- Future.sequence(members.map { member => EmailSrv.sendEmail(EmailSrv.generateEventPublishedEmail(member, event)) })
+          successRes <- Future.sequence(members.map { member => EmailSrv.sendEmail(EmailSrv.generateEventPublishedEmail(member, event)) })
         } yield {
           Redirect(backend.controllers.routes.Events.details(eventId)).flashing("success" -> s"${event.name} est maintenant publié dans SalooN.")
         }

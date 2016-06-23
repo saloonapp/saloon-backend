@@ -229,8 +229,8 @@ object Organizations extends SilhouetteEnvironment with ControllerHelpers {
           RequestRepository.insert(requestInvite) // send SalooN invite only if user doesn't exists
           EmailSrv.generateOrganizationAndSalooNInviteEmail(user, organization, email, comment, requestInvite)
         }
-        EmailSrv.sendEmail(emailData).map { res =>
-          ("success", s"Invitation à ${organization.name} envoyée !")
+        EmailSrv.sendEmail(emailData).map { success =>
+          if(success) ("success", s"Invitation à ${organization.name} envoyée !") else ("error", "Problème d'envoi du mail")
         }
       }.getOrElse(Future(("error", "L'organisation demandée n'existe pas :(")))
     }
