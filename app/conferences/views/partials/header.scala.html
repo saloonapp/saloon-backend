@@ -15,6 +15,9 @@
                 <li @if(section == "list"){class="active"}><a href="@conferences.controllers.routes.Application.list()">Liste des conférences</a></li>
                 <li @if(section == "create"){class="active"}><a href="@conferences.controllers.routes.Application.create()">Ajouter une conférence</a></li>
             </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="@website.controllers.routes.Application.index()">SalooN</a></li>
+            </ul>
         </div>
     </div>
 </nav>

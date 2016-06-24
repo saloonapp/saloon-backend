@@ -13,12 +13,13 @@
 
         <title>@if(!App.isProd()){(@App.getEnv()) }@title</title>
 
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-        <link href="@routes.Assets.at("conferences/libs/font-awesome-4.6.3/css/font-awesome.min.css")" rel="stylesheet">
-        <link type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" rel="stylesheet">
-        <link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2.min.css")">
-        <link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")">
-        <link rel="stylesheet" href="@routes.Assets.at("styles/conferences."+App.getEnv()+".css")">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link href="@routes.Assets.at("conferences/libs/font-awesome-4.6.3/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
+        <link href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" rel="stylesheet" type="text/css">
+        <link href="@routes.Assets.at("libs/select2/select2.min.css")" rel="stylesheet" type="text/css">
+        <link href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")" rel="stylesheet" type="text/css">
+        <link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css">
+        <link href="@routes.Assets.at("styles/conferences."+App.getEnv()+".css")" rel="stylesheet" type="text/css">
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -27,12 +28,12 @@
     </head>
     <body role="document">
         @content
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/javascript"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
         <script src="@routes.Assets.at("conferences/libs/moment-2.13.0/min/moment.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("conferences/libs/moment-2.13.0/locale/fr.js")" type="text/javascript"></script>
         <script src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js" type="text/javascript"></script>
-        <script type="text/javascript" src="@routes.Assets.at("libs/select2/select2.min.js")"></script>
+        <script src="@routes.Assets.at("libs/select2/select2.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("conferences/init.js")" type="text/javascript"></script>
     </body>
 </html>

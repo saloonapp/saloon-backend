@@ -14,6 +14,7 @@
                     Le but est de centraliser les informations afin qu'il soit plus simple de trouver une conférence, la planifier, postuler à un CFP, revoir les vidéos...<br>
                     Merci de ne pas ajouter de Meetups.
                 </p>
+                @partials.newsletterSubscribe()
             </div>
         }
 
@@ -40,6 +41,7 @@
                 @conferenceList.map { conference =>
                     @partials.conferenceCard(conference, "public")
                 }
+                @partials.newsletterSubscribe()
             </div>
         </div>
     </div>
