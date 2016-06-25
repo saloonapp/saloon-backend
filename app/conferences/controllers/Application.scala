@@ -1,7 +1,8 @@
 package conferences.controllers
 
 import common.repositories.conference.ConferenceRepository
-import conferences.models.{ConferenceCfp, ConferenceId, ConferenceMetrics, ConferenceData}
+import common.services.{MailChimpCampaign, MailChimpSrv, NewsletterScheduler}
+import conferences.models._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
@@ -127,6 +128,21 @@ object Application extends Controller {
     play.Logger.info("filter: "+filter)
     ConferenceRepository.find(filter).map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
+    }
+  }
+  def testNewsletter(email: String) = Action.async { implicit req =>
+    for {
+      (closingCFPs, incomingConferences, newVideos, newCFPs, newConferences) <- NewsletterScheduler.getNewsletterInfos(new DateTime())
+      url <- MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newVideos, newCFPs, newConferences), List(email))
+    } yield {
+      Ok(Json.obj(
+        "newsletterUrl" -> url,
+        "closingCFPs" -> closingCFPs,
+        "incomingConferences" -> incomingConferences,
+        "newVideos" -> newVideos,
+        "newCFPs" -> newCFPs,
+        "newConferences" -> newConferences
+      ))
     }
   }
 

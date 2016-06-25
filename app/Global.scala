@@ -1,14 +1,12 @@
 
-import java.util.concurrent.TimeUnit
+import common.services.Scheduler
 import play.api._
 import play.api.i18n.Lang
 import play.api.mvc.EssentialAction
 import play.api.mvc.RequestHeader
 import play.api.mvc.Flash
 import play.api.mvc.Results.Redirect
-import play.libs.Akka
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 import play.api.libs.concurrent.Execution.Implicits._
 import org.joda.time.DateTimeZone
 import com.mohiva.play.silhouette.core.SecuredSettings
@@ -25,7 +23,7 @@ object Global extends GlobalSettings with SecuredSettings {
 
   override def onStart(app: Application) {
     DateTimeZone.setDefault(DateTimeZone.forID("Europe/Paris"))
-    //Akka.system.scheduler.schedule(Duration(0, TimeUnit.SECONDS), Duration(1, TimeUnit.DAYS))(taskDispatcher)
+    Scheduler.init()
   }
 
   override def onNotAuthenticated(request: RequestHeader, lang: Lang) = {
@@ -38,9 +36,5 @@ object Global extends GlobalSettings with SecuredSettings {
     implicit val flash = Flash()
     implicit val header = request
     Some(Future(Redirect(backend.controllers.routes.Application.index).flashing("error" -> "Vous n'avez pas les droits pour accéder à cette page :(")))
-  }
-
-  private def taskDispatcher(): Unit = {
-    play.Logger.info("run taskDispatcher")
   }
 }

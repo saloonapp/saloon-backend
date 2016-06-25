@@ -48,4 +48,12 @@ object ConferenceRepository {
     ),
     json => (json \\ "_id").toList.map(_.as[String]).zip((json \\ "count").toList.map(_.as[Int])).sortBy(_._1)
   )
+  def findInPast(time: DateTime, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
+    "aggregate" -> collection.name,
+    "pipeline" -> Json.arr(
+      Json.obj("$match" -> Json.obj("created" -> Json.obj("$lt" -> time))),
+      Json.obj("$sort" -> Json.obj("created" -> -1)),
+      Json.obj("$group" -> conferenceGroup(conferenceFields)),
+      Json.obj("$match" -> filter),
+      Json.obj("$sort" -> sort))))
 }
