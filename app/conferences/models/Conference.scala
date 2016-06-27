@@ -2,6 +2,7 @@ package conferences.models
 
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
 import common.models.values.UUID
+import common.services.TwitterCard
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -29,7 +30,19 @@ case class Conference(
   metrics: Option[ConferenceMetrics],
   social: Option[ConferenceSocial],
   created: DateTime,
-  createdBy: Option[ConferenceUser])
+  createdBy: Option[ConferenceUser]) {
+  def toTwitterCard() = TwitterCard(
+    "summary",
+    "@conferencelist_",
+    name+", le " + start.toString("dd/MM/yyyy") + venue.map(" à "+_.city).getOrElse(""),
+    List(
+      cfp.flatMap(c => if(c.opened) Some("CFP ouvert jusqu'au "+c.end.toString("dd/MM/yyyy")) else None),
+      tickets.flatMap(t => if(t.opened && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
+      Some(tags.map("#"+_).mkString(" ")),
+      description
+    ).flatten.mkString(" "),
+    "https://avatars2.githubusercontent.com/u/11368266?v=3&s=200")
+}
 case class ConferenceVenue(
   name: Option[String],
   street: String,

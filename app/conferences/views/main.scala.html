@@ -1,5 +1,6 @@
 @import common.views._
-@(title: String)(content: Html)
+@import common.services.TwitterCard
+@(title: String, twitterCard: Option[TwitterCard] = None)(content: Html)
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -13,6 +14,13 @@
 
         <title>@if(!App.isProd()){(@App.getEnv()) }@title</title>
 
+        @twitterCard.map { c =>
+            <meta name="twitter:card" content="@c.format" />
+            <meta name="twitter:site" content="@c.owner" />
+            <meta name="twitter:title" content="@c.title" />
+            <meta name="twitter:description" content="@c.description" />
+            <meta name="twitter:image" content="@c.imageUrl" />
+        }
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <link href="@routes.Assets.at("conferences/libs/font-awesome-4.6.3/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
         <link href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" rel="stylesheet" type="text/css">

@@ -14,3 +14,10 @@ object TwitterSrv {
     client.tweet(text)
   }
 }
+
+case class TwitterCard(
+  format: String,
+  owner: String,
+  title: String,
+  description: String,
+  imageUrl: String)

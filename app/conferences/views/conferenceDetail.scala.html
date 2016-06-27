@@ -1,8 +1,9 @@
 @import org.joda.time.DateTime
 @import conferences.models.Conference
+@import common.services.TwitterCard
 @(conference: Conference)(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@main(conference.name){
+@main(conference.name, Some(conference.toTwitterCard())){
     @partials.header("")
 
     <div class="container" role="main">
