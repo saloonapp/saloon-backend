@@ -1,10 +1,11 @@
 @import conferences.models.Conference
-@(baseUrl: String, closingCFPs: List[Conference], incomingConferences: List[Conference], newData: List[(Conference, Map[String, Boolean])])
+@import common.views.html.format._
+@(baseUrl: String, closingCFPs: List[Conference], incomingConferences: List[Conference], newData: List[(Conference, Map[String, Boolean])])(implicit lang: Lang)
 <h1>Nouveautés des conférences tech en France</h1>
 @if(closingCFPs.length > 0){
     <h2>Call For Papers bientôt terminés</h2>
     @closingCFPs.map { conf =>
-        <p>@conf.cfp.map(_.end.toString("dd/MM/yyyy")) : CFP de <a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
+        <p>@dateOpt(conf.cfp.map(_.end)) : CFP de <a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
     }
 }
 @if(incomingConferences.length > 0){
@@ -18,10 +19,10 @@
     <ul>
     @newData.map { case (conf, data) =>
         <li>
-            @conf.start.toString("dd/MM/yyyy") : <b><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></b>
+            @date(conf.start) : <b><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></b>
             <ul>
                 @if(data.getOrElse("cfp", false)){
-                    @conf.cfp.filter(_.opened).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @cfp.end.toString("dd/MM/yyyy"))</li> }
+                    @conf.cfp.filter(_.opened).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @date(cfp.end))</li> }
                 }
                 @if(data.getOrElse("videos", false)){
                     @conf.videosUrl.map{ url => <li>Publication des <a href="@url">vidéos</a></li> }
@@ -31,3 +32,5 @@
     }
     </ul>
 }
+PS: comme vous le constatez, le site et la newsletter sont encore très rudimentaires...
+    Ils devraient évoluer prochainement, en attendant, toute contribution/suggestion est bienvenue (en répondant simplement à ce mail) :)

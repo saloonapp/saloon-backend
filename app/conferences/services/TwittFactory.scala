@@ -6,7 +6,7 @@ import org.joda.time.{Days, DateTime}
 
 object TwittFactory {
   def newsletterSent(url: String): String = {
-    s"Our weekly newsletter about french tech conferences is out : $url by @getSalooN #conf #tech #dév"
+    s"La newsletter des conférences tech françaises est là : $url via @getSalooN #conf #tech #dév"
   }
   def newConference(c: Conference): String = {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)

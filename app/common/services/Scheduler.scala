@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import common.repositories.conference.ConferenceRepository
 import conferences.models.Conference
 import conferences.services.TwittFactory
-import org.joda.time.{Days, DateTimeConstants, DateTime}
+import org.joda.time.{DateTimeConstants, DateTime}
 import play.api.libs.json.Json
 import play.libs.Akka
 import scala.concurrent.Future
@@ -96,15 +96,6 @@ object TwittScheduler {
         (TwittFactory.startingConference(c), c.start.getMillis)
       }
       twitts.sortBy(_._2).map(_._1)
-    }
-  }
-  def dayDuration(start: DateTime, end: DateTime): String = {
-    Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays() match {
-      case 0 => "aujourd'hui"
-      case 1 => "demain"
-      case 7 => "dans une semaine"
-      case 14 => "dans deux semaines"
-      case n => s"dans $n jours"
     }
   }
 }

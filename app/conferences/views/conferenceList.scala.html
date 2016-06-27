@@ -1,4 +1,5 @@
 @import org.joda.time.DateTime
+@import common.Defaults
 @import conferences.models.Conference
 @(context: String, conferenceList: List[Conference], tags: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
@@ -20,7 +21,7 @@
 
         <ul class="nav nav-tabs">
             <li role="presentation" @if(context == "future"){class="active"}><a href="@conferences.controllers.routes.Application.list()">À venir</a></li>
-            <li role="presentation" @if(context == "past"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString("dd/MM/yyyy")))">Passées</a></li>
+            <li role="presentation" @if(context == "past"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString(Defaults.dateFormatter)))">Passées</a></li>
         </ul>
 
         <div class="row">

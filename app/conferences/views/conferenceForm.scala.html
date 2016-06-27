@@ -33,7 +33,7 @@
                                     <div class="col-md-2">@inputText(conferenceForm("venue.country"), 'placeholder -> "ex: France", 'constraints -> "false")</div>
                                 </div>
                             }
-                            @fieldHorizontal(conferenceForm("social.twitter.account"), 'label -> "Social links", 'constraints -> "false") { field =>
+                            @fieldHorizontal(conferenceForm("social.twitter.account"), 'label -> "Liens sociaux", 'constraints -> "false") { field =>
                                 <div class="row">
                                     <div class="col-md-3">
                                         <label for="social_twitter_account">Compte twitter</label>
@@ -72,7 +72,7 @@
                             @fieldHorizontal(conferenceForm("tickets.dates"), 'label -> "Dates", 'constraints -> "false") { field => @inputDateRange(field, 'placeholder -> "ex: 01/12/2015 - 20/04/2016") }
                             @fieldHorizontal(conferenceForm("tickets.from"), 'label -> "Prix min") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 180") }
                             @fieldHorizontal(conferenceForm("tickets.to"), 'label -> "Prix max") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 500") }
-                            @fieldHorizontal(conferenceForm("tickets.currency"), 'label -> "Monaie", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: €") }
+                            @fieldHorizontal(conferenceForm("tickets.currency"), 'label -> "Monnaie", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: €") }
                         </div>
                     </div>
                 </div>

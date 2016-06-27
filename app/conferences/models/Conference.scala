@@ -1,5 +1,6 @@
 package conferences.models
 
+import common.Defaults
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
 import common.models.values.UUID
 import common.services.TwitterCard
@@ -37,9 +38,9 @@ case class Conference(
   def toTwitterCard() = TwitterCard(
     "summary",
     "@conferencelist_",
-    name+", le " + start.toString("dd/MM/yyyy") + venue.map(" à "+_.city).getOrElse(""),
+    name+", le " + start.toString(Defaults.dateFormatter) + venue.map(" à "+_.city).getOrElse(""),
     List(
-      cfp.flatMap(c => if(c.opened) Some("CFP ouvert jusqu'au "+c.end.toString("dd/MM/yyyy")) else None),
+      cfp.flatMap(c => if(c.opened) Some("CFP ouvert jusqu'au "+c.end.toString(Defaults.dateFormatter)) else None),
       tickets.flatMap(t => if(t.opened && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description

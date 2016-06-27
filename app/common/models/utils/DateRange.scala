@@ -1,5 +1,6 @@
 package common.models.utils
 
+import common.Defaults
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms.of
@@ -12,18 +13,16 @@ case class DateRange(
   end: DateTime)
 object DateRange {
   private val errKey = "error.daterange"
-  private val dateFormat = "dd/MM/yyyy"
-  private val dateFormatter = DateTimeFormat.forPattern(dateFormat)
-  private val regex = s"($dateFormat) - ($dateFormat)".replaceAll("[a-zA-Z]", "\\\\d").r
+  private val regex = s"(${Defaults.dateFormat}) - (${Defaults.dateFormat})".replaceAll("[a-zA-Z]", "\\\\d").r
   private def fromString(str: String): Either[String, DateRange] = str.trim match {
-    case regex(start, end) => Right(DateRange(DateTime.parse(start, dateFormatter), DateTime.parse(end, dateFormatter)))
+    case regex(start, end) => Right(DateRange(DateTime.parse(start, Defaults.dateFormatter), DateTime.parse(end, Defaults.dateFormatter)))
     case _ => Left(errKey)
   }
   private val formMapping = new Formatter[DateRange] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], DateRange] =
       data.get(key).map { value => fromString(value).left.map(msg => Seq(FormError(key, msg, Nil))) }.getOrElse(Left(Seq(FormError(key, errKey, Nil))))
     override def unbind(key: String, value: DateRange): Map[String, String] =
-      Map(key -> (value.start.toString(dateFormat)+" - "+value.end.toString(dateFormat)))
+      Map(key -> (value.start.toString(Defaults.dateFormat)+" - "+value.end.toString(Defaults.dateFormat)))
   }
 
   // ex: https://github.com/playframework/playframework/blob/2.3.x/framework/src/play/src/main/scala/play/api/data/Forms.scala
