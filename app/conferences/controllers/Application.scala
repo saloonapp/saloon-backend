@@ -1,10 +1,11 @@
 package conferences.controllers
 
+import common.Defaults
 import common.repositories.conference.ConferenceRepository
-import common.services.{MailChimpCampaign, MailChimpSrv, NewsletterScheduler}
+import common.services._
 import conferences.models._
+import conferences.services.TwittFactory
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.libs.json.{JsNull, JsObject, Json}
 import play.api.mvc._
@@ -63,7 +64,10 @@ object Application extends Controller {
       },
       formData => {
         val conference = ConferenceData.toModel(formData)
-        ConferenceRepository.insert(conference).map { createdOpt =>
+        ConferenceRepository.insert(conference).map { success =>
+          if(conference.start.isAfterNow){
+            TwitterSrv.twitt(TwittFactory.newConference(conference))
+          }
           Redirect(conferences.controllers.routes.Application.detail(conference.id))
         }
       }
@@ -91,8 +95,17 @@ object Application extends Controller {
         BadRequest(conferences.views.html.conferenceForm(formWithErrors, tags))
       },
       formData => {
-        ConferenceRepository.update(id, ConferenceData.toModel(formData)).map { updatedOpt =>
-          Redirect(conferences.controllers.routes.Application.detail(id))
+        val conference = ConferenceData.toModel(formData)
+        ConferenceRepository.get(id).flatMap { oldConferenceOpt =>
+          ConferenceRepository.update(id, conference).map { success =>
+            oldConferenceOpt.filter(_.videosUrl.isEmpty && conference.videosUrl.isDefined).map { _ =>
+              TwitterSrv.twitt(TwittFactory.publishVideos(conference))
+            }
+            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.opened).getOrElse(false)).map { _ =>
+              TwitterSrv.twitt(TwittFactory.openCfp(conference))
+            }
+            Redirect(conferences.controllers.routes.Application.detail(id))
+          }
         }
       }
     )
@@ -130,8 +143,8 @@ object Application extends Controller {
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
-  def testNewsletter(emailOpt: Option[String]) = Action.async { implicit req =>
-    NewsletterScheduler.getNewsletterInfos(new DateTime()).flatMap { case (closingCFPs, incomingConferences, newData) =>
+  def testNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
+    NewsletterScheduler.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
         MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
           Ok(Json.obj(
@@ -146,11 +159,15 @@ object Application extends Controller {
       }
     }
   }
+  def testTwitts(date: Option[String]) = Action.async { implicit req =>
+    TwittScheduler.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
+      Ok(Json.obj("twitts" -> twitts))
+    }
+  }
 
-  private val dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
   private def buildFilter(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]): JsObject = {
     def reduce(l: List[Option[JsObject]]): Option[JsObject] = l.flatten.headOption.map(_ => l.flatten.reduceLeft(_ ++ _))
-    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, dateFormatter)).toOption
+    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, Defaults.dateFormatter)).toOption
     def buildTextFilter(q: Option[String]): Option[JsObject] =
       q.map(_.trim).filter(_.length > 0).map { query =>
         Json.obj("$or" -> List(

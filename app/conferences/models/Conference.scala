@@ -32,6 +32,8 @@ case class Conference(
   social: Option[ConferenceSocial],
   created: DateTime,
   createdBy: Option[ConferenceUser]) {
+  lazy val twitterAccount: Option[String] = social.flatMap(_.twitter.flatMap(_.account))
+  lazy val twitterHashtag: Option[String] = social.flatMap(_.twitter.flatMap(_.hashtag))
   def toTwitterCard() = TwitterCard(
     "summary",
     "@conferencelist_",
@@ -77,10 +79,19 @@ case class ConferenceMetrics(
   sessionCount: Option[Int],
   sinceYear: Option[Int])
 case class ConferenceSocial(
-  twitter: Option[ConferenceSocialTwitter])
+  twitter: Option[ConferenceSocialTwitter]) {
+  def trim(): ConferenceSocial = this.copy(
+    twitter = this.twitter.map(_.trim)
+  )
+}
 case class ConferenceSocialTwitter(
   account: Option[String],
-  hashtag: Option[String])
+  hashtag: Option[String]) {
+  def trim(): ConferenceSocialTwitter = this.copy(
+    account = this.account.map(_.trim.replace("@", "").replace("https?://twitter.com/", "")),
+    hashtag = this.hashtag.map(_.trim.replace("#", "").replace("https?://twitter.com/hashtag/", "").replace("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", ""))
+  )
+}
 case class ConferenceUser(
   name: String,
   email: Option[String],
@@ -183,7 +194,7 @@ object ConferenceData {
     d.cfp.map(c => ConferenceCfp(c.siteUrl, c.dates.start, c.dates.end)),
     d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.map(_.start), t.dates.map(_.end), t.from, t.to, t.currency)),
     d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
-    d.social,
+    d.social.map(_.trim),
     new DateTime(),
     Some(d.createdBy))
   def fromModel(m: Conference): ConferenceData = ConferenceData(
