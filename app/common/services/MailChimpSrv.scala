@@ -1,6 +1,6 @@
 package common.services
 
-import common.Defaults
+import common.{Utils, Defaults}
 import common.models.values.typed.{TextHTML, Email}
 import conferences.models.Conference
 import org.joda.time.DateTime
@@ -30,7 +30,8 @@ case class MailChimpCampaign(
   senderName: String,
   senderMail: Email,
   subject: String,
-  contentHtml: TextHTML)
+  contentHtml: TextHTML,
+  social: JsValue)
 object MailChimpCampaign {
   def conferenceListNewsletter(closingCFPs: List[Conference], incomingConferences: List[Conference], newVideos: List[Conference], newCFPs: List[Conference], newConferences: List[Conference]): MailChimpCampaign = MailChimpCampaign(
     category = "regular",
@@ -40,11 +41,21 @@ object MailChimpCampaign {
     senderName = "Conference List by SalooN",
     senderMail = Defaults.contactEmail,
     subject = "Nouveautés des conférences tech en France",
-    contentHtml = TextHTML(conferences.views.html.emails.newsletter(Defaults.baseUrl, closingCFPs, incomingConferences, newVideos, newCFPs, newConferences).toString))
+    contentHtml = TextHTML(conferences.views.html.emails.newsletter(Defaults.baseUrl, closingCFPs, incomingConferences, newVideos, newCFPs, newConferences).toString),
+    social = Json.obj(
+      "image_url" -> "https://pbs.twimg.com/profile_images/746325473895014400/hotwvNKV_400x400.jpg",
+      "title" -> ("Conference List Newsletter du "+(new DateTime().toString("dd/MM/yyyy HH:mm"))),
+      "description" -> List(
+        if(closingCFPs.length > 0) Some(closingCFPs.length+" CFPs bientôt terminés") else None,
+        if(incomingConferences.length > 0) Some(incomingConferences.length+" conférences approchant") else None,
+        if(newVideos.length > 0) Some(newVideos.length+" vidéos de conférences publiées") else None
+      ).flatten.mkString(", ")
+    ))
 
   def conferenceListNewsletterTest(closingCFPs: List[Conference], incomingConferences: List[Conference], newVideos: List[Conference], newCFPs: List[Conference], newConferences: List[Conference]): MailChimpCampaign =
     conferenceListNewsletter(closingCFPs, incomingConferences, newVideos, newCFPs, newConferences).copy(folderId = MailChimp.Campaigns.Folders.ConferenceListNewsletterTEST)
 }
+
 object MailChimpSrv {
   val key = play.api.Play.current.configuration.getString("mailchimp.key").getOrElse("Key Not Found !")
   val baseUrl = "https://<dc>.api.mailchimp.com/3.0".replace("<dc>", key.split("-")(1))
@@ -92,7 +103,8 @@ object MailChimpSrv {
         "text_clicks" -> true,
         "goal_tracking" -> false,
         "ecomm360" -> false
-      )
+      ),
+      "social_card" -> campaign.social
     )).map(response => {
       //play.Logger.info("createCampaign ("+response.status+"): "+response.body)
       ((response.json \ "id").as[String], (response.json \ "archive_url").as[String])
@@ -109,15 +121,6 @@ object MailChimpSrv {
       response.status == 200
     })
   }
-  private def sendCampaign(campaignId: String): Future[Boolean] = {
-    WS.url(baseUrl + s"/campaigns/$campaignId/actions/send").withHeaders(
-      "Authorization" -> s"apikey: $key",
-      "Content-Type" -> "application/json"
-    ).post(Json.obj()).map(response => {
-      //play.Logger.info("sendCampaign ("+response.status+"): "+response.body)
-      response.status == 204
-    })
-  }
   private def testCampaign(campaignId: String, emails: List[String]): Future[Boolean] = {
     WS.url(baseUrl + s"/campaigns/$campaignId/actions/test").withHeaders(
       "Authorization" -> s"apikey: $key",
@@ -127,6 +130,16 @@ object MailChimpSrv {
       "send_type" -> "html"
     )).map(response => {
       //play.Logger.info("testCampaign ("+response.status+"): "+response.body)
+      response.status == 204
+    })
+  }
+  private def sendCampaign(campaignId: String): Future[Boolean] = {
+    if(!Utils.isProd()){ throw new IllegalStateException("You should be in Prod environment to send a MailChimp Campaign !") }
+    WS.url(baseUrl + s"/campaigns/$campaignId/actions/send").withHeaders(
+      "Authorization" -> s"apikey: $key",
+      "Content-Type" -> "application/json"
+    ).post(Json.obj()).map(response => {
+      //play.Logger.info("sendCampaign ("+response.status+"): "+response.body)
       response.status == 204
     })
   }

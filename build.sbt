@@ -12,7 +12,9 @@ includeFilter in (Assets, LessKeys.less) :=
     "admin.local.less" | "admin.dev.less" | "admin.prod.less" |
     "conferences.local.less" | "conferences.dev.less" | "conferences.prod.less"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.5"
+
+resolvers += Resolver.sonatypeRepo("releases")
 
 libraryDependencies ++= Seq(
   jdbc,
@@ -22,5 +24,6 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.7.play23",
   "com.mohiva" %% "play-silhouette" % "1.0",
   "com.github.tototoshi" %% "scala-csv" % "1.2.1",
-  "org.jsoup" % "jsoup" % "1.8.2"
+  "org.jsoup" % "jsoup" % "1.8.2",
+  "com.danielasfregola" %% "twitter4s" % "0.2"
 )

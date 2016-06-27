@@ -28,7 +28,7 @@ object NewsletterScheduler {
     for {
       (closingCFPs, incomingConferences, newVideos, newCFPs, newConferences) <- getNewsletterInfos(new DateTime())
       url <- MailChimpSrv.createAndSendCampaign(MailChimpCampaign.conferenceListNewsletter(closingCFPs, incomingConferences, newVideos, newCFPs, newConferences))
-      // TODO : send twitt : Our weekly newsletter about tech conferences is out : *|URL|* by @getSalooN #event #tech #dév
+      twitt <- TwitterSrv.twitt(s"Our weekly newsletter about french tech conferences is out : $url by @getSalooN #conf #tech #dév")
     } yield {
       play.Logger.info("newsletter sent")
     }
