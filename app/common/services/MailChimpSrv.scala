@@ -33,7 +33,7 @@ case class MailChimpCampaign(
   contentHtml: TextHTML,
   social: JsValue)
 object MailChimpCampaign {
-  def conferenceListNewsletter(closingCFPs: List[Conference], incomingConferences: List[Conference], newVideos: List[Conference], newCFPs: List[Conference], newConferences: List[Conference]): MailChimpCampaign = MailChimpCampaign(
+  def conferenceListNewsletter(closingCFPs: List[Conference], incomingConferences: List[Conference], newData: List[(Conference, Map[String, Boolean])]): MailChimpCampaign = MailChimpCampaign(
     category = "regular",
     recipientListId = MailChimp.Lists.ConferenceListNewsletter,
     folderId = MailChimp.Campaigns.Folders.ConferenceListNewsletter,
@@ -41,19 +41,19 @@ object MailChimpCampaign {
     senderName = "Conference List by SalooN",
     senderMail = Defaults.contactEmail,
     subject = "Nouveautés des conférences tech en France",
-    contentHtml = TextHTML(conferences.views.html.emails.newsletter(Defaults.baseUrl, closingCFPs, incomingConferences, newVideos, newCFPs, newConferences).toString),
+    contentHtml = TextHTML(conferences.views.html.emails.newsletter(Defaults.baseUrl, closingCFPs, incomingConferences, newData).toString),
     social = Json.obj(
       "image_url" -> "https://pbs.twimg.com/profile_images/746325473895014400/hotwvNKV_400x400.jpg",
       "title" -> ("Conference List Newsletter du "+(new DateTime().toString("dd/MM/yyyy HH:mm"))),
       "description" -> List(
         if(closingCFPs.length > 0) Some(closingCFPs.length+" CFPs bientôt terminés") else None,
         if(incomingConferences.length > 0) Some(incomingConferences.length+" conférences approchant") else None,
-        if(newVideos.length > 0) Some(newVideos.length+" vidéos de conférences publiées") else None
+        if(newData.filter(_._2.getOrElse("videos", false)).length > 0) Some(newData.filter(_._2.getOrElse("videos", false)).length+" vidéos de conférences publiées") else None
       ).flatten.mkString(", ")
     ))
 
-  def conferenceListNewsletterTest(closingCFPs: List[Conference], incomingConferences: List[Conference], newVideos: List[Conference], newCFPs: List[Conference], newConferences: List[Conference]): MailChimpCampaign =
-    conferenceListNewsletter(closingCFPs, incomingConferences, newVideos, newCFPs, newConferences).copy(folderId = MailChimp.Campaigns.Folders.ConferenceListNewsletterTEST)
+  def conferenceListNewsletterTest(closingCFPs: List[Conference], incomingConferences: List[Conference], newData: List[(Conference, Map[String, Boolean])]): MailChimpCampaign =
+    conferenceListNewsletter(closingCFPs, incomingConferences, newData).copy(folderId = MailChimp.Campaigns.Folders.ConferenceListNewsletterTEST)
 }
 
 object MailChimpSrv {

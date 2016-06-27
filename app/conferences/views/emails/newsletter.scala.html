@@ -1,10 +1,10 @@
 @import conferences.models.Conference
-@(baseUrl: String, closingCFPs: List[Conference], incomingConferences: List[Conference], newVideos: List[Conference], newCFPs: List[Conference], newConferences: List[Conference])
+@(baseUrl: String, closingCFPs: List[Conference], incomingConferences: List[Conference], newData: List[(Conference, Map[String, Boolean])])
 <h1>Nouveautés des conférences tech en France</h1>
 @if(closingCFPs.length > 0){
     <h2>Call For Papers bientôt terminés</h2>
     @closingCFPs.map { conf =>
-        <p><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a>, fermeture le @conf.cfp.map(_.end.toString("dd/MM/yyyy"))</p>
+        <p>@conf.cfp.map(_.end.toString("dd/MM/yyyy")) : CFP de <a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
     }
 }
 @if(incomingConferences.length > 0){
@@ -13,21 +13,21 @@
         <p><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
     }
 }
-@if(newVideos.length > 0){
-    <h2>Vidéos des conférences publiées</h2>
-    @newVideos.map { conf =>
-        <p><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
+@if(newData.length > 0){
+    <h2>Nouveautés</h2>
+    <ul>
+    @newData.map { case (conf, data) =>
+        <li>
+            @conf.start.toString("dd/MM/yyyy") : <b><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></b>
+            <ul>
+                @if(data.getOrElse("cfp", false)){
+                    @conf.cfp.filter(_.opened).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @cfp.end.toString("dd/MM/yyyy"))</li> }
+                }
+                @if(data.getOrElse("videos", false)){
+                    @conf.videosUrl.map{ url => <li>Publication des <a href="@url">vidéos</a></li> }
+                }
+            </ul>
+        </li>
     }
-}
-@if(newCFPs.length > 0){
-    <h2>Conférences ajoutées récemment</h2>
-    @newCFPs.map { conf =>
-        <p><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
-    }
-}
-@if(newConferences.length > 0){
-    <h2>Call For Papers ajoutés récemment</h2>
-    @newConferences.map { conf =>
-        <p><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
-    }
+    </ul>
 }

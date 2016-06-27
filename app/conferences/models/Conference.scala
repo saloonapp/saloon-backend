@@ -41,7 +41,7 @@ case class Conference(
       tickets.flatMap(t => if(t.opened && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description
-    ).flatten.mkString(" "),
+    ).flatten.mkString(" - "),
     logo.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200"))
 }
 case class ConferenceVenue(

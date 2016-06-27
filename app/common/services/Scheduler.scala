@@ -25,15 +25,16 @@ object NewsletterScheduler {
     Akka.system.scheduler.schedule(Duration(next.getMillis - now.getMillis, TimeUnit.MILLISECONDS), Duration(7, TimeUnit.DAYS))(sendNewsletter)
   }
   def sendNewsletter(): Unit = {
-    for {
-      (closingCFPs, incomingConferences, newVideos, newCFPs, newConferences) <- getNewsletterInfos(new DateTime())
-      url <- MailChimpSrv.createAndSendCampaign(MailChimpCampaign.conferenceListNewsletter(closingCFPs, incomingConferences, newVideos, newCFPs, newConferences))
-      twitt <- TwitterSrv.twitt(s"Our weekly newsletter about french tech conferences is out : $url by @getSalooN #conf #tech #dév")
-    } yield {
-      play.Logger.info("newsletter sent")
+    getNewsletterInfos(new DateTime()).map { case (closingCFPs, incomingConferences, newData) =>
+      if(closingCFPs.length + incomingConferences.length + newData.length > 0) {
+        MailChimpSrv.createAndSendCampaign(MailChimpCampaign.conferenceListNewsletter(closingCFPs, incomingConferences, newData)).map { url =>
+          TwitterSrv.twitt(s"Our weekly newsletter about french tech conferences is out : $url by @getSalooN #conf #tech #dév")
+          play.Logger.info("newsletter sent")
+        }
+      }
     }
   }
-  def getNewsletterInfos(date: DateTime): Future[(List[Conference], List[Conference], List[Conference], List[Conference], List[Conference])] = {
+  def getNewsletterInfos(date: DateTime): Future[(List[Conference], List[Conference], List[(Conference, Map[String, Boolean])])] = {
     val closingCFPsFut = ConferenceRepository.find(Json.obj("cfp.end" -> Json.obj("$gt" -> date, "$lt" -> date.plusDays(14))), Json.obj("cfp.end" -> 1))
     val incomingConferencesFut = ConferenceRepository.find(Json.obj("start" -> Json.obj("$gt" -> date, "$lt" -> date.plusDays(7))), Json.obj("start" -> 1))
     val conferencesFut = ConferenceRepository.find()
@@ -44,10 +45,14 @@ object NewsletterScheduler {
       conferences <- conferencesFut
       oldConferences <- oldConferencesFut
     } yield {
-      val newVideos = conferences.filter(c => c.videosUrl.isDefined && oldConferences.find(_.id == c.id).map(old => old.videosUrl != c.videosUrl).getOrElse(true))
-      val newCFPs = conferences.filter(c => c.cfp.isDefined && oldConferences.find(_.id == c.id).map(old => old.cfp != c.cfp).getOrElse(true))
-      val newConferences = conferences.filter(c => oldConferences.find(_.id == c.id).isEmpty)
-      (closingCFPs, incomingConferences, newVideos, newCFPs, newConferences)
+      val newData = conferences.filterNot(c => closingCFPs.find(_.id == c.id).isDefined || incomingConferences.find(_.id == c.id).isDefined).map { c =>
+        (c, Map(
+          "created" -> oldConferences.find(_.id == c.id).isEmpty,
+          "videos" -> (c.videosUrl.isDefined && oldConferences.find(_.id == c.id).map(old => old.videosUrl != c.videosUrl).getOrElse(true)),
+          "cfp" -> (c.cfp.isDefined && oldConferences.find(_.id == c.id).map(old => old.cfp != c.cfp).getOrElse(true))
+        ))
+      }
+      (closingCFPs, incomingConferences, newData)
     }
   }
 }

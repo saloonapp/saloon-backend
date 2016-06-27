@@ -23,7 +23,7 @@ POST      /conferences/:id/delete/:created                                      
 #POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
 GET       /api/conferences                                                                  conferences.controllers.Application.apiList
 GET       /api/conferences/search                                                           conferences.controllers.Application.apiSearch(section: Option[String] ?= None, q: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
-GET       /api/conferences/testNewsletter                                                   conferences.controllers.Application.testNewsletter(email: String)
+GET       /api/conferences/testNewsletter                                                   conferences.controllers.Application.testNewsletter(email: Option[String])
 
 # Authentication
 GET       /login                                                                            authentication.controllers.Auth.login

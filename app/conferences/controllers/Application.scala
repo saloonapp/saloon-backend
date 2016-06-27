@@ -130,19 +130,20 @@ object Application extends Controller {
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
-  def testNewsletter(email: String) = Action.async { implicit req =>
-    for {
-      (closingCFPs, incomingConferences, newVideos, newCFPs, newConferences) <- NewsletterScheduler.getNewsletterInfos(new DateTime())
-      url <- MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newVideos, newCFPs, newConferences), List(email))
-    } yield {
-      Ok(Json.obj(
-        "newsletterUrl" -> url,
-        "closingCFPs" -> closingCFPs,
-        "incomingConferences" -> incomingConferences,
-        "newVideos" -> newVideos,
-        "newCFPs" -> newCFPs,
-        "newConferences" -> newConferences
-      ))
+  def testNewsletter(emailOpt: Option[String]) = Action.async { implicit req =>
+    NewsletterScheduler.getNewsletterInfos(new DateTime()).flatMap { case (closingCFPs, incomingConferences, newData) =>
+      emailOpt.map { email =>
+        MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
+          Ok(Json.obj(
+            "newsletterUrl" -> url,
+            "closingCFPs" -> closingCFPs,
+            "incomingConferences" -> incomingConferences,
+            "newData" -> newData.map{case (c, d) => Json.obj("conference" -> c, "data" -> d)}
+          ))
+        }
+      }.getOrElse {
+        Future(Ok(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData).contentHtml.unwrap).as(HTML))
+      }
     }
   }
 

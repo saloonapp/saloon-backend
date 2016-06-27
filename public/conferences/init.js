@@ -50,6 +50,7 @@
 
 // automatically fill conference form with website metas
 (function(){
+    // TODO : on input#social_twitter_account fetch twitter img profile to fill input#logo ...
     $('input#siteUrl').on('change', function(){
         var url = $(this).val();
         if(isUrl(url)){
