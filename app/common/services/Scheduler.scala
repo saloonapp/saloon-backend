@@ -32,7 +32,7 @@ object NewsletterScheduler {
     getNewsletterInfos(new DateTime()).map { case (closingCFPs, incomingConferences, newData) =>
       if(closingCFPs.length + incomingConferences.length + newData.length > 0) {
         MailChimpSrv.createAndSendCampaign(MailChimpCampaign.conferenceListNewsletter(closingCFPs, incomingConferences, newData)).map { url =>
-          TwitterSrv.twitt(s"Our weekly newsletter about french tech conferences is out : $url by @getSalooN #conf #tech #dév")
+          TwitterSrv.twitt(TwittFactory.newsletterSent(url))
           play.Logger.info("newsletter sent")
         }
       }

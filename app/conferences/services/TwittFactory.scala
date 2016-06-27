@@ -5,6 +5,9 @@ import conferences.models.Conference
 import org.joda.time.{Days, DateTime}
 
 object TwittFactory {
+  def newsletterSent(url: String): String = {
+    s"Our weekly newsletter about french tech conferences is out : $url by @getSalooN #conf #tech #dév"
+  }
   def newConference(c: Conference): String = {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)
     val city = c.venue.map(" à "+_.city).getOrElse("")
