@@ -1,11 +1,11 @@
-@(startOpt: Option[org.joda.time.DateTime], endOpt: Option[org.joda.time.DateTime], template: String = "dd MMMM YYYY", default: String = "N/A")
+@(startOpt: Option[org.joda.time.DateTime], endOpt: Option[org.joda.time.DateTime], template: String = "dd MMMM YYYY", default: String = "N/A")(implicit lang: Lang)
 @endOpt.map { end =>
 	@startOpt.map { start =>
-		@if(start.withTimeAtStartOfDay().isEqual(end.withTimeAtStartOfDay())){@start.toString(template)}
-		@if(!start.withTimeAtStartOfDay().isEqual(end.withTimeAtStartOfDay())){@start.toString("dd")-@end.toString(template)}
+		@if(start.withTimeAtStartOfDay().isEqual(end.withTimeAtStartOfDay())){@start.toString(template, lang.toLocale)}
+		@if(!start.withTimeAtStartOfDay().isEqual(end.withTimeAtStartOfDay())){@start.toString("dd", lang.toLocale)-@end.toString(template, lang.toLocale)}
 	}.getOrElse {
-		@end.toString(template)
+		@end.toString(template, lang.toLocale)
 	}
 }.getOrElse {
-	@startOpt.map(_.toString(template)).getOrElse(default)
+	@startOpt.map(_.toString(template, lang.toLocale)).getOrElse(default)
 }

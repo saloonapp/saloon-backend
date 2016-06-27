@@ -1,6 +1,6 @@
 @import conferences.models.Conference
 @import common.views.html.format._
-@(conference: Conference, context: String)
+@(conference: Conference, context: String)(implicit lang: Lang)
 <div class="conference-item">
     @if(context == "public"){
         @*<a href="@conferences.controllers.routes.Application.history(conference.id)" class="close"><i class="fa fa-history"></i></a>*@

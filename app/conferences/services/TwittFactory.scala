@@ -22,7 +22,7 @@ object TwittFactory {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)
     val name = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
-    s"Publications des vidéos de $name $url$hashtag"
+    s"Publication des vidéos de $name $url$hashtag"
   }
   def openCfp(c: Conference): String = {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)

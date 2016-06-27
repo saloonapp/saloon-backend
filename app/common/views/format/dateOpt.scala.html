@@ -1,3 +1,3 @@
-@(dateOpt: Option[org.joda.time.DateTime], default: String = "N/A", template: String = "dd/MM/yyyy")
+@(dateOpt: Option[org.joda.time.DateTime], default: String = "N/A", template: String = "dd/MM/yyyy")(implicit lang: Lang)
 
 @dateOpt.map(d => date(d, template)).getOrElse(default)

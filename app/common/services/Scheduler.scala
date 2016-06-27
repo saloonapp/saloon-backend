@@ -1,6 +1,6 @@
 package common.services
 
-import common.{Defaults, Utils}
+import common.Utils
 import java.util.concurrent.TimeUnit
 import common.repositories.conference.ConferenceRepository
 import conferences.models.Conference

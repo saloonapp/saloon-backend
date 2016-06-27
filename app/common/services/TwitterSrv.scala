@@ -15,10 +15,10 @@ object TwitterSrv {
     if(Utils.isProd()) {
       Try(client.tweet(text)) match {
         case Success(f) => f.map(Some(_))
-        case Failure(e) => play.Logger.warn(s"Fail to post twitt <$text> : ${e.getMessage}", e); Future(None)
+        case Failure(e) => play.Logger.warn(s"TwitterSrv - fail to post the twitt <$text> : ${e.getMessage}", e); Future(None)
       }
     } else {
-      play.Logger.warn(s"You should be in Prod environment to send a twitt ! ($text)")
+      play.Logger.warn(s"TwitterSrv - you should be in Prod environment to send a twitt ! <$text>")
       Future(None)
     }
   }

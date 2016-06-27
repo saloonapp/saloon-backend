@@ -1,2 +1,2 @@
-@(date: org.joda.time.DateTime, template: String = "dd/MM/yyyy")
-@date.toString(template)
+@(date: org.joda.time.DateTime, template: String = "dd/MM/yyyy")(implicit lang: Lang)
+@date.toString(template, lang.toLocale)
