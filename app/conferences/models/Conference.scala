@@ -18,6 +18,7 @@ object ConferenceId extends tStringHelper[ConferenceId] {
 case class Conference(
   id: ConferenceId,
   name: String,
+  logo: Option[String],
   description: Option[String],
   start: DateTime,
   end: DateTime,
@@ -41,7 +42,7 @@ case class Conference(
       Some(tags.map("#"+_).mkString(" ")),
       description
     ).flatten.mkString(" "),
-    "https://avatars2.githubusercontent.com/u/11368266?v=3&s=200")
+    logo.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200"))
 }
 case class ConferenceVenue(
   name: Option[String],
@@ -100,6 +101,7 @@ object Conference {
 case class ConferenceData(
   id: Option[String],
   name: String,
+  logo: Option[String],
   description: Option[String],
   dates: DateRange,
   siteUrl: String,
@@ -124,6 +126,7 @@ object ConferenceData {
   val fields = mapping(
     "id" -> optional(nonEmptyText),
     "name" -> nonEmptyText,
+    "logo" -> optional(nonEmptyText),
     "description" -> optional(nonEmptyText),
     "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required),
     "siteUrl" -> nonEmptyText,
@@ -169,6 +172,7 @@ object ConferenceData {
   def toModel(d: ConferenceData): Conference = Conference(
     d.id.map(s => ConferenceId(s)).getOrElse(ConferenceId.generate()),
     d.name,
+    d.logo,
     d.description,
     d.dates.start,
     d.dates.end,
@@ -185,6 +189,7 @@ object ConferenceData {
   def fromModel(m: Conference): ConferenceData = ConferenceData(
     Some(m.id.unwrap),
     m.name,
+    m.logo,
     m.description,
     DateRange(m.start, m.end),
     m.siteUrl,

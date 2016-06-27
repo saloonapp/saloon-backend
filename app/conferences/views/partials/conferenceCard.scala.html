@@ -13,10 +13,14 @@
     <div class="row">
         <div class="col-md-8">
             @if(context == "public"){
-                <h2><a href="@conferences.controllers.routes.Application.detail(conference.id)" class="anchor"><i class="fa fa-link"></i></a> @conference.name</h2>
+                <h2><a href="@conferences.controllers.routes.Application.detail(conference.id)" class="anchor">
+                    <i class="fa fa-link"></i></a> @conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name
+                </h2>
             }
             @if(context == "history"){
-                <h2><a href="@conferences.controllers.routes.Application.detailVersion(conference.id, conference.created.getMillis())" class="anchor"><i class="fa fa-link"></i></a> @conference.name</h2>
+                <h2><a href="@conferences.controllers.routes.Application.detailVersion(conference.id, conference.created.getMillis())" class="anchor">
+                    <i class="fa fa-link"></i></a> @conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name
+                </h2>
             }
             @conference.description.map { description =>
                 <blockquote>

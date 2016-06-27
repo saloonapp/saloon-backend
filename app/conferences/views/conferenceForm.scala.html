@@ -46,6 +46,7 @@
                                 </div>
                             }
                             @fieldHorizontal(conferenceForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
+                            @fieldHorizontal(conferenceForm("logo"), 'label -> "Logo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.motwin.com/wp-content/uploads/2015/04/Devoxx.png") }
                             @fieldHorizontal(conferenceForm("videosUrl"), 'label -> "Vidéos", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/channel/UCsVPQfo5RZErDL41LoWvk0A") }
                         </div>
                     </div>
