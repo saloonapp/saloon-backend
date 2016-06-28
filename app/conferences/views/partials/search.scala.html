@@ -5,12 +5,12 @@
         <input type="search" class="form-control" id="q" name="q" value="@req.getQueryString("q")" placeholder="Recherche...">
     </div>
     <div class="form-group">
-        <label for="before">Avant</label>
-        <input type="text" class="form-control datepicker" id="before" name="before" value="@req.getQueryString("before")" placeholder="ex: 31/12/2015">
-    </div>
-    <div class="form-group">
         <label for="after">Après</label>
         <input type="text" class="form-control datepicker" id="after" name="after" value="@req.getQueryString("after")" placeholder="ex: 01/01/2015">
+    </div>
+    <div class="form-group">
+        <label for="before">Avant</label>
+        <input type="text" class="form-control datepicker" id="before" name="before" value="@req.getQueryString("before")" placeholder="ex: 31/12/2015">
     </div>
     <div class="form-group">
         <label for="tags">Tags</label>
@@ -19,12 +19,12 @@
     <!-- TODO : add geo-search -->
     <div class="checkbox">
         <label>
-            <input type="checkbox" name="cfp" @if(req.getQueryString("cfp") == Some("on")){checked="checked"}> CFPs ouverts
+            <input type="checkbox" name="cfp" @if(req.getQueryString("cfp") == Some("on")){checked="checked"}> Appel à orateurs ouvert
         </label>
     </div>
     <div class="checkbox">
         <label>
-            <input type="checkbox" name="tickets" @if(req.getQueryString("tickets") == Some("on")){checked="checked"}> Billetteries ouvertes
+            <input type="checkbox" name="tickets" @if(req.getQueryString("tickets") == Some("on")){checked="checked"}> Billetterie ouverte
         </label>
     </div>
     <div class="checkbox">

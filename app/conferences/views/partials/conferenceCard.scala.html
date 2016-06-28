@@ -30,7 +30,7 @@
             @conference.cfp.map { cfp =>
                 <p>
                     @if(cfp.opened){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
-                    <strong><a href="@cfp.siteUrl" target="_blank">Call For Paper</a></strong> :
+                    <strong><a href="@cfp.siteUrl" target="_blank">Appel à orateurs</a></strong> :
                     fermeture le <strong>@date(cfp.end)</strong>
                 </p>
             }

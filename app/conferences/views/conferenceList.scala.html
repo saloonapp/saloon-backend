@@ -3,10 +3,20 @@
 @import conferences.models.Conference
 @(context: String, conferenceList: List[Conference], tags: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
+
 @main(if(context == "future"){"Conférences à venir"} else if(context == "past") {"Conférences passées"} else {"Recherche de conférences"}){
     @partials.header("list")
 
     <div class="container" role="main">
+
+        <div class="row">
+            <div class="col-md-6">
+                @partials.calendar(conferenceList)
+            </div>
+            <div class="col-md-6">
+            </div>
+        </div>
+
         @if(context != "search") {
             <div class="jumbotron">
                 <p>

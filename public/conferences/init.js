@@ -137,3 +137,60 @@
         }
     }
 })();
+
+// http://fullcalendar.io/
+(function(){
+    var fullCalendarDateFormat = 'YYYY-MM-DD';
+    var apiDateFormat = 'DD/MM/YYYY';
+    $(document).ready(function() {
+        $('.full-calendar').each(function(){
+            var $elt = $(this);
+            $(this).fullCalendar({
+                lang: $elt.attr('lang') || 'en',
+                header: {
+                    left: '',
+                    center: 'title',
+                    right: 'today prev,next'
+                },
+                defaultDate: tryInt($elt.attr('default-date')) || null,
+                events: getEvents($elt) || [],
+                height: tryInt($elt.attr('height')),
+                editable: false,
+                eventLimit: true
+            });
+        });
+    });
+    function getEvents($elt) {
+        // static list of events
+        var eventsJson = $elt.attr('events');
+        if(eventsJson){ return JSON.parse(eventsJson); }
+        // events fetched from API
+        var remoteEventsJson = $elt.attr('remote-events');
+        if(remoteEventsJson){
+            var config = JSON.parse(remoteEventsJson);
+            return function(start, end, timezone, callback){
+                $.ajax({
+                    url: config.searchUrl.replace('START_DATE', start.format(apiDateFormat)).replace('END_DATE', end.format(apiDateFormat)),
+                    success: function(data) {
+                        var events = data.result.map(function(e){
+                            return {
+                                title: e.name,
+                                start: moment(e.start).format(fullCalendarDateFormat),
+                                end: moment(e.end).add(1, 'days').format(fullCalendarDateFormat), // fullCalendar exclude last day
+                                url: config.eventUrl.replace('ID', e.id)
+                            };
+                        });
+                        callback(events);
+                    }
+                });
+            };
+        }
+    }
+    function tryInt(str) {
+        try {
+            return parseInt(str);
+        } catch (e) {
+            return str;
+        }
+    }
+})();
