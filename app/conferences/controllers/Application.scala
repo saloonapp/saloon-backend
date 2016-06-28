@@ -1,6 +1,6 @@
 package conferences.controllers
 
-import common.Defaults
+import common.{Utils, Defaults}
 import common.repositories.conference.ConferenceRepository
 import common.services._
 import conferences.models._
@@ -8,8 +8,9 @@ import conferences.services.TwittFactory
 import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.libs.json.{JsNull, JsObject, Json}
+import play.api.libs.ws.WS
 import play.api.mvc._
-
+import play.api.Play.current
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
@@ -19,22 +20,23 @@ object Application extends Controller {
 
   def list = Action.async { implicit req =>
     val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime())), Json.obj("start" -> 1))
-    val tagsFut = ConferenceRepository.getTags()
+    //val tagsFut = ConferenceRepository.getTags()
     for {
       conferenceList <- conferenceListFut
-      tags <- tagsFut
-    } yield Ok(conferences.views.html.conferenceList("future", conferenceList, tags))
+      //tags <- tagsFut
+    } yield Ok(conferences.views.html.conferenceList("future", conferenceList))
   }
-  def search(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
-    play.Logger.info("search")
-    val filter = buildFilter(q, before, after, tags, cfp, tickets, videos)
-    play.Logger.info("filter: "+filter)
-    val conferenceListFut = ConferenceRepository.find(filter)
-    val tagsFut = ConferenceRepository.getTags()
+  def search(section: Option[String], q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
+    val (pAfter, pBefore) = period.map(_.split(" - ") match {
+      case Array(a, b) => (Some(a), Some(b))
+      case _ => (None, None)
+    }).getOrElse((None, None))
+    val conferenceListFut = ConferenceRepository.find(buildFilter(q, before.orElse(pBefore), after.orElse(pAfter), tags, cfp, tickets, videos))
+    //val tagsFut = ConferenceRepository.getTags()
     for {
       conferenceList <- conferenceListFut
-      tags <- tagsFut
-    } yield Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList, tags))
+      //tags <- tagsFut
+    } yield Ok(conferences.views.html.conferenceList(section.getOrElse("search"), conferenceList))
   }
   def fullHistory = Action.async { implicit req =>
     ConferenceRepository.findHistory().map { conferenceList =>
@@ -136,10 +138,7 @@ object Application extends Controller {
     }
   }
   def apiSearch(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
-    play.Logger.info("search")
-    val filter = buildFilter(q, before, after, tags, cfp, tickets, videos)
-    play.Logger.info("filter: "+filter)
-    ConferenceRepository.find(filter).map { conferences =>
+    ConferenceRepository.find(buildFilter(q, before, after, tags, cfp, tickets, videos)).map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
@@ -162,6 +161,18 @@ object Application extends Controller {
   def testTwitts(date: Option[String]) = Action.async { implicit req =>
     TwittScheduler.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
       Ok(Json.obj("twitts" -> twitts))
+    }
+  }
+  def importFromProd = Action.async { implicit req =>
+    if(Utils.isProd()){ throw new IllegalStateException("You can't import data in prod !!!") }
+    WS.url("http://saloonapp.herokuapp.com/api/conferences").get().flatMap { response =>
+      val conferences = (response.json \ "result").as[List[Conference]]
+      ConferenceRepository.importData(conferences).map { res =>
+        Ok(Json.obj(
+          "nbImported" -> res.n,
+          "result" -> conferences
+        ))
+      }
     }
   }
 

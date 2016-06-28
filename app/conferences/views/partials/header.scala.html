@@ -1,5 +1,7 @@
+@import org.joda.time.DateTime
+@import common.Defaults
 @(section: String)
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -12,13 +14,33 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li @if(section == "list"){class="active"}><a href="@conferences.controllers.routes.Application.list()">Liste des conférences</a></li>
-                <li @if(section == "create"){class="active"}><a href="@conferences.controllers.routes.Application.create()">Ajouter une conférence</a></li>
+                <li @if(section == "future-list"){class="active"}><a href="@conferences.controllers.routes.Application.list()">
+                    <span class="hidden-sm">Conférences à venir</span>
+                    <span class="visible-sm-inline">A venir</span>
+                </a></li>
+                <li @if(section == "past-list"){class="active"}><a href="@conferences.controllers.routes.Application.search(section = Some("past"), before = Some(new DateTime().toString(Defaults.dateFormatter)))">
+                    <span class="visible-lg-inline visible-xs-inline">Conférences passées</span>
+                    <span class="visible-md-inline visible-sm-inline">Passées</span>
+                </a></li>
+                <li @if(section == "create"){class="active"}><a href="@conferences.controllers.routes.Application.create()">
+                    <span class="visible-lg-inline visible-xs-inline">Ajouter une conférence</span>
+                    <span class="visible-md-inline visible-sm-inline">Ajouter</span>
+                </a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://twitter.com/conferencelist_" target="_blank">@@conferencelist_</a></li>
-                <li><a href="@website.controllers.routes.Application.index()">SalooN</a></li>
+                <li><a href="https://twitter.com/conferencelist_" style="padding: 10px;" target="_blank"><i class="fa fa-twitter" style="font-size: 29px; color: #1da1f2;"></i></a></li>
+                <li class="hidden-sm"><a href="@website.controllers.routes.Application.index()" style="padding: 10px;"><img src="@routes.Assets.at("website/images/logo/logo.png")" alt="SalooN" style="height: 30px;"></a></li>
             </ul>
+            <form class="navbar-form navbar-right validate" action="//saloonapp.us13.list-manage.com/subscribe/post?u=e17fddd68943ef1f6c66f295b&amp;id=cd0abf22f4" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank" novalidate>
+                <div class="form-group">
+                    <input type="email" name="EMAIL" value="" class="form-control" placeholder="Votre email" required>
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_e17fddd68943ef1f6c66f295b_cd0abf22f4" tabindex="-1" value=""></div>
+                </div>
+                <button type="submit" class="btn btn-default">
+                    <span class="hidden-sm">Inscription newsletter</span>
+                    <span class="visible-sm-inline">Newsletter</span>
+                </button>
+            </form>
         </div>
     </div>
 </nav>

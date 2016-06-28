@@ -142,6 +142,7 @@
 (function(){
     var fullCalendarDateFormat = 'YYYY-MM-DD';
     var apiDateFormat = 'DD/MM/YYYY';
+    var apiResults = {};
     $(document).ready(function() {
         $('.full-calendar').each(function(){
             var $elt = $(this);
@@ -169,20 +170,25 @@
         if(remoteEventsJson){
             var config = JSON.parse(remoteEventsJson);
             return function(start, end, timezone, callback){
-                $.ajax({
-                    url: config.searchUrl.replace('START_DATE', start.format(apiDateFormat)).replace('END_DATE', end.format(apiDateFormat)),
-                    success: function(data) {
-                        var events = data.result.map(function(e){
-                            return {
-                                title: e.name,
-                                start: moment(e.start).format(fullCalendarDateFormat),
-                                end: moment(e.end).add(1, 'days').format(fullCalendarDateFormat), // fullCalendar exclude last day
-                                url: config.eventUrl.replace('ID', e.id)
-                            };
-                        });
-                        callback(events);
-                    }
-                });
+                var url = config.searchUrl.replace('START_DATE', start.format(apiDateFormat)).replace('END_DATE', end.format(apiDateFormat));
+                if(apiResults[url]){
+                    callback(apiResults[url]);
+                } else {
+                    $.ajax({
+                        url: config.searchUrl.replace('START_DATE', start.format(apiDateFormat)).replace('END_DATE', end.format(apiDateFormat)),
+                        success: function(data) {
+                            apiResults[url] = data.result.map(function(e){
+                                return {
+                                    title: e.name,
+                                    start: moment(e.start).format(fullCalendarDateFormat),
+                                    end: moment(e.end).add(1, 'days').format(fullCalendarDateFormat), // fullCalendar exclude last day
+                                    url: config.eventUrl.replace('ID', e.id)
+                                };
+                            });
+                            callback(apiResults[url]);
+                        }
+                    });
+                }
             };
         }
     }

@@ -14,22 +14,17 @@
             @defining(if(context == "history") conferences.controllers.routes.Application.detailVersion(conference.id, conference.created.getMillis()) else conferences.controllers.routes.Application.detail(conference.id)) { url =>
                 <h2><a href="@url"><span class="anchor"><i class="fa fa-link"></i></span> @conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name</a></h2>
             }
-            @conference.description.map { description =>
-                <blockquote>
-                    <p>@Html(description.replaceAll("\\n", "<br>"))</p>
-                </blockquote>
-            }
             @conference.cfp.map { cfp =>
                 <p>
                     @if(cfp.opened){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
-                    <strong><a href="@cfp.siteUrl" target="_blank">Appel à orateurs</a></strong> :
+                <strong><a href="@cfp.siteUrl" target="_blank">Appel à orateurs</a></strong> :
                     fermeture le <strong>@date(cfp.end)</strong>
                 </p>
             }
             @conference.tickets.map { tickets =>
                 <p>
                     @if(tickets.opened && conference.end.isAfterNow()){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
-                    <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong> :
+                <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong> :
                     @Html(List(
                         tickets.price.map(p => s"<strong>$p</strong>"),
                         tickets.end.map(d => s"fermeture le <strong>${date(d)}</strong>")
@@ -54,27 +49,16 @@
                     @venue.name.map { name => <strong>@name</strong><br> }
                     @venue.street<br>
                     @venue.zipCode @venue.city, @venue.country
-                    <a href="https://www.google.com/maps?q=@venue.name.getOrElse("") @venue.street @venue.zipCode @venue.city @venue.country" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
+                <a href="https://www.google.com/maps?q=@venue.name.getOrElse("") @venue.street @venue.zipCode @venue.city @venue.country" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
                 </address>
             }
             @if(conference.tags.length > 0) {
                 <p>
-                    @conference.tags.map { tag =>
-                        <a href="@conferences.controllers.routes.Application.search(tags = Some(tag))" class="label label-primary">@tag</a>
-                    }
+                @conference.tags.map { tag =>
+                    <a href="@conferences.controllers.routes.Application.search(tags = Some(tag))" class="label label-primary">@tag</a>
+                }
                 </p>
             }
-            @conference.metrics.map { metrics =>
-                <ul>
-                    @metrics.attendeeCount.map { c => <li>@c personnes</li> }
-                    @metrics.sessionCount.map { c => <li>@c sessions</li> }
-                    @metrics.sinceYear.map { c => <li>Depuis @c</li> }
-                </ul>
-            }
-            Posté le @datetime(conference.created)
-            @conference.createdBy.filter(_.public).map { user =>
-                par @user.twitter.orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
-            }
-        </div>
+    </div>
     </div>
 </div>
