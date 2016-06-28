@@ -29,6 +29,7 @@ object NewsletterScheduler {
     Akka.system.scheduler.schedule(Duration(next.getMillis - now.getMillis, TimeUnit.MILLISECONDS), Duration(7, TimeUnit.DAYS))(sendNewsletter)
   }
   def sendNewsletter(): Unit = {
+    play.Logger.info("NewsletterScheduler.sendNewsletter()")
     getNewsletterInfos(new DateTime()).map { case (closingCFPs, incomingConferences, newData) =>
       if(closingCFPs.length + incomingConferences.length + newData.length > 0) {
         MailChimpSrv.createAndSendCampaign(MailChimpCampaign.conferenceListNewsletter(closingCFPs, incomingConferences, newData)).map { url =>
@@ -69,9 +70,12 @@ object TwittScheduler {
     Akka.system.scheduler.schedule(Duration(next.getMillis - now.getMillis, TimeUnit.MILLISECONDS), Duration(1, TimeUnit.DAYS))(sendTwitts)
   }
   def sendTwitts(): Unit = {
-    getTwitts(new DateTime()).map { _.map { twitt =>
-      TwitterSrv.twitt(twitt)
-    }}
+    play.Logger.info("TwittScheduler.sendTwitts()")
+    getTwitts(new DateTime()).map { twitts =>
+      play.Logger.info(if(twitts.length > 0) twitts.length+" twitts à envoyer :" else "aucun twitt à envoyer")
+      twitts.map(t => play.Logger.info("  - "+t))
+      twitts.map(TwitterSrv.twitt)
+    }
   }
   def getTwitts(date: DateTime): Future[List[String]] = {
     val today = date.withTime(0, 0, 0, 0)
@@ -91,9 +95,9 @@ object TwittScheduler {
       nearStartingConfs <- nearStartingConfsFut
     } yield {
       val twitts = nearClosingCFPs.map { c =>
-        (TwittFactory.closingCFP(c), c.cfp.get.end.getMillis)
+        (TwittFactory.closingCFP(c, today), c.cfp.get.end.getMillis)
       } ++ nearStartingConfs.map { c =>
-        (TwittFactory.startingConference(c), c.start.getMillis)
+        (TwittFactory.startingConference(c, today), c.start.getMillis)
       }
       twitts.sortBy(_._2).map(_._1)
     }

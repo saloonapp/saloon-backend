@@ -30,15 +30,13 @@ object TwittFactory {
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
     s"Ouverture du CFP de $name $url$hashtag"
   }
-  def closingCFP(c: Conference): String = {
-    val now = new DateTime()
+  def closingCFP(c: Conference, now: DateTime): String = {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)
     val name = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
     s"Fermeture du CFP de $name ${dayDuration(now, c.cfp.get.end)} $url$hashtag"
   }
-  def startingConference(c: Conference): String = {
-    val now = new DateTime()
+  def startingConference(c: Conference, now: DateTime): String = {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)
     val name = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
