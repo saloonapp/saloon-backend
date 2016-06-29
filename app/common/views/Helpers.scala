@@ -33,6 +33,7 @@ object Helpers {
 }
 
 object App {
+  val googleMapsKey = play.api.Play.current.configuration.getString("google.maps.key").getOrElse("Key Not Found !")
   def getEnv() = Utils.getEnv()
   def isProd() = Utils.isProd()
 }

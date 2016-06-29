@@ -4,7 +4,7 @@
   type="@Helpers.getArg(args, "type", "text")"
   class="form-control @Helpers.getArg(args, "class")"
   name="@field.name"
-  id="@field.id"
-  value="@field.value"
+  id="@Helpers.getArg(args, "id", field.id)"
+  value="@Helpers.getArg(args, "value", field.value.getOrElse(""))"
   @Helpers.toHtmlArgs(args, Seq("type", "class", "constraints"))
   @if(Helpers.isRequired(field) && !Helpers.hasArg(args, "constraints", "false")){required}>

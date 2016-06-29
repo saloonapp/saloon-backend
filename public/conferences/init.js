@@ -146,7 +146,7 @@
     $(document).ready(function() {
         $('.full-calendar').each(function(){
             var $elt = $(this);
-            $(this).fullCalendar({
+            $elt.fullCalendar({
                 lang: $elt.attr('lang') || 'en',
                 header: {
                     left: '',
@@ -200,3 +200,82 @@
         }
     }
 })();
+
+// called by google maps
+function googleMapsInit(){
+    // GMapPlace picker (https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete?hl=fr)
+    (function(){
+        $('.gmap-place-picker').each(function() {
+            var $elt = $(this);
+            var autocomplete = new google.maps.places.Autocomplete($elt.find('input[type="text"]').get(0));
+            autocomplete.addListener('place_changed', function() {
+                var place = autocomplete.getPlace(); // cf https://developers.google.com/maps/documentation/javascript/3.exp/reference?hl=fr#PlaceResult
+                var formattedPlace = formatPlace(place);
+                fillForm($elt, formattedPlace);
+            });
+        });
+
+        function fillForm($elt, formattedPlace){
+            $elt.find('input[type="hidden"].place-id').val(formattedPlace.id);
+            $elt.find('input[type="hidden"].place-name').val(formattedPlace.name);
+            $elt.find('input[type="hidden"].place-streetNo').val(formattedPlace.streetNo);
+            $elt.find('input[type="hidden"].place-street').val(formattedPlace.street);
+            $elt.find('input[type="hidden"].place-postalCode').val(formattedPlace.postalCode);
+            $elt.find('input[type="hidden"].place-locality').val(formattedPlace.locality);
+            $elt.find('input[type="hidden"].place-country').val(formattedPlace.country);
+            $elt.find('input[type="hidden"].place-formatted').val(formattedPlace.formatted);
+            $elt.find('input[type="hidden"].place-lat').val(formattedPlace.geo.lat);
+            $elt.find('input[type="hidden"].place-lng').val(formattedPlace.geo.lng);
+            $elt.find('input[type="hidden"].place-url').val(formattedPlace.url);
+            $elt.find('input[type="hidden"].place-website').val(formattedPlace.website);
+            $elt.find('input[type="hidden"].place-phone').val(formattedPlace.phone);
+        }
+        function formatPlace(place){
+            function formatAddressComponents(components){
+                function findByType(components, type){
+                    var c = components.find(function(c){ return c.types.indexOf(type) >= 0; });
+                    return c ? c.long_name : undefined;
+                }
+                return {
+                    street_number: findByType(components, "street_number"), // ex: "119"
+                    route: findByType(components, "route"), // ex: "Boulevard Voltaire"
+                    postal_code: findByType(components, "postal_code"), // ex: "75011"
+                    locality: findByType(components, "locality"), // ex: "Paris"
+                    country: findByType(components, "country"), // ex: "France"
+                    administrative_area: {
+                        level_1: findByType(components, "administrative_area_level_1"), // ex: "Île-de-France"
+                        level_2: findByType(components, "administrative_area_level_2"), // ex: "Paris"
+                        level_3: findByType(components, "administrative_area_level_3"),
+                        level_4: findByType(components, "administrative_area_level_4"),
+                        level_5: findByType(components, "administrative_area_level_5")
+                    },
+                    sublocality: {
+                        level_1: findByType(components, "sublocality_level_1"),
+                        level_2: findByType(components, "sublocality_level_2"),
+                        level_3: findByType(components, "sublocality_level_3"),
+                        level_4: findByType(components, "sublocality_level_4"),
+                        level_5: findByType(components, "sublocality_level_5")
+                    }
+                };
+            }
+            var components = formatAddressComponents(place.address_components);
+            return {
+                id: place.place_id,
+                name: place.name,
+                streetNo: components.street_number,
+                street: components.route,
+                postalCode: components.postal_code,
+                locality: components.locality,
+                country: components.country,
+                formatted: place.formatted_address,
+                geo: {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng()
+                },
+                url: place.url,
+                website: place.website,
+                phone: place.international_phone_number
+            };
+        }
+    })();
+}

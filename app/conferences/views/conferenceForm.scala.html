@@ -24,15 +24,16 @@
                             @fieldHorizontal(conferenceForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                             @fieldHorizontal(conferenceForm("dates"), 'label -> "Dates") { field => @inputDateRange(field, 'placeholder -> "ex: 20/04/2016 - 22/04/2016") }
                             @fieldHorizontal(conferenceForm("tags"), 'label -> "Tags") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
-                            @fieldHorizontal(conferenceForm("venue.name"), 'label -> "Lieu", 'constraints -> "false") { field =>
+                            @* @fieldHorizontal(conferenceForm("venue.name"), 'label -> "Lieu", 'constraints -> "false") { field =>
                                 <div class="row">
-                                    <div class="col-md-3">@inputText(field, 'placeholder -> "ex: Palais des congrès")</div>
+                                    <div class="col-md-3">@inputText(field, 'placeholder -> "ex: Palais des congrès", 'class -> "place-picker")</div>
                                     <div class="col-md-3">@inputText(conferenceForm("venue.street"), 'placeholder -> "ex: 2 Place de la Porte Maillot", 'constraints -> "false")</div>
                                     <div class="col-md-2">@inputText(conferenceForm("venue.zipCode"), 'placeholder -> "ex: 75017", 'constraints -> "false")</div>
                                     <div class="col-md-2">@inputText(conferenceForm("venue.city"), 'placeholder -> "ex: Paris", 'constraints -> "false")</div>
                                     <div class="col-md-2">@inputText(conferenceForm("venue.country"), 'placeholder -> "ex: France", 'constraints -> "false")</div>
                                 </div>
-                            }
+                            }*@
+                            @fieldHorizontal(conferenceForm("location"), 'label -> "Lieu") { field => @inputGMapPlace(field, 'placeholder -> "ex: Palais des congrès") }
                             @fieldHorizontal(conferenceForm("social.twitter.account"), 'label -> "Liens sociaux", 'constraints -> "false") { field =>
                                 <div class="row">
                                     <div class="col-md-3">
@@ -94,7 +95,7 @@
                     </div>
                     <div id="user-panel" class="panel-collapse collapse in" role="tabpanel">
                         <div class="panel-body">
-                            @fieldHorizontal(conferenceForm("createdBy.name"), 'label -> "Nom/Pseudo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
+                            @fieldHorizontal(conferenceForm("createdBy.name"), 'label -> "Nom/Pseudo") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
                             @fieldHorizontal(conferenceForm("createdBy.email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: mail@example.com") }
                             @fieldHorizontal(conferenceForm("createdBy.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.johndoe.com/") }
                             @fieldHorizontal(conferenceForm("createdBy.twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: https://twitter.com/johndoe") }

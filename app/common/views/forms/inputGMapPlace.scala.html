@@ -1,0 +1,18 @@
+@import common.views._
+@(field: Field, args: (Symbol, String)*)
+<div class="gmap-place-picker">
+    @inputText(field("input"), (args :+ ('id -> field.id)):_*)
+    @inputHidden(field("id"), 'class -> "place-id")
+    @inputHidden(field("name"), 'class -> "place-name")
+    @inputHidden(field("streetNo"), 'class -> "place-streetNo")
+    @inputHidden(field("street"), 'class -> "place-street")
+    @inputHidden(field("postalCode"), 'class -> "place-postalCode")
+    @inputHidden(field("locality"), 'class -> "place-locality")
+    @inputHidden(field("country"), 'class -> "place-country")
+    @inputHidden(field("formatted"), 'class -> "place-formatted")
+    @inputHidden(field("geo.lat"), 'class -> "place-lat")
+    @inputHidden(field("geo.lng"), 'class -> "place-lng")
+    @inputHidden(field("url"), 'class -> "place-url")
+    @inputHidden(field("website"), 'class -> "place-website")
+    @inputHidden(field("phone"), 'class -> "place-phone")
+</div>

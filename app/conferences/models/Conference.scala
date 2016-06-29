@@ -2,7 +2,7 @@ package conferences.models
 
 import common.Defaults
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
-import common.models.values.UUID
+import common.models.values.{GMapPlace, UUID}
 import common.services.TwitterCard
 import org.joda.time.DateTime
 import play.api.data.Forms._
@@ -27,6 +27,7 @@ case class Conference(
   videosUrl: Option[String],
   tags: List[String],
   venue: Option[ConferenceVenue],
+  location: Option[GMapPlace],
   cfp: Option[ConferenceCfp],
   tickets: Option[ConferenceTickets],
   metrics: Option[ConferenceMetrics],
@@ -120,6 +121,7 @@ case class ConferenceData(
   videosUrl: Option[String],
   tags: List[String],
   venue: Option[ConferenceVenue],
+  location: Option[GMapPlace],
   cfp: Option[ConferenceDataCfp],
   tickets: Option[ConferenceDataTickets],
   metrics: Option[ConferenceMetrics],
@@ -151,6 +153,7 @@ object ConferenceData {
       "city" -> nonEmptyText,
       "country" -> nonEmptyText
     )(ConferenceVenue.apply)(ConferenceVenue.unapply)),
+    "location" -> optional(GMapPlace.fields),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
       "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required)
@@ -192,6 +195,7 @@ object ConferenceData {
     d.videosUrl,
     d.tags.map(_.trim.toLowerCase).filter(_.length > 0),
     d.venue,
+    d.location,
     d.cfp.map(c => ConferenceCfp(c.siteUrl, c.dates.start, c.dates.end)),
     d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.map(_.start), t.dates.map(_.end), t.from, t.to, t.currency)),
     d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
@@ -208,6 +212,7 @@ object ConferenceData {
     m.videosUrl,
     m.tags,
     m.venue,
+    m.location,
     m.cfp.map(c => ConferenceDataCfp(c.siteUrl, DateRange(c.start, c.end))),
     m.tickets.map(t => ConferenceDataTickets(t.siteUrl, t.start.zip(t.end).headOption.map(d => DateRange(d._1, d._2)), t.from, t.to, t.currency)),
     m.metrics,
