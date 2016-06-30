@@ -1,0 +1,6 @@
+@import common.views._
+@(field: Field, args: (Symbol, String)*)
+<div class="img-url-picker">
+    @inputText(field, args:_*)
+    <img class="preview" style="height: 100px; display: none;">
+</div>

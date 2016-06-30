@@ -201,6 +201,27 @@
     }
 })();
 
+// inputImgUrl
+(function(){
+    $('.img-url-picker').each(function() {
+        var $elt = $(this);
+        var $input = $elt.find('input[type="text"]');
+        var $preview = $elt.find('img.preview');
+        update($input, $preview);
+        $input.on('change', function(){
+            update($input, $preview);
+        });
+    });
+    function update($input, $preview){
+        if($input.val() != ''){
+            $preview.attr('src', $input.val());
+            $preview.show();
+        } else {
+            $preview.hide();
+        }
+    }
+})();
+
 // called by google maps
 function googleMapsInit(){
     // GMapPlace picker (https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete?hl=fr)
@@ -210,20 +231,26 @@ function googleMapsInit(){
             var $input = $elt.find('input[type="text"]');
             var mapData = initMap($elt);
             var autocomplete = new google.maps.places.Autocomplete($input.get(0));
+            update($elt, mapData, readForm($elt));
             autocomplete.addListener('place_changed', function() {
                 var place = autocomplete.getPlace(); // cf https://developers.google.com/maps/documentation/javascript/3.exp/reference?hl=fr#PlaceResult
-                var formattedPlace = formatPlace(place);
-                fillForm($elt, formattedPlace);
-                showMap(mapData, place, formattedPlace);
+                update($elt, mapData, toLocation(place));
             });
             $input.on('change', function(){
                 if($input.val() === ''){
-                    clearForm($elt);
-                    hideMap(mapData);
+                    update($elt, mapData, null);
                 }
             });
         });
 
+        function update($elt, mapData, location){
+            writeForm($elt, location);
+            if(location && location.geo && location.geo.lat){
+                showMap(mapData, location);
+            } else {
+                hideMap(mapData);
+            }
+        }
         function initMap($elt){
             var $map = $elt.find('.map');
             var map = new google.maps.Map($map.get(0), {
@@ -242,17 +269,13 @@ function googleMapsInit(){
                 infowindow: infowindow
             };
         }
-        function showMap(mapData, place, formattedPlace){
+        function showMap(mapData, formattedPlace){
             mapData.$map.show();
             google.maps.event.trigger(mapData.map, 'resize');
             mapData.infowindow.close();
             mapData.marker.setVisible(false);
-            if (place.geometry.viewport) {
-                mapData.map.fitBounds(place.geometry.viewport);
-            } else {
-                mapData.map.setCenter(place.geometry.location);
-                mapData.map.setZoom(15);
-            }
+            mapData.map.setCenter(formattedPlace.geo);
+            mapData.map.setZoom(15);
             mapData.marker.setIcon({
                 url: '/assets/conferences/images/map-marker-icon.png',
                 size: new google.maps.Size(71, 71),
@@ -260,7 +283,7 @@ function googleMapsInit(){
                 anchor: new google.maps.Point(17, 34),
                 scaledSize: new google.maps.Size(35, 35)
             });
-            mapData.marker.setPosition(place.geometry.location);
+            mapData.marker.setPosition(formattedPlace.geo);
             mapData.marker.setVisible(true);
             mapData.infowindow.setContent(
                 '<strong>'+formattedPlace.name+'</strong><br>'+
@@ -272,7 +295,7 @@ function googleMapsInit(){
         function hideMap(mapData){
             mapData.$map.hide();
         }
-        function fillForm($elt, formattedPlace){
+        function writeForm($elt, formattedPlace){
             $elt.find('input[type="hidden"].place-id').val(formattedPlace ? formattedPlace.id : '');
             $elt.find('input[type="hidden"].place-name').val(formattedPlace ? formattedPlace.name : '');
             $elt.find('input[type="hidden"].place-streetNo').val(formattedPlace ? formattedPlace.streetNo : '');
@@ -287,10 +310,26 @@ function googleMapsInit(){
             $elt.find('input[type="hidden"].place-website').val(formattedPlace ? formattedPlace.website : '');
             $elt.find('input[type="hidden"].place-phone').val(formattedPlace ? formattedPlace.phone : '');
         }
-        function clearForm($elt){
-            fillForm($elt, null);
+        function readForm($elt){
+            return {
+                id: $elt.find('input[type="hidden"].place-id').val(),
+                name: $elt.find('input[type="hidden"].place-name').val(),
+                streetNo: $elt.find('input[type="hidden"].place-streetNo').val(),
+                street: $elt.find('input[type="hidden"].place-street').val(),
+                postalCode: $elt.find('input[type="hidden"].place-postalCode').val(),
+                locality: $elt.find('input[type="hidden"].place-locality').val(),
+                country: $elt.find('input[type="hidden"].place-country').val(),
+                formatted: $elt.find('input[type="hidden"].place-formatted').val(),
+                geo: {
+                    lat: parseFloat($elt.find('input[type="hidden"].place-lat').val()),
+                    lng: parseFloat($elt.find('input[type="hidden"].place-lng').val())
+                },
+                url: $elt.find('input[type="hidden"].place-url').val(),
+                website: $elt.find('input[type="hidden"].place-website').val(),
+                phone: $elt.find('input[type="hidden"].place-phone').val()
+            };
         }
-        function formatPlace(place){
+        function toLocation(place){
             function of(elt, field, defaultValue){ return elt && elt[field] ? elt[field] : (defaultValue ? defaultValue : ''); }
             function formatAddressComponents(components){
                 function findByType(components, type){
