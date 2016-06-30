@@ -350,6 +350,9 @@ GET       /tools/api/devoxx/speakers                                            
 GET       /tools/api/devoxx/sessions                                                        tools.api.devoxx.DevoxxApi.getSessions(url: String)
 GET       /tools/api/devoxx/event/full                                                      tools.api.devoxx.DevoxxApi.getEventFull(url: String)
 
+# Other scrapers
+GET       /tools/scrapers/twitter/profil                                                    tools.scrapers.twitter.TwitterScraper.profil(account: String)
+
 # Allow cross-origin for API
 OPTIONS   /api/v1/*all                                                                      common.controllers.Application.corsPreflight(all: String)
 

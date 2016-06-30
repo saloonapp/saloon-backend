@@ -96,8 +96,8 @@ case class ConferenceSocialTwitter(
   account: Option[String],
   hashtag: Option[String]) {
   def trim(): ConferenceSocialTwitter = this.copy(
-    account = this.account.map(_.trim.replace("@", "").replace("https?://twitter.com/", "")),
-    hashtag = this.hashtag.map(_.trim.replace("#", "").replace("https?://twitter.com/hashtag/", "").replace("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", ""))
+    account = this.account.map(_.trim.replace("@", "").replaceAll("https?://twitter.com/", "")),
+    hashtag = this.hashtag.map(_.trim.replace("#", "").replaceAll("https?://twitter.com/hashtag/", "").replaceAll("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", ""))
   )
 }
 case class ConferenceUser(
@@ -109,7 +109,7 @@ case class ConferenceUser(
   def trim(): ConferenceUser = this.copy(
     name = this.name.trim,
     email = this.email.map(_.trim),
-    twitter = this.twitter.map(_.trim.replace("@", "").replace("https?://twitter.com/", ""))
+    twitter = this.twitter.map(_.trim.replace("@", "").replaceAll("https?://twitter.com/", ""))
   )
 }
 object Conference {
