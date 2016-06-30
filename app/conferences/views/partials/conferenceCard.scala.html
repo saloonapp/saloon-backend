@@ -21,19 +21,16 @@
             }
             @conference.cfp.map { cfp =>
                 <p>
-                    @if(cfp.opened){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                    @if(cfp.end.isAfterNow){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
                     <strong><a href="@cfp.siteUrl" target="_blank">Appel à orateurs</a></strong> :
                     fermeture le <strong>@date(cfp.end)</strong>
                 </p>
             }
             @conference.tickets.map { tickets =>
                 <p>
-                    @if(tickets.opened && conference.end.isAfterNow()){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
-                    <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong> :
-                    @Html(List(
-                        tickets.price.map(p => s"<strong>$p</strong>"),
-                        tickets.end.map(d => s"fermeture le <strong>${date(d)}</strong>")
-                    ).flatten.mkString(", "))
+                    @if(conference.end.isAfterNow){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                    <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong>
+                    @tickets.price.map { p => : <strong>@p</strong> }
                 </p>
             }
             <div role="group">
@@ -56,6 +53,13 @@
                     @venue.zipCode @venue.city, @venue.country
                     <a href="https://www.google.com/maps?q=@venue.name.getOrElse("") @venue.street @venue.zipCode @venue.city @venue.country" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
                 </address>
+            }
+            <hr>
+            @conference.location.map { location =>
+                <strong>@location.name</strong><br>
+                @location.streetNo @location.street<br>
+                @location.postalCode @location.locality, @location.country
+                <a href="@location.url" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
             }
             @if(conference.tags.length > 0) {
                 <p>

@@ -22,7 +22,7 @@
             @date(conf.start) : <b><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></b>
             <ul>
                 @if(data.getOrElse("cfp", false)){
-                    @conf.cfp.filter(_.opened).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @date(cfp.end))</li> }
+                    @conf.cfp.filter(_.end.isAfterNow).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @date(cfp.end))</li> }
                 }
                 @if(data.getOrElse("videos", false)){
                     @conf.videosUrl.map{ url => <li>Publication des <a href="@url">vidéos</a></li> }

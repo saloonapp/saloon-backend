@@ -103,7 +103,7 @@ object Application extends Controller {
             oldConferenceOpt.filter(_.videosUrl.isEmpty && conference.videosUrl.isDefined).map { _ =>
               TwitterSrv.twitt(TwittFactory.publishVideos(conference))
             }
-            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.opened).getOrElse(false)).map { _ =>
+            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isAfterNow).getOrElse(false)).map { _ =>
               TwitterSrv.twitt(TwittFactory.openCfp(conference))
             }
             Redirect(conferences.controllers.routes.Application.detail(id))
@@ -183,7 +183,7 @@ object Application extends Controller {
       q.map(_.trim).filter(_.length > 0).map { query =>
         Json.obj("$or" -> List(
           "name", "description", "siteUrl", "videosUrl", "tags",
-          "venue.name", "venue.street", "venue.zipCode", "venue.city", "venue.country",
+          "location.name", "location.street", "location.postalCode", "location.locality", "location.country",
           "cfp.siteUrl", "tickets.siteUrl", "social.twitter.account", "social.twitter.hashtag"
         ).map(field => Json.obj(field -> Json.obj("$regex" -> query, "$options" -> "i"))))
       }
@@ -198,17 +198,11 @@ object Application extends Controller {
         .filter(_.length > 0)
         .map(tags => Json.obj("tags" -> Json.obj("$in" ->tags)))
     def buildCfpFilter(cfp: Option[String]): Option[JsObject] = cfp match {
-      case Some("on") => Some(Json.obj("$or" -> Json.arr(
-        Json.obj("cfp.start" -> Json.obj("$lte" -> new DateTime()), "cfp.end" -> Json.obj("$gte" -> new DateTime())),
-        Json.obj("cfp.start" -> Json.obj("$exists" -> false), "cfp.end" -> Json.obj("$gte" -> new DateTime()))
-      )))
+      case Some("on") => Some(Json.obj("cfp.end" -> Json.obj("$gte" -> new DateTime())))
       case _ => None
     }
     def buildTicketsFilter(tickets: Option[String]): Option[JsObject] = tickets match {
-      case Some("on") => Some(Json.obj("$or" -> Json.arr(
-        Json.obj("tickets.start" -> Json.obj("$lte" -> new DateTime()), "tickets.end" -> Json.obj("$gte" -> new DateTime())),
-        Json.obj("tickets.start" -> Json.obj("$exists" -> false), "tickets.end" -> Json.obj("$gte" -> new DateTime()))
-      )))
+      case Some("on") => Some(Json.obj("end" -> Json.obj("$lte" -> new DateTime()), "tickets.siteUrl" -> Json.obj("$exists" -> true)))
       case _ => None
     }
     def buildVideosFilter(videos: Option[String]): Option[JsObject] = videos match {

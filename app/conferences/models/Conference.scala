@@ -2,7 +2,7 @@ package conferences.models
 
 import common.Defaults
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
-import common.models.values.{GMapPlace, UUID}
+import common.models.values.{Geo, GMapPlace, UUID}
 import common.services.TwitterCard
 import org.joda.time.DateTime
 import play.api.data.Forms._
@@ -41,8 +41,8 @@ case class Conference(
     "@conferencelist_",
     name+", le " + start.toString(Defaults.dateFormatter) + venue.map(" à "+_.city).getOrElse(""),
     List(
-      cfp.flatMap(c => if(c.opened) Some("CFP ouvert jusqu'au "+c.end.toString(Defaults.dateFormatter)) else None),
-      tickets.flatMap(t => if(t.opened && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
+      cfp.flatMap(c => if(c.end.isAfterNow) Some("CFP ouvert jusqu'au "+c.end.toString(Defaults.dateFormatter)) else None),
+      tickets.flatMap(t => if(end.isAfterNow && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description
     ).flatten.mkString(" - "),
@@ -53,23 +53,30 @@ case class ConferenceVenue(
   street: String,
   zipCode: String,
   city: String,
-  country: String)
+  country: String) {
+  def toLocation(): GMapPlace = GMapPlace(
+    id = "",
+    name = name.getOrElse(""),
+    streetNo = None,
+    street = Some(street),
+    postalCode = Some(zipCode),
+    locality = Some(city),
+    country = country,
+    formatted = "",
+    input = name.getOrElse(""),
+    geo = Geo(0, 0),
+    url = "",
+    website = None,
+    phone = None)
+}
 case class ConferenceCfp(
   siteUrl: String,
-  start: DateTime,
-  end: DateTime) {
-  lazy val opened: Boolean =
-    start.isBeforeNow() && end.isAfterNow()
-}
+  end: DateTime)
 case class ConferenceTickets(
   siteUrl: Option[String],
-  start: Option[DateTime],
-  end: Option[DateTime],
   from: Option[Int],
   to: Option[Int],
   currency: Option[String]) {
-  lazy val opened: Boolean =
-    start.map(_.isBeforeNow()).getOrElse(true) && end.map(_.isAfterNow()).getOrElse(true)
   lazy val price: Option[String] =
     from.orElse(to).map { d =>
       val prices = List(from, to).flatten
@@ -99,7 +106,13 @@ case class ConferenceUser(
   email: Option[String],
   siteUrl: Option[String],
   twitter: Option[String],
-  public: Boolean)
+  public: Boolean) {
+  def trim(): ConferenceUser = this.copy(
+    name = this.name.trim,
+    email = this.email.map(_.trim),
+    twitter = this.twitter.map(_.trim.replace("@", "").replace("https?://twitter.com/", ""))
+  )
+}
 object Conference {
   implicit val formatConferenceUser = Json.format[ConferenceUser]
   implicit val formatConferenceSocialTwitter = Json.format[ConferenceSocialTwitter]
@@ -122,20 +135,11 @@ case class ConferenceData(
   tags: List[String],
   venue: Option[ConferenceVenue],
   location: Option[GMapPlace],
-  cfp: Option[ConferenceDataCfp],
-  tickets: Option[ConferenceDataTickets],
+  cfp: Option[ConferenceCfp],
+  tickets: Option[ConferenceTickets],
   metrics: Option[ConferenceMetrics],
   social: Option[ConferenceSocial],
   createdBy: ConferenceUser)
-case class ConferenceDataCfp(
-  siteUrl: String,
-  dates: DateRange)
-case class ConferenceDataTickets(
-  siteUrl: Option[String],
-  dates: Option[DateRange],
-  from: Option[Int],
-  to: Option[Int],
-  currency: Option[String])
 object ConferenceData {
   val fields = mapping(
     "id" -> optional(nonEmptyText),
@@ -156,15 +160,14 @@ object ConferenceData {
     "location" -> optional(GMapPlace.fields),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
-      "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required)
-    )(ConferenceDataCfp.apply)(ConferenceDataCfp.unapply)),
+      "end" -> jodaDate(pattern = "dd/MM/yyyy")
+    )(ConferenceCfp.apply)(ConferenceCfp.unapply)),
     "tickets" -> optional(mapping(
       "siteUrl" -> optional(nonEmptyText),
-      "dates" -> optional(DateRange.mapping),
       "from" -> optional(number),
       "to" -> optional(number),
       "currency" -> optional(nonEmptyText)
-    )(ConferenceDataTickets.apply)(ConferenceDataTickets.unapply)),
+    )(ConferenceTickets.apply)(ConferenceTickets.unapply)),
     "metrics" -> optional(mapping(
       "attendeeCount" -> optional(number),
       "sessionCount" -> optional(number),
@@ -196,12 +199,12 @@ object ConferenceData {
     d.tags.map(_.trim.toLowerCase).filter(_.length > 0),
     d.venue,
     d.location,
-    d.cfp.map(c => ConferenceCfp(c.siteUrl, c.dates.start, c.dates.end)),
-    d.tickets.map(t => ConferenceTickets(t.siteUrl, t.dates.map(_.start), t.dates.map(_.end), t.from, t.to, t.currency)),
+    d.cfp,
+    d.tickets.filter(t => t.siteUrl.isDefined || t.from.isDefined),
     d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
     d.social.map(_.trim),
     new DateTime(),
-    Some(d.createdBy))
+    Some(d.createdBy.trim))
   def fromModel(m: Conference): ConferenceData = ConferenceData(
     Some(m.id.unwrap),
     m.name,
@@ -212,9 +215,9 @@ object ConferenceData {
     m.videosUrl,
     m.tags,
     m.venue,
-    m.location,
-    m.cfp.map(c => ConferenceDataCfp(c.siteUrl, DateRange(c.start, c.end))),
-    m.tickets.map(t => ConferenceDataTickets(t.siteUrl, t.start.zip(t.end).headOption.map(d => DateRange(d._1, d._2)), t.from, t.to, t.currency)),
+    m.location.orElse(m.venue.map(_.toLocation())),
+    m.cfp,
+    m.tickets,
     m.metrics,
     m.social,
     ConferenceUser("", None, None, None, false))

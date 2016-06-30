@@ -207,28 +207,37 @@ function googleMapsInit(){
     (function(){
         $('.gmap-place-picker').each(function() {
             var $elt = $(this);
-            var autocomplete = new google.maps.places.Autocomplete($elt.find('input[type="text"]').get(0));
+            var $input = $elt.find('input[type="text"]');
+            var autocomplete = new google.maps.places.Autocomplete($input.get(0));
             autocomplete.addListener('place_changed', function() {
                 var place = autocomplete.getPlace(); // cf https://developers.google.com/maps/documentation/javascript/3.exp/reference?hl=fr#PlaceResult
                 var formattedPlace = formatPlace(place);
                 fillForm($elt, formattedPlace);
             });
+            $input.on('change', function(){
+                if($input.val() === ''){
+                    clearForm($elt);
+                }
+            });
         });
 
         function fillForm($elt, formattedPlace){
-            $elt.find('input[type="hidden"].place-id').val(formattedPlace.id);
-            $elt.find('input[type="hidden"].place-name').val(formattedPlace.name);
-            $elt.find('input[type="hidden"].place-streetNo').val(formattedPlace.streetNo);
-            $elt.find('input[type="hidden"].place-street').val(formattedPlace.street);
-            $elt.find('input[type="hidden"].place-postalCode').val(formattedPlace.postalCode);
-            $elt.find('input[type="hidden"].place-locality').val(formattedPlace.locality);
-            $elt.find('input[type="hidden"].place-country').val(formattedPlace.country);
-            $elt.find('input[type="hidden"].place-formatted').val(formattedPlace.formatted);
-            $elt.find('input[type="hidden"].place-lat').val(formattedPlace.geo.lat);
-            $elt.find('input[type="hidden"].place-lng').val(formattedPlace.geo.lng);
-            $elt.find('input[type="hidden"].place-url').val(formattedPlace.url);
-            $elt.find('input[type="hidden"].place-website').val(formattedPlace.website);
-            $elt.find('input[type="hidden"].place-phone').val(formattedPlace.phone);
+            $elt.find('input[type="hidden"].place-id').val(formattedPlace ? formattedPlace.id : '');
+            $elt.find('input[type="hidden"].place-name').val(formattedPlace ? formattedPlace.name : '');
+            $elt.find('input[type="hidden"].place-streetNo').val(formattedPlace ? formattedPlace.streetNo : '');
+            $elt.find('input[type="hidden"].place-street').val(formattedPlace ? formattedPlace.street : '');
+            $elt.find('input[type="hidden"].place-postalCode').val(formattedPlace ? formattedPlace.postalCode : '');
+            $elt.find('input[type="hidden"].place-locality').val(formattedPlace ? formattedPlace.locality : '');
+            $elt.find('input[type="hidden"].place-country').val(formattedPlace ? formattedPlace.country : '');
+            $elt.find('input[type="hidden"].place-formatted').val(formattedPlace ? formattedPlace.formatted : '');
+            $elt.find('input[type="hidden"].place-lat').val(formattedPlace ? formattedPlace.geo.lat : '');
+            $elt.find('input[type="hidden"].place-lng').val(formattedPlace ? formattedPlace.geo.lng : '');
+            $elt.find('input[type="hidden"].place-url').val(formattedPlace ? formattedPlace.url : '');
+            $elt.find('input[type="hidden"].place-website').val(formattedPlace ? formattedPlace.website : '');
+            $elt.find('input[type="hidden"].place-phone').val(formattedPlace ? formattedPlace.phone : '');
+        }
+        function clearForm($elt){
+            fillForm($elt, null);
         }
         function formatPlace(place){
             function formatAddressComponents(components){

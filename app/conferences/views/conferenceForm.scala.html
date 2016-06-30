@@ -56,10 +56,10 @@
                     <div class="panel-heading" role="tab">
                         <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#cfp-panel">Appel à orateurs</a></h4>
                     </div>
-                    <div id="cfp-panel" class="panel-collapse collapse @if(conferenceForm("cfp.siteUrl").value.getOrElse("") != "" || conferenceForm("cfp.dates").value.getOrElse("") != ""){in}" role="tabpanel">
+                    <div id="cfp-panel" class="panel-collapse collapse @if(conferenceForm("cfp.siteUrl").value.getOrElse("") != "" || conferenceForm("cfp.end").value.getOrElse("") != ""){in}" role="tabpanel">
                         <div class="panel-body">
                             @fieldHorizontal(conferenceForm("cfp.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://cfp.devoxx.fr/") }
-                            @fieldHorizontal(conferenceForm("cfp.dates"), 'label -> "Dates", 'constraints -> "false") { field => @inputDateRange(field, 'placeholder -> "ex: 11/11/2015 - 31/01/2016") }
+                            @fieldHorizontal(conferenceForm("cfp.end"), 'label -> "Clôture le", 'constraints -> "false") { field => @inputDate(field, 'placeholder -> "ex: 31/01/2016") }
                         </div>
                     </div>
                 </div>
@@ -67,13 +67,12 @@
                     <div class="panel-heading" role="tab">
                         <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#ticket-panel">Tickets</a></h4>
                     </div>
-                    <div id="ticket-panel" class="panel-collapse collapse @if(conferenceForm("tickets.siteUrl").value.getOrElse("") != "" || conferenceForm("tickets.dates").value.getOrElse("") != ""){in}" role="tabpanel">
+                    <div id="ticket-panel" class="panel-collapse collapse @if(conferenceForm("tickets.siteUrl").value.getOrElse("") != "" || conferenceForm("tickets.from").value.getOrElse("") != ""){in}" role="tabpanel">
                         <div class="panel-body">
                             @fieldHorizontal(conferenceForm("tickets.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://reg.devoxx.fr/") }
-                            @fieldHorizontal(conferenceForm("tickets.dates"), 'label -> "Dates", 'constraints -> "false") { field => @inputDateRange(field, 'placeholder -> "ex: 01/12/2015 - 20/04/2016") }
                             @fieldHorizontal(conferenceForm("tickets.from"), 'label -> "Prix min") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 180") }
                             @fieldHorizontal(conferenceForm("tickets.to"), 'label -> "Prix max") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 500") }
-                            @fieldHorizontal(conferenceForm("tickets.currency"), 'label -> "Monnaie", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: €") }
+                            @fieldHorizontal(conferenceForm("tickets.currency"), 'label -> "Monnaie", 'constraints -> "false") { field => @inputSelect(field, Seq("€", "$", "£").map(s => (s, s)), 'placeholder -> "ex: €") }
                         </div>
                     </div>
                 </div>
@@ -98,7 +97,7 @@
                             @fieldHorizontal(conferenceForm("createdBy.name"), 'label -> "Nom/Pseudo") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
                             @fieldHorizontal(conferenceForm("createdBy.email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: mail@example.com") }
                             @fieldHorizontal(conferenceForm("createdBy.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.johndoe.com/") }
-                            @fieldHorizontal(conferenceForm("createdBy.twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: https://twitter.com/johndoe") }
+                            @fieldHorizontal(conferenceForm("createdBy.twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: johndoe") }
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">@fieldCheckbox(conferenceForm("createdBy.public"), 'label -> "Affiché publiquement")</div>
                             </div>
