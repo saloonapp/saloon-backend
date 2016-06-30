@@ -208,19 +208,70 @@ function googleMapsInit(){
         $('.gmap-place-picker').each(function() {
             var $elt = $(this);
             var $input = $elt.find('input[type="text"]');
+            var mapData = initMap($elt);
             var autocomplete = new google.maps.places.Autocomplete($input.get(0));
             autocomplete.addListener('place_changed', function() {
                 var place = autocomplete.getPlace(); // cf https://developers.google.com/maps/documentation/javascript/3.exp/reference?hl=fr#PlaceResult
                 var formattedPlace = formatPlace(place);
                 fillForm($elt, formattedPlace);
+                showMap(mapData, place, formattedPlace);
             });
             $input.on('change', function(){
                 if($input.val() === ''){
                     clearForm($elt);
+                    hideMap(mapData);
                 }
             });
         });
 
+        function initMap($elt){
+            var $map = $elt.find('.map');
+            var map = new google.maps.Map($map.get(0), {
+                center: {lat: -33.8688, lng: 151.2195},
+                zoom: 13
+            });
+            var marker = new google.maps.Marker({
+                map: map,
+                anchorPoint: new google.maps.Point(0, -29)
+            });
+            var infowindow = new google.maps.InfoWindow();
+            return {
+                $map: $map,
+                map: map,
+                marker: marker,
+                infowindow: infowindow
+            };
+        }
+        function showMap(mapData, place, formattedPlace){
+            mapData.$map.show();
+            google.maps.event.trigger(mapData.map, 'resize');
+            mapData.infowindow.close();
+            mapData.marker.setVisible(false);
+            if (place.geometry.viewport) {
+                mapData.map.fitBounds(place.geometry.viewport);
+            } else {
+                mapData.map.setCenter(place.geometry.location);
+                mapData.map.setZoom(15);
+            }
+            mapData.marker.setIcon({
+                url: '/assets/conferences/images/map-marker-icon.png',
+                size: new google.maps.Size(71, 71),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(17, 34),
+                scaledSize: new google.maps.Size(35, 35)
+            });
+            mapData.marker.setPosition(place.geometry.location);
+            mapData.marker.setVisible(true);
+            mapData.infowindow.setContent(
+                '<strong>'+formattedPlace.name+'</strong><br>'+
+                formattedPlace.streetNo+' '+formattedPlace.street+'<br>'+
+                formattedPlace.postalCode+' '+formattedPlace.locality+', '+formattedPlace.country
+            );
+            mapData.infowindow.open(mapData.map, mapData.marker);
+        }
+        function hideMap(mapData){
+            mapData.$map.hide();
+        }
         function fillForm($elt, formattedPlace){
             $elt.find('input[type="hidden"].place-id').val(formattedPlace ? formattedPlace.id : '');
             $elt.find('input[type="hidden"].place-name').val(formattedPlace ? formattedPlace.name : '');
@@ -240,6 +291,7 @@ function googleMapsInit(){
             fillForm($elt, null);
         }
         function formatPlace(place){
+            function of(elt, field, defaultValue){ return elt && elt[field] ? elt[field] : (defaultValue ? defaultValue : ''); }
             function formatAddressComponents(components){
                 function findByType(components, type){
                     var c = components.find(function(c){ return c.types.indexOf(type) >= 0; });
@@ -268,22 +320,23 @@ function googleMapsInit(){
                 };
             }
             var components = formatAddressComponents(place.address_components);
+            var loc = place && place.geometry ? place.geometry.location : undefined;
             return {
-                id: place.place_id,
-                name: place.name,
-                streetNo: components.street_number,
-                street: components.route,
-                postalCode: components.postal_code,
-                locality: components.locality,
-                country: components.country,
-                formatted: place.formatted_address,
+                id: of(place, 'place_id'),
+                name: of(place, 'name'),
+                streetNo: of(components, 'street_number'),
+                street: of(components, 'route'),
+                postalCode: of(components, 'postal_code'),
+                locality: of(components, 'locality'),
+                country: of(components, 'country'),
+                formatted: of(place, 'formatted_address'),
                 geo: {
-                    lat: place.geometry.location.lat(),
-                    lng: place.geometry.location.lng()
+                    lat: loc ? loc.lat() : '',
+                    lng: loc ? loc.lng() : ''
                 },
-                url: place.url,
-                website: place.website,
-                phone: place.international_phone_number
+                url: of(place, 'url'),
+                website: of(place, 'website'),
+                phone: of(place, 'international_phone_number')
             };
         }
     })();
