@@ -95,6 +95,20 @@
     }
 })();
 
+// get twitter avatar to fill logo
+(function(){
+    var $logo = $('input#logo');
+    $('input#social_twitter_account').on('change', function(){
+        if($logo.val() === '') {
+            $.get('/tools/scrapers/twitter/profil?account=' + $(this).val(), function (data) {
+                if ($logo.val() === '') {
+                    $logo.val(data.result.avatar).change();
+                }
+            });
+        }
+    });
+})();
+
 // save and fill conference user data
 (function(){
     var storageKey = 'conference-createdBy';
