@@ -41,15 +41,6 @@
         </div>
         <div class="col-md-4">
             <h4>@period(Some(conference.start), Some(conference.end))</h4>
-            @conference.venue.map { venue =>
-                <address>
-                    @venue.name.map { name => <strong>@name</strong><br> }
-                    @venue.street<br>
-                    @venue.zipCode @venue.city, @venue.country
-                    <a href="https://www.google.com/maps?q=@venue.name.getOrElse("") @venue.street @venue.zipCode @venue.city @venue.country" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
-                </address>
-            }
-            <hr>
             @conference.location.map { location =>
                 <strong>@location.name</strong><br>
                 @location.streetNo @location.street<br>

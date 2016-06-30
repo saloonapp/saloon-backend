@@ -5,8 +5,8 @@
     <td>@conference.name</td>
     <td>@period(Some(conference.start), Some(conference.end))</td>
     <td>
-    @conference.venue.map { venue =>
-        @venue.city, @venue.country
+    @conference.location.map { location =>
+        @location.locality, @location.country
     }
     </td>
     <td>

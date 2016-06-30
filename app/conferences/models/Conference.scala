@@ -26,7 +26,6 @@ case class Conference(
   siteUrl: String,
   videosUrl: Option[String],
   tags: List[String],
-  venue: Option[ConferenceVenue],
   location: Option[GMapPlace],
   cfp: Option[ConferenceCfp],
   tickets: Option[ConferenceTickets],
@@ -39,7 +38,7 @@ case class Conference(
   def toTwitterCard() = TwitterCard(
     "summary",
     "@conferencelist_",
-    name+", le " + start.toString(Defaults.dateFormatter) + venue.map(" à "+_.city).getOrElse(""),
+    name+", le " + start.toString(Defaults.dateFormatter) + location.map(" à "+_.locality).getOrElse(""),
     List(
       cfp.flatMap(c => if(c.end.isAfterNow) Some("CFP ouvert jusqu'au "+c.end.toString(Defaults.dateFormatter)) else None),
       tickets.flatMap(t => if(end.isAfterNow && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
@@ -133,7 +132,6 @@ case class ConferenceData(
   siteUrl: String,
   videosUrl: Option[String],
   tags: List[String],
-  venue: Option[ConferenceVenue],
   location: Option[GMapPlace],
   cfp: Option[ConferenceCfp],
   tickets: Option[ConferenceTickets],
@@ -150,13 +148,6 @@ object ConferenceData {
     "siteUrl" -> nonEmptyText,
     "videosUrl" -> optional(nonEmptyText),
     "tags" -> list(nonEmptyText).verifying(Forms.Constraints.required),
-    "venue" -> optional(mapping(
-      "name" -> optional(nonEmptyText),
-      "street" -> nonEmptyText,
-      "zipCode" -> nonEmptyText,
-      "city" -> nonEmptyText,
-      "country" -> nonEmptyText
-    )(ConferenceVenue.apply)(ConferenceVenue.unapply)),
     "location" -> optional(GMapPlace.fields),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
@@ -197,7 +188,6 @@ object ConferenceData {
     d.siteUrl,
     d.videosUrl,
     d.tags.map(_.trim.toLowerCase).filter(_.length > 0),
-    d.venue,
     d.location,
     d.cfp,
     d.tickets.filter(t => t.siteUrl.isDefined || t.from.isDefined),
@@ -214,8 +204,7 @@ object ConferenceData {
     m.siteUrl,
     m.videosUrl,
     m.tags,
-    m.venue,
-    m.location.orElse(m.venue.map(_.toLocation())),
+    m.location,
     m.cfp,
     m.tickets,
     m.metrics,
