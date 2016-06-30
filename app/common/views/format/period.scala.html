@@ -1,11 +1,3 @@
-@(startOpt: Option[org.joda.time.DateTime], endOpt: Option[org.joda.time.DateTime], template: String = "dd MMMM YYYY", default: String = "N/A")(implicit lang: Lang)
-@endOpt.map { end =>
-	@startOpt.map { start =>
-		@if(start.withTimeAtStartOfDay().isEqual(end.withTimeAtStartOfDay())){@start.toString(template, lang.toLocale)}
-		@if(!start.withTimeAtStartOfDay().isEqual(end.withTimeAtStartOfDay())){@start.toString("dd", lang.toLocale)-@end.toString(template, lang.toLocale)}
-	}.getOrElse {
-		@end.toString(template, lang.toLocale)
-	}
-}.getOrElse {
-	@startOpt.map(_.toString(template, lang.toLocale)).getOrElse(default)
-}
+@import org.joda.time.DateTime
+@(startOpt: Option[DateTime], endOpt: Option[DateTime], template: String = "dd MMMM YYYY", default: String = "N/A")(implicit lang: Lang)
+@common.views.format.Format.period(startOpt, endOpt, template, default)(lang)

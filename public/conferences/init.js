@@ -379,4 +379,52 @@ function googleMapsInit(){
             };
         }
     })();
+
+    // map-view
+    (function(){
+        var paris = {lat: 48.85661400000001, lng: 2.3522219000000177};
+        $('.gmap-view').each(function() {
+            var $map = $(this);
+            var gMap = new google.maps.Map($map.get(0), {center: paris, zoom: 5});
+            var gInfowindow = new google.maps.InfoWindow();
+            var markers = jsonAttr($map, 'markers') || [];
+            var gMarkers = markers.map(function(marker){
+                var gMarker = new google.maps.Marker({
+                    map: gMap,
+                    position: {lat: marker.lat, lng: marker.lng},
+                    title: marker.title
+                });
+                gMarker.addListener('click', function(){
+                    showInfo(gMap, gMarker, gInfowindow, marker);
+                });
+                return gMarker;
+            });
+            fitBounds(gMap, gMarkers);
+        });
+        function fitBounds(gMap, gMarkers){
+            var gBounds = new google.maps.LatLngBounds();
+            gMarkers.map(function(gMarker){
+                gBounds.extend(gMarker.getPosition());
+            });
+            gMap.fitBounds(gBounds);
+        }
+        function showInfo(gMap, gMarker, gInfowindow, marker){
+            gInfowindow.setContent(
+                '<strong>'+marker.title+'</strong><br>'+
+                marker.location+'<br>'+
+                'le '+marker.date
+            );
+            gInfowindow.open(gMap, gMarker);
+        }
+        function jsonAttr($elt, name){
+            var json = $elt.attr(name);
+            if(json){
+                try {
+                    return JSON.parse(json);
+                } catch (e){
+
+                }
+            }
+        }
+    })();
 }

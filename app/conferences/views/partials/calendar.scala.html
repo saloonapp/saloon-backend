@@ -20,7 +20,7 @@
 <div class="full-calendar"
     lang="@lang.toLocale"
     height="500"
-    @*events="@fullCalendarEvents(conferenceList)"*@
-    remote-events="@fullCalendarRemoteEvents()"
+    events="@fullCalendarEvents(conferenceList)"
+    @*remote-events="@fullCalendarRemoteEvents()"*@
     default-date="@if(conferenceList.length > 0){@conferenceList.map(_.start.getMillis).min}">
 </div>
