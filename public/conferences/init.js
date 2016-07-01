@@ -70,7 +70,7 @@
         var elt = $(eltSelector);
         if(elt.val() === ""){
             var value = getSafe(data, dataSelector);
-            elt.val(dataTransform ? dataTransform(value) : value);
+            elt.val(dataTransform ? dataTransform(value) : value).change();
         }
     }
     function setTags(data, dataSelector, eltSelector) {

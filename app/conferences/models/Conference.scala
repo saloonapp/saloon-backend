@@ -38,14 +38,16 @@ case class Conference(
   def toTwitterCard() = TwitterCard(
     "summary",
     "@conferencelist_",
-    name+", le " + start.toString(Defaults.dateFormatter) + location.map(" à "+_.locality).getOrElse(""),
+    name+", le " + start.toString(Defaults.dateFormatter) + location.flatMap(_.locality).map(" à "+_).getOrElse(""),
     List(
       cfp.flatMap(c => if(c.end.isAfterNow) Some("CFP ouvert jusqu'au "+c.end.toString(Defaults.dateFormatter)) else None),
       tickets.flatMap(t => if(end.isAfterNow && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description
     ).flatten.mkString(" - "),
-    logo.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200"))
+    // proxy images with cloudinary to make twitter card always show it
+    "http://res.cloudinary.com/demo/image/fetch/"+logo.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200")
+  )
 }
 case class ConferenceVenue(
   name: Option[String],

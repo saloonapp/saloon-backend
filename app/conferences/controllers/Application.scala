@@ -19,7 +19,7 @@ object Application extends Controller {
   val conferenceForm = Form(ConferenceData.fields)
 
   def list = Action.async { implicit req =>
-    val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime())), Json.obj("start" -> 1))
+    val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime().withTime(0, 0, 0, 0))), Json.obj("start" -> 1))
     //val tagsFut = ConferenceRepository.getTags()
     for {
       conferenceList <- conferenceListFut

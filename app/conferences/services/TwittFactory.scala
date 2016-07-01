@@ -10,7 +10,7 @@ object TwittFactory {
   }
   def newConference(c: Conference): String = {
     val url = Defaults.baseUrl+conferences.controllers.routes.Application.detail(c.id)
-    val city = c.location.map(" à "+_.locality).getOrElse("")
+    val city = c.location.flatMap(_.locality).map(" à "+_).getOrElse("")
     val cfp = c.cfp.map(", CFP ouvert jusqu'au "+_.end.toString(Defaults.dateFormatter)).getOrElse("")
     val account = c.twitterAccount.map(" cc @"+_).getOrElse("")
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
