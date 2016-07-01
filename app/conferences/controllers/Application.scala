@@ -26,6 +26,9 @@ object Application extends Controller {
       //tags <- tagsFut
     } yield Ok(conferences.views.html.conferenceList("future", conferenceList))
   }
+  def calendar = Action { implicit req =>
+    Ok(conferences.views.html.conferenceCalendar())
+  }
   def search(section: Option[String], q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
     val (pAfter, pBefore) = period.map(_.split(" - ") match {
       case Array(a, b) => (Some(a), Some(b))
@@ -131,13 +134,16 @@ object Application extends Controller {
       Redirect(conferences.controllers.routes.Application.list)
     }
   }*/
+  def about = Action { implicit req =>
+    Ok(conferences.views.html.about())
+  }
 
   def apiList = Action.async { implicit req =>
     ConferenceRepository.find().map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
-  def apiSearch(section: Option[String], q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
+  def apiSearch(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
     ConferenceRepository.find(buildFilter(q, before, after, tags, cfp, tickets, videos)).map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }

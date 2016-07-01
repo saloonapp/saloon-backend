@@ -290,13 +290,6 @@ function googleMapsInit(){
             mapData.marker.setVisible(false);
             mapData.map.setCenter(formattedPlace.geo);
             mapData.map.setZoom(15);
-            mapData.marker.setIcon({
-                url: '/assets/conferences/images/map-marker-icon.png',
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(35, 35)
-            });
             mapData.marker.setPosition(formattedPlace.geo);
             mapData.marker.setVisible(true);
             mapData.infowindow.setContent(

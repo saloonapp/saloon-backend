@@ -1,6 +1,6 @@
 @import play.api.libs.json.Json
 @import conferences.models.{Conference, ConferenceId}
-@(conferenceList: List[Conference])(implicit lang: Lang)
+@(conferenceList: List[Conference], height: Int = 500)(implicit lang: Lang)
 @fullCalendarEvents(conferenceList: List[Conference]) = @{
     Json.stringify((Json.obj("events" ->
             conferenceList.map(c => Json.obj(
@@ -19,8 +19,8 @@
 }
 <div class="full-calendar"
     lang="@lang.toLocale"
-    height="500"
-    events="@fullCalendarEvents(conferenceList)"
-    @*remote-events="@fullCalendarRemoteEvents()"*@
-    default-date="@if(conferenceList.length > 0){@conferenceList.map(_.start.getMillis).min}">
+    height="@height"
+    @if(conferenceList.length > 0){events="@fullCalendarEvents(conferenceList)"}
+    @if(conferenceList.length == 0){remote-events="@fullCalendarRemoteEvents()"}
+    @if(conferenceList.length > 0){default-date="@conferenceList.map(_.start.getMillis).min"}>
 </div>

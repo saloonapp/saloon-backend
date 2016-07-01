@@ -1,0 +1,19 @@
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("Calendrier des conférences"){
+    @partials.header("")
+
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+                @partials.calendar(List(), 750)
+                @partials.newsletterSubscribe()
+                <p class="text-center">
+                    Suivez l'actualité des conférences tech française sur Twitter : <a href="https://twitter.com/conferencelist_" target="_blank">@@conferencelist_</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @partials.footer()
+}

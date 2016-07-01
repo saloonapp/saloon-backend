@@ -189,7 +189,7 @@ object ConferenceData {
     d.dates.end,
     d.siteUrl,
     d.videosUrl,
-    d.tags.map(_.trim.toLowerCase).filter(_.length > 0),
+    d.tags.map(_.trim.toLowerCase).filter(_.length > 0).sorted,
     d.location,
     d.cfp,
     d.tickets.filter(t => t.siteUrl.isDefined || t.from.isDefined),

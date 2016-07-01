@@ -1,0 +1,46 @@
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+
+@main("About"){
+    @partials.header("")
+
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>About</h1>
+                <p>
+                    Ce projet est né du fait qu'il n'existe aucun moyen facile de savoir quelles conférences vont avoir lieu.<br>
+                    D'où l'idée de créer un site dédié à ça. Et comme c'est pénible de venir voir régulèrement les nouveautés,
+                    vous avez une newsletter et un compte twitter pour suivre l'activité des conférences tech en France :D
+                </p>
+                <p>
+                    L'objectif est de faire un site participatif pour pouvoir etre le plus exhaustif possible.<br>
+                    N'hésitez donc pas à ajouter vos propres conférences et corriger celles qui pourraient avoir des erreurs.<br>
+                    De plus, si des fonctionnalités essentielles vous manquent <a href="https://github.com/saloonapp/saloon-backend/issues" target="_blank">n'hésitez pas à les suggérer</a> ;)
+                </p>
+                <p>
+                    Enfin, voulant etre les plus ouvert possible, les données sont accessibles via une API :
+                    <ul>
+                        <li>Liste complète : <a href="@conferences.controllers.routes.Application.apiList()" target="_blank"><code>/api/conferences</code></a></li>
+                        <li>
+                            Recherche : <a href="@conferences.controllers.routes.Application.apiSearch(q = Some("scala"))" target="_blank"><code>/api/conferences/search?q=scala</code></a> (similaire à la recherche sur le site)
+                            <ul>
+                                <li><code>q</code> : texte recherché dans l'ensemble des champs</li>
+                                <li><code>after</code> (format: dd/MM/yyyy) : conférences qui démarrent après la date indiquée</li>
+                                <li><code>before</code> (format: dd/MM/yyyy) : conférences qui démarrent avant la date indiquée</li>
+                                <li><code>tags</code> (format: tag1,tag2,tag3) : conférences avec les tags indiqués</li>
+                                <li><code>cfp</code> (valeur: <code>on</code>) : filtre les conférences ayant un appel à orateur d'ouvert</li>
+                                <li><code>tickets</code> (valeur: <code>on</code>) : filtre les conférences ayant la billetterie ouverte</li>
+                                <li><code>videos</code> (valeur: <code>on</code>) : filtre les conférences ayant publié les vidéos des présentations</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <p>
+                    Le code de ce site est publié en Open Source sur le <a href="https://github.com/saloonapp/saloon-backend" target="_blank">github de SalooN</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @partials.footer()
+}
