@@ -59,13 +59,6 @@
                     }
                 </p>
             }
-            @conference.metrics.map { metrics =>
-                <ul>
-                    @metrics.attendeeCount.map { c => <li>@c personnes</li> }
-                    @metrics.sessionCount.map { c => <li>@c sessions</li> }
-                    @metrics.sinceYear.map { c => <li>Depuis @c</li> }
-                </ul>
-            }
             Posté le @datetime(conference.created)
             @conference.createdBy.filter(_.public).map { user =>
                 par @user.twitter.orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}

@@ -29,7 +29,6 @@ case class Conference(
   location: Option[GMapPlace],
   cfp: Option[ConferenceCfp],
   tickets: Option[ConferenceTickets],
-  metrics: Option[ConferenceMetrics],
   social: Option[ConferenceSocial],
   created: DateTime,
   createdBy: Option[ConferenceUser]) {
@@ -84,10 +83,6 @@ case class ConferenceTickets(
       if(prices.sum == 0){ "Gratuit" } else { prices.mkString("", " - ", currency.map(" "+_).getOrElse("")) }
     }
 }
-case class ConferenceMetrics(
-  attendeeCount: Option[Int],
-  sessionCount: Option[Int],
-  sinceYear: Option[Int])
 case class ConferenceSocial(
   twitter: Option[ConferenceSocialTwitter]) {
   def trim(): ConferenceSocial = this.copy(
@@ -118,7 +113,6 @@ object Conference {
   implicit val formatConferenceUser = Json.format[ConferenceUser]
   implicit val formatConferenceSocialTwitter = Json.format[ConferenceSocialTwitter]
   implicit val formatConferenceSocial = Json.format[ConferenceSocial]
-  implicit val formatConferenceMetrics = Json.format[ConferenceMetrics]
   implicit val formatConferenceTickets = Json.format[ConferenceTickets]
   implicit val formatConferenceCfp = Json.format[ConferenceCfp]
   implicit val formatConferenceVenue = Json.format[ConferenceVenue]
@@ -137,7 +131,6 @@ case class ConferenceData(
   location: Option[GMapPlace],
   cfp: Option[ConferenceCfp],
   tickets: Option[ConferenceTickets],
-  metrics: Option[ConferenceMetrics],
   social: Option[ConferenceSocial],
   createdBy: ConferenceUser)
 object ConferenceData {
@@ -161,11 +154,6 @@ object ConferenceData {
       "to" -> optional(number),
       "currency" -> optional(nonEmptyText)
     )(ConferenceTickets.apply)(ConferenceTickets.unapply)),
-    "metrics" -> optional(mapping(
-      "attendeeCount" -> optional(number),
-      "sessionCount" -> optional(number),
-      "sinceYear" -> optional(number)
-    )(ConferenceMetrics.apply)(ConferenceMetrics.unapply)),
     "social" -> optional(mapping(
       "twitter" -> optional(mapping(
         "account" -> optional(nonEmptyText),
@@ -193,7 +181,6 @@ object ConferenceData {
     d.location,
     d.cfp,
     d.tickets.filter(t => t.siteUrl.isDefined || t.from.isDefined),
-    d.metrics.flatMap(m => m.attendeeCount.orElse(m.sessionCount).orElse(m.sinceYear).map(_ => m)),
     d.social.map(_.trim),
     new DateTime(),
     Some(d.createdBy.trim))
@@ -209,7 +196,6 @@ object ConferenceData {
     m.location,
     m.cfp,
     m.tickets,
-    m.metrics,
     m.social,
     ConferenceUser("", None, None, None, false))
 }

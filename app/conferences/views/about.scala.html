@@ -1,26 +1,26 @@
 @()(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
-@main("About"){
+@main("À propos"){
     @partials.header("")
 
     <div class="container" role="main">
         <div class="row">
-            <div class="col-md-12">
-                <h1>About</h1>
+            <div class="col-md-8">
+                <h1>À propos</h1>
                 <p>
-                    Ce projet est né du fait qu'il n'existe aucun moyen facile de savoir quelles conférences vont avoir lieu.<br>
-                    D'où l'idée de créer un site dédié à ça. Et comme c'est pénible de venir voir régulèrement les nouveautés,
-                    vous avez une newsletter et un compte twitter pour suivre l'activité des conférences tech en France :D
+                    Ce projet est né du fait qu'il n'existe aucun moyen simple de savoir quelles conférences vont avoir lieu.<br>
+                    D'où l'idée de créer un site dédié. Et comme il est pénible de se tenir régulièrement au courant des nouveautés,
+                    vous avez maintenant une newsletter et un compte twitter pour suivre les conférences tech en France :D
                 </p>
                 <p>
-                    L'objectif est de faire un site participatif pour pouvoir etre le plus exhaustif possible.<br>
+                    L'objectif est de faire un site participatif afin d'être le plus exhaustif et réactif possible.<br>
                     N'hésitez donc pas à ajouter vos propres conférences et corriger celles qui pourraient avoir des erreurs.<br>
                     De plus, si des fonctionnalités essentielles vous manquent <a href="https://github.com/saloonapp/saloon-backend/issues" target="_blank">n'hésitez pas à les suggérer</a> ;)
                 </p>
                 <p>
-                    Enfin, voulant etre les plus ouvert possible, les données sont accessibles via une API :
+                    Enfin, le service se veut ouvert et propose une API pour accéder à ses données :
                     <ul>
-                        <li>Liste complète : <a href="@conferences.controllers.routes.Application.apiList()" target="_blank"><code>/api/conferences</code></a></li>
+                        <li>Liste des conférences : <a href="@conferences.controllers.routes.Application.apiList()" target="_blank"><code>/api/conferences</code></a></li>
                         <li>
                             Recherche : <a href="@conferences.controllers.routes.Application.apiSearch(q = Some("scala"))" target="_blank"><code>/api/conferences/search?q=scala</code></a> (similaire à la recherche sur le site)
                             <ul>
@@ -36,7 +36,7 @@
                     </ul>
                 </p>
                 <p>
-                    Le code de ce site est publié en Open Source sur le <a href="https://github.com/saloonapp/saloon-backend" target="_blank">github de SalooN</a>.
+                    Le site a été codé en Scala et son code est publié en Open Source sur le <a href="https://github.com/saloonapp/saloon-backend" target="_blank">github de SalooN</a>.
                 </p>
             </div>
         </div>

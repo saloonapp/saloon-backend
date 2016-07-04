@@ -69,18 +69,6 @@
                 </div>
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab">
-                        <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#metrics-panel">Données</a></h4>
-                    </div>
-                    <div id="metrics-panel" class="panel-collapse collapse @if(conferenceForm("metrics.attendeeCount").value.getOrElse("") != "" || conferenceForm("metrics.sessionCount").value.getOrElse("") != "" || conferenceForm("metrics.sinceYear").value.getOrElse("") != ""){in}" role="tabpanel">
-                        <div class="panel-body">
-                            @fieldHorizontal(conferenceForm("metrics.attendeeCount"), 'label -> "Nombre de participants") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 2500") }
-                            @fieldHorizontal(conferenceForm("metrics.sessionCount"), 'label -> "Nombre de présentations") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 220") }
-                            @fieldHorizontal(conferenceForm("metrics.sinceYear"), 'label -> "Année de lancement") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 2012") }
-                        </div>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab">
                         <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#user-panel">Vos infos</a></h4>
                     </div>
                     <div id="user-panel" class="panel-collapse collapse in" role="tabpanel">

@@ -2,44 +2,54 @@
 <!-- TODO : add geo-search -->
 @helper.form(action=conferences.controllers.routes.Application.search()){
     <div class="row">
-        <div class="col-md-offset-1 col-md-2">
-            <div class="form-group">
-                <label for="q">Filtrer</label>
+        <div class="col-md-offset-1 col-md-8">
+            <div class="form-group" style="margin-bottom: 0px;">
                 <input type="search" class="form-control" id="q" name="q" value="@req.getQueryString("q")" placeholder="Recherche...">
             </div>
         </div>
         <div class="col-md-2">
-            <div class="form-group">
-                <label for="period">Période</label>
-                <input type="text" class="form-control daterange" id="period" name="period" value="@req.getQueryString("period")" placeholder="ex: 01/01/2015 - 31/12/2015">
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="form-group">
-                <label for="tags">Tags</label>
-                <input type="text" class="form-control" id="tags" name="tags" value="@req.getQueryString("tags")" placeholder="ex: java, web, tech">
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" name="cfp" @if(req.getQueryString("cfp") == Some("on")){checked="checked"}> Appel à orateurs
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" name="tickets" @if(req.getQueryString("tickets") == Some("on")){checked="checked"}> Billetterie
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" name="videos" @if(req.getQueryString("videos") == Some("on")){checked="checked"}> Vidéos publiées
-                </label>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <br>
             <button type="submit" class="btn btn-block btn-default">Chercher</button>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-offset-1 col-md-8">
+            <a class="pull-right" data-toggle="collapse" href="#advancedSearch">Recherche avancée</a>
+        </div>
+    </div>
+    <div class="collapse" id="advancedSearch">
+        <div class="row">
+            <div class="col-md-offset-3 col-md-3">
+                <div class="form-group">
+                    <label for="period">Période</label>
+                    <input type="text" class="form-control daterange" id="period" name="period" value="@req.getQueryString("period")" placeholder="ex: 01/01/2015 - 31/12/2015">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <input type="text" class="form-control" id="tags" name="tags" value="@req.getQueryString("tags")" placeholder="ex: java, web, tech">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6 form-inline" style="text-align: center;">
+                <div class="checkbox" style="margin-right: 20px;">
+                    <label>
+                        <input type="checkbox" name="cfp" @if(req.getQueryString("cfp") == Some("on")){checked="checked"}> Appel à orateurs
+                    </label>
+                </div>
+                <div class="checkbox" style="margin-right: 20px;">
+                    <label>
+                        <input type="checkbox" name="tickets" @if(req.getQueryString("tickets") == Some("on")){checked="checked"}> Billetterie
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="videos" @if(req.getQueryString("videos") == Some("on")){checked="checked"}> Vidéos publiées
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
 }
