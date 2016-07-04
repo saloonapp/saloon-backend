@@ -1,0 +1,21 @@
+@import conferences.models.Conference
+@import common.views.format.Format
+@import common.views.html.format._
+@(conference: Conference)(content: Html)(implicit lang: Lang)
+<div title="Ajouter à l'agenda" class="addeventatc">
+    @content
+    <span class="uid">@conference.id</span>
+    <span class="title">@conference.name</span>
+    <span class="start">@date(conference.start)</span>
+    <span class="end">@date(conference.end)</span>
+    <span class="date_format">DD/MM/YYYY</span>
+    <span class="all_day_event">true</span>
+    @conference.location.map{l => <span class="location">@l.formatted</span>}
+    <span class="description">
+        @conference.siteUrl
+        @conference.tickets.map { tickets => Tickets: @tickets.siteUrl.getOrElse("") (@tickets.price) }
+        @conference.cfp.map { cfp => Appel à orateurs: @cfp.siteUrl (fermeture le @Format.date(cfp.end)) }
+
+        @conference.description
+    </span>
+</div>

@@ -42,6 +42,7 @@
                 @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag =>
                     <a href="https://twitter.com/search?q=%23@hashtag" target="_blank" class="btn btn-default"><i class="fa fa-twitter"></i> #@hashtag</a>
                 }
+                @addToCalendar(conference){<a href="#" class="btn btn-default"><i class="fa fa-calendar-plus-o" aria-hidden="true"></i> Agenda</a>}
             </div>
         </div>
         <div class="col-md-4">

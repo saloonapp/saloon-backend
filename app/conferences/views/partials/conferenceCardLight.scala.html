@@ -1,5 +1,6 @@
 @import conferences.models.Conference
 @import common.views.html.format._
+@import common.views.format.Format
 @(conference: Conference, context: String)(implicit lang: Lang)
 <div class="conference-item">
     @if(context == "public"){
@@ -12,14 +13,15 @@
     <div class="row">
         <div class="col-md-8">
             @defining(if(context == "history") conferences.controllers.routes.Application.detailVersion(conference.id, conference.created.getMillis()) else conferences.controllers.routes.Application.detail(conference.id)) { url =>
-                <h2><a href="@url"><span class="anchor"><i class="fa fa-link"></i></span> @conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name</a></h2>
+                <h2><a href="@url">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
             }
             @conference.cfp.filter(_.end.isAfterNow).map { cfp => <a href="@cfp.siteUrl" target="_blank"><span class="label label-success">Appel à orateurs</span></a> }
             @conference.tickets.filter(_ => conference.end.isAfterNow).map { tickets => <a href="@tickets.siteUrl" target="_blank"><span class="label label-success">Tickets</span></a> }
             <a href="@conference.siteUrl" target="_blank">Site officiel</a>
-            @conference.videosUrl.map{url => <a href="@url" target="_blank">Vidéos</a>}
-            @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => <a href="https://twitter.com/@account" target="_blank">@@@account</a> }
-            @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag => <a href="https://twitter.com/search?q=%23@hashtag" target="_blank">#@hashtag</a> }
+            @conference.videosUrl.map{url => - <a href="@url" target="_blank">Vidéos</a>}
+            @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => - <a href="https://twitter.com/@account" target="_blank">@@@account</a> }
+            @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag => - <a href="https://twitter.com/search?q=%23@hashtag" target="_blank">#@hashtag</a> }
+            @addToCalendar(conference){- <a href="#">Mettre dans l'agenda</a>}
         </div>
         <div class="col-md-4">
             <h4>@period(Some(conference.start), Some(conference.end))</h4>
