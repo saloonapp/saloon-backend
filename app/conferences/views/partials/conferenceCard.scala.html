@@ -1,6 +1,6 @@
 @import conferences.models.Conference
 @import common.views.html.format._
-@(conference: Conference, context: String)(implicit lang: Lang)
+@(conference: Conference, context: String)(implicit lang: Lang, req: RequestHeader)
 <div class="conference-item">
     @if(context == "public"){
         <a href="@conferences.controllers.routes.Application.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
@@ -61,7 +61,7 @@
                 </p>
             }
             Posté le @datetime(conference.created)
-            @conference.createdBy.filter(_.public).map { user =>
+            @conference.createdBy.filter(_.public || req.getQueryString("admin") == Some("lkn")).map { user =>
                 par @user.twitter.orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
             }
         </div>

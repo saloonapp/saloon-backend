@@ -24,7 +24,7 @@
                             @fieldHorizontal(conferenceForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                             @fieldHorizontal(conferenceForm("dates"), 'label -> "Dates") { field => @inputDateRange(field, 'placeholder -> "ex: 20/04/2016 - 22/04/2016") }
                             @fieldHorizontal(conferenceForm("tags"), 'label -> "Tags") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
-                            @fieldHorizontal(conferenceForm("location"), 'label -> "Lieu", 'constraints -> "false") { field => @inputGMapPlace(field, 'placeholder -> "ex: Palais des congrès") }
+                            @fieldHorizontal(conferenceForm("location"), 'label -> "Lieu", 'constraints -> "false") { field => @inputGMapPlace(field, 'placeholder -> "ex: CPE Lyon, Boulevard du 11 Novembre 1918, Villeurbanne, France") }
                             @fieldHorizontal(conferenceForm("social.twitter.account"), 'label -> "Liens sociaux", 'constraints -> "false") { field =>
                                 <div class="row">
                                     <div class="col-md-3">

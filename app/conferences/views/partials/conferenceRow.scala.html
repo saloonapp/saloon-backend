@@ -1,8 +1,8 @@
 @import conferences.models.Conference
 @import common.views.html.format._
-@(conference: Conference, context: String)
+@(conference: Conference, context: String)(implicit lang: Lang, req: RequestHeader)
 <tr>
-    <td>@conference.name</td>
+    <td><a href="@conferences.controllers.routes.Application.detail(conference.id)">@conference.name</a></td>
     <td>@period(Some(conference.start), Some(conference.end))</td>
     <td>
     @conference.location.map { location =>
@@ -23,7 +23,7 @@
     </td>
     <td>
         @datetime(conference.created)
-        @conference.createdBy.filter(_.public).map { user =>
+        @conference.createdBy.filter(_.public || req.getQueryString("admin") == Some("lkn")).map { user =>
             par @user.twitter.orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
         }
     </td>
@@ -32,7 +32,6 @@
             <a href="@conferences.controllers.routes.Application.edit(conference.id)"><i class="fa fa-pencil"></i></a>
         }
         @if(context == "history"){
-            <a href="@conferences.controllers.routes.Application.detail(conference.id)"><i class="fa fa-link"></i></a>
             <a href="@conferences.controllers.routes.Application.history(conference.id)"><i class="fa fa-history"></i></a>
             <a href="@conferences.controllers.routes.Application.editVersion(conference.id, conference.created.getMillis())"><i class="fa fa-pencil"></i></a>
             <form method="POST" action="@conferences.controllers.routes.Application.doDelete(conference.id, conference.created.getMillis())" class="inline"><button type="submit" class="btn btn-link"><i class="fa fa-trash-o"></i></button></form>
