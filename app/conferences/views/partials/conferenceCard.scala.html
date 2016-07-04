@@ -62,7 +62,7 @@
             }
             Posté le @datetime(conference.created)
             @conference.createdBy.filter(_.public || req.getQueryString("admin") == Some("lkn")).map { user =>
-                par @user.twitter.orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
+                par @user.twitter.map("https://twitter.com/"+_).orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
             }
         </div>
     </div>
