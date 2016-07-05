@@ -30,11 +30,7 @@ object Application extends Controller {
     Ok(conferences.views.html.conferenceCalendar())
   }
   def search(section: Option[String], q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
-    val (pAfter, pBefore) = period.map(_.split(" - ") match {
-      case Array(a, b) => (Some(a), Some(b))
-      case _ => (None, None)
-    }).getOrElse((None, None))
-    val conferenceListFut = ConferenceRepository.find(buildFilter(q, before.orElse(pBefore), after.orElse(pAfter), tags, cfp, tickets, videos))
+    val conferenceListFut = ConferenceRepository.find(buildFilter(q, period, before, after, tags, cfp, tickets, videos))
     //val tagsFut = ConferenceRepository.getTags()
     for {
       conferenceList <- conferenceListFut
@@ -143,8 +139,8 @@ object Application extends Controller {
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
-  def apiSearch(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
-    ConferenceRepository.find(buildFilter(q, before, after, tags, cfp, tickets, videos)).map { conferences =>
+  def apiSearch(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
+    ConferenceRepository.find(buildFilter(q, period, before, after, tags, cfp, tickets, videos)).map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
@@ -182,7 +178,7 @@ object Application extends Controller {
     }
   }
 
-  private def buildFilter(q: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]): JsObject = {
+  private def buildFilter(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]): JsObject = {
     def reduce(l: List[Option[JsObject]]): Option[JsObject] = l.flatten.headOption.map(_ => l.flatten.reduceLeft(_ ++ _))
     def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, Defaults.dateFormatter)).toOption
     def buildTextFilter(q: Option[String]): Option[JsObject] =
@@ -215,9 +211,13 @@ object Application extends Controller {
       case Some("on") => Some(Json.obj("videosUrl" -> Json.obj("$exists" -> true, "$ne" -> JsNull)))
       case _ => None
     }
+    val (pAfter, pBefore) = period.map(_.split(" - ") match {
+      case Array(a, b) => (Some(a), Some(b))
+      case _ => (None, None)
+    }).getOrElse((None, None))
     val filters = List(
       buildTextFilter(q),
-      buildDateFilter(before, after),
+      buildDateFilter(before.orElse(pBefore), after.orElse(pAfter)),
       buildTagFilter(tags),
       buildCfpFilter(cfp),
       buildTicketsFilter(tickets),
