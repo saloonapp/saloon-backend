@@ -13,6 +13,12 @@
 
         <div class="row">
             <div class="col-md-8">
+                @if(conferenceForm("id").value.isEmpty) {
+                    <div class="alert alert-info alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <strong>Langue</strong> Merci de rentrer la conférence dans sa langue principale ou en anglais.
+                    </div>
+                }
                 <div class="alert alert-warning duplicate-warning" style="display: none;">
                     <strong>Attention</strong>, il se pourrait que votre conférence soit déjà créée.<br>
                     Regardez les conférences déjà existantes sur le site (à droite/en bas)
