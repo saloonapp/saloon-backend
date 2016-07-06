@@ -20,6 +20,12 @@
             <meta name="twitter:title" content="@c.title" />
             <meta name="twitter:description" content="@c.description" />
             <meta name="twitter:image" content="@c.imageUrl" />
+        }.getOrElse {
+            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:site" content="@@conferencelist_" />
+            <meta name="twitter:title" content="Conférence liste by SalooN - The easiest way to follow french tech conferences" />
+            <meta name="twitter:description" content="Conférence liste recense les conférence tech en France et propose une newsletter et un compte twitter pour suivre facilement toute leur actualité" />
+            <meta name="twitter:image" content="https://avatars2.githubusercontent.com/u/11368266?v=3&s=200" />
         }
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <link href="@routes.Assets.at("conferences/libs/font-awesome-4.6.3/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
