@@ -15,6 +15,11 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
+  // this endpoint is used to wake up the app
+  def ping = Action { implicit req =>
+    Ok
+  }
+
   def testNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
     NewsletterService.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
@@ -36,7 +41,7 @@ object Batch extends Controller {
     val now = new DateTime()
     if(Utils.isProd() && DateTimeConstants.MONDAY == now.getDayOfWeek && 8 < now.getHourOfDay && now.getHourOfDay < 10){
       NewsletterService.sendNewsletter().map { success =>
-        if(success) Ok else InternalServerError
+        Ok
       }
     } else {
       Future(Forbidden)
@@ -53,7 +58,7 @@ object Batch extends Controller {
     val now = new DateTime()
     if(Utils.isProd() && 8 < now.getHourOfDay && now.getHourOfDay < 10){
       NewsService.sendTwitts().map { success =>
-        if(success) Ok else InternalServerError
+        Ok
       }
     } else {
       Future(Forbidden)
