@@ -23,11 +23,11 @@ POST      /conferences/:id/edit                                                 
 GET       /conferences/:id/history                                                          conferences.controllers.Application.history(id: ConferenceId)
 POST      /conferences/:id/delete/:created                                                  conferences.controllers.Application.doDelete(id: ConferenceId, created: Long)
 #POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
-GET       /api/conferences                                                                  conferences.controllers.Application.apiList
-GET       /api/conferences/search                                                           conferences.controllers.Application.apiSearch(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
-GET       /api/conferences/testNewsletter                                                   conferences.controllers.Application.testNewsletter(email: Option[String], date: Option[String])
-GET       /api/conferences/testTwitts                                                       conferences.controllers.Application.testTwitts(date: Option[String])
-GET       /api/conferences/importFromProd                                                   conferences.controllers.Application.importFromProd
+GET       /api/conferences                                                                  conferences.controllers.Api.list
+GET       /api/conferences/search                                                           conferences.controllers.Api.search(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
+GET       /batch/conferences/testNewsletter                                                 conferences.controllers.Batch.testNewsletter(email: Option[String], date: Option[String])
+GET       /batch/conferences/testTwitts                                                     conferences.controllers.Batch.testTwitts(date: Option[String])
+GET       /batch/conferences/importFromProd                                                 conferences.controllers.Batch.importFromProd
 
 # Authentication
 GET       /login                                                                            authentication.controllers.Auth.login

@@ -13,7 +13,7 @@
 }
 @fullCalendarRemoteEvents() = @{
     Json.stringify(Json.obj(
-        "searchUrl" -> conferences.controllers.routes.Application.apiSearch(after = Some("START_DATE"), before = Some("END_DATE")).url,
+        "searchUrl" -> conferences.controllers.routes.Api.search(after = Some("START_DATE"), before = Some("END_DATE")).url,
         "eventUrl" -> conferences.controllers.routes.Application.detail(ConferenceId("ID")).url
     ))
 }

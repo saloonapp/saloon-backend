@@ -20,9 +20,9 @@
                 <p>
                     Enfin, le service se veut ouvert et propose une API pour accéder à ses données :
                     <ul>
-                        <li>Liste des conférences : <a href="@conferences.controllers.routes.Application.apiList()" target="_blank"><code>/api/conferences</code></a></li>
+                        <li>Liste des conférences : <a href="@conferences.controllers.routes.Api.list()" target="_blank"><code>/api/conferences</code></a></li>
                         <li>
-                            Recherche : <a href="@conferences.controllers.routes.Application.apiSearch(q = Some("scala"))" target="_blank"><code>/api/conferences/search?q=scala</code></a> (similaire à la recherche sur le site)
+                            Recherche : <a href="@conferences.controllers.routes.Api.search(q = Some("scala"))" target="_blank"><code>/api/conferences/search?q=scala</code></a> (similaire à la recherche sur le site)
                             <ul>
                                 <li><code>q</code> : texte recherché dans l'ensemble des champs</li>
                                 <li><code>after</code> (format: dd/MM/yyyy) : conférences qui démarrent après la date indiquée</li>
