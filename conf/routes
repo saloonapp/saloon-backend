@@ -26,7 +26,10 @@ POST      /conferences/:id/delete/:created                                      
 GET       /api/conferences                                                                  conferences.controllers.Api.list
 GET       /api/conferences/search                                                           conferences.controllers.Api.search(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 GET       /batch/conferences/testNewsletter                                                 conferences.controllers.Batch.testNewsletter(email: Option[String], date: Option[String])
-GET       /batch/conferences/testTwitts                                                     conferences.controllers.Batch.testTwitts(date: Option[String])
+POST      /batch/conferences/sendNewsletter                                                 conferences.controllers.Batch.sendNewsletter
+GET       /batch/conferences/testNews                                                       conferences.controllers.Batch.testNews(date: Option[String])
+POST      /batch/conferences/publishNews                                                    conferences.controllers.Batch.publishNews
+POST      /batch/conferences/testScheduler                                                  conferences.controllers.Batch.testScheduler
 GET       /batch/conferences/importFromProd                                                 conferences.controllers.Batch.importFromProd
 
 # Authentication

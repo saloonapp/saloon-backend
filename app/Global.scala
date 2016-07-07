@@ -1,5 +1,4 @@
 
-import common.services.Scheduler
 import play.api._
 import play.api.i18n.Lang
 import play.api.mvc.EssentialAction
@@ -23,7 +22,6 @@ object Global extends GlobalSettings with SecuredSettings {
 
   override def onStart(app: Application) {
     DateTimeZone.setDefault(DateTimeZone.forID("Europe/Paris"))
-    Scheduler.init()
   }
 
   override def onNotAuthenticated(request: RequestHeader, lang: Lang) = {

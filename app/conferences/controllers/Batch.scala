@@ -1,10 +1,12 @@
 package conferences.controllers
 
+import common.models.values.typed.{Email, TextHTML}
 import common.repositories.conference.ConferenceRepository
 import common.{Utils, Defaults}
-import common.services.{TwittScheduler, MailChimpCampaign, MailChimpSrv, NewsletterScheduler}
+import common.services._
 import conferences.models.Conference
-import org.joda.time.DateTime
+import conferences.services.{NewsService, NewsletterService}
+import org.joda.time.{DateTimeConstants, DateTime}
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.{Controller, Action}
@@ -14,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
   def testNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
-    NewsletterScheduler.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
+    NewsletterService.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
         MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
           Ok(Json.obj(
@@ -30,9 +32,42 @@ object Batch extends Controller {
     }
   }
 
-  def testTwitts(date: Option[String]) = Action.async { implicit req =>
-    TwittScheduler.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
+  def sendNewsletter = Action.async { implicit req =>
+    val now = new DateTime()
+    if(Utils.isProd() && DateTimeConstants.MONDAY == now.getDayOfWeek && 8 < now.getHourOfDay && now.getHourOfDay < 10){
+      NewsletterService.sendNewsletter().map { success =>
+        if(success) Ok else InternalServerError
+      }
+    } else {
+      Future(Forbidden)
+    }
+  }
+
+  def testNews(date: Option[String]) = Action.async { implicit req =>
+    NewsService.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
       Ok(Json.obj("twitts" -> twitts))
+    }
+  }
+
+  def publishNews = Action.async { implicit req =>
+    val now = new DateTime()
+    if(Utils.isProd() && 8 < now.getHourOfDay && now.getHourOfDay < 10){
+      NewsService.sendTwitts().map { success =>
+        if(success) Ok else InternalServerError
+      }
+    } else {
+      Future(Forbidden)
+    }
+  }
+
+  def testScheduler = Action.async { implicit req =>
+    if(Utils.isProd()){
+      val content = TextHTML("Hello from Temporize Scheduler")
+      EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), "TEST", content, content.toPlainText)).map { success =>
+        if(success) Ok else InternalServerError
+      }
+    } else {
+      Future(Forbidden)
     }
   }
 
