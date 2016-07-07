@@ -17,6 +17,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Batch extends Controller {
   // this endpoint is used to wake up the app
   def ping = Action { implicit req =>
+    val content = TextHTML("ping endpoint is called")
+    EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), "["+Utils.getEnv()+"] ping", content, content.toPlainText))
     Ok
   }
 
@@ -38,6 +40,8 @@ object Batch extends Controller {
   }
 
   def sendNewsletter = Action.async { implicit req =>
+    val content = TextHTML("sendNewsletter endpoint is called")
+    EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), "["+Utils.getEnv()+"] sendNewsletter", content, content.toPlainText))
     val now = new DateTime()
     if(Utils.isProd() && DateTimeConstants.MONDAY == now.getDayOfWeek && 8 < now.getHourOfDay && now.getHourOfDay < 10){
       NewsletterService.sendNewsletter().map { success =>
@@ -55,6 +59,8 @@ object Batch extends Controller {
   }
 
   def publishNews = Action.async { implicit req =>
+    val content = TextHTML("publishNews endpoint is called")
+    EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), "["+Utils.getEnv()+"] publishNews", content, content.toPlainText))
     val now = new DateTime()
     if(Utils.isProd() && 8 < now.getHourOfDay && now.getHourOfDay < 10){
       NewsService.sendTwitts().map { success =>
@@ -67,8 +73,8 @@ object Batch extends Controller {
 
   def testScheduler = Action.async { implicit req =>
     if(Utils.isProd()){
-      val content = TextHTML("Hello from Temporize Scheduler")
-      EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), "TEST", content, content.toPlainText)).map { success =>
+      val content = TextHTML("testScheduler endpoint is called")
+      EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), "["+Utils.getEnv()+"] testScheduler", content, content.toPlainText)).map { success =>
         if(success) Ok else InternalServerError
       }
     } else {
