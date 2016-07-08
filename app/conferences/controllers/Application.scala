@@ -73,7 +73,7 @@ object Application extends Controller {
         val conference = ConferenceData.toModel(formData)
         ConferenceRepository.insert(conference).map { success =>
           if(conference.start.isAfterNow){
-            TwitterSrv.twitt(TwittFactory.newConference(conference))
+            TwitterSrv.sendTwitt(TwittFactory.newConference(conference))
           }
           Redirect(conferences.controllers.routes.Application.detail(conference.id))
         }
@@ -108,10 +108,10 @@ object Application extends Controller {
         ConferenceRepository.get(id).flatMap { oldConferenceOpt =>
           ConferenceRepository.update(id, conference).map { success =>
             oldConferenceOpt.filter(_.videosUrl.isEmpty && conference.videosUrl.isDefined).map { _ =>
-              TwitterSrv.twitt(TwittFactory.publishVideos(conference))
+              TwitterSrv.sendTwitt(TwittFactory.publishVideos(conference))
             }
             oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isAfterNow).getOrElse(false)).map { _ =>
-              TwitterSrv.twitt(TwittFactory.openCfp(conference))
+              TwitterSrv.sendTwitt(TwittFactory.openCfp(conference))
             }
             Redirect(conferences.controllers.routes.Application.detail(id))
           }

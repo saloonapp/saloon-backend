@@ -14,7 +14,7 @@ object NewsletterService {
     getNewsletterInfos(new DateTime()).flatMap { case (closingCFPs, incomingConferences, newData) =>
       if(closingCFPs.length + incomingConferences.length + newData.length > 0) {
         MailChimpSrv.createAndSendCampaign(MailChimpCampaign.conferenceListNewsletter(closingCFPs, incomingConferences, newData)).map { url =>
-          TwitterSrv.twitt(TwittFactory.newsletterSent(url))
+          TwitterSrv.sendTwitt(TwittFactory.newsletterSent(url))
           play.Logger.info("newsletter sent")
           true
         }

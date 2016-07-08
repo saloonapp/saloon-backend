@@ -19,6 +19,13 @@ object SchedulerHelper {
     next
   }
 
+  def in(days: Int = 0, hours: Int = 0, minutes: Int = 0, seconds: Int = 0)(f: => Unit): DateTime = {
+    val now = new DateTime()
+    val next = now.plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds)
+    Akka.system.scheduler.scheduleOnce(FiniteDuration(next.getMillis - now.getMillis, TimeUnit.MILLISECONDS))(f)
+    next
+  }
+
   def nextWeek(date: DateTime, weekDay: Int, hour: Int, minutes: Int = 0, seconds: Int = 0): DateTime = {
     def nextDayOfWeek(date: DateTime, weekDay: Int): DateTime = date.plusDays((7 + weekDay - date.getDayOfWeek - 1) % 7 + 1)
     if(date.getDayOfWeek == weekDay && SchedulerHelper.isBeforeTime(date, hour, minutes, seconds)) date.withTime(hour, minutes, seconds, 0)

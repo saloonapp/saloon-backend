@@ -10,13 +10,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object NewsService {
   def sendTwitts(): Future[Boolean] = {
     play.Logger.info("NewsService.sendTwitts()")
-    getTwitts(new DateTime()).flatMap { twitts =>
+    getTwitts(new DateTime()).map { twitts =>
       play.Logger.info(if(twitts.length > 0) twitts.length+" twitts à envoyer :" else "aucun twitt à envoyer")
       twitts.map(t => play.Logger.info("  - "+t))
-      Future.sequence(twitts.map(TwitterSrv.twitt)).map { res =>
-        play.Logger.info("twitts sent")
-        true
-      }
+      TwitterSrv.sendTwitts(twitts, 10)
+      true
     }
   }
   def getTwitts(date: DateTime): Future[List[String]] = {
