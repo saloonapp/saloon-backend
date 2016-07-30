@@ -6,6 +6,6 @@
     name="@field.name"
     id="@field.id"
     value="@field.value"
-    placeholder="@Helpers.getArg(args, "placeholder", "dd/MM/yyyy")"
+    placeholder="@Helpers.getArg(args, "placeholder", "dd/MM/yyyy - dd/MM/yyyy")"
     @Helpers.toHtmlArgs(args, Seq("type", "class", "placeholder"))
     @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>

@@ -19,8 +19,12 @@ Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
 
 ## TODO
 
-- exposant vs sponsor ?
-- Ajouter le 'grade' pour les sponsors (Platinum, Gold, Silver, Bronze)
+- Conférence Liste
+    - améliorer la section fermeture CFP dans la newsletter (ex: 29/07/2016 : fermeture du CFP de Best Of Web (Paris, le 30/09/2016))
+    - add pagination for conferences
+- SalooN
+    - exposant vs sponsor ?
+    - Ajouter le 'grade' pour les sponsors (Platinum, Gold, Silver, Bronze)
 
 ## Technical
 

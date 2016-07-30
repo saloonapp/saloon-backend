@@ -6,12 +6,12 @@ import common.repositories.CollectionReferences
 import conferences.models.{ConferenceId, Conference}
 import org.joda.time.DateTime
 import play.api.libs.json.{JsNull, Json, JsObject}
+import play.api.Play.current
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
 import reactivemongo.api.commands.{MultiBulkWriteResult, WriteResult}
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.Play.current
 
 import scala.util.Try
 
@@ -19,14 +19,14 @@ object ConferenceRepository {
   private val db = ReactiveMongoPlugin.db
   private lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.CONFERENCES)
   private val conferenceFields = List("id", "name", "logo", "description", "start", "end", "siteUrl", "videosUrl", "tags", "location", "cfp", "tickets", "social", "created", "createdBy")
-  private def conferenceGroup(fields: List[String]) = Json.parse("{\"_id\":\"$id\","+fields.map(f => "\""+f+"\":{\"$first\":\"$"+f+"\"}").mkString(",")+"}")
+  private def getFirst(fields: List[String]) = Json.parse("{\"_id\":\"$id\","+fields.map(f => "\""+f+"\":{\"$first\":\"$"+f+"\"}").mkString(",")+"}")
 
   def findHistory(sort: JsObject = Json.obj("created" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.find[Conference](collection, Json.obj(), sort)
   def find(filter: JsObject = Json.obj(), sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
       "aggregate" -> collection.name,
       "pipeline" -> Json.arr(
         Json.obj("$sort" -> Json.obj("created" -> -1)),
-        Json.obj("$group" -> conferenceGroup(conferenceFields)),
+        Json.obj("$group" -> getFirst(conferenceFields)),
         Json.obj("$match" -> filter),
         Json.obj("$sort" -> sort))))
   def insert(elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
@@ -42,21 +42,21 @@ object ConferenceRepository {
       "aggregate" -> collection.name,
       "pipeline" -> Json.arr(
         Json.obj("$sort" -> Json.obj("created" -> -1)),
-        Json.obj("$group" -> conferenceGroup(List("tags"))),
+        Json.obj("$group" -> getFirst(List("tags"))),
         Json.obj("$unwind" -> "$tags"),
         Json.obj("$group" -> Json.obj("_id" -> JsNull, "tags" -> Json.obj("$push" -> "$tags"))),
         Json.obj("$unwind" -> "$tags"),
         Json.obj("$group" -> Json.obj("_id" -> "$tags", "count" -> Json.obj("$sum" -> 1)))
       )
     ),
-    json => (json \\ "_id").toList.map(_.as[String]).zip((json \\ "count").toList.map(_.as[Int])).sortBy(_._1)
+    json => (json \\ "_id").toList.map(_.as[String]).zip((json \\ "count").toList.map(_.as[Int])).sortBy(-_._2)
   )
   def findInPast(time: DateTime, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
     "aggregate" -> collection.name,
     "pipeline" -> Json.arr(
       Json.obj("$match" -> Json.obj("created" -> Json.obj("$lt" -> time))),
       Json.obj("$sort" -> Json.obj("created" -> -1)),
-      Json.obj("$group" -> conferenceGroup(conferenceFields)),
+      Json.obj("$group" -> getFirst(conferenceFields)),
       Json.obj("$match" -> filter),
       Json.obj("$sort" -> sort))))
   def importData(elts: List[Conference]): Future[MultiBulkWriteResult] = {

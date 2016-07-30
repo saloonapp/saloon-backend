@@ -2,10 +2,12 @@ package conferences.models
 
 import common.Defaults
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
-import common.models.values.{Geo, GMapPlace, UUID}
+import common.models.values.{CalendarEvent, GMapMarker, GMapPlace, UUID}
 import common.services.TwitterCard
+import common.views.format.Format
 import org.joda.time.DateTime
 import play.api.data.Forms._
+import play.api.i18n.Lang
 import play.api.libs.json.Json
 
 case class ConferenceId(id: String) extends AnyVal with tString with UUID {
@@ -31,10 +33,10 @@ case class Conference(
   tickets: Option[ConferenceTickets],
   social: Option[ConferenceSocial],
   created: DateTime,
-  createdBy: Option[ConferenceUser]) {
+  createdBy: Option[User]) {
   lazy val twitterAccount: Option[String] = social.flatMap(_.twitter.flatMap(_.account))
   lazy val twitterHashtag: Option[String] = social.flatMap(_.twitter.flatMap(_.hashtag))
-  def toTwitterCard() = TwitterCard(
+  def toTwitterCard(): TwitterCard = TwitterCard(
     "summary",
     "@conferencelist_",
     name+", le " + start.toString(Defaults.dateFormatter) + location.flatMap(_.locality).map(" à "+_).getOrElse(""),
@@ -47,27 +49,21 @@ case class Conference(
     // proxy images with cloudinary to make twitter card always show it
     "http://res.cloudinary.com/demo/image/fetch/"+logo.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200")
   )
-}
-case class ConferenceVenue(
-  name: Option[String],
-  street: String,
-  zipCode: String,
-  city: String,
-  country: String) {
-  def toLocation(): GMapPlace = GMapPlace(
-    id = "",
-    name = name.getOrElse(""),
-    streetNo = None,
-    street = Some(street),
-    postalCode = Some(zipCode),
-    locality = Some(city),
-    country = country,
-    formatted = "",
-    input = name.getOrElse(""),
-    geo = Geo(0, 0),
-    url = "",
-    website = None,
-    phone = None)
+  def toTwitt(): String = "" // TODO : prefilled text to twitt about this conf
+  def toMarker()(implicit lang: Lang): Option[GMapMarker] = location.map { l => {
+      GMapMarker(
+        title = name,
+        date = Format.period(Some(start), Some(end)),
+        location = l.formatted,
+        lat = l.geo.lat,
+        lng = l.geo.lng,
+        url = conferences.controllers.routes.Conference.detail(id).url)
+    }}
+  def toCalendar(): CalendarEvent = CalendarEvent(
+    title = name,
+    start = start,
+    end = end,
+    url = conferences.controllers.routes.Conference.detail(id).url)
 }
 case class ConferenceCfp(
   siteUrl: String,
@@ -86,7 +82,7 @@ case class ConferenceTickets(
 case class ConferenceSocial(
   twitter: Option[ConferenceSocialTwitter]) {
   def trim(): ConferenceSocial = this.copy(
-    twitter = this.twitter.map(_.trim)
+    twitter = this.twitter.map(_.trim())
   )
 }
 case class ConferenceSocialTwitter(
@@ -97,25 +93,11 @@ case class ConferenceSocialTwitter(
     hashtag = this.hashtag.map(_.trim.replace("#", "").replaceAll("https?://twitter.com/hashtag/", "").replaceAll("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", ""))
   )
 }
-case class ConferenceUser(
-  name: String,
-  email: Option[String],
-  siteUrl: Option[String],
-  twitter: Option[String],
-  public: Boolean) {
-  def trim(): ConferenceUser = this.copy(
-    name = this.name.trim,
-    email = this.email.map(_.trim),
-    twitter = this.twitter.map(_.trim.replace("@", "").replaceAll("https?://twitter.com/", ""))
-  )
-}
 object Conference {
-  implicit val formatConferenceUser = Json.format[ConferenceUser]
   implicit val formatConferenceSocialTwitter = Json.format[ConferenceSocialTwitter]
   implicit val formatConferenceSocial = Json.format[ConferenceSocial]
   implicit val formatConferenceTickets = Json.format[ConferenceTickets]
   implicit val formatConferenceCfp = Json.format[ConferenceCfp]
-  implicit val formatConferenceVenue = Json.format[ConferenceVenue]
   implicit val format = Json.format[Conference]
 }
 
@@ -132,7 +114,7 @@ case class ConferenceData(
   cfp: Option[ConferenceCfp],
   tickets: Option[ConferenceTickets],
   social: Option[ConferenceSocial],
-  createdBy: ConferenceUser)
+  createdBy: User)
 object ConferenceData {
   val fields = mapping(
     "id" -> optional(nonEmptyText),
@@ -160,13 +142,7 @@ object ConferenceData {
         "hashtag" -> optional(nonEmptyText)
       )(ConferenceSocialTwitter.apply)(ConferenceSocialTwitter.unapply))
     )(ConferenceSocial.apply)(ConferenceSocial.unapply)),
-    "createdBy" -> mapping(
-      "name" -> nonEmptyText,
-      "email" -> optional(nonEmptyText),
-      "siteUrl" -> optional(nonEmptyText),
-      "twitter" -> optional(nonEmptyText),
-      "public" -> boolean
-    )(ConferenceUser.apply)(ConferenceUser.unapply)
+    "createdBy" -> User.fields
   )(ConferenceData.apply)(ConferenceData.unapply)
   def toModel(d: ConferenceData): Conference = Conference(
     d.id.map(s => ConferenceId(s)).getOrElse(ConferenceId.generate()),
@@ -181,9 +157,9 @@ object ConferenceData {
     d.location,
     d.cfp,
     d.tickets.filter(t => t.siteUrl.isDefined || t.from.isDefined),
-    d.social.map(_.trim),
+    d.social.map(_.trim()),
     new DateTime(),
-    Some(d.createdBy.trim))
+    Some(d.createdBy.trim()))
   def fromModel(m: Conference): ConferenceData = ConferenceData(
     Some(m.id.unwrap),
     m.name,
@@ -197,5 +173,5 @@ object ConferenceData {
     m.cfp,
     m.tickets,
     m.social,
-    ConferenceUser("", None, None, None, false))
+    User.empty)
 }

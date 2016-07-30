@@ -8,23 +8,33 @@ GET       /sample                                                               
 POST      /contact                                                                          common.controllers.Application.sendContactEmail
 
 # Conference list
-GET       /conferences                                                                      conferences.controllers.Application.list
-GET       /conferences/calendar                                                             conferences.controllers.Application.calendar
-GET       /conferences/search                                                               conferences.controllers.Application.search(section: Option[String] ?= None, q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 GET       /conferences/about                                                                conferences.controllers.Application.about
-GET       /conferences/history                                                              conferences.controllers.Application.fullHistory
-GET       /conferences/create                                                               conferences.controllers.Application.create
-POST      /conferences/create                                                               conferences.controllers.Application.doCreate
-GET       /conferences/:id                                                                  conferences.controllers.Application.detail(id: ConferenceId)
-GET       /conferences/:id/detail/:created                                                  conferences.controllers.Application.detailVersion(id: ConferenceId, created: Long)
-GET       /conferences/:id/edit                                                             conferences.controllers.Application.edit(id: ConferenceId)
-GET       /conferences/:id/edit/:created                                                    conferences.controllers.Application.editVersion(id: ConferenceId, created: Long)
-POST      /conferences/:id/edit                                                             conferences.controllers.Application.doEdit(id: ConferenceId)
-GET       /conferences/:id/history                                                          conferences.controllers.Application.history(id: ConferenceId)
-POST      /conferences/:id/delete/:created                                                  conferences.controllers.Application.doDelete(id: ConferenceId, created: Long)
+GET       /conferences                                                                      conferences.controllers.Conference.list
+GET       /conferences/calendar                                                             conferences.controllers.Conference.calendar
+GET       /conferences/search                                                               conferences.controllers.Conference.search(section: Option[String] ?= None, q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
+GET       /conferences/history                                                              conferences.controllers.Conference.fullHistory
+GET       /conferences/create                                                               conferences.controllers.Conference.create
+POST      /conferences/create                                                               conferences.controllers.Conference.doCreate
+GET       /conferences/:id                                                                  conferences.controllers.Conference.detail(id: ConferenceId)
+GET       /conferences/:id/detail/:created                                                  conferences.controllers.Conference.detailVersion(id: ConferenceId, created: Long)
+GET       /conferences/:id/edit                                                             conferences.controllers.Conference.edit(id: ConferenceId)
+GET       /conferences/:id/edit/:created                                                    conferences.controllers.Conference.editVersion(id: ConferenceId, created: Long)
+POST      /conferences/:id/edit                                                             conferences.controllers.Conference.doEdit(id: ConferenceId)
+GET       /conferences/:id/history                                                          conferences.controllers.Conference.history(id: ConferenceId)
+POST      /conferences/:id/delete/:created                                                  conferences.controllers.Conference.doDelete(id: ConferenceId, created: Long)
 #POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
+
+GET       /conferences/:cId/presentations/create                                            conferences.controllers.Presentation.create(cId: ConferenceId)
+POST      /conferences/:cId/presentations/create                                            conferences.controllers.Presentation.doCreate(cId: ConferenceId)
+GET       /conferences/:cId/presentations/:pId                                              conferences.controllers.Presentation.detail(cId: ConferenceId, pId: PresentationId)
+GET       /conferences/:cId/presentations/:pId/detail/:created                              conferences.controllers.Presentation.detailVersion(cId: ConferenceId, pId: PresentationId, created: Long)
+GET       /conferences/:cId/presentations/:pId/edit                                         conferences.controllers.Presentation.edit(cId: ConferenceId, pId: PresentationId)
+GET       /conferences/:cId/presentations/:pId/edit/:created                                conferences.controllers.Presentation.editVersion(cId: ConferenceId, pId: PresentationId, created: Long)
+POST      /conferences/:cId/presentations/:pId/edit                                         conferences.controllers.Presentation.doEdit(cId: ConferenceId, pId: PresentationId)
+
 GET       /api/conferences                                                                  conferences.controllers.Api.list
 GET       /api/conferences/search                                                           conferences.controllers.Api.search(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
+GET       /api/conferences/speakers                                                         conferences.controllers.Api.speaker(name: String)
 GET       /batch/conferences/ping                                                           conferences.controllers.Batch.ping
 GET       /batch/conferences/testNewsletter                                                 conferences.controllers.Batch.testNewsletter(email: Option[String], date: Option[String])
 GET       /batch/conferences/sendNewsletter                                                 conferences.controllers.Batch.sendNewsletter

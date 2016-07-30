@@ -17,16 +17,19 @@ body {
   margin-right: 10px;
 }
 
-h2 .anchor {
-  color: #ccc;
-  visibility: hidden;
-}
-h2:hover .anchor {
-  visibility: visible;
-}
-h2 a, h2 a:hover {
-  color: #333;
-  text-decoration: none;
+h1, h2, h3, h4, h5, h6 {
+  & .anchor {
+    color: #ccc;
+    visibility: hidden;
+  }
+  &:hover .anchor {
+    visibility: visible;
+  }
+  a, a:hover, a:focus {
+    color: #333;
+    text-decoration: none;
+  }
+
 }
 
 .navbar-nav {

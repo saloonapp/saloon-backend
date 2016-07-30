@@ -9,8 +9,8 @@
 @fieldHorizontal(eventForm("categories"), 'label -> "Catégorie"){field => @inputTags(field, categories, 'placeholder -> "ex: emploi, tech, business") <p class="help-block">Seule la 1ère catégorie sera affichée dans l'application</p>}
 @fieldHorizontal(eventForm("start"), 'label -> "Date"){field =>
 	<div class="row">
-		<div class="col-md-3"><div class="fg-line">@inputDatetime(field, 'placeholder -> "Début (ex: 05/06/2015 08:00)")</div></div>
-		<div class="col-md-3"><div class="fg-line">@inputDatetime(eventForm("end"), 'placeholder -> "Fin (ex: 05/06/2015 18:00)")</div></div>
+		<div class="col-md-3"><div class="fg-line">@inputDateTime(field, 'placeholder -> "Début (ex: 05/06/2015 08:00)")</div></div>
+		<div class="col-md-3"><div class="fg-line">@inputDateTime(eventForm("end"), 'placeholder -> "Fin (ex: 05/06/2015 18:00)")</div></div>
 	</div>
 }
 @fieldHorizontal(eventForm("address.name"), 'label -> "Adresse"){field =>

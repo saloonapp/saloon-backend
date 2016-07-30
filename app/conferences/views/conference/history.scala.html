@@ -1,0 +1,64 @@
+@import conferences.models.Conference
+@import common.views.html.format._
+@import conferences.views.html.partials._
+@(conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main("Historique des modifications"){
+    @header("")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <h1>Historique des modifications</h1>
+        </div>
+
+        <table class="table table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Dates</th>
+                    <th>City</th>
+                    <th>Links</th>
+                    <th>Posted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @conferenceList.map { conference =>
+                <tr>
+                    <td><a href="@conferences.controllers.routes.Conference.detail(conference.id)">@conference.name</a></td>
+                    <td>@period(Some(conference.start), Some(conference.end))</td>
+                    <td>
+                        @conference.location.map { location =>
+                            @location.locality, @location.country
+                        }
+                    </td>
+                    <td>
+                        <div role="group">
+                            <a href="@conference.siteUrl" target="_blank" class="btn btn-default"><i class="fa fa-globe"></i></a>
+                            @conference.videosUrl.map{url => <a href="@url" target="_blank" class="btn btn-default"><i class="fa fa-video-camera"></i></a>}
+                            @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account =>
+                                <a href="https://twitter.com/@account" target="_blank" class="btn btn-default"><i class="fa fa-twitter"></i></a>
+                            }
+                            @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag =>
+                                <a href="https://twitter.com/search?q=%23@hashtag" target="_blank" class="btn btn-default"><i class="fa fa-twitter"></i></a>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        @datetime(conference.created)
+                        @conference.createdBy.filter(_.public || req.getQueryString("admin") == Some("lkn")).map { user =>
+                            par @user.twitter.map("https://twitter.com/"+_).orElse(user.siteUrl).map{url => <a href="@url" target="_blank" style="white-space: nowrap;">@user.name</a>}.getOrElse{<span style="white-space: nowrap;">@user.name</span>}
+                        }
+                    </td>
+                    <td>
+                        <a href="@conferences.controllers.routes.Conference.history(conference.id)"><i class="fa fa-history"></i></a>
+                        <a href="@conferences.controllers.routes.Conference.editVersion(conference.id, conference.created.getMillis())"><i class="fa fa-pencil"></i></a>
+                        <form method="POST" action="@conferences.controllers.routes.Conference.doDelete(conference.id, conference.created.getMillis())" class="inline"><button type="submit" class="btn btn-link"><i class="fa fa-trash-o"></i></button></form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @footer()
+}

@@ -5,6 +5,22 @@
 // http://www.daterangepicker.com/
 (function(){
     var dateFormat = 'DD/MM/YYYY';
+    var datetimeFormat = 'DD/MM/YYYY HH:mm';
+
+    // see common.views.forms.inputDate
+    $('input.datepicker').daterangepicker({
+        singleDatePicker: true,
+        autoUpdateInput: false,
+        locale: {
+            format: dateFormat
+        }
+    });
+    $('input.datepicker').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format(dateFormat));
+    });
+    $('input.datepicker').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
 
     // see common.models.utils.DateRange & common.views.forms.inputDateRange
     $('input.daterange').daterangepicker({
@@ -22,20 +38,38 @@
         $(this).val('');
     });
 
-    // see common.views.forms.inputDate
-    $('input.datepicker').daterangepicker({
-        singleDatePicker: true,
+    // see common.models.utils.DateRange & common.views.forms.inputDateRange
+    $('input.datetimerange').daterangepicker({
         autoUpdateInput: false,
+        autoApply: true,
+        timePicker: true,
+        timePicker24Hour: true,
         locale: {
-            format: dateFormat
+            format: datetimeFormat
         }
     });
-    $('input.datepicker').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format(dateFormat));
+    $('input.datetimerange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format(datetimeFormat) + ' - ' + picker.endDate.format(datetimeFormat));
+        $(this).change();
     });
-    $('input.datepicker').on('cancel.daterangepicker', function(ev, picker) {
+    $('input.datetimerange').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
+})();
+
+// http://www.malot.fr/bootstrap-datetimepicker/
+(function(){
+    if($('input.datetimepicker')[0]){
+        $('input.datetimepicker').each(function(){
+            var opts = {
+                language: 'fr',
+                autoclose: true
+            };
+            var startDate = $(this).attr('startDate');
+            if(startDate){ opts.initialDate = startDate; }
+            $(this).datetimepicker(opts);
+        });
+    }
 })();
 
 // https://select2.github.io/

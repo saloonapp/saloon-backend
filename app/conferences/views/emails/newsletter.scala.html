@@ -5,13 +5,13 @@
 @if(closingCFPs.length > 0){
     <h2>Call For Papers bientôt terminés</h2>
     @closingCFPs.map { conf =>
-        <p>@dateOpt(conf.cfp.map(_.end)) : CFP de <a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
+        <p>@dateOpt(conf.cfp.map(_.end)) : CFP de <a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a></p>
     }
 }
 @if(incomingConferences.length > 0){
     <h2>Conférences à venir</h2>
     @incomingConferences.map { conf =>
-        <p><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></p>
+        <p><a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a></p>
     }
 }
 @if(newData.length > 0){
@@ -19,7 +19,7 @@
     <ul>
     @newData.map { case (conf, data) =>
         <li>
-            @date(conf.start) : <b><a href="@baseUrl@conferences.controllers.routes.Application.detail(conf.id)">@conf.name</a></b>
+            @date(conf.start) : <b><a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a></b>
             <ul>
                 @if(data.getOrElse("cfp", false)){
                     @conf.cfp.filter(_.end.isAfterNow).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @date(cfp.end))</li> }

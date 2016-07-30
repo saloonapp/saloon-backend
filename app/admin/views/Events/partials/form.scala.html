@@ -17,8 +17,8 @@
 <fieldset>
 	<legend>Infos :</legend>
 	@fieldHorizontal(eventForm("info.website"), 'label -> "Site"){field => @inputText(field, 'placeholder -> "ex: http://bestofweb.paris/")}
-	@fieldHorizontal(eventForm("info.start"), 'label -> "Début"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 08:00")}
-	@fieldHorizontal(eventForm("info.end"), 'label -> "Fin"){field => @inputDatetime(field, 'placeholder -> "ex: 05/06/2015 18:00")}
+	@fieldHorizontal(eventForm("info.start"), 'label -> "Début"){field => @inputDateTime(field, 'placeholder -> "ex: 05/06/2015 08:00")}
+	@fieldHorizontal(eventForm("info.end"), 'label -> "Fin"){field => @inputDateTime(field, 'placeholder -> "ex: 05/06/2015 18:00")}
 	@fieldHorizontal(eventForm("info.address.name"), 'label -> "Nom du lieu"){field => @inputText(field, 'placeholder -> "ex: La Grande Crypte")}
 	@fieldHorizontal(eventForm("info.address.street"), 'label -> "Rue"){field => @inputText(field, 'placeholder -> "ex: 69bis Rue Boissière")}
 	@fieldHorizontal(eventForm("info.address.zipCode"), 'label -> "Code postal"){field => @inputText(field, 'placeholder -> "ex: 75116")}

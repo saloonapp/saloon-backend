@@ -5,17 +5,19 @@
 // automatically fill conference form with website metas
 (function(){
     var form = Config.Form.Conference;
-    form.$siteUrl.on('change', function(){
-        var url = $(this).val();
-        if(Utils.isUrl(url)){
-            Config.Api.getMetas(url).then(function(metas){
-                formValue(form.$name, Utils.getSafe(metas, 'title.0'));
-                formValue(form.$description, Utils.getSafe(metas, 'description.0'));
-                formValue(form.$twitterAccount, (Utils.getSafe(metas, 'all.twitter:site.0') || '').replace('@', ''));
-                setTags(metas, 'keywords', form.$tags);
-            });
-        }
-    });
+    if(form.exists()) {
+        form.$siteUrl.on('change', function () {
+            var url = $(this).val();
+            if (Utils.isUrl(url)) {
+                Config.Api.getMetas(url).then(function (metas) {
+                    formValue(form.$name, Utils.getSafe(metas, 'title.0'));
+                    formValue(form.$description, Utils.getSafe(metas, 'description.0'));
+                    formValue(form.$twitterAccount, (Utils.getSafe(metas, 'all.twitter:site.0') || '').replace('@', ''));
+                    setTags(metas, 'keywords', form.$tags);
+                });
+            }
+        });
+    }
     function formValue(elt, value){
         if(elt.val() === '' && value){
             elt.val(value).change();
@@ -37,25 +39,29 @@
 // get twitter avatar to fill logo
 (function(){
     var form = Config.Form.Conference;
-    form.$twitterAccount.on('change', function(){
-        if(form.$logo.val() === '') {
-            Config.Api.getTwitterAccount($(this).val()).then(function(account){
-                if(account && form.$logo.val() === '') {
-                    form.$logo.val(account.avatar).change();
-                }
-            });
-        }
-    });
+    if(form.exists()) {
+        form.$twitterAccount.on('change', function () {
+            if (form.$logo.val() === '') {
+                Config.Api.getTwitterAccount($(this).val()).then(function (account) {
+                    if (account && form.$logo.val() === '') {
+                        form.$logo.val(account.avatar).change();
+                    }
+                });
+            }
+        });
+    }
 })();
 
 // save and fill conference user data
 (function(){
     var storageKey = 'conference-createdBy';
-    var form = Config.Form.Conference;
-    setFormUser(Storage.get(storageKey));
-    form.$elt.on('submit', function(){
-        Storage.set(storageKey, getFormUser());
-    });
+    var form = Config.Form.User;
+    if(form.exists()){
+        setFormUser(Storage.get(storageKey));
+        form.$elt.on('submit', function(){
+            Storage.set(storageKey, getFormUser());
+        });
+    }
     function getFormUser(){
         return {
             name: form.$createdBy_name.val(),
@@ -80,7 +86,7 @@
 // look for potential duplicates and show them
 (function(){
     var form = Config.Form.Conference;
-    if(!form.$id.val()){
+    if(form.exists() && !form.$id.val()){
         form.$siteUrl.on('change', function(){
             showPotentialDuplicatesIfSome();
         });

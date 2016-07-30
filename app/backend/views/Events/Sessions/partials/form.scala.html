@@ -7,8 +7,8 @@
 @fieldHorizontal(sessionForm("place"), 'label -> "Emplacement"){field => <div class="fg-line">@inputTypeahead(field, places, 'placeholder -> "ex: Grand amphi")</div>}
 @fieldHorizontal(sessionForm("start"), 'label -> "Horaire"){field =>
 	<div class="row">
-		<div class="col-md-3"><div class="fg-line">@inputDatetime(field, 'placeholder -> "Début (ex: 05/06/2015 08:00)")</div></div>
-		<div class="col-md-3"><div class="fg-line">@inputDatetime(sessionForm("end"), 'placeholder -> "Fin (ex: 05/06/2015 09:00)")</div></div>
+		<div class="col-md-3"><div class="fg-line">@inputDateTime(field, 'placeholder -> "Début (ex: 05/06/2015 08:00)")</div></div>
+		<div class="col-md-3"><div class="fg-line">@inputDateTime(sessionForm("end"), 'placeholder -> "Fin (ex: 05/06/2015 09:00)")</div></div>
 	</div>
 }
 @fieldHorizontal(sessionForm("format"), 'label -> "Catégories"){field => 

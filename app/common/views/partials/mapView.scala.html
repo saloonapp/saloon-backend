@@ -1,0 +1,4 @@
+@import play.api.libs.json.Json
+@import common.models.values.GMapMarker
+@(markers: List[GMapMarker], height: Int = 500)(implicit lang: Lang)
+<div class="gmap-view" style="height: @{height}px;" markers="@Json.stringify(Json.toJson(markers))"></div>

@@ -1,5 +1,15 @@
 var Config = (function(){
+    var UserForm = {
+        exists: function(){ return $('input#createdBy_name').length > 0; },
+        $elt: $('input#createdBy_name').parents('form'),
+        $createdBy_name: $('input#createdBy_name'),
+        $createdBy_email: $('input#createdBy_email'),
+        $createdBy_siteUrl: $('input#createdBy_siteUrl'),
+        $createdBy_twitter: $('input#createdBy_twitter'),
+        $createdBy_public: $('input#createdBy_public')
+    };
     var ConferenceForm = {
+        exists: function(){ return $('form.conference-form').length > 0; },
         $elt: $('form.conference-form'),
         $id: $('input#id'),
         $siteUrl: $('input#siteUrl'),
@@ -8,12 +18,11 @@ var Config = (function(){
         $dates: $('input#dates'),
         $tags: $('select#tags'),
         $twitterAccount: $('input#social_twitter_account'),
-        $logo: $('input#logo'),
-        $createdBy_name: $('input#createdBy_name'),
-        $createdBy_email: $('input#createdBy_email'),
-        $createdBy_siteUrl: $('input#createdBy_siteUrl'),
-        $createdBy_twitter: $('input#createdBy_twitter'),
-        $createdBy_public: $('input#createdBy_public')
+        $logo: $('input#logo')
+    };
+    var PresentationForm = {
+        exists: function(){ return $('form.presentation-form').length > 0; },
+        $elt: $('form.presentation-form')
     };
     var Url = {
         metaScraper: function(url){ return '/tools/scrapers/utils/metas?url='+url; },
@@ -24,6 +33,9 @@ var Config = (function(){
                 params.push(i+'='+opts[i]);
             }
             return '/api/conferences/search?'+params.join('&');
+        },
+        speakers: function(name){
+            return '/api/conferences/speakers?name='+name;
         }
     };
     var Api = {
@@ -44,13 +56,20 @@ var Config = (function(){
             ).then(function(r1, r2){
                 return Utils.unique(r1[0].result.concat(r2[0].result), function(c){ return c.id; });
             });
+        },
+        getSpeakers: function(name){
+            return $.get(Url.speakers(name)).then(function(data){
+                return data ? data.result : undefined;
+            });
         }
     };
     return {
         Url: Url,
         Api: Api,
         Form: {
-            Conference: ConferenceForm
+            User: UserForm,
+            Conference: ConferenceForm,
+            Presentation: PresentationForm
         }
     };
 })();

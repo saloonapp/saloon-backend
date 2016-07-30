@@ -19,8 +19,8 @@
 	@fieldHorizontal(sessionForm("info.format"), 'label -> "Format"){field => @inputText(field, 'placeholder -> "ex: Quickie") <p class="help-block">La format de la session (durée, type d'interraction, ...)<br>Ex: Conférence, Quickie, Tools in action, Hand's on Lab...</p>}
 	@fieldHorizontal(sessionForm("info.category"), 'label -> "Catégorie"){field => @inputText(field, 'placeholder -> "ex: Web") <p class="help-block">Thème / Track auquel se rattache cette session<br>Ex: Web, Startup, IOT, Design</p>}
 	@fieldHorizontal(sessionForm("info.place"), 'label -> "Emplacement"){field => @inputText(field, 'placeholder -> "ex: B12")}
-	@fieldHorizontal(sessionForm("info.start"), 'label -> "Début"){field => @inputDatetime(field)}
-	@fieldHorizontal(sessionForm("info.end"), 'label -> "Fin"){field => @inputDatetime(field)}
+	@fieldHorizontal(sessionForm("info.start"), 'label -> "Début"){field => @inputDateTime(field)}
+	@fieldHorizontal(sessionForm("info.end"), 'label -> "Fin"){field => @inputDateTime(field)}
 	@fieldHorizontal(sessionForm("info.speakers"), 'label -> "Speakers"){field => @inputSelect2Multi(field, allAttendees.map(a => (a.uuid.unwrap, a.name.unwrap)))}
 	@fieldHorizontal(sessionForm("info.slides"), 'label -> "Slides"){field => @inputText(field, 'placeholder -> "ex: http://fr.slideshare.net/loicknuchel/ionic-humantalks-11032015")}
 	@fieldHorizontal(sessionForm("info.video"), 'label -> "Vidéo"){field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/watch?v=EB2CZndGU9A")}

@@ -1,0 +1,40 @@
+@import conferences.models.Presentation
+@import conferences.models.Conference
+@import common.views.html.partials._
+@import conferences.views.html.partials._
+@(conference: Conference, presentation: Presentation)(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main(presentation.title, Some(presentation.toTwitterCard())){
+    @header("")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <a href="@conferences.controllers.routes.Conference.detail(conference.id)"><i class="fa fa-arrow-left"></i> @conference.name</a>
+            <h1>
+                <a href="@conferences.controllers.routes.Presentation.edit(presentation.conferenceId, presentation.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>
+                @presentation.title
+            </h1>
+            <p>par @presentation.speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }</p>
+        </div>
+
+        @presentation.description.map { description =>
+            <p>@description</p>
+        }
+        @presentation.videoUrl.map { videoUrl =>
+            <div>
+                <h4>Vidéo</h4>
+                <a href="@videoUrl" target="_blank">@videoUrl</a>
+            </div>
+        }
+        @presentation.slidesUrl.map { slidesUrl =>
+            <div>
+                <h4>Slides</h4>
+                <a href="@slidesUrl" target="_blank">@slidesUrl</a>
+            </div>
+        }
+        @presentation.tags.map { tag => <span class="label label-primary">@tag</span> }
+
+        @disqusComments(presentation.conferenceId+"/"+presentation.id, conferences.controllers.routes.Presentation.detail(presentation.conferenceId, presentation.id).absoluteURL(false))
+    </div>
+
+    @footer()
+}

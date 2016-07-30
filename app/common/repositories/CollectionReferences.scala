@@ -14,5 +14,8 @@ object CollectionReferences {
   val USERACTIONS = "UserActions"
   val CRASHS = "Crashs"
   val CONFIGS = "Configs"
+
+  // for conferences
   val CONFERENCES = "Conferences"
+  val PRESENTATIONS = "Presentations"
 }

@@ -1,0 +1,23 @@
+@import conferences.models.ConferenceId
+@import common.views.html.partials._
+@import conferences.views.html.partials._
+@()(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main("Calendrier des conférences"){
+    @header("")
+
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+                @calendarView(
+                    List(),
+                    (start: String, end: String) => conferences.controllers.routes.Api.search(after = Some(start), before = Some(end)).url,
+                    (id: String) => conferences.controllers.routes.Conference.detail(ConferenceId(id)).url,
+                    750
+                )
+                @subscribe()
+            </div>
+        </div>
+    </div>
+
+    @footer()
+}
