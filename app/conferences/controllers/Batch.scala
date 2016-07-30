@@ -5,7 +5,7 @@ import common.repositories.conference.ConferenceRepository
 import common.{Utils, Defaults}
 import common.services._
 import conferences.models.Conference
-import conferences.services.{NewsService, NewsletterService}
+import conferences.services.{BatchDispatcher, SocialService, NewsletterService}
 import org.joda.time.{DateTimeConstants, DateTime}
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
@@ -15,12 +15,6 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
-  // this endpoint is used to wake up the app
-  def ping = Action { implicit req =>
-    emailNotif("ping")
-    Ok
-  }
-
   def testNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
     NewsletterService.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
@@ -38,8 +32,14 @@ object Batch extends Controller {
     }
   }
 
+  def testSocialAnouncements(date: Option[String]) = Action.async { implicit req =>
+    SocialService.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
+      Ok(Json.obj("twitts" -> twitts))
+    }
+  }
+
+  // TODO will be replaced with scheduler method
   def sendNewsletter = Action.async { implicit req =>
-    emailNotif("sendNewsletter")
     if(Utils.isProd()){
       NewsletterService.sendNewsletter().map { success =>
         Ok
@@ -49,16 +49,10 @@ object Batch extends Controller {
     }
   }
 
-  def testNews(date: Option[String]) = Action.async { implicit req =>
-    NewsService.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
-      Ok(Json.obj("twitts" -> twitts))
-    }
-  }
-
+  // TODO will be replaced with scheduler method
   def publishNews = Action.async { implicit req =>
-    emailNotif("publishNews")
     if(Utils.isProd()){
-      NewsService.sendTwitts().map { success =>
+      SocialService.sendTwitts().map { success =>
         Ok
       }
     } else {
@@ -66,14 +60,11 @@ object Batch extends Controller {
     }
   }
 
-  def testScheduler = Action.async { implicit req =>
-    if(Utils.isProd()){
-      emailNotif("testScheduler").map { success =>
-        if(success) Ok else InternalServerError
-      }
-    } else {
-      Future(Forbidden)
-    }
+  def scheduler = Action { implicit req =>
+    // TODO : call a unique endoit which will dispatch execs on required times...
+    // BatchDispatcher.isTime("9:15").map(_ => SocialService.sendTwitts())
+    //BatchDispatcher.isWeekDay("Monday").isTime("9:15").map(_ => if(Utils.isProd()){ NewsletterService.sendNewsletter() })
+    Ok
   }
 
   def importFromProd = Action.async { implicit req =>
@@ -87,11 +78,5 @@ object Batch extends Controller {
         ))
       }
     }
-  }
-
-  private def emailNotif(endpoint: String): Future[Boolean] = {
-    val now = new DateTime()
-    val content = TextHTML(s"$endpoint endpoint is called at "+now+" (getDayOfWeek: "+now.getDayOfWeek+", getHourOfDay: "+now.getHourOfDay+")")
-    EmailSrv.sendEmail(EmailData("Temporize Scheduler", Defaults.adminEmail, Email("loicknuchel@gmail.com"), s"[${Utils.getEnv()}] $endpoint", content, content.toPlainText))
   }
 }

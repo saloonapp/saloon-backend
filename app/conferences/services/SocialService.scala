@@ -7,7 +7,7 @@ import play.api.libs.json.Json
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object NewsService {
+object SocialService {
   def sendTwitts(): Future[Boolean] = {
     play.Logger.info("NewsService.sendTwitts()")
     getTwitts(new DateTime()).map { twitts =>
