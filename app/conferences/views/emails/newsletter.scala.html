@@ -3,15 +3,15 @@
 @(baseUrl: String, closingCFPs: List[Conference], incomingConferences: List[Conference], newData: List[(Conference, Map[String, Boolean])])(implicit lang: Lang)
 <h1>Nouveautés des conférences tech en France</h1>
 @if(closingCFPs.length > 0){
-    <h2>Call For Papers bientôt terminés</h2>
+    <h2>Appels à orateurs qui se terminent bientôt</h2>
     @closingCFPs.map { conf =>
-        <p>@dateOpt(conf.cfp.map(_.end)) : CFP de <a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a></p>
+        <p>@dateOpt(conf.cfp.map(_.end)) : fermeture de l'appel à orateur de <a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a> (@conf.location.flatMap(_.locality.map("à "+_+", ")).getOrElse("")le @date(conf.start))</p>
     }
 }
 @if(incomingConferences.length > 0){
     <h2>Conférences à venir</h2>
     @incomingConferences.map { conf =>
-        <p><a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a></p>
+        <p><a href="@baseUrl@conferences.controllers.routes.Conference.detail(conf.id)">@conf.name</a> (@conf.location.flatMap(_.locality.map("à "+_+", ")).getOrElse("")le @date(conf.start))</p>
     }
 }
 @if(newData.length > 0){
