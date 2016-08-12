@@ -15,10 +15,10 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="conference-item">
-                    <a href="@conferences.controllers.routes.Conference.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
+                    <a href="@conferences.controllers.routes.Conferences.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
                     <div class="row">
                         <div class="col-md-8">
-                            <h2><a href="@conferences.controllers.routes.Conference.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
+                            <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
                             @conference.description.map { description =>
                                 <blockquote>
                                     <p>@Html(description.replaceAll("\\n", "<br>"))</p>
@@ -61,7 +61,7 @@
                             @if(conference.tags.length > 0) {
                                 <p>
                                     @conference.tags.map { tag =>
-                                        <a href="@conferences.controllers.routes.Conference.search(tags = Some(tag))" class="label label-primary">@tag</a>
+                                        <a href="@conferences.controllers.routes.Conferences.search(tags = Some(tag))" class="label label-primary">@tag</a>
                                     }
                                 </p>
                             }
@@ -76,13 +76,13 @@
         </div>
 
         <h3 style="margin-bottom: 20px;">
-            <a href="@conferences.controllers.routes.Presentation.create(conference.id)" title="Ajouter une présentation" class="pull-right"><i class="fa fa-plus"></i></a>
+            <a href="@conferences.controllers.routes.Presentations.create(conference.id)" title="Ajouter une présentation" class="pull-right"><i class="fa fa-plus"></i></a>
             Présentations :
         </h3>
         @if(presentations.length > 0){
             @presentations.map { presentation =>
                 <div style="margin-bottom: 20px;">
-                    <h4><a href="@conferences.controllers.routes.Presentation.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h4>
+                    <h4><a href="@conferences.controllers.routes.Presentations.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h4>
                     <p>
                         par @presentation.speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }
                         @presentation.videoUrl.map { videoUrl => <span class="label label-success">Vidéo</span> }.getOrElse { <del class="label label-default">Vidéo</del> }
@@ -94,7 +94,7 @@
             <p>Aucune présentation créée pour le moment</p>
         }
 
-        @disqusComments(conference.id.unwrap, conferences.controllers.routes.Conference.detail(conference.id).absoluteURL(false))
+        @disqusComments(conference.id.unwrap, conferences.controllers.routes.Conferences.detail(conference.id).absoluteURL(false))
     </div>
 
     @footer()

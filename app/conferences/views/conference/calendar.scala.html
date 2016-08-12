@@ -11,7 +11,7 @@
                 @calendarView(
                     List(),
                     (start: String, end: String) => conferences.controllers.routes.Api.search(after = Some(start), before = Some(end)).url,
-                    (id: String) => conferences.controllers.routes.Conference.detail(ConferenceId(id)).url,
+                    (id: String) => conferences.controllers.routes.Conferences.detail(ConferenceId(id)).url,
                     750
                 )
                 @subscribe()

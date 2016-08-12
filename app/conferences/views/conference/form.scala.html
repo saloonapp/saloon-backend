@@ -23,7 +23,7 @@
                     <strong>Attention</strong>, il se pourrait que votre conférence soit déjà créée.<br>
                     Regardez les conférences déjà existantes sur le site (à droite/en bas)
                 </div>
-                @helper.form(action=conferenceForm("id").value.map(id => conferences.controllers.routes.Conference.doEdit(ConferenceId(id))).getOrElse(conferences.controllers.routes.Conference.doCreate()), 'class->"form-horizontal conference-form") {
+                @helper.form(action=conferenceForm("id").value.map(id => conferences.controllers.routes.Conferences.doEdit(ConferenceId(id))).getOrElse(conferences.controllers.routes.Conferences.doCreate()), 'class->"form-horizontal conference-form") {
                     <div class="panel-group" role="tablist">
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab">
@@ -105,7 +105,7 @@
                 <h3>Conférences déjà créées :</h3>
                 <div class="template" id="duplicate-template">
                     <div class="conference-item">
-                        <a href="@conferences.controllers.routes.Conference.detail(ConferenceId("{{id}}"))" target="_blank" class="btn btn-default pull-right">Voir</a>
+                        <a href="@conferences.controllers.routes.Conferences.detail(ConferenceId("{{id}}"))" target="_blank" class="btn btn-default pull-right">Voir</a>
                         <h4>{{name}}</h4>
                         <p>{{start}} - {{end}}</p>
                         <p>{{location}}</p>

@@ -10,7 +10,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Controller, Action}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Conference extends Controller {
+object Conferences extends Controller {
   val conferenceForm = Form(ConferenceData.fields)
 
   def list = Action.async { implicit req =>
@@ -73,7 +73,7 @@ object Conference extends Controller {
           if(conference.start.isAfterNow){
             TwitterSrv.sendTwitt(TwittFactory.newConference(conference))
           }
-          Redirect(conferences.controllers.routes.Conference.detail(conference.id))
+          Redirect(conferences.controllers.routes.Conferences.detail(conference.id))
         }
       }
     )
@@ -111,7 +111,7 @@ object Conference extends Controller {
             oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isAfterNow).getOrElse(false)).map { _ =>
               TwitterSrv.sendTwitt(TwittFactory.openCfp(conference))
             }
-            Redirect(conferences.controllers.routes.Conference.detail(id))
+            Redirect(conferences.controllers.routes.Conferences.detail(id))
           }
         }
       }
@@ -136,7 +136,7 @@ object Conference extends Controller {
 
   /*def doDeleteAll(id: ConferenceId) = Action.async { implicit req =>
     ConferenceRepository.delete(id).map { _ =>
-      Redirect(conferences.controllers.routes.Conference.list)
+      Redirect(conferences.controllers.routes.Conferences.list)
     }
   }*/
 }

@@ -9,9 +9,9 @@
 
     <div class="container" role="main">
         <div class="page-header">
-            <a href="@conferences.controllers.routes.Conference.detail(conference.id)"><i class="fa fa-arrow-left"></i> @conference.name</a>
+            <a href="@conferences.controllers.routes.Conferences.detail(conference.id)"><i class="fa fa-arrow-left"></i> @conference.name</a>
             <h1>
-                <a href="@conferences.controllers.routes.Presentation.edit(presentation.conferenceId, presentation.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>
+                <a href="@conferences.controllers.routes.Presentations.edit(presentation.conferenceId, presentation.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>
                 @presentation.title
             </h1>
             <p>
@@ -42,7 +42,7 @@
             </div>
         }
 
-        @disqusComments(presentation.conferenceId+"/"+presentation.id, conferences.controllers.routes.Presentation.detail(presentation.conferenceId, presentation.id).absoluteURL(false))
+        @disqusComments(presentation.conferenceId+"/"+presentation.id, conferences.controllers.routes.Presentations.detail(presentation.conferenceId, presentation.id).absoluteURL(false))
     </div>
 
     @footer()

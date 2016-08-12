@@ -1,12 +1,11 @@
 package conferences.controllers
 
-import common.models.values.typed.{Email, TextHTML}
 import common.repositories.conference.ConferenceRepository
 import common.{Utils, Defaults}
 import common.services._
 import conferences.models.Conference
-import conferences.services.{TimeChecker, BatchDispatcher, SocialService, NewsletterService}
-import org.joda.time.{DateTimeConstants, DateTime}
+import conferences.services.{TimeChecker, SocialService, NewsletterService}
+import org.joda.time.DateTime
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.{Controller, Action}
@@ -64,7 +63,7 @@ object Batch extends Controller {
     // TODO : call a unique endoit which will dispatch execs on required times...
     // BatchDispatcher.isTime("9:15").map(_ => SocialService.sendTwitts())
     //BatchDispatcher.isWeekDay("Monday").isTime("9:15").map(_ => if(Utils.isProd()){ NewsletterService.sendNewsletter() })
-    TimeChecker().isTime("9:15").run(_ => SocialService.sendTwitts())
+    TimeChecker().isTime("9:15").run(() => SocialService.sendTwitts())
     Ok(TimeChecker().isWeekDay(6)._valid.toString)
   }
 

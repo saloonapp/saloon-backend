@@ -11,7 +11,7 @@
         <div class="row">
             <div class="col-md-12">
                 <!-- TODO : add geo-search -->
-                @helper.form(action=conferences.controllers.routes.Conference.search()){
+                @helper.form(action=conferences.controllers.routes.Conferences.search()){
                     <div class="row">
                         <div class="col-md-offset-1 col-md-8">
                             <div class="form-group" style="margin-bottom: 0px;">
@@ -92,10 +92,10 @@
                 }
                 @conferenceList.map { conference =>
                     <div class="conference-item">
-                        <a href="@conferences.controllers.routes.Conference.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
+                        <a href="@conferences.controllers.routes.Conferences.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
                         <div class="row">
                             <div class="col-md-8">
-                                <h2><a href="@conferences.controllers.routes.Conference.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
+                                <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
                                 @conference.cfp.filter(_.end.isAfterNow).map { cfp => <a href="@cfp.siteUrl" target="_blank" class="label label-success">Appel à orateurs</a> }
                                 @conference.tickets.filter(_ => conference.end.isAfterNow).map { tickets => <a href="@tickets.siteUrl" target="_blank" class="label label-success">Tickets</a> }
                                 <a href="@conference.siteUrl" target="_blank">Site officiel</a>

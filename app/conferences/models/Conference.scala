@@ -57,13 +57,13 @@ case class Conference(
         location = l.formatted,
         lat = l.geo.lat,
         lng = l.geo.lng,
-        url = conferences.controllers.routes.Conference.detail(id).url)
+        url = conferences.controllers.routes.Conferences.detail(id).url)
     }}
   def toCalendar(): CalendarEvent = CalendarEvent(
     title = name,
     start = start,
     end = end,
-    url = conferences.controllers.routes.Conference.detail(id).url)
+    url = conferences.controllers.routes.Conferences.detail(id).url)
 }
 case class ConferenceCfp(
   siteUrl: String,

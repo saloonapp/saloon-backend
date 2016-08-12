@@ -8,7 +8,7 @@ import play.api.mvc._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Presentation extends Controller {
+object Presentations extends Controller {
   val presentationForm = Form(PresentationData.fields)
 
   def detail(cId: ConferenceId, pId: PresentationId) = detailPrivate(cId, pId, None)
@@ -38,7 +38,7 @@ object Presentation extends Controller {
       formData => {
         PresentationData.toModel(formData).flatMap { presentation =>
           PresentationRepository.insert(presentation).map { success =>
-            Redirect(conferences.controllers.routes.Presentation.detail(cId, presentation.id))
+            Redirect(conferences.controllers.routes.Presentations.detail(cId, presentation.id))
           }
         }
       }
@@ -63,7 +63,7 @@ object Presentation extends Controller {
       formData => {
         PresentationData.toModel(formData).flatMap { presentation =>
           PresentationRepository.update(cId, pId, presentation).map { success =>
-            Redirect(conferences.controllers.routes.Presentation.detail(cId, pId))
+            Redirect(conferences.controllers.routes.Presentations.detail(cId, pId))
           }
         }
       }
