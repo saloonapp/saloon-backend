@@ -43,6 +43,19 @@ object TwittFactory {
     s"Début de $name ${dayDuration(now, c.start)} $url$hashtag"
   }
 
+  def addSlidesDuringConference(c: Conference): String = { // à 8h30, 12h, 16h et 19h pendant la conf
+    val url = Defaults.baseUrl + conferences.controllers.routes.Conference.detail(c.id)
+    val account = c.twitterAccount.map("@"+_).getOrElse(c.name)
+    val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
+    s"Speaker à $account ? Publie tes slides sur $url$hashtag"
+  }
+  def publishSlides(c: Conference): String = { // le soir
+    val url = Defaults.baseUrl + conferences.controllers.routes.Conference.detail(c.id)
+    val account = c.twitterAccount.map("@"+_).getOrElse(c.name)
+    val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
+    s"Des présentationss (slides et vidéos) ont été publiées pour $account $url$hashtag"
+  }
+
   private def dayDuration(start: DateTime, end: DateTime): String = {
     Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays() match {
       case 0 => "aujourd'hui"

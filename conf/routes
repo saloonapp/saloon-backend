@@ -317,6 +317,7 @@ DELETE    /api/v1/tools/crashs/:crashId                                         
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors                                 tools.controllers.Innorobo.getExibitors()
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/full                            tools.controllers.Innorobo.getFullExibitors(offset: Int ?= 0, limit: Int ?= 5, format: String ?= "json")
 GET       /api/v1/tools/scrapers/events/innorobo/exhibitors/:exhibitorId                    tools.controllers.Innorobo.getExibitor(exhibitorId: String)
+GET       /api/tools/embed                                                                  common.controllers.Application.embedCode(url: String)
 
 # Generic tools
 GET       /tools/scrapers/utils/page                                                        tools.utils.GenericScraper.getPage(url: String)

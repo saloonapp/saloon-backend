@@ -1,9 +1,10 @@
 @import conferences.models.Presentation
 @import conferences.models.Conference
+@import common.views.Helpers
 @import common.views.html.partials._
 @import conferences.views.html.partials._
 @(conference: Conference, presentation: Presentation)(implicit lang: Lang, flash: Flash, req: RequestHeader)
-@conferences.views.html.main(presentation.title, Some(presentation.toTwitterCard())){
+@conferences.views.html.main(presentation.title+" à "+conference.name, Some(presentation.toTwitterCard())){
     @header("")
 
     <div class="container" role="main">
@@ -13,25 +14,33 @@
                 <a href="@conferences.controllers.routes.Presentation.edit(presentation.conferenceId, presentation.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>
                 @presentation.title
             </h1>
-            <p>par @presentation.speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }</p>
+            <p>
+                <span style="margin-right: 10px;">par @presentation.speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }</span>
+                @presentation.tags.map { tag => <span class="label label-primary">@tag</span> }
+            </p>
         </div>
 
         @presentation.description.map { description =>
             <p>@description</p>
         }
-        @presentation.videoUrl.map { videoUrl =>
+        @presentation.videoUrl.map { url =>
             <div>
                 <h4>Vidéo</h4>
-                <a href="@videoUrl" target="_blank">@videoUrl</a>
+                @presentation.videoEmbedCode.map { code =>
+                    <div>@Html(code)</div>
+                }
+                <a href="@url" target="_blank">@url</a>
             </div>
         }
-        @presentation.slidesUrl.map { slidesUrl =>
+        @presentation.slidesUrl.map { url =>
             <div>
                 <h4>Slides</h4>
-                <a href="@slidesUrl" target="_blank">@slidesUrl</a>
+                @presentation.slidesEmbedCode.map { code =>
+                    <div>@Html(code)</div>
+                }
+                <a href="@url" target="_blank">@url</a>
             </div>
         }
-        @presentation.tags.map { tag => <span class="label label-primary">@tag</span> }
 
         @disqusComments(presentation.conferenceId+"/"+presentation.id, conferences.controllers.routes.Presentation.detail(presentation.conferenceId, presentation.id).absoluteURL(false))
     </div>

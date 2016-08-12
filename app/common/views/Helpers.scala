@@ -5,7 +5,6 @@ import play.api.data.Field
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 
 object Helpers {

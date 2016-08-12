@@ -5,7 +5,7 @@ import common.repositories.conference.ConferenceRepository
 import common.{Utils, Defaults}
 import common.services._
 import conferences.models.Conference
-import conferences.services.{BatchDispatcher, SocialService, NewsletterService}
+import conferences.services.{TimeChecker, BatchDispatcher, SocialService, NewsletterService}
 import org.joda.time.{DateTimeConstants, DateTime}
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
@@ -64,7 +64,8 @@ object Batch extends Controller {
     // TODO : call a unique endoit which will dispatch execs on required times...
     // BatchDispatcher.isTime("9:15").map(_ => SocialService.sendTwitts())
     //BatchDispatcher.isWeekDay("Monday").isTime("9:15").map(_ => if(Utils.isProd()){ NewsletterService.sendNewsletter() })
-    Ok
+    TimeChecker().isTime("9:15").run(_ => SocialService.sendTwitts())
+    Ok(TimeChecker().isWeekDay(6)._valid.toString)
   }
 
   def importFromProd = Action.async { implicit req =>

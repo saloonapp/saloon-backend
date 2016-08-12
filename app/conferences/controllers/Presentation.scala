@@ -36,9 +36,10 @@ object Presentation extends Controller {
     presentationForm.bindFromRequest.fold(
       formWithErrors => formView(cId, formWithErrors),
       formData => {
-        val presentation = PresentationData.toModel(formData)
-        PresentationRepository.insert(presentation).map { success =>
-          Redirect(conferences.controllers.routes.Presentation.detail(cId, presentation.id))
+        PresentationData.toModel(formData).flatMap { presentation =>
+          PresentationRepository.insert(presentation).map { success =>
+            Redirect(conferences.controllers.routes.Presentation.detail(cId, presentation.id))
+          }
         }
       }
     )
@@ -60,16 +61,17 @@ object Presentation extends Controller {
     presentationForm.bindFromRequest.fold(
       formWithErrors => formView(cId, formWithErrors),
       formData => {
-        PresentationRepository.update(cId, pId, PresentationData.toModel(formData)).map { success =>
-          Redirect(conferences.controllers.routes.Presentation.detail(cId, pId))
+        PresentationData.toModel(formData).flatMap { presentation =>
+          PresentationRepository.update(cId, pId, presentation).map { success =>
+            Redirect(conferences.controllers.routes.Presentation.detail(cId, pId))
+          }
         }
       }
     )
   }
 
   private def formView(cId: ConferenceId, form: Form[PresentationData])(implicit req: RequestHeader): Future[Result] = {
-    // TODO : room, duration for conference
-    // TODO : speaker suggest ?
+    // TODO : autocomplete/suggest for room, duration & speaker
     val conferenceOptFut = ConferenceRepository.get(cId)
     val tagsFut = PresentationRepository.getTags()
     val roomsFut = PresentationRepository.getRooms(cId)

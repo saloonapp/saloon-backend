@@ -75,18 +75,18 @@
             </div>
         </div>
 
-        <h3>
+        <h3 style="margin-bottom: 20px;">
             <a href="@conferences.controllers.routes.Presentation.create(conference.id)" title="Ajouter une présentation" class="pull-right"><i class="fa fa-plus"></i></a>
             Présentations :
         </h3>
         @if(presentations.length > 0){
             @presentations.map { presentation =>
-                <div>
+                <div style="margin-bottom: 20px;">
                     <h4><a href="@conferences.controllers.routes.Presentation.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h4>
                     <p>
                         par @presentation.speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }
-                        @presentation.slidesUrl.map { slidesUrl => <a href="@slidesUrl" target="_blank" class="label label-success">Slides</a> }.getOrElse { <span class="label label-default">Slides</span> }
-                        @presentation.videoUrl.map { videoUrl => <a href="@videoUrl" target="_blank" class="label label-success">Vidéo</a> }.getOrElse { <span class="label label-default">Vidéo</span> }
+                        @presentation.videoUrl.map { videoUrl => <span class="label label-success">Vidéo</span> }.getOrElse { <del class="label label-default">Vidéo</del> }
+                        @presentation.slidesUrl.map { slidesUrl => <span class="label label-success">Slides</span> }.getOrElse { <del class="label label-default">Slides</del> }
                     </p>
                 </div>
             }

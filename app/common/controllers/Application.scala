@@ -2,8 +2,9 @@ package common.controllers
 
 import common.Utils
 import common.models.values.typed.Email
-import common.services.EmailSrv
+import common.services.{EmbedData, EmbedSrv, EmailSrv}
 import common.repositories.user.UserRepository
+import play.api.libs.json.Json
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api._
@@ -35,6 +36,12 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
             }
         }
       })
+  }
+
+  def embedCode(url: String) = Action.async { implicit request =>
+    EmbedSrv.embedCode(url).map { dataOpt =>
+      Ok(Json.toJson(dataOpt.getOrElse(EmbedData.unknown(url))))
+    }
   }
 
   def corsPreflight(all: String) = Action {

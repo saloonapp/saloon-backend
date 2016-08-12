@@ -22,8 +22,9 @@
                         @inputHidden(presentationForm("conferenceId"), 'value -> conference.id.unwrap)
                         @presentationForm("id").value.map { _ => @inputHidden(presentationForm("id")) }
                         @fieldHorizontal(presentationForm("title"), 'label -> "Titre") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
-                        @fieldHorizontal(presentationForm("slidesUrl"), 'label -> "Slides", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
+                        <!-- TODO : add ajax preview of embed slides & video -->
                         @fieldHorizontal(presentationForm("videoUrl"), 'label -> "Vidéo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
+                        @fieldHorizontal(presentationForm("slidesUrl"), 'label -> "Slides", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                         @fieldHorizontal(presentationForm("tags"), 'label -> "Tags", 'constraints -> "false") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
                     </fieldset>
                     <fieldset>
@@ -31,16 +32,16 @@
                         @fieldHorizontal(presentationForm("speakers"), 'label -> "Speakers") { field =>
                             <div class="row" style="margin-top: 7px;">
                                 <div class="col-md-3"><label for="speakers_0_name">Nom</label></div>
-                                <div class="col-md-3"><label for="speakers_0_email">Email</label></div>
-                                <div class="col-md-3"><label for="speakers_0_siteUrl">Site</label></div>
                                 <div class="col-md-3"><label for="speakers_0_twitter">Twitter</label></div>
+                                <div class="col-md-3"><label for="speakers_0_siteUrl">Site</label></div>
+                                <div class="col-md-3"><label for="speakers_0_email">Email</label></div>
                             </div>
                             @helper.repeat(field, min = 1) { speakerField =>
                                 <div class="row">
                                     <div class="col-md-3">@inputText(speakerField("name"), 'placeholder -> "ex: John Doe")</div>
-                                    <div class="col-md-3">@inputText(speakerField("email"), 'placeholder -> "ex: mail@example.com")</div>
-                                    <div class="col-md-3">@inputText(speakerField("siteUrl"), 'placeholder -> "ex: http://www.johndoe.com/")</div>
                                     <div class="col-md-3">@inputText(speakerField("twitter"), 'placeholder -> "ex: johndoe")</div>
+                                    <div class="col-md-3">@inputText(speakerField("siteUrl"), 'placeholder -> "ex: http://www.johndoe.com/")</div>
+                                    <div class="col-md-3">@inputText(speakerField("email"), 'placeholder -> "ex: mail@example.com")</div>
                                 </div>
                             }
                         }

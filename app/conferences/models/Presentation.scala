@@ -3,10 +3,13 @@ package conferences.models
 import common.Defaults
 import common.models.utils._
 import common.models.values.UUID
-import common.services.TwitterCard
+import common.services.{EmbedSrv, TwitterCard}
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
+
+import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 case class PresentationId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
@@ -22,7 +25,9 @@ case class Presentation(
   title: String,
   description: Option[String],
   slidesUrl: Option[String],
+  slidesEmbedCode: Option[String],
   videoUrl: Option[String],
+  videoEmbedCode: Option[String],
   speakers: List[PresentationSpeaker],
   start: Option[DateTime],
   end: Option[DateTime],
@@ -89,20 +94,29 @@ object PresentationData {
     "tags" -> list(nonEmptyText),
     "createdBy" -> User.fields
   )(PresentationData.apply)(PresentationData.unapply)
-  def toModel(d: PresentationData): Presentation = Presentation(
-    d.conferenceId,
-    d.id.getOrElse(PresentationId.generate()),
-    d.title,
-    d.description,
-    d.slidesUrl,
-    d.videoUrl,
-    d.speakers,
-    d.start,
-    d.start.flatMap(s => d.duration.map(duration => s.plusMinutes(duration))),
-    d.room,
-    d.tags,
-    new DateTime(),
-    Some(d.createdBy.trim()))
+  def toModel(d: PresentationData): Future[Presentation] = {
+    for {
+      slidesEmbedOpt <- EmbedSrv.embedCode(d.slidesUrl.getOrElse(""))
+      videoEmbedOpt <- EmbedSrv.embedCode(d.videoUrl.getOrElse(""))
+    } yield {
+      Presentation(
+        d.conferenceId,
+        d.id.getOrElse(PresentationId.generate()),
+        d.title,
+        d.description,
+        d.slidesUrl,
+        slidesEmbedOpt.map(_.embedCode),
+        d.videoUrl,
+        videoEmbedOpt.map(_.embedCode),
+        d.speakers,
+        d.start,
+        d.start.flatMap(s => d.duration.map(duration => s.plusMinutes(duration))),
+        d.room,
+        d.tags,
+        new DateTime(),
+        Some(d.createdBy.trim()))
+    }
+  }
   def fromModel(m: Presentation): PresentationData = PresentationData(
     m.conferenceId,
     Some(m.id),

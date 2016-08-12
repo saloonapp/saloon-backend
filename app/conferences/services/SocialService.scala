@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object SocialService {
   def sendTwitts(): Future[Boolean] = {
-    play.Logger.info("NewsService.sendTwitts()")
+    play.Logger.info("SocialService.sendTwitts()")
     getTwitts(new DateTime()).map { twitts =>
       play.Logger.info(if(twitts.length > 0) twitts.length+" twitts à envoyer :" else "aucun twitt à envoyer")
       twitts.map(t => play.Logger.info("  - "+t))
