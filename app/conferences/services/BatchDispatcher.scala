@@ -28,7 +28,7 @@ case class TimeChecker(val _valid: Boolean = true) {
           TimeChecker(false)
         }
       } catch {
-        case _ => TimeChecker(false)
+        case _: Throwable => TimeChecker(false)
       }
     } else {
       TimeChecker(false)
