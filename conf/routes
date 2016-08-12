@@ -35,11 +35,9 @@ POST      /conferences/:cId/presentations/:pId/edit                             
 GET       /api/conferences                                                                  conferences.controllers.Api.list
 GET       /api/conferences/search                                                           conferences.controllers.Api.search(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 GET       /api/conferences/speakers                                                         conferences.controllers.Api.speaker(name: String)
+POST      /batch/conferences/scheduler                                                      conferences.controllers.Batch.scheduler
+GET       /batch/conferences/testDailyTwitts                                                conferences.controllers.Batch.testDailyTwitts(date: Option[String])
 GET       /batch/conferences/testNewsletter                                                 conferences.controllers.Batch.testNewsletter(email: Option[String], date: Option[String])
-GET       /batch/conferences/testSocialAnouncements                                         conferences.controllers.Batch.testSocialAnouncements(date: Option[String])
-GET       /batch/conferences/sendNewsletter                                                 conferences.controllers.Batch.sendNewsletter
-GET       /batch/conferences/publishNews                                                    conferences.controllers.Batch.publishNews
-GET       /batch/conferences/scheduler                                                      conferences.controllers.Batch.scheduler
 GET       /batch/conferences/importFromProd                                                 conferences.controllers.Batch.importFromProd
 
 # Authentication

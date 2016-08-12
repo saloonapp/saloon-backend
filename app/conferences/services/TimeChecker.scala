@@ -2,14 +2,14 @@ package conferences.services
 
 import org.joda.time.DateTime
 
-case class TimeChecker(val _valid: Boolean = true) {
+case class TimeChecker(name: String, val _valid: Boolean = true) {
   def isTime(time: String, precision: Int = 5): TimeChecker = {
     filter(() => {
       val nums = time.split(":").map(_.toInt)
       Math.abs(new DateTime().getMinuteOfDay - (60*nums(0) + nums(1))) < precision
     })
   }
-  def isWeekDay(day: Int): TimeChecker = {
+  def isWeekDay(day: Int): TimeChecker = { // see org.joda.time.DateTimeConstants
     filter(() => {
       new DateTime().getDayOfWeek == day
     })
@@ -23,22 +23,15 @@ case class TimeChecker(val _valid: Boolean = true) {
     if(this._valid) {
       try {
         if(f()){
-          TimeChecker(true)
+          TimeChecker(this.name, true)
         } else {
-          TimeChecker(false)
+          TimeChecker(this.name, false)
         }
       } catch {
-        case _: Throwable => TimeChecker(false)
+        case _: Throwable => TimeChecker(this.name, false)
       }
     } else {
-      TimeChecker(false)
+      TimeChecker(this.name, false)
     }
   }
-}
-
-object BatchDispatcher {
-  def isTime(time: String): Option[Unit] = {
-    None
-  }
-
 }

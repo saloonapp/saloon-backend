@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object SocialService {
-  def sendTwitts(): Future[Boolean] = {
+  def sendDailyTwitts(): Future[Boolean] = {
     play.Logger.info("SocialService.sendTwitts()")
     getTwitts(new DateTime()).map { twitts =>
       play.Logger.info(if(twitts.length > 0) twitts.length+" twitts à envoyer :" else "aucun twitt à envoyer")
