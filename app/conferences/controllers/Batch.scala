@@ -39,6 +39,7 @@ object Batch extends Controller {
 
   def scheduler = Action { implicit req =>
     if(Utils.isProd()){
+      // TODO add cache (last exec) to prevent multiple execution if called multiple times in the valid period
       TimeChecker("dailyTwitts").isTime("9:15").run(() => SocialService.sendDailyTwitts())
       TimeChecker("newsletter").isTime("9:15").isWeekDay(DateTimeConstants.MONDAY).run(() => NewsletterService.sendNewsletter())
       Ok("Ok")

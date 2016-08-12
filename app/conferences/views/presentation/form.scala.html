@@ -21,16 +21,11 @@
                         <legend>Présentation</legend>
                         @inputHidden(presentationForm("conferenceId"), 'value -> conference.id.unwrap)
                         @presentationForm("id").value.map { _ => @inputHidden(presentationForm("id")) }
-                        @fieldHorizontal(presentationForm("title"), 'label -> "Titre") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
+                        @fieldHorizontal(presentationForm("title"), 'label -> "Titre *") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                         <!-- TODO : add ajax preview of embed slides & video -->
                         @fieldHorizontal(presentationForm("videoUrl"), 'label -> "Vidéo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                         @fieldHorizontal(presentationForm("slidesUrl"), 'label -> "Slides", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
-                        @fieldHorizontal(presentationForm("tags"), 'label -> "Tags", 'constraints -> "false") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
-                        @fieldHorizontal(presentationForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
-                    </fieldset>
-                    <fieldset>
-                        <legend>Détails</legend>
-                        @fieldHorizontal(presentationForm("speakers"), 'label -> "Speakers") { field =>
+                        @fieldHorizontal(presentationForm("speakers"), 'label -> "Speaker *") { field =>
                             <div class="row" style="margin-top: 7px;">
                                 <div class="col-md-3"><label for="speakers_0_name">Nom</label></div>
                                 <div class="col-md-3"><label for="speakers_0_twitter">Twitter</label></div>
@@ -46,6 +41,11 @@
                                 </div>
                             }
                         }
+                        @fieldHorizontal(presentationForm("tags"), 'label -> "Tags", 'constraints -> "false") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
+                        @fieldHorizontal(presentationForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
+                    </fieldset>
+                    <fieldset>
+                        <legend>Détails</legend>
                         @fieldHorizontal(presentationForm("start"), 'label -> "Date/Heure") { field => @inputDateTime(field, 'startDate -> Format.datetime(conference.start), 'placeholder -> "ex: 21/04/2016 10:15") }
                         @fieldHorizontal(presentationForm("duration"), 'label -> "Durée (min)") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 50") }
                         @* TODO : room autocomplete *@
