@@ -4,11 +4,9 @@ import java.util.Date
 import com.danielasfregola.twitter4s.TwitterClient
 import com.danielasfregola.twitter4s.entities._
 import com.danielasfregola.twitter4s.entities.enums.{ResultType, Mode}
-import com.danielasfregola.twitter4s.exceptions.{TwitterError, Errors, TwitterException}
 import common.Utils
 import org.joda.time.DateTime
 import play.api.libs.json.Json
-import spray.http.StatusCodes
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -18,9 +16,10 @@ object TwitterSrv {
   val account = play.api.Play.current.configuration.getString("twitter.account").getOrElse("Account Not Found !")
   val client = new TwitterClient()
 
-  def sendTwitt(text: String): Future[Option[Tweet]] = {
-    if(Utils.isProd()) {
-      Try(client.tweet(text)) match {
+  private def allowEdit(): Boolean = Utils.isProd()
+  private def twitt(text: String, in_reply_to: Option[String] = None): Future[Option[Tweet]] = {
+    if(allowEdit()) {
+      Try(client.tweet(status = text, in_reply_to_status_id = in_reply_to.map(_.toLong))) match {
         case Success(f) => f.map(Some(_))
         case Failure(e) => play.Logger.warn(s"TwitterSrv - fail to post the twitt <$text> : ${e.getMessage}", e); Future(None)
       }
@@ -29,6 +28,10 @@ object TwitterSrv {
       Future(None)
     }
   }
+  def sendTwitt(text: String): Future[Option[Tweet]] =
+    twitt(text)
+  def reply(text: String, inReplyTo: String): Future[Option[Tweet]] =
+    twitt(text, Some(inReplyTo))
   def sendTwitts(twitts: List[String], everyMin: Int = 0): List[DateTime] = {
     if(everyMin > 0){
       twitts.zipWithIndex.map { case (twitt, i) => SchedulerHelper.in(minutes = everyMin * i)(sendTwitt(twitt)) }
@@ -36,46 +39,59 @@ object TwitterSrv {
       twitts.map(sendTwitt).map(_ => new DateTime())
     }
   }
-  def favorite(tweetId: String): Future[Tweet] = {
-    client.favoriteStatus(tweetId.toLong, false)
+  def favorite(tweetId: String): Future[Option[Tweet]] = {
+    if(allowEdit()) {
+      client.favoriteStatus(tweetId.toLong, false).map(tweet => Some(tweet))
+    } else {
+      Future(None)
+    }
   }
 
   //client.followUser()
   //client.followUserId()
-  def getUserById(id: String): Future[User] = {
-    client.getUserById(id.toLong)
+  def getUserById(userId: String): Future[User] = {
+    client.getUserById(userId.toLong)
   }
-  def getUserByName(screenName: String): Future[User] = {
-    client.getUser(screenName)
+  def getUserByName(userScreenName: String): Future[User] = {
+    client.getUser(userScreenName)
   }
-  def listName(list: String): String = list.replace(".", "").take(25).replace(" ", "-")
-  def getList(user: String, list: String): Future[TwitterList] = {
-    client.getListsForUser(user).map { lists =>
+  def listName(str: String): String = str.replace(".", "").take(25).replace(" ", "-")
+  def getList(userScreenName: String, listName: String): Future[Option[TwitterList]] = {
+    client.getListsForUser(userScreenName).map { lists =>
       lists
-        .filter(_.name == list)
+        .filter(_.name == listName)
         .sortBy(-_.member_count)
         .headOption
-        .getOrElse(throw new TwitterException(StatusCodes.NotFound, Errors(TwitterError(s"List '$list' not found for user '$user'", 404))))
     }
   }
-  def createList(name: String, description: Option[String] = None): Future[TwitterList] = {
-    client.createList(name, Mode.Public, description)
+  def createList(name: String, description: Option[String] = None): Future[Option[TwitterList]] = {
+    if(allowEdit()) {
+      client.createList(name, Mode.Public, description).map(list => Some(list))
+    } else {
+      Future(None)
+    }
   }
-  def getOrCreateList(user: String, list: String): Future[TwitterList] = {
-    getList(user, list).recoverWith {
-      case e: Throwable => play.Logger.info("err "+e); createList(list)
+  def getOrCreateList(userScreenName: String, listName: String): Future[Option[TwitterList]] = {
+    getList(userScreenName, listName).flatMap { listOpt =>
+      listOpt.map(l => Future(Some(l))).getOrElse(createList(listName))
+    }.recoverWith {
+      case e: Throwable => createList(listName)
     }
   }
   def addToList(listId: String, userId: String): Future[Unit] = {
-    client.addListMemberIdByListId(listId.toLong, userId.toLong).recover {
-      case _: Throwable => () // PipelineException: No constructor for type void :(
+    if(allowEdit()) {
+      client.addListMemberIdByListId(listId.toLong, userId.toLong).recover {
+        case _: Throwable => ()
+      }
+    } else {
+      Future()
     }
   }
 
-  def search(query: String): Future[List[Tweet]] = {
+  def search(query: String, limit: Int = 100): Future[List[Tweet]] = {
     client.searchTweet(
       query = query,
-      count = 10,
+      count = limit,
       include_entities = true,
       result_type = ResultType.Recent).map { result =>
       result.statuses
@@ -103,7 +119,8 @@ case class SimpleUser(
   name: String,
   screen_name: String,
   description: Option[String],
-  email: Option[String])
+  email: Option[String],
+  lang: Option[String])
 object SimpleUser {
   implicit val format = Json.format[SimpleUser]
   def from(user: User) = SimpleUser(
@@ -111,13 +128,15 @@ object SimpleUser {
     name = user.name,
     screen_name = user.screen_name,
     description = user.description,
-    email = user.email)
+    email = user.email,
+    lang = Some(user.lang))
   def from(mention: UserMention) = SimpleUser(
     id = mention.id_str,
     name = mention.name,
     screen_name = mention.screen_name,
     description = None,
-    email = None)
+    email = None,
+    lang = None)
 }
 case class SimpleTweet(
   id: String,

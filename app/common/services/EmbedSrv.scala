@@ -18,24 +18,17 @@ object EmbedData {
   def unknown(url: String): EmbedData = EmbedData(url, "unknown", url, s"""<a href="$url" target="_blank">$url</a>""")
 }
 object EmbedSrv {
-  val youtubeUrl = "https?://www.youtube.com/watch\\?(?:[^=]+=[^&]+&)*v=([^&]+).*".r
-  val dailymotionUrl = "https?://www.dailymotion.com/video/([^/?#]+).*".r
-  val vimeoUrl = "https?://vimeo.com/([^/?#]+).*".r
-  val slideshareUrl = "https?://[a-z]+.slideshare.net/([^/?#]+)/([^/?#]+).*".r
-  val speakerdeckUrl = "https?://speakerdeck.com/([^/?#]+)/([^/?#]+).*".r
-  val slidescomUrl = "https?://slides.com/([^/?#]+)/([^/?#]+).*".r
-  val googleslidesUrl = "https?://docs.google.com/presentation/d/([^/?#]+).*".r
-  val googledocsUrl = "https?://drive.google.com/file/d/([^/?#]+).*".r
-
+  // TODO : add prezi
   def embedCode(url: String): Future[Option[EmbedData]] = url match {
-    case youtubeUrl(videoId) => youtubeEmbedCode(url, videoId)
-    case dailymotionUrl(videoId) => dailymotionEmbedCode(url, videoId)
-    case vimeoUrl(videoId) => vimeoEmbedCode(url, videoId)
-    case slideshareUrl(user, slidesId) => slideshareEmbedCode(url)
-    case speakerdeckUrl(user, slidesId) => speakerdeckEmbedCode(url)
-    case slidescomUrl(user, slidesId) => slidescomEmbedCode(url, user, slidesId)
-    case googleslidesUrl(slidesId) => googleslidesEmbedCode(url, slidesId)
-    case googledocsUrl(slidesId) => googledocsEmbedCode(url, slidesId)
+    case UrlSrv.youtube1Url(videoId) => youtubeEmbedCode(url, videoId)
+    case UrlSrv.youtube2Url(videoId) => youtubeEmbedCode(url, videoId)
+    case UrlSrv.dailymotionUrl(videoId) => dailymotionEmbedCode(url, videoId)
+    case UrlSrv.vimeoUrl(videoId) => vimeoEmbedCode(url, videoId)
+    case UrlSrv.slideshareUrl(user, slidesId) => slideshareEmbedCode(url)
+    case UrlSrv.speakerdeckUrl(user, slidesId) => speakerdeckEmbedCode(url)
+    case UrlSrv.slidescomUrl(user, slidesId) => slidescomEmbedCode(url, user, slidesId)
+    case UrlSrv.googleslidesUrl(slidesId) => googleslidesEmbedCode(url, slidesId)
+    case UrlSrv.googledocsUrl(slidesId) => googledocsEmbedCode(url, slidesId)
     case _ => unknownEmbedCode(url)
   }
 

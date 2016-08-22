@@ -1,6 +1,7 @@
 package conferences.services
 
 import common.Defaults
+import common.services.SimpleTweet
 import conferences.models.Conference
 import org.joda.time.{Days, DateTime}
 
@@ -43,18 +44,27 @@ object TwittFactory {
     s"Début de $name ${dayDuration(now, c.start)} $url$hashtag"
   }
 
-  def addSlidesDuringConference(c: Conference): String = { // à 8h30, 12h, 16h et 19h pendant la conf
+  def genericRemindToAddSlides(c: Conference): String = { // à 8h30, 12h, 16h et 19h pendant la conf
     val url = Defaults.baseUrl + conferences.controllers.routes.Conferences.detail(c.id)
     val account = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
     s"Speaker à $account ? Publie tes slides sur $url$hashtag"
   }
-  def publishSlides(c: Conference): String = { // le soir
+  def replySuggestToAddSlides(c: Conference, tweet: SimpleTweet): String = {
+    val url = Defaults.baseUrl + conferences.controllers.routes.Conferences.detail(c.id)
+    val userMention = tweet.user.map("@"+_.screen_name).getOrElse("")
+    val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
+    tweet.user.flatMap(_.lang) match {
+      case Some("fr") => s"$userMention N'hésites pas à ajouter tes slides sur $url$hashtag"
+      case _ => s"$userMention Feel free to add your slides to $url$hashtag"
+    }
+  }
+  /*def publishSlides(c: Conference): String = { // le soir
     val url = Defaults.baseUrl + conferences.controllers.routes.Conferences.detail(c.id)
     val account = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
     s"Des présentationss (slides et vidéos) ont été publiées pour $account $url$hashtag"
-  }
+  }*/
 
   private def dayDuration(start: DateTime, end: DateTime): String = {
     Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays() match {

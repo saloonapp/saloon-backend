@@ -1,7 +1,9 @@
 package conferences.services
 
+import common.Utils
 import common.repositories.conference.ConferenceRepository
-import common.services.{SimpleUser, SimpleTweet, TwitterSrv}
+import common.services.UrlInfo.Category
+import common.services.{UrlSrv, SimpleUser, SimpleTweet, TwitterSrv}
 import conferences.models.Conference
 import org.joda.time.DateTime
 import play.api.libs.json.Json
@@ -10,7 +12,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object SocialService {
   def sendDailyTwitts(): Future[Boolean] = {
-    play.Logger.info("SocialService.sendTwitts()")
     getDailyTwitts(new DateTime()).map { twitts =>
       play.Logger.info(if(twitts.length > 0) twitts.length+" twitts à envoyer :" else "aucun twitt à envoyer")
       twitts.map(t => play.Logger.info("  - "+t))
@@ -52,10 +53,23 @@ object SocialService {
         }
       }).map { conferencesWithTwitts: List[(Conference, List[SimpleTweet], List[SimpleUser], List[(String, SimpleTweet)])] =>
         conferencesWithTwitts.map { case (conf, _, users, links) =>
-          TwitterSrv.getOrCreateList(TwitterSrv.account, TwitterSrv.listName(conf.name)).map { list =>
+          // global twitt to remind to add slides
+          TwitterSrv.sendTwitt(TwittFactory.genericRemindToAddSlides(conf))
+
+          // add twitting users to conference list
+          TwitterSrv.getOrCreateList(TwitterSrv.account, TwitterSrv.listName(conf.name)).map { _.map { list =>
             users.map(user => TwitterSrv.addToList(list.id_str, user.id))
-          }
+          }}
+
+          // favorite twitts with links
           links.map { case (link, tweet) => TwitterSrv.favorite(tweet.id) }
+
+          // reply to suggest adding slides to conference list
+          Utils.asyncFilter[(String, SimpleTweet)](links, link => UrlSrv.getService(link._1).map { info =>
+            info.category == Category.Slides
+          }).map { slidesLinks =>
+            slidesLinks.map { case (link, tweet) => TwitterSrv.reply(TwittFactory.replySuggestToAddSlides(conf, tweet), tweet.id) }
+          }
         }
         true
       }
