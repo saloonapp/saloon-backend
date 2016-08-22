@@ -3,6 +3,8 @@ package common
 import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.after
+import play.api.libs.ws.WS
+import play.api.Play.current
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import play.api.Play
@@ -40,4 +42,20 @@ object Utils {
    *  	- http://remark.overzealous.com/manual/index.html
    * 	- https://github.com/foursquare/sites-to-markdown/blob/master/src/jon/Convert.java
    */
+
+  def asyncFilter[A](list: List[A], predicate: A => Future[Boolean])(implicit ec: ExecutionContext): Future[List[A]] = {
+    Future.sequence(list.map(item => predicate(item).map(result => (item, result)))).map { l =>
+      l.filter(_._2).map(_._1)
+    }
+  }
+
+  def resolveUrl(url: String)(implicit ec: ExecutionContext): Future[String] = {
+    WS.url(url).withFollowRedirects(false).get().flatMap { response =>
+      response.header("Location").map { redirect =>
+        resolveUrl(redirect)
+      }.getOrElse {
+        Future(url)
+      }
+    }
+  }
 }

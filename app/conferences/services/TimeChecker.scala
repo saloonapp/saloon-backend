@@ -3,15 +3,19 @@ package conferences.services
 import org.joda.time.DateTime
 
 case class TimeChecker(name: String, val _valid: Boolean = true) {
-  def isTime(time: String, precision: Int = 5): TimeChecker = {
+  def isTime(times: String*): TimeChecker = {
     filter(() => {
-      val nums = time.split(":").map(_.toInt)
-      Math.abs(new DateTime().getMinuteOfDay - (60*nums(0) + nums(1))) < precision
+      times.map { time =>
+        val nums = time.split(":").map(_.toInt)
+        Math.abs(new DateTime().getMinuteOfDay - (60*nums(0) + nums(1))) < 5
+      }.filter(b => b).length > 0
     })
   }
-  def isWeekDay(day: Int): TimeChecker = { // see org.joda.time.DateTimeConstants
+  def isWeekDay(days: Int*): TimeChecker = { // see org.joda.time.DateTimeConstants
     filter(() => {
-      new DateTime().getDayOfWeek == day
+      days.map { day =>
+        new DateTime().getDayOfWeek == day
+      }.filter(b => b).length > 0
     })
   }
   def run(f: () => Unit): TimeChecker = {

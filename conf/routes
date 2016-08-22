@@ -36,8 +36,9 @@ GET       /api/conferences                                                      
 GET       /api/conferences/search                                                           conferences.controllers.Api.search(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 GET       /api/conferences/speakers                                                         conferences.controllers.Api.speaker(name: String)
 POST      /batch/conferences/scheduler                                                      conferences.controllers.Batch.scheduler
-GET       /batch/conferences/testDailyTwitts                                                conferences.controllers.Batch.testDailyTwitts(date: Option[String])
-GET       /batch/conferences/testNewsletter                                                 conferences.controllers.Batch.testNewsletter(email: Option[String], date: Option[String])
+GET       /batch/conferences/testSendNewsletter                                             conferences.controllers.Batch.testSendNewsletter(email: Option[String], date: Option[String])
+GET       /batch/conferences/testSendDailyTwitts                                            conferences.controllers.Batch.testSendDailyTwitts(date: Option[String])
+GET       /batch/conferences/testScanTwitterTimeline                                        conferences.controllers.Batch.testScanTwitterTimeline(date: Option[String])
 GET       /batch/conferences/importFromProd                                                 conferences.controllers.Batch.importFromProd
 
 # Authentication

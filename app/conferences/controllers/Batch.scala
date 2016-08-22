@@ -14,13 +14,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
-  def testDailyTwitts(date: Option[String]) = Action.async { implicit req =>
-    SocialService.getTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
-      Ok(Json.obj("twitts" -> twitts))
-    }
-  }
-
-  def testNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
+  def testSendNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
     NewsletterService.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
         MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
@@ -37,11 +31,36 @@ object Batch extends Controller {
     }
   }
 
+  def testSendDailyTwitts(date: Option[String]) = Action.async { implicit req =>
+    SocialService.getDailyTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
+      Ok(Json.obj("twitts" -> twitts))
+    }
+  }
+
+  def testScanTwitterTimeline(date: Option[String]) = Action.async { implicit req =>
+    ConferenceRepository.findRunning(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { conferences =>
+      Future.sequence(conferences.map { conference =>
+        SocialService.getConferenceTwitts(conference).map { twitts =>
+          (conference, twitts, SocialService.getUsers(twitts), SocialService.getLinks(twitts))
+        }
+      }).map { conferencesWithTwitts: List[(Conference, List[SimpleTweet], List[SimpleUser], List[(String, SimpleTweet)])] =>
+        val addToLists = conferencesWithTwitts.map { case (conf, _, users, _) => (TwitterSrv.listName(conf.name), users) }.toMap[String, List[SimpleUser]]
+        val links = conferencesWithTwitts.map { case (conf, _, _, links) => (conf.name, links.toMap[String, SimpleTweet]) }.toMap[String, Map[String, SimpleTweet]]
+        Ok(Json.obj(
+          "addToLists" -> addToLists,
+          "links" -> links,
+          "twitts" -> conferencesWithTwitts.map { case (conf, tweets, _, _) => (conf.name, tweets) }.toMap[String, List[SimpleTweet]],
+          "conferences" -> conferences))
+      }
+    }
+  }
+
   def scheduler = Action { implicit req =>
     if(Utils.isProd()){
       // TODO add cache (last exec) to prevent multiple execution if called multiple times in the valid period
-      TimeChecker("dailyTwitts").isTime("9:15").run(() => SocialService.sendDailyTwitts())
-      TimeChecker("newsletter").isTime("9:15").isWeekDay(DateTimeConstants.MONDAY).run(() => NewsletterService.sendNewsletter())
+      TimeChecker("sendNewsletter").isTime("9:15").isWeekDay(DateTimeConstants.MONDAY).run(() => NewsletterService.sendNewsletter())
+      TimeChecker("sendDailyTwitts").isTime("9:15").run(() => SocialService.sendDailyTwitts())
+      TimeChecker("scanTwitterTimeline").isTime("8:15", "12:15", "16:15", "19:15").run(() => SocialService.scanTwitterTimeline())
       Ok("Ok")
     } else {
       Forbidden("Forbidden")
