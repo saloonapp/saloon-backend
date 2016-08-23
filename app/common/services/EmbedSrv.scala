@@ -20,15 +20,15 @@ object EmbedData {
 object EmbedSrv {
   // TODO : add prezi
   def embedCode(url: String): Future[Option[EmbedData]] = url match {
-    case UrlSrv.youtube1Url(videoId) => youtubeEmbedCode(url, videoId)
-    case UrlSrv.youtube2Url(videoId) => youtubeEmbedCode(url, videoId)
-    case UrlSrv.dailymotionUrl(videoId) => dailymotionEmbedCode(url, videoId)
-    case UrlSrv.vimeoUrl(videoId) => vimeoEmbedCode(url, videoId)
-    case UrlSrv.slideshareUrl(user, slidesId) => slideshareEmbedCode(url)
-    case UrlSrv.speakerdeckUrl(user, slidesId) => speakerdeckEmbedCode(url)
-    case UrlSrv.slidescomUrl(user, slidesId) => slidescomEmbedCode(url, user, slidesId)
-    case UrlSrv.googleslidesUrl(slidesId) => googleslidesEmbedCode(url, slidesId)
-    case UrlSrv.googledocsUrl(slidesId) => googledocsEmbedCode(url, slidesId)
+    case Urls.youtube1(videoId) => youtubeEmbedCode(url, videoId)
+    case Urls.youtube2(videoId) => youtubeEmbedCode(url, videoId)
+    case Urls.dailymotion(videoId) => dailymotionEmbedCode(url, videoId)
+    case Urls.vimeo(videoId) => vimeoEmbedCode(url, videoId)
+    case Urls.slideshare(user, slidesId) => slideshareEmbedCode(url)
+    case Urls.speakerdeck(user, slidesId) => speakerdeckEmbedCode(url)
+    case Urls.slidescom(user, slidesId) => slidescomEmbedCode(url, user, slidesId)
+    case Urls.googleslides(slidesId) => googleslidesEmbedCode(url, slidesId)
+    case Urls.googledocs(slidesId) => googledocsEmbedCode(url, slidesId)
     case _ => unknownEmbedCode(url)
   }
 

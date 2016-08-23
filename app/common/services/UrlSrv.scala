@@ -1,27 +1,18 @@
 package common.services
 
 import common.EnumUtils
-import common.services.UrlInfo.{Service, Category}
-import play.api.libs.json.{Reads, Json}
+import common.services.UrlInfo.Service
+import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.Play.current
 import scala.concurrent.{ExecutionContext, Future}
 
-object UrlSrv {
+object Urls {
   /* URLS TO ADD
-    - slides
-    - video
-    - apps
-      - https://itunes.apple.com/us/app/one-epic-knight/id469820028?mt=8
-      - https://play.google.com/store/apps/details?id=com.ironhide.games.clashoftheolympians
     - newspaper
       - https://www.theguardian.com/technology/2016/aug/06/nsa-zero-days-stockpile-security-vulnerability-defcon
     - blog
       - http://cookingwithamandaz.blogspot.fr/2016/08/13-reasons-to-never-purchase-snacks.html?utm_source=twitterfeed&utm_medium=twitter
-    - social
-      - https://www.instagram.com/p/BJamT9MBSHg/
-      - http://vine.co/v/ebKbA9ubEZa
-      - https://www.facebook.com/nytimes/videos/10150847440454999/?hc_location=ufi&utm_content=bufferbd74f&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
     - ecommerce
       - http://deals.ebay.com/5003492080_Vince_Camuto_Shelly_1_Women__Open_Toe_Synthetic__Slides_Sandal?rmvSB=true
     - other
@@ -31,47 +22,80 @@ object UrlSrv {
   /* WRONG RESOLVE
     - http://tech.mg/E3zIme
    */
+  private val hash = "([^/?&#]+)"
+  val googlePlay = s"https?://play.google.com/store/apps/details?id=$hash.*".r
+  val iTunes = s"https?://itunes.apple.com/us/app/$hash/$hash.*".r
 
-  val youtube1Url = "https?://www.youtube.com/watch\\?(?:[^=]+=[^&]+&)*v=([^&]+).*".r
-  val youtube2Url = "https?://youtu.be/([^/?#]+).*".r
-  val dailymotionUrl = "https?://www.dailymotion.com/video/([^/?#]+).*".r
-  val vimeoUrl = "https?://vimeo.com/([^/?#]+).*".r
-  val slideshareUrl = "https?://[a-z]+.slideshare.net/([^/?#]+)/([^/?#]+).*".r
-  val speakerdeckUrl = "https?://speakerdeck.com/([^/?#]+)/([^/?#]+).*".r
-  val slidescomUrl = "https?://slides.com/([^/?#]+)/([^/?#]+).*".r
-  val preziUrl = "https?://prezi.com/p/([^/?#]+).*".r
-  val googleslidesUrl = "https?://docs.google.com/presentation/d/([^/?#]+).*".r
-  val googledocsUrl = "https?://drive.google.com/file/d/([^/?#]+).*".r
-  val twitterUrl = "https?://twitter.com/([^/?#]+)/status/([^/?#]+).*".r
-  val tcoUrl = "https?://t.co/([^/?#]+).*".r
-  val owlyUrl = "https?://ow.ly/([^/?#]+).*".r
-  val shstUrl = "https?://sh.st/([^/?#]+).*".r
-  val mfttUrl = "https?://mf.tt/([^/?#]+).*".r
-  val wpmeUrl = "https?://wp.me/([^/?#]+).*".r
-  val fbmeUrl = "https?://fb.me/([^/?#]+).*".r
-  val bitlyUrl = "https?://bit.ly/([^/?#]+).*".r
-  val iftttUrl = "https?://ift.tt/([^/?#]+).*".r
-  val googlUrl = "https?://goo.gl/([^/?#]+).*".r
-  val bufferUrl = "https?://buff.ly/([^/?#]+).*".r
-  val dlvritUrl = "https?://dlvr.it/([^/?#]+).*".r
-  val twibinUrl = "http://twib.in/l/([^/?#]+).*".r
-  val lnkdinUrl = "http://lnkd.in/l/([^/?#]+).*".r
+  val youtube1 = "https?://www.youtube.com/watch\\?(?:[^=]+=[^&]+&)*v=([^&]+).*".r
+  val youtube2 = s"https?://youtu.be/$hash.*".r
+  val dailymotion = s"https?://www.dailymotion.com/video/$hash.*".r
+  val vimeo = s"https?://vimeo.com/$hash.*".r
+  val infoq = s"https?://www.infoq.com/presentations/$hash".r
 
+  val slideshare = s"https?://[a-z]+.slideshare.net/$hash/$hash.*".r
+  val speakerdeck = s"https?://speakerdeck.com/$hash/$hash.*".r
+  val slidescom = s"https?://slides.com/$hash/$hash.*".r
+  val prezi = s"https?://prezi.com/p/$hash.*".r
+  val googleslides = s"https?://docs.google.com/presentation/d/$hash.*".r
+
+  val facebookUser = s"https?://www.facebook.com/$hash.*".r
+  val facebookPhoto = s"https?://www.facebook.com/photo.php?fbid=$hash.*".r
+  val facebookVideo1 = s"https?://www.facebook.com/video.php?v=$hash.*".r
+  val facebookVideo2 = s"https?://www.facebook.com/$hash/videos/$hash.*".r
+  val facebookPost = s"https?://www.facebook.com/$hash/posts/$hash.*".r
+  val twitter = s"https?://twitter.com/$hash/status/$hash.*".r
+  val instagram = s"https?://www.instagram.com/p/$hash.*".r
+  val vine = s"https?://vine.co/v/$hash.*".r
+
+  val googledocs = s"https?://drive.google.com/file/d/$hash.*".r
+
+  val tco = s"https?://t.co/$hash.*".r
+  val owly = s"https?://ow.ly/$hash.*".r
+  val shst = s"https?://sh.st/$hash.*".r
+  val mftt = s"https?://mf.tt/$hash.*".r
+  val wpme = s"https?://wp.me/$hash.*".r
+  val fbme = s"https?://fb.me/$hash.*".r
+  val bitly = s"https?://bit.ly/$hash.*".r
+  val ifttt = s"https?://ift.tt/$hash.*".r
+  val googl = s"https?://goo.gl/$hash.*".r
+  val buffer = s"https?://buff.ly/$hash.*".r
+  val dlvrit = s"https?://dlvr.it/$hash.*".r
+  val twibin = s"http://twib.in/l/$hash.*".r
+  val lnkdin = s"http://lnkd.in/l/$hash.*".r
+}
+
+object UrlSrv {
   def getService(url: String, sourceUrl: Option[String] = None)(implicit ec: ExecutionContext): Future[UrlInfo] = getServiceWithResolve(url, None)
 
   private def getServiceWithResolve(url: String, sourceUrl: Option[String])(implicit ec: ExecutionContext): Future[UrlInfo] = url match {
-    case youtube1Url(itemId) =>             Future(UrlInfo.from(url, sourceUrl, Service.Youtube,      Some(itemId)))
-    case youtube2Url(itemId) =>             Future(UrlInfo.from(url, sourceUrl, Service.Youtube,      Some(itemId)))
-    case dailymotionUrl(itemId) =>          Future(UrlInfo.from(url, sourceUrl, Service.Dailymotion,  Some(itemId)))
-    case vimeoUrl(itemId) =>                Future(UrlInfo.from(url, sourceUrl, Service.Vimeo,        Some(itemId)))
-    case slideshareUrl(userId, itemId) =>   Future(UrlInfo.from(url, sourceUrl, Service.Slideshare,   Some(itemId), Some(userId)))
-    case speakerdeckUrl(userId, itemId) =>  Future(UrlInfo.from(url, sourceUrl, Service.Speakerdeck,  Some(itemId), Some(userId)))
-    case slidescomUrl(userId, itemId) =>    Future(UrlInfo.from(url, sourceUrl, Service.Slidescom,    Some(itemId), Some(userId)))
-    case preziUrl(itemId) =>                Future(UrlInfo.from(url, sourceUrl, Service.Prezi,        Some(itemId)))
-    case googleslidesUrl(itemId) =>         Future(UrlInfo.from(url, sourceUrl, Service.GoogleSlides, Some(itemId)))
-    case googledocsUrl(itemId) =>           Future(UrlInfo.from(url, sourceUrl, Service.GoogleDocs,   Some(itemId)))
-    case twitterUrl(userId, itemId) =>      Future(UrlInfo.from(url, sourceUrl, Service.Twitter,      Some(itemId)))
-    case tcoUrl(_) | owlyUrl(_) | shstUrl(_) | mfttUrl(_) | wpmeUrl(_) | fbmeUrl(_) | bitlyUrl(_) | iftttUrl(_) | googlUrl(_) | bufferUrl(_) | dlvritUrl(_) | twibinUrl(_) | lnkdinUrl(_) =>
+    case Urls.iTunes(userId, itemId) =>         Future(UrlInfo.from(url, sourceUrl, Service.iTunes,       Some(itemId), Some(userId)))
+    case Urls.googlePlay(itemId) =>             Future(UrlInfo.from(url, sourceUrl, Service.GooglePlay,   Some(itemId)))
+
+    case Urls.youtube1(itemId) =>               Future(UrlInfo.from(url, sourceUrl, Service.Youtube,      Some(itemId)))
+    case Urls.youtube2(itemId) =>               Future(UrlInfo.from(url, sourceUrl, Service.Youtube,      Some(itemId)))
+    case Urls.dailymotion(itemId) =>            Future(UrlInfo.from(url, sourceUrl, Service.Dailymotion,  Some(itemId)))
+    case Urls.vimeo(itemId) =>                  Future(UrlInfo.from(url, sourceUrl, Service.Vimeo,        Some(itemId)))
+    case Urls.infoq(itemId) =>                  Future(UrlInfo.from(url, sourceUrl, Service.InfoQ,        Some(itemId)))
+
+    case Urls.slideshare(userId, itemId) =>     Future(UrlInfo.from(url, sourceUrl, Service.Slideshare,   Some(itemId), Some(userId)))
+    case Urls.speakerdeck(userId, itemId) =>    Future(UrlInfo.from(url, sourceUrl, Service.Speakerdeck,  Some(itemId), Some(userId)))
+    case Urls.slidescom(userId, itemId) =>      Future(UrlInfo.from(url, sourceUrl, Service.Slidescom,    Some(itemId), Some(userId)))
+    case Urls.prezi(itemId) =>                  Future(UrlInfo.from(url, sourceUrl, Service.Prezi,        Some(itemId)))
+    case Urls.googleslides(itemId) =>           Future(UrlInfo.from(url, sourceUrl, Service.GoogleSlides, Some(itemId)))
+
+    case Urls.facebookUser(itemId) =>           Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId)))
+    case Urls.facebookPhoto(itemId) =>          Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId)))
+    case Urls.facebookVideo1(itemId) =>         Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId)))
+    case Urls.facebookVideo2(userId, itemId) => Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId), Some(userId)))
+    case Urls.facebookPost(userId, itemId) =>   Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId), Some(userId)))
+    case Urls.twitter(userId, itemId) =>        Future(UrlInfo.from(url, sourceUrl, Service.Twitter,      Some(itemId), Some(userId)))
+    case Urls.instagram(itemId) =>              Future(UrlInfo.from(url, sourceUrl, Service.Instagram,    Some(itemId)))
+    case Urls.vine(itemId) =>                   Future(UrlInfo.from(url, sourceUrl, Service.Vine,         Some(itemId)))
+
+    case Urls.googledocs(itemId) =>             Future(UrlInfo.from(url, sourceUrl, Service.GoogleDocs,   Some(itemId)))
+
+    case Urls.tco(_) | Urls.owly(_) | Urls.shst(_) | Urls.mftt(_) | Urls.wpme(_) | Urls.fbme(_) | Urls.bitly(_) | Urls.ifttt(_) | Urls.googl(_) | Urls.buffer(_) |
+         Urls.dlvrit(_) | Urls.twibin(_) | Urls.lnkdin(_) =>
       resolve(url).flatMap(resolved => getServiceWithResolve(resolved, Some(sourceUrl.getOrElse(url))))
     case _ => Future(UrlInfo.from(url, sourceUrl, Service.Unknown))
   }
@@ -122,7 +146,7 @@ object UrlInfo {
     Ebay,
     Slideshare, Speakerdeck, Slidescom, Prezi, GoogleSlides,
     Facebook, Twitter, Instagram, Vine,
-    Youtube, Dailymotion, Vimeo,
+    Youtube, Dailymotion, Vimeo, InfoQ,
     Unknown = Value
   }
 
@@ -130,13 +154,13 @@ object UrlInfo {
     type Category = Value
     val App, Blog, Document, Ecommerce, Press, Slides, Social, Video, Unknown = Value
     def from(service: UrlInfo.Service.Service): UrlInfo.Category.Category = service match {
-      case Service.GooglePlay | Service.iTunes => Category.App
+      case Service.iTunes | Service.GooglePlay => Category.App
       case Service.Blogspot => Category.Blog
       case Service.GoogleDocs => Category.Document
       case Service.Ebay => Category.Ecommerce
       case Service.Slideshare | Service.Speakerdeck | Service.Slidescom | Service.Prezi | Service.GoogleSlides => Category.Slides
       case Service.Facebook | Service.Twitter | Service.Instagram | Service.Vine => Category.Social
-      case Service.Youtube | Service.Dailymotion | Service.Vimeo => Category.Video
+      case Service.Youtube | Service.Dailymotion | Service.Vimeo | Service.InfoQ => Category.Video
       case _ => Category.Unknown
     }
   }

@@ -21,6 +21,11 @@ Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
 
 - Conférence Liste
     - add pagination for conferences
+    - faire une liste de speakers & faire un auto-complete pour les talks
+    - comme sur Lanyrd, faire 3 menus :
+        - conférences
+        - présentations
+        - speakers
 - SalooN
     - exposant vs sponsor ?
     - Ajouter le 'grade' pour les sponsors (Platinum, Gold, Silver, Bronze)
