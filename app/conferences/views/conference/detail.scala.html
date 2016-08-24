@@ -1,9 +1,11 @@
 @import conferences.models.Conference
 @import conferences.models.Presentation
+@import conferences.models.Person
+@import conferences.models.PersonId
 @import common.views.html.format._
 @import common.views.html.partials._
 @import conferences.views.html.partials._
-@(conference: Conference, presentations: List[Presentation])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(conference: Conference, presentations: List[Presentation], speakers: Map[PersonId, Person])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 @conferences.views.html.main(conference.name, Some(conference.toTwitterCard())){
     @header("")
 
@@ -84,7 +86,7 @@
                 <div style="margin-bottom: 20px;">
                     <h4><a href="@conferences.controllers.routes.Presentations.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h4>
                     <p>
-                        par @presentation.speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }
+                        par @presentation.speakers.map(id => speakers.get(id)).flatten.sortBy(_.name).map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }
                         @presentation.videoUrl.map { videoUrl => <span class="label label-success">Vidéo</span> }.getOrElse { <del class="label label-default">Vidéo</del> }
                         @presentation.slidesUrl.map { slidesUrl => <span class="label label-success">Slides</span> }.getOrElse { <del class="label label-default">Slides</del> }
                     </p>

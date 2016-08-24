@@ -1,0 +1,10 @@
+@import conferences.models.User
+@import common.views.html.forms._
+@(userForm: Field)
+@fieldHorizontal(userForm("name"), 'label -> "Nom/Pseudo") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
+@fieldHorizontal(userForm("email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'type -> "email", 'placeholder -> "ex: mail@example.com") }
+@fieldHorizontal(userForm("siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.johndoe.com/") }
+@fieldHorizontal(userForm("twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: johndoe") }
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">@fieldCheckbox(userForm("public"), 'label -> "Affiché publiquement")</div>
+</div>

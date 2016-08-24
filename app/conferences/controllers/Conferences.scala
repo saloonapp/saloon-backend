@@ -1,6 +1,6 @@
 package conferences.controllers
 
-import common.repositories.conference.{PresentationRepository, ConferenceRepository}
+import common.repositories.conference.{PersonRepository, PresentationRepository, ConferenceRepository}
 import common.services.TwitterSrv
 import conferences.models.{ConferenceId, ConferenceData}
 import conferences.services.TwittFactory
@@ -47,9 +47,10 @@ object Conferences extends Controller {
     for {
       conferenceOpt <- created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id))
       presentations <- PresentationRepository.findFor(id)
+      speakers <- PersonRepository.findByIds(presentations.flatMap(_.speakers).distinct)
     } yield {
       conferenceOpt.map { conference =>
-        Ok(conferences.views.html.conference.detail(conference, presentations.sortBy(_.title)))
+        Ok(conferences.views.html.conference.detail(conference, presentations.sortBy(_.title), speakers.map(s => (s.id, s)).toMap))
       }.getOrElse {
         NotFound("Not Found !")
       }

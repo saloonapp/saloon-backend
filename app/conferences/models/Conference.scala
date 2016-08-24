@@ -3,7 +3,7 @@ package conferences.models
 import common.Defaults
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
 import common.models.values.{CalendarEvent, GMapMarker, GMapPlace, UUID}
-import common.services.TwitterCard
+import common.services.{TwitterSrv, TwitterCard}
 import common.views.format.Format
 import org.joda.time.DateTime
 import play.api.data.Forms._
@@ -89,8 +89,8 @@ case class ConferenceSocialTwitter(
   account: Option[String],
   hashtag: Option[String]) {
   def trim(): ConferenceSocialTwitter = this.copy(
-    account = this.account.map(_.trim.replace("@", "").replaceAll("https?://twitter.com/", "")),
-    hashtag = this.hashtag.map(_.trim.replace("#", "").replaceAll("https?://twitter.com/hashtag/", "").replaceAll("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", ""))
+    account = this.account.map(t => TwitterSrv.toAccount(t)),
+    hashtag = this.hashtag.map(t => TwitterSrv.toHashtag(t))
   )
 }
 object Conference {

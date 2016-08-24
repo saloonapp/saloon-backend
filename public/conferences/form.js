@@ -85,6 +85,40 @@
             });
         });
     }
+
+    if($('.select2-tags-item')[0]){
+        function buildTemplate(text){
+            return function(item){
+                if(item.element){
+                    return $('<span>'+$(item.element).attr('template')+'</span>');
+                } else {
+                    item.id = 'new';
+                    return text || item.text;
+                }
+            };
+        }
+        $('.select2-tags-item').each(function(){
+            var $select = $(this);
+            $select.select2({
+                width: '100%',
+                theme: 'bootstrap',
+                placeholder: $select.attr('placeholder'),
+                tags: true,
+                templateResult: buildTemplate($select.attr('onCreateLabel')),
+                templateSelection: buildTemplate($select.attr('onCreateLabel'))
+            });
+            var onCreate = $select.attr('onCreate');
+            if(onCreate){
+                $select.on('select2:select', function(evt){
+                    if(typeof window[onCreate] === 'function'){
+                        if(evt && evt.params && evt.params.data && evt.params.data.id === 'new') {
+                            window[onCreate]($select, evt);
+                        }
+                    }
+                });
+            }
+        });
+    }
 })();
 
 // inputImgUrl
@@ -106,6 +140,23 @@
             $preview.hide();
         }
     }
+})();
+
+// fill img url with twitter account (input having twitterToImg attribute pointing to imgUrl field id)
+(function(){
+    $('input[twitterToImg]').each(function(){
+        var $twitterAccountField = $(this);
+        var $imgUrlField = $('#'+$twitterAccountField.attr('twitterToImg'));
+        $twitterAccountField.on('change', function () {
+            if ($twitterAccountField.val() !== '' && $imgUrlField.val() === '') {
+                Config.Api.getTwitterAccount($twitterAccountField.val()).then(function (account) {
+                    if (account && $imgUrlField.val() === '') {
+                        $imgUrlField.val(account.avatar).change();
+                    }
+                });
+            }
+        });
+    });
 })();
 
 // GMapPlace picker (https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete?hl=fr)

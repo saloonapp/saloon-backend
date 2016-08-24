@@ -16,6 +16,9 @@ object TwitterSrv {
   val account = play.api.Play.current.configuration.getString("twitter.account").getOrElse("Account Not Found !")
   val client = new TwitterClient()
 
+  def toAccount(twitterAccount: String): String = twitterAccount.trim.replace("@", "").replaceAll("https?://twitter.com/", "")
+  def toHashtag(twitterHashtag: String): String = twitterHashtag.trim.replace("#", "").replaceAll("https?://twitter.com/hashtag/", "").replaceAll("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", "")
+
   private def allowEdit(): Boolean = Utils.isProd()
   private def twitt(text: String, in_reply_to: Option[String] = None): Future[Option[Tweet]] = {
     if(allowEdit()) {
@@ -77,7 +80,7 @@ object TwitterSrv {
         case _: Throwable => ()
       }
     } else {
-      Future()
+      Future(Unit)
     }
   }
 

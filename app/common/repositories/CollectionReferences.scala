@@ -18,4 +18,5 @@ object CollectionReferences {
   // for conferences
   val CONFERENCES = "Conferences"
   val PRESENTATIONS = "Presentations"
+  val PERSONS = "Persons"
 }

@@ -28,7 +28,7 @@ case class Presentation(
   slidesEmbedCode: Option[String],
   videoUrl: Option[String],
   videoEmbedCode: Option[String],
-  speakers: List[PresentationSpeaker],
+  speakers: List[PersonId],
   start: Option[DateTime],
   end: Option[DateTime],
   room: Option[String],
@@ -43,22 +43,8 @@ case class Presentation(
     "https://avatars2.githubusercontent.com/u/11368266?v=3&s=200")
   def toTwitt(): String = "" // TODO : prefilled text to twitt about this presentation
 }
-case class PresentationSpeaker(
-  name: String,
-  email: Option[String],
-  siteUrl: Option[String],
-  twitter: Option[String]) {
-  def trim(): PresentationSpeaker = this.copy(
-    name = this.name.trim,
-    email = this.email.map(_.trim),
-    twitter = this.twitter.map(_.trim.replace("@", "").replaceAll("https?://twitter.com/", ""))
-  )
-}
-object PresentationSpeaker {
-  implicit val formatPresentationSpeaker = Json.format[PresentationSpeaker]
-}
 object Presentation {
-  implicit val formatPresentation = Json.format[Presentation]
+  implicit val format = Json.format[Presentation]
 }
 
 case class PresentationData(
@@ -68,7 +54,7 @@ case class PresentationData(
   description: Option[String],
   slidesUrl: Option[String],
   videoUrl: Option[String],
-  speakers: List[PresentationSpeaker],
+  speakers: List[PersonId],
   start: Option[DateTime],
   duration: Option[Int],
   room: Option[String],
@@ -82,12 +68,7 @@ object PresentationData {
     "description" -> optional(nonEmptyText),
     "slidesUrl" -> optional(nonEmptyText),
     "videoUrl" -> optional(nonEmptyText),
-    "speakers" -> list(mapping(
-      "name" -> nonEmptyText,
-      "email" -> optional(nonEmptyText),
-      "siteUrl" -> optional(nonEmptyText),
-      "twitter" -> optional(nonEmptyText)
-    )(PresentationSpeaker.apply)(PresentationSpeaker.unapply)),
+    "speakers" -> list(of[PersonId]),
     "start" -> optional(jodaDate(pattern = Defaults.datetimeFormat)),
     "duration" -> optional(number),
     "room" -> optional(nonEmptyText),

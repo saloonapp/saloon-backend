@@ -10,7 +10,7 @@
             <div class="col-md-12">
                 @calendarView(
                     List(),
-                    (start: String, end: String) => conferences.controllers.routes.Api.search(after = Some(start), before = Some(end)).url,
+                    (start: String, end: String) => conferences.controllers.routes.Api.searchConferences(after = Some(start), before = Some(end)).url,
                     (id: String) => conferences.controllers.routes.Conferences.detail(ConferenceId(id)).url,
                     750
                 )

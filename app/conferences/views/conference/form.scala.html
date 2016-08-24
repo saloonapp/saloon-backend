@@ -43,7 +43,7 @@
                                             <div class="col-md-3"><label for="social_twitter_hashtag">Hashtag twitter</label></div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-3">@inputText(field, 'placeholder -> "ex: DevoxxFR")</div>
+                                            <div class="col-md-3">@inputText(field, 'twitterToImg -> "logo", 'placeholder -> "ex: DevoxxFR")</div>
                                             <div class="col-md-3">@inputText(conferenceForm("social.twitter.hashtag"), 'placeholder -> "ex: DevoxxFr", 'constraints -> "false")</div>
                                         </div>
                                     }
@@ -83,13 +83,7 @@
                             </div>
                             <div id="user-panel" class="panel-collapse collapse in" role="tabpanel">
                                 <div class="panel-body">
-                                    @fieldHorizontal(conferenceForm("createdBy.name"), 'label -> "Nom/Pseudo") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
-                                    @fieldHorizontal(conferenceForm("createdBy.email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: mail@example.com") }
-                                    @fieldHorizontal(conferenceForm("createdBy.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.johndoe.com/") }
-                                    @fieldHorizontal(conferenceForm("createdBy.twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: johndoe") }
-                                    <div class="form-group">
-                                        <div class="col-sm-offset-2 col-sm-10">@fieldCheckbox(conferenceForm("createdBy.public"), 'label -> "Affiché publiquement")</div>
-                                    </div>
+                                    @createdByForm(conferenceForm("createdBy"))
                                 </div>
                             </div>
                         </div>

@@ -36,22 +36,6 @@
     }
 })();
 
-// get twitter avatar to fill logo
-(function(){
-    var form = Config.Form.Conference;
-    if(form.exists()) {
-        form.$twitterAccount.on('change', function () {
-            if (form.$logo.val() === '') {
-                Config.Api.getTwitterAccount($(this).val()).then(function (account) {
-                    if (account && form.$logo.val() === '') {
-                        form.$logo.val(account.avatar).change();
-                    }
-                });
-            }
-        });
-    }
-})();
-
 // save and fill conference user data
 (function(){
     var storageKey = 'conference-createdBy';

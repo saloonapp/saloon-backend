@@ -1,10 +1,12 @@
 @import conferences.models.Conference
 @import conferences.models.PresentationId
 @import conferences.models.PresentationData
+@import conferences.models.Person
 @import common.views.format.Format
 @import common.views.html.forms._
 @import conferences.views.html.partials._
-@(conference: Conference, presentationForm: Form[PresentationData], tags: List[(String, Int)], rooms: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@import conferences.views.html.person
+@(conference: Conference, presentationForm: Form[PresentationData], persons: List[Person], tags: List[(String, Int)], rooms: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 @conferences.views.html.main(if(presentationForm("id").value.getOrElse("") == "") {"Ajouter une présentation"} else {"Modifier la présentation \""+presentationForm("title").value.getOrElse("")+"\""}) {
     @header("")
 
@@ -16,7 +18,6 @@
         <div class="row">
             <div class="col-md-8">
                 @helper.form(action=presentationForm("id").value.map(id => conferences.controllers.routes.Presentations.doEdit(conference.id, PresentationId(id))).getOrElse(conferences.controllers.routes.Presentations.doCreate(conference.id)), 'class->"form-horizontal presentation-form") {
-
                     <fieldset>
                         <legend>Présentation</legend>
                         @inputHidden(presentationForm("conferenceId"), 'value -> conference.id.unwrap)
@@ -25,21 +26,8 @@
                         <!-- TODO : add ajax preview of embed slides & video -->
                         @fieldHorizontal(presentationForm("videoUrl"), 'label -> "Vidéo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                         @fieldHorizontal(presentationForm("slidesUrl"), 'label -> "Slides", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
-                        @fieldHorizontal(presentationForm("speakers"), 'label -> "Speaker *") { field =>
-                            <div class="row" style="margin-top: 7px;">
-                                <div class="col-md-3"><label for="speakers_0_name">Nom</label></div>
-                                <div class="col-md-3"><label for="speakers_0_twitter">Twitter</label></div>
-                                <div class="col-md-3"><label for="speakers_0_siteUrl">Site</label></div>
-                                <div class="col-md-3"><label for="speakers_0_email">Email</label></div>
-                            </div>
-                            @helper.repeat(field, min = 1) { speakerField =>
-                                <div class="row">
-                                    <div class="col-md-3">@inputText(speakerField("name"), 'placeholder -> "ex: John Doe")</div>
-                                    <div class="col-md-3">@inputText(speakerField("twitter"), 'placeholder -> "ex: johndoe")</div>
-                                    <div class="col-md-3">@inputText(speakerField("siteUrl"), 'placeholder -> "ex: http://www.johndoe.com/")</div>
-                                    <div class="col-md-3">@inputText(speakerField("email"), 'placeholder -> "ex: mail@example.com")</div>
-                                </div>
-                            }
+                        @fieldHorizontal(presentationForm("speakers"), 'label -> "Speakers") { field =>
+                            @inputTagsItem(field, persons.map(p => (p.id.unwrap, Html(p.avatar.map(url => s"<img src='$url' style='height: 18px;'> ").getOrElse("")+p.name))), 'onCreate -> "createPersonModal", 'onCreateLabel -> "Nouveau speaker", 'placeholder -> "ex: John Doe")
                         }
                         @fieldHorizontal(presentationForm("tags"), 'label -> "Tags", 'constraints -> "false") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
                         @fieldHorizontal(presentationForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
@@ -53,13 +41,7 @@
                     </fieldset>
                     <fieldset>
                         <legend>Vos infos</legend>
-                        @fieldHorizontal(presentationForm("createdBy.name"), 'label -> "Nom/Pseudo") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
-                        @fieldHorizontal(presentationForm("createdBy.email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: mail@example.com") }
-                        @fieldHorizontal(presentationForm("createdBy.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://www.johndoe.com/") }
-                        @fieldHorizontal(presentationForm("createdBy.twitter"), 'label -> "Twitter", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: johndoe") }
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">@fieldCheckbox(presentationForm("createdBy.public"), 'label -> "Affiché publiquement")</div>
-                        </div>
+                        @createdByForm(presentationForm("createdBy"))
                     </fieldset>
 
                     <div class="form-group">
@@ -72,5 +54,6 @@
         </div>
     </div>
 
+    @person.createModal()
     @footer()
 }

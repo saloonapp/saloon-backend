@@ -2,7 +2,7 @@ package common.repositories.conference
 
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
-import conferences.models.{PresentationSpeaker, PresentationId, Presentation, ConferenceId}
+import conferences.models.{PresentationId, Presentation, ConferenceId}
 import org.joda.time.DateTime
 import play.api.libs.json.{Reads, JsNull, JsObject, Json}
 import play.api.Play.current
@@ -66,13 +66,4 @@ object PresentationRepository {
     ),
     json => (json \\ "_id").toList.map(_.as[String]).zip((json \\ "count").toList.map(_.as[Int])).sortBy(-_._2)
   )
-  def getSpeakers(filter: JsObject = Json.obj(), sort: JsObject = Json.obj("name" -> 1)): Future[List[PresentationSpeaker]] = MongoDbCrudUtils.aggregate[List[PresentationSpeaker]](collection, Json.obj(
-    "aggregate" -> collection.name,
-    "pipeline" -> Json.arr(
-      Json.obj("$sort" -> Json.obj("created" -> -1)),
-      Json.obj("$group" -> getFirst(List("speakers"))),
-      Json.obj("$unwind" -> "$speakers"),
-      // TODO move {_id: "", speakers: {name: ""...}} to {name: ""...}
-      Json.obj("$match" -> filter),
-      Json.obj("$sort" -> sort))))
 }

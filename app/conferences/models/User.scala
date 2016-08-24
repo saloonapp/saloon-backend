@@ -1,5 +1,6 @@
 package conferences.models
 
+import common.services.TwitterSrv
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
@@ -12,8 +13,8 @@ case class User(
   def trim(): User = this.copy(
     name = this.name.trim,
     email = this.email.map(_.trim),
-    twitter = this.twitter.map(_.trim.replace("@", "").replaceAll("https?://twitter.com/", ""))
-  )
+    siteUrl = this.siteUrl.map(_.trim),
+    twitter = this.twitter.map(t => TwitterSrv.toAccount(t)))
 }
 object User {
   implicit val format = Json.format[User]

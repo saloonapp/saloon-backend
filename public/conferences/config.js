@@ -34,9 +34,7 @@ var Config = (function(){
             }
             return '/api/conferences/search?'+params.join('&');
         },
-        speakers: function(name){
-            return '/api/conferences/speakers?name='+name;
-        }
+        createPerson: function(){ return '/api/conferences/persons'; }
     };
     var Api = {
         getMetas: function(url){
@@ -57,8 +55,15 @@ var Config = (function(){
                 return Utils.unique(r1[0].result.concat(r2[0].result), function(c){ return c.id; });
             });
         },
-        getSpeakers: function(name){
-            return $.get(Url.speakers(name)).then(function(data){
+        createPerson: function(person){
+            return $.ajax({
+                url: Url.createPerson(),
+                type: 'post',
+                data: JSON.stringify(person),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(function(data){
                 return data ? data.result : undefined;
             });
         }

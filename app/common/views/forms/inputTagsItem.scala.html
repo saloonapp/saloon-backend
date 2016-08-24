@@ -1,0 +1,11 @@
+@import common.views._
+@(field: Field, options: Seq[(String, Html)], args: (Symbol, String)*)
+<select class="form-control select2-tags-item @Helpers.getArg(args, "class")" id="@field.id" name="@{field.name+"[]"}" multiple="multiple"
+    @Helpers.toHtmlArgs(args, Seq("class", "emptyOption"))
+    @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>
+@defining(if(field.indexes.isEmpty) field.value.toSet else field.indexes.map( i => field("[%s]".format(i)).value ).flatten.toSet){ values =>
+    @for((value, label) <- options) {
+        <option value="@value" template="@label" @if(values.contains(value)){selected}>@label</option>
+    }
+}
+</select>

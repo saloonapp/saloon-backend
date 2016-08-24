@@ -1,43 +1,75 @@
 package conferences.controllers
 
-import common.repositories.conference.{PresentationRepository, ConferenceRepository}
-import conferences.models.ConferenceData
-import play.api.libs.json.Json
-import play.api.mvc.{Controller, Action}
+import common.repositories.conference.{PersonRepository, PresentationRepository, ConferenceRepository}
+import common.services.TwitterSrv
+import conferences.models.{PersonId, PersonData, ConferenceData}
+import play.api.data.validation.ValidationError
+import play.api.libs.json._
+import play.api.mvc.{Result, Controller, Action}
+import reactivemongo.api.commands.WriteResult
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object Api extends Controller {
-  def list = Action.async { implicit req =>
+  def listConferences = Action.async { implicit req =>
     ConferenceRepository.find().map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
-
-  def search(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
+  def searchConferences(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
     ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, period, before, after, tags, cfp, tickets, videos)).map { conferences =>
       Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
     }
   }
-  def speaker(name: String) = Action.async { implicit req =>
-    PresentationRepository.getSpeakers(Json.obj("name" -> name)).map { speakers =>
-      Ok(Json.obj("result" -> speakers))
+  def createConference() = Action.async(parse.json) { implicit req =>
+    req.body.validate[ConferenceData] match {
+      case JsSuccess(conferenceData, path) => {
+        val conference = ConferenceData.toModel(conferenceData)
+        Future(Ok(Json.obj(
+          "conference" -> conference)))
+      }
+      case JsError(err) => Future(validationError(err))
     }
   }
 
-  // add conference
-  def addConference() = Action.async(parse.json) { implicit req =>
-    req.body.asOpt[ConferenceData].map { conferenceData =>
-      val conference = ConferenceData.toModel(conferenceData)
-      Future(Ok(Json.obj(
-        "conference" -> conference)))
-    }.getOrElse {
-      Future(BadRequest("wrong data"))
+  def listPresentations() = Action.async { implicit req =>
+    PresentationRepository.find().map { presentations =>
+      Ok(Json.obj("result" -> presentations.map(p => p.copy(createdBy = p.createdBy.filter(_.public)))))
     }
   }
-  // edit conference
-  // add talk
-  // edit talk
-  // add speaker (when added)
-  // edit speaker (when added)
+
+  def listPersons() = Action.async { implicit req =>
+    PersonRepository.find().map { persons =>
+      Ok(Json.obj("result" -> persons.map(p => p.copy(createdBy = p.createdBy.filter(_.public)))))
+    }
+  }
+  def createPerson() = Action.async(parse.json) { implicit req =>
+    req.body.validate[PersonData] match {
+      case JsSuccess(personData, path) => {
+        val person = PersonData.toModel(personData).trim
+        PersonRepository.insert(person).map { res =>
+          if (res.ok) {
+            Created(Json.obj(
+              "result" -> person))
+          } else {
+            dbError(res)
+          }
+        }
+      }
+      case JsError(err) => Future(validationError(err))
+    }
+  }
+
+  private def validationError(err: Seq[(JsPath, Seq[ValidationError])]): Result = {
+    BadRequest(Json.obj(
+      "error" -> Json.toJson(err.map { case (path, errors) =>
+        (path.toJsonString, errors.map(_.message))
+      }.toMap)))
+  }
+  private def dbError(res: WriteResult): Result = {
+    InternalServerError(Json.obj(
+      "error" -> Json.obj(
+        "code" -> res.code,
+        "message" -> res.message)))
+  }
 }

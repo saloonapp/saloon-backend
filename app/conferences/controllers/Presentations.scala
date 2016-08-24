@@ -1,7 +1,7 @@
 package conferences.controllers
 
-import common.repositories.conference.{ConferenceRepository, PresentationRepository}
-import conferences.models.{PresentationId, ConferenceId, PresentationData}
+import common.repositories.conference.{PersonRepository, ConferenceRepository, PresentationRepository}
+import conferences.models._
 import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.mvc._
@@ -17,10 +17,11 @@ object Presentations extends Controller {
     for {
       conferenceOpt <- ConferenceRepository.get(cId)
       presentationOpt <- created.map(c => PresentationRepository.get(cId, pId, new DateTime(c))).getOrElse(PresentationRepository.get(cId, pId))
+      speakers <- presentationOpt.map(presentation => PersonRepository.findByIds(presentation.speakers)).getOrElse(Future(List()))
     } yield {
       conferenceOpt.flatMap { conference =>
         presentationOpt.map { presentation =>
-          Ok(conferences.views.html.presentation.detail(conference, presentation))
+          Ok(conferences.views.html.presentation.detail(conference, presentation, speakers))
         }
       }.getOrElse {
         NotFound("Not Found !")
@@ -71,17 +72,19 @@ object Presentations extends Controller {
   }
 
   private def formView(cId: ConferenceId, form: Form[PresentationData])(implicit req: RequestHeader): Future[Result] = {
-    // TODO : autocomplete/suggest for room, duration & speaker
+    // TODO : autocomplete/suggest for room & duration
     val conferenceOptFut = ConferenceRepository.get(cId)
+    val personsFut = PersonRepository.find()
     val tagsFut = PresentationRepository.getTags()
     val roomsFut = PresentationRepository.getRooms(cId)
     for {
       conferenceOpt <- conferenceOptFut
+      persons <- personsFut
       tags <- tagsFut
       rooms <- roomsFut
     } yield {
       conferenceOpt.map { conference =>
-        Ok(conferences.views.html.presentation.form(conference, form, tags, rooms))
+        Ok(conferences.views.html.presentation.form(conference, form, persons, tags, rooms))
       }.getOrElse {
         NotFound("Not Found !")
       }
