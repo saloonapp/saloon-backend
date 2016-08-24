@@ -15,7 +15,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
   def testSendNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
-    NewsletterService.getNewsletterInfos(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { case (closingCFPs, incomingConferences, newData) =>
+    val realDate = date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())
+    NewsletterService.getNewsletterInfos(realDate).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
         MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
           Ok(Json.obj(
@@ -32,38 +33,42 @@ object Batch extends Controller {
   }
 
   def testSendDailyTwitts(date: Option[String]) = Action.async { implicit req =>
-    SocialService.getDailyTwitts(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).map { twitts =>
-      Ok(Json.obj("twitts" -> twitts))
+    val realDate = date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())
+    SocialService.getDailyTwitts(realDate).map { twittsToSend =>
+      Ok(Json.obj("twittsToSend" -> twittsToSend))
     }
   }
 
   def testScanTwitterTimeline(date: Option[String]) = Action.async { implicit req =>
-    ConferenceRepository.findRunning(date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())).flatMap { conferences =>
-      Future.sequence(conferences.map { conference =>
-        SocialService.getConferenceTwitts(conference).map { twitts =>
-          (conference, twitts, SocialService.getUsers(twitts), SocialService.getLinks(twitts))
-        }
-      }).map { conferencesWithTwitts: List[(Conference, List[SimpleTweet], List[SimpleUser], List[(String, SimpleTweet)])] =>
-        val addToLists = conferencesWithTwitts.map { case (conf, _, users, _) => (TwitterSrv.listName(conf.name), users) }.toMap[String, List[SimpleUser]]
-        val links = conferencesWithTwitts.map { case (conf, _, _, links) => (conf.name, links.toMap[String, SimpleTweet]) }.toMap[String, Map[String, SimpleTweet]]
-        Ok(Json.obj(
-          "addToLists" -> addToLists,
-          "links" -> links,
-          "twitts" -> conferencesWithTwitts.map { case (conf, tweets, _, _) => (conf.name, tweets) }.toMap[String, List[SimpleTweet]],
-          "conferences" -> conferences))
-      }
+    val realDate = date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())
+    SocialService.getTwitterTimelineActions(realDate).map { case (twittsToSend: List[String], repliesToUsers: List[(String, SimpleTweet)], usersToAddInList: List[(String, SimpleUser)], twittsToFav: List[SimpleTweet]) =>
+      Ok(Json.obj(
+        "date" -> realDate,
+        "twittsToSend" -> twittsToSend,
+        "repliesToUsers" -> Json.toJson(repliesToUsers.toMap),
+        "usersToAddInList" -> usersToAddInList.groupBy(_._1).map { case (list, users) => (list, users.map(_._2))},
+        "twittsToFav" -> twittsToFav
+      ))
     }
   }
 
+  private var schedulerLastCall: Option[DateTime] = None
   def scheduler = Action { implicit req =>
-    if(Utils.isProd()){
-      // TODO add cache (last exec) to prevent multiple execution if called multiple times in the valid period
+    def isDuplicate(): Boolean = schedulerLastCall.map(_.plusMinutes(2*TimeChecker.timeInterval).isBeforeNow()).getOrElse(false)
+    play.Logger.info("scheduler called")
+    if(!Utils.isProd()) {
+      play.Logger.info("scheduler called in "+Utils.getEnv()+" env (not prod, no exec) !")
+      Forbidden("Forbidden")
+    } else if(isDuplicate()) {
+      play.Logger.info("scheduler call duplicate (ignored) !")
+      Forbidden("Forbidden")
+    } else {
+      play.Logger.info("scheduler execution...")
+      schedulerLastCall = Some(new DateTime())
       TimeChecker("sendNewsletter").isTime("9:15").isWeekDay(DateTimeConstants.MONDAY).run(() => NewsletterService.sendNewsletter())
       TimeChecker("sendDailyTwitts").isTime("9:15").run(() => SocialService.sendDailyTwitts())
       TimeChecker("scanTwitterTimeline").isTime("8:15", "12:15", "16:15", "19:15").run(() => SocialService.scanTwitterTimeline())
       Ok("Ok")
-    } else {
-      Forbidden("Forbidden")
     }
   }
 

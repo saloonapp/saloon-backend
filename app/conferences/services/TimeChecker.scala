@@ -7,7 +7,7 @@ case class TimeChecker(name: String, val _valid: Boolean = true) {
     filter(() => {
       times.map { time =>
         val nums = time.split(":").map(_.toInt)
-        Math.abs(new DateTime().getMinuteOfDay - (60*nums(0) + nums(1))) < 5
+        Math.abs(new DateTime().getMinuteOfDay - (60*nums(0) + nums(1))) < TimeChecker.timeInterval
       }.filter(b => b).length > 0
     })
   }
@@ -38,4 +38,7 @@ case class TimeChecker(name: String, val _valid: Boolean = true) {
       TimeChecker(this.name, false)
     }
   }
+}
+object TimeChecker {
+  val timeInterval = 5
 }

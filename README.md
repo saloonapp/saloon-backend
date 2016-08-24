@@ -20,8 +20,12 @@ Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
 ## TODO
 
 - Conférence Liste
-    - add pagination for conferences
     - faire une liste de speakers & faire un auto-complete pour les talks
+    - add pagination for conferences
+    - pour la création d'une conf, proposer l'import depuis eventbrite, lanyrd...
+    - améliorer l'API :
+        - création / modification
+        - talks / speakers
     - comme sur Lanyrd, faire 3 menus :
         - conférences
         - présentations

@@ -25,6 +25,9 @@ object SchedulerHelper {
     Akka.system.scheduler.scheduleOnce(FiniteDuration(next.getMillis - now.getMillis, TimeUnit.MILLISECONDS))(f)
     next
   }
+  def delay[A](list: List[A], action: (A) => Any, minuteInterval: Int): List[DateTime] = {
+    list.zipWithIndex.map { case (item, index) => in(minutes = minuteInterval * index)(action(item)) }
+  }
 
   def nextWeek(date: DateTime, weekDay: Int, hour: Int, minutes: Int = 0, seconds: Int = 0): DateTime = {
     def nextDayOfWeek(date: DateTime, weekDay: Int): DateTime = date.plusDays((7 + weekDay - date.getDayOfWeek - 1) % 7 + 1)

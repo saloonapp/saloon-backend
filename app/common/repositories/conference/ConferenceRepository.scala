@@ -29,7 +29,7 @@ object ConferenceRepository {
         Json.obj("$group" -> getFirst(conferenceFields)),
         Json.obj("$match" -> filter),
         Json.obj("$sort" -> sort))))
-  def findRunning(date: DateTime = new DateTime()): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
+  def findRunning(date: DateTime): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
     Json.obj("start" -> Json.obj("$lte" -> date.withTime(0, 0, 0, 0))),
     Json.obj("end" -> Json.obj("$gte" -> date.withTime(0, 0, 0, 0))))))
   def insert(elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))

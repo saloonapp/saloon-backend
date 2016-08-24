@@ -1,9 +1,11 @@
 package conferences.controllers
 
 import common.repositories.conference.{PresentationRepository, ConferenceRepository}
+import conferences.models.ConferenceData
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Action}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object Api extends Controller {
   def list = Action.async { implicit req =>
@@ -22,4 +24,20 @@ object Api extends Controller {
       Ok(Json.obj("result" -> speakers))
     }
   }
+
+  // add conference
+  def addConference() = Action.async(parse.json) { implicit req =>
+    req.body.asOpt[ConferenceData].map { conferenceData =>
+      val conference = ConferenceData.toModel(conferenceData)
+      Future(Ok(Json.obj(
+        "conference" -> conference)))
+    }.getOrElse {
+      Future(BadRequest("wrong data"))
+    }
+  }
+  // edit conference
+  // add talk
+  // edit talk
+  // add speaker (when added)
+  // edit speaker (when added)
 }

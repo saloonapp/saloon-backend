@@ -5,9 +5,10 @@ import common.services.UrlInfo.Service
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.Play.current
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
-object Urls {
+object UrlSrv {
   /* URLS TO ADD
     - newspaper
       - https://www.theguardian.com/technology/2016/aug/06/nsa-zero-days-stockpile-security-vulnerability-defcon
@@ -62,58 +63,65 @@ object Urls {
   val dlvrit = s"https?://dlvr.it/$hash.*".r
   val twibin = s"http://twib.in/l/$hash.*".r
   val lnkdin = s"http://lnkd.in/l/$hash.*".r
-}
 
-object UrlSrv {
-  def getService(url: String, sourceUrl: Option[String] = None)(implicit ec: ExecutionContext): Future[UrlInfo] = getServiceWithResolve(url, None)
+  def getService(url: String)(implicit ec: ExecutionContext): Future[UrlInfo] = {
+    def getServiceRec(url: String, origin: String)(implicit ec: ExecutionContext): Future[UrlInfo] = url match {
+      case iTunes(userId, itemId) =>         Future(UrlInfo.from(url, origin, Service.iTunes,       Some(itemId), Some(userId)))
+      case googlePlay(itemId) =>             Future(UrlInfo.from(url, origin, Service.GooglePlay,   Some(itemId)))
 
-  private def getServiceWithResolve(url: String, sourceUrl: Option[String])(implicit ec: ExecutionContext): Future[UrlInfo] = url match {
-    case Urls.iTunes(userId, itemId) =>         Future(UrlInfo.from(url, sourceUrl, Service.iTunes,       Some(itemId), Some(userId)))
-    case Urls.googlePlay(itemId) =>             Future(UrlInfo.from(url, sourceUrl, Service.GooglePlay,   Some(itemId)))
+      case youtube1(itemId) =>               Future(UrlInfo.from(url, origin, Service.Youtube,      Some(itemId)))
+      case youtube2(itemId) =>               Future(UrlInfo.from(url, origin, Service.Youtube,      Some(itemId)))
+      case dailymotion(itemId) =>            Future(UrlInfo.from(url, origin, Service.Dailymotion,  Some(itemId)))
+      case vimeo(itemId) =>                  Future(UrlInfo.from(url, origin, Service.Vimeo,        Some(itemId)))
+      case infoq(itemId) =>                  Future(UrlInfo.from(url, origin, Service.InfoQ,        Some(itemId)))
 
-    case Urls.youtube1(itemId) =>               Future(UrlInfo.from(url, sourceUrl, Service.Youtube,      Some(itemId)))
-    case Urls.youtube2(itemId) =>               Future(UrlInfo.from(url, sourceUrl, Service.Youtube,      Some(itemId)))
-    case Urls.dailymotion(itemId) =>            Future(UrlInfo.from(url, sourceUrl, Service.Dailymotion,  Some(itemId)))
-    case Urls.vimeo(itemId) =>                  Future(UrlInfo.from(url, sourceUrl, Service.Vimeo,        Some(itemId)))
-    case Urls.infoq(itemId) =>                  Future(UrlInfo.from(url, sourceUrl, Service.InfoQ,        Some(itemId)))
+      case slideshare(userId, itemId) =>     Future(UrlInfo.from(url, origin, Service.Slideshare,   Some(itemId), Some(userId)))
+      case speakerdeck(userId, itemId) =>    Future(UrlInfo.from(url, origin, Service.Speakerdeck,  Some(itemId), Some(userId)))
+      case slidescom(userId, itemId) =>      Future(UrlInfo.from(url, origin, Service.Slidescom,    Some(itemId), Some(userId)))
+      case prezi(itemId) =>                  Future(UrlInfo.from(url, origin, Service.Prezi,        Some(itemId)))
+      case googleslides(itemId) =>           Future(UrlInfo.from(url, origin, Service.GoogleSlides, Some(itemId)))
 
-    case Urls.slideshare(userId, itemId) =>     Future(UrlInfo.from(url, sourceUrl, Service.Slideshare,   Some(itemId), Some(userId)))
-    case Urls.speakerdeck(userId, itemId) =>    Future(UrlInfo.from(url, sourceUrl, Service.Speakerdeck,  Some(itemId), Some(userId)))
-    case Urls.slidescom(userId, itemId) =>      Future(UrlInfo.from(url, sourceUrl, Service.Slidescom,    Some(itemId), Some(userId)))
-    case Urls.prezi(itemId) =>                  Future(UrlInfo.from(url, sourceUrl, Service.Prezi,        Some(itemId)))
-    case Urls.googleslides(itemId) =>           Future(UrlInfo.from(url, sourceUrl, Service.GoogleSlides, Some(itemId)))
+      case facebookUser(itemId) =>           Future(UrlInfo.from(url, origin, Service.Facebook,     Some(itemId)))
+      case facebookPhoto(itemId) =>          Future(UrlInfo.from(url, origin, Service.Facebook,     Some(itemId)))
+      case facebookVideo1(itemId) =>         Future(UrlInfo.from(url, origin, Service.Facebook,     Some(itemId)))
+      case facebookVideo2(userId, itemId) => Future(UrlInfo.from(url, origin, Service.Facebook,     Some(itemId), Some(userId)))
+      case facebookPost(userId, itemId) =>   Future(UrlInfo.from(url, origin, Service.Facebook,     Some(itemId), Some(userId)))
+      case twitter(userId, itemId) =>        Future(UrlInfo.from(url, origin, Service.Twitter,      Some(itemId), Some(userId)))
+      case instagram(itemId) =>              Future(UrlInfo.from(url, origin, Service.Instagram,    Some(itemId)))
+      case vine(itemId) =>                   Future(UrlInfo.from(url, origin, Service.Vine,         Some(itemId)))
 
-    case Urls.facebookUser(itemId) =>           Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId)))
-    case Urls.facebookPhoto(itemId) =>          Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId)))
-    case Urls.facebookVideo1(itemId) =>         Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId)))
-    case Urls.facebookVideo2(userId, itemId) => Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId), Some(userId)))
-    case Urls.facebookPost(userId, itemId) =>   Future(UrlInfo.from(url, sourceUrl, Service.Facebook,     Some(itemId), Some(userId)))
-    case Urls.twitter(userId, itemId) =>        Future(UrlInfo.from(url, sourceUrl, Service.Twitter,      Some(itemId), Some(userId)))
-    case Urls.instagram(itemId) =>              Future(UrlInfo.from(url, sourceUrl, Service.Instagram,    Some(itemId)))
-    case Urls.vine(itemId) =>                   Future(UrlInfo.from(url, sourceUrl, Service.Vine,         Some(itemId)))
+      case googledocs(itemId) =>             Future(UrlInfo.from(url, origin, Service.GoogleDocs,   Some(itemId)))
 
-    case Urls.googledocs(itemId) =>             Future(UrlInfo.from(url, sourceUrl, Service.GoogleDocs,   Some(itemId)))
-
-    case Urls.tco(_) | Urls.owly(_) | Urls.shst(_) | Urls.mftt(_) | Urls.wpme(_) | Urls.fbme(_) | Urls.bitly(_) | Urls.ifttt(_) | Urls.googl(_) | Urls.buffer(_) |
-         Urls.dlvrit(_) | Urls.twibin(_) | Urls.lnkdin(_) =>
-      resolve(url).flatMap(resolved => getServiceWithResolve(resolved, Some(sourceUrl.getOrElse(url))))
-    case _ => Future(UrlInfo.from(url, sourceUrl, Service.Unknown))
+      case tco(_) | owly(_) | shst(_) | mftt(_) | wpme(_) | fbme(_) | bitly(_) | ifttt(_) | googl(_) | buffer(_) |
+           dlvrit(_) | twibin(_) | lnkdin(_) =>
+        resolve(url).flatMap(resolved => if(url != resolved){ getServiceRec(resolved, origin) } else { Future(UrlInfo.from(url, origin, Service.Unknown)) })
+      case _ => Future(UrlInfo.from(url, origin, Service.Unknown))
+    }
+    getServiceRec(url, url)
   }
 
+  private val resolveCache = mutable.WeakHashMap.empty[String, String]
   def resolve(url: String)(implicit ec: ExecutionContext): Future[String] = {
-    try {
-      WS.url(url).withFollowRedirects(false).head().flatMap { response =>
-        response.header("Location").filter(_.startsWith("http")).map { redirect =>
-          resolve(redirect).recover {
-            case _: Throwable => url
+    def resolveRec(url: String, origin: String)(implicit ec: ExecutionContext): Future[String] = {
+      resolveCache.get(url).map(res => Future(res)).getOrElse {
+        try {
+          WS.url(url).withFollowRedirects(false).withRequestTimeout(1000).head().flatMap { response =>
+            response.header("Location").filter(_.startsWith("http")).map { redirect =>
+              resolveCache.put(origin, redirect)
+              resolveRec(redirect, origin)
+            }.getOrElse {
+              resolveCache.put(origin, url)
+              Future(url)
+            }
+          }.recover {
+            case e: Throwable => resolveCache.put(origin, url); url
           }
-        }.getOrElse {
-          Future(url)
+        } catch {
+          case e: Throwable => resolveCache.put(origin, url); Future(url)
         }
       }
-    } catch {
-      case _: Throwable => Future(url)
     }
+    resolveRec(url, url)
   }
 }
 
@@ -129,8 +137,8 @@ object UrlInfo {
   implicit val formatCategory = EnumUtils.enumFormat(Category)
   implicit val format = Json.format[UrlInfo]
 
-  def from(url: String, sourceUrl: Option[String], service: UrlInfo.Service.Service, itemId: Option[String] = None, userId: Option[String] = None) = UrlInfo(
-    url = sourceUrl.getOrElse(url),
+  def from(url: String, origin: String, service: UrlInfo.Service.Service, itemId: Option[String] = None, userId: Option[String] = None) = UrlInfo(
+    url = origin,
     resolvedUrl = url,
     service = service,
     category = Category.from(service),

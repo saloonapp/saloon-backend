@@ -7,11 +7,13 @@ import play.api.data.Forms.of
 import play.api.data.{Mapping, FormError}
 import play.api.data.format.Formatter
 import play.api.data.validation.{Valid, ValidationError, Invalid, Constraint}
+import play.api.libs.json.Json
 
 case class DateRange(
   start: DateTime,
   end: DateTime)
 object DateRange {
+  implicit val format = Json.format[DateRange]
   private val errKey = "error.daterange"
   private val regex = s"(${Defaults.dateFormat}) - (${Defaults.dateFormat})".replaceAll("[a-zA-Z]", "\\\\d").r
   private def fromString(str: String): Either[String, DateRange] = str.trim match {

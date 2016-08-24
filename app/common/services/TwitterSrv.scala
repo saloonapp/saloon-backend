@@ -32,13 +32,6 @@ object TwitterSrv {
     twitt(text)
   def reply(text: String, inReplyTo: String): Future[Option[Tweet]] =
     twitt(text, Some(inReplyTo))
-  def sendTwitts(twitts: List[String], everyMin: Int = 0): List[DateTime] = {
-    if(everyMin > 0){
-      twitts.zipWithIndex.map { case (twitt, i) => SchedulerHelper.in(minutes = everyMin * i)(sendTwitt(twitt)) }
-    } else {
-      twitts.map(sendTwitt).map(_ => new DateTime())
-    }
-  }
   def favorite(tweetId: String): Future[Option[Tweet]] = {
     if(allowEdit()) {
       client.favoriteStatus(tweetId.toLong, false).map(tweet => Some(tweet))
@@ -143,7 +136,9 @@ case class SimpleTweet(
   text: String,
   entities: Option[Entities],
   user: Option[SimpleUser],
-  created_at: Date)
+  created_at: Date) {
+  def isRetweet(): Boolean = text.startsWith("RT ")
+}
 object SimpleTweet {
   implicit val formatSize = Json.format[Size]
   implicit val formatUserMention = Json.format[UserMention]

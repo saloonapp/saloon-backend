@@ -116,6 +116,11 @@ case class ConferenceData(
   social: Option[ConferenceSocial],
   createdBy: User)
 object ConferenceData {
+  implicit val formatConferenceSocialTwitter = Json.format[ConferenceSocialTwitter]
+  implicit val formatConferenceSocial = Json.format[ConferenceSocial]
+  implicit val formatConferenceTickets = Json.format[ConferenceTickets]
+  implicit val formatConferenceCfp = Json.format[ConferenceCfp]
+  implicit val format = Json.format[ConferenceData]
   val fields = mapping(
     "id" -> optional(nonEmptyText),
     "name" -> nonEmptyText,
