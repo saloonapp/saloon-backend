@@ -46,7 +46,7 @@ object Conferences extends Controller {
   private def detailPrivate(id: ConferenceId, created: Option[Long]) = Action.async { implicit req =>
     for {
       conferenceOpt <- created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id))
-      presentations <- PresentationRepository.findFor(id)
+      presentations <- PresentationRepository.findForConference(id)
       speakers <- PersonRepository.findByIds(presentations.flatMap(_.speakers).distinct)
     } yield {
       conferenceOpt.map { conference =>

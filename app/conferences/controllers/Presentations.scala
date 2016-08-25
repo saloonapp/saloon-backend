@@ -30,7 +30,13 @@ object Presentations extends Controller {
   }
 
   def create(cId: ConferenceId) = Action.async { implicit req =>
-    formView(cId, presentationForm)
+    ConferenceRepository.get(cId).flatMap { conferenceOpt =>
+      conferenceOpt.map { conference =>
+        formView(cId, presentationForm.fill(PresentationData.empty(conference)))
+      }.getOrElse {
+        Future(NotFound("Not Found !"))
+      }
+    }
   }
 
   def doCreate(cId: ConferenceId) = Action.async { implicit req =>

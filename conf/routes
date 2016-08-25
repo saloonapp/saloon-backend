@@ -32,6 +32,8 @@ GET       /conferences/:cId/presentations/:pId/edit                             
 GET       /conferences/:cId/presentations/:pId/edit/:created                                conferences.controllers.Presentations.editVersion(cId: ConferenceId, pId: PresentationId, created: Long)
 POST      /conferences/:cId/presentations/:pId/edit                                         conferences.controllers.Presentations.doEdit(cId: ConferenceId, pId: PresentationId)
 
+GET       /conferences/persons/:pId                                                         conferences.controllers.Persons.detail(pId: PersonId)
+
 GET       /api/conferences                                                                  conferences.controllers.Api.listConferences
 GET       /api/conferences/search                                                           conferences.controllers.Api.searchConferences(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 #POST      /api/conferences                                                                  conferences.controllers.Api.createConference

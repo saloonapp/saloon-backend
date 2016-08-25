@@ -2,7 +2,7 @@ package common.repositories.conference
 
 import common.repositories.CollectionReferences
 import common.repositories.utils.MongoDbCrudUtils
-import conferences.models.{PresentationId, Presentation, ConferenceId}
+import conferences.models.{PersonId, PresentationId, Presentation, ConferenceId}
 import org.joda.time.DateTime
 import play.api.libs.json.{Reads, JsNull, JsObject, Json}
 import play.api.Play.current
@@ -25,12 +25,20 @@ object PresentationRepository {
       Json.obj("$group" -> getFirst(presentationFields)),
       Json.obj("$match" -> filter),
       Json.obj("$sort" -> sort))))
-  def findFor(cId: ConferenceId, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = MongoDbCrudUtils.aggregate[List[Presentation]](collection, Json.obj(
+  def findForConference(cId: ConferenceId, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = MongoDbCrudUtils.aggregate[List[Presentation]](collection, Json.obj(
     "aggregate" -> collection.name,
     "pipeline" -> Json.arr(
       Json.obj("$sort" -> Json.obj("created" -> -1)),
       Json.obj("$group" -> getFirst(presentationFields)),
       Json.obj("$match" -> Json.obj("conferenceId" -> cId.unwrap)),
+      Json.obj("$match" -> filter),
+      Json.obj("$sort" -> sort))))
+  def findForPerson(pId: PersonId, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = MongoDbCrudUtils.aggregate[List[Presentation]](collection, Json.obj(
+    "aggregate" -> collection.name,
+    "pipeline" -> Json.arr(
+      Json.obj("$sort" -> Json.obj("created" -> -1)),
+      Json.obj("$group" -> getFirst(presentationFields)),
+      Json.obj("$match" -> Json.obj("speakers" -> pId.unwrap)),
       Json.obj("$match" -> filter),
       Json.obj("$sort" -> sort))))
   def insert(elt: Presentation): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))

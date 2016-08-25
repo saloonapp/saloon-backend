@@ -2,7 +2,7 @@ package conferences.models
 
 import common.models.utils.{tStringHelper, tString}
 import common.models.values.UUID
-import common.services.TwitterSrv
+import common.services.{TwitterCard, TwitterSrv}
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -30,6 +30,12 @@ case class Person(
     twitter = twitter.map(t => TwitterSrv.toAccount(t)),
     siteUrl = siteUrl.map(_.trim),
     email = email.map(_.trim))
+  def toTwitterCard(): TwitterCard = TwitterCard(
+    "summary",
+    "@conferencelist_",
+    name,
+    "",
+    "http://res.cloudinary.com/demo/image/fetch/"+avatar.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200"))
 }
 object Person {
   implicit val format = Json.format[Person]

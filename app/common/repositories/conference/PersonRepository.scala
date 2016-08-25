@@ -19,6 +19,7 @@ object PersonRepository {
   // TODO : must change when allow to edit (like conferences & presentations)
   def find(): Future[List[Person]] = MongoDbCrudUtils.find[Person](collection, Json.obj(), Json.obj("name" -> 1))
   def findByIds(ids: List[PersonId]): Future[List[Person]] = ids.headOption.map(_ => MongoDbCrudUtils.find[Person](collection, Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id)))), Json.obj("name" -> 1))).getOrElse(Future(List()))
+  def get(pId: PersonId): Future[Option[Person]] = MongoDbCrudUtils.get[Person](collection, Json.obj("id" -> pId.unwrap))
 
   def insert(elt: Person): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
 }

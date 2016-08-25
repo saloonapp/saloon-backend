@@ -1,0 +1,38 @@
+@import conferences.models.Person
+@import conferences.models.Presentation
+@import conferences.models.Conference
+@import conferences.models.ConferenceId
+@import common.views.html.format._
+@import conferences.views.html.partials._
+@(person: Person, presentationList: List[Presentation], conferenceList: Map[ConferenceId, Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main(person.name, Some(person.toTwitterCard())){
+    @header("")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <h1>
+                @*<a href="@conferences.controllers.routes.Persons.edit(person.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>*@
+                @person.avatar.map{url => <img src="@url" style="height: 50px; vertical-align: bottom;">} @person.name
+            </h1>
+            @person.twitter.map { account => <a href="https://twitter.com/@account" target="_blank">@@@account</a> }
+            @person.siteUrl.map { url => <a href="@url" target="_blank">@url</a> }
+        </div>
+
+        @if(presentationList.length > 0){
+            <h3 style="margin-bottom: 20px;">Présentations :</h3>
+            @presentationList.sortBy(-_.start.map(_.getMillis).getOrElse(0L)).map { presentation =>
+                <div style="margin-bottom: 20px;">
+                    <h4><a href="@conferences.controllers.routes.Presentations.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h4>
+                    <p>
+                        @presentation.start.map { d => le @date(d) }
+                        @conferenceList.get(presentation.conferenceId).map { c => à <a href="@conferences.controllers.routes.Conferences.detail(c.id)">@c.name</a> }
+                        @presentation.videoUrl.map { videoUrl => <span class="label label-success">Vidéo</span> }.getOrElse { <del class="label label-default">Vidéo</del> }
+                        @presentation.slidesUrl.map { slidesUrl => <span class="label label-success">Slides</span> }.getOrElse { <del class="label label-default">Slides</del> }
+                    </p>
+                </div>
+            }
+        }
+    </div>
+
+    @footer()
+}

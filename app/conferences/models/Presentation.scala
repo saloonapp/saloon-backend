@@ -75,6 +75,21 @@ object PresentationData {
     "tags" -> list(nonEmptyText),
     "createdBy" -> User.fields
   )(PresentationData.apply)(PresentationData.unapply)
+
+  def empty(conference: Conference) = PresentationData(
+    conferenceId = conference.id,
+    id = None,
+    title = "",
+    description = None,
+    slidesUrl = None,
+    videoUrl = None,
+    speakers = List(),
+    start = Some(conference.start),
+    duration = None,
+    room = None,
+    tags = List(),
+    createdBy = User.empty)
+
   def toModel(d: PresentationData): Future[Presentation] = {
     for {
       slidesEmbedOpt <- EmbedSrv.embedCode(d.slidesUrl.getOrElse(""))
@@ -98,6 +113,7 @@ object PresentationData {
         Some(d.createdBy.trim()))
     }
   }
+
   def fromModel(m: Presentation): PresentationData = PresentationData(
     m.conferenceId,
     Some(m.id),

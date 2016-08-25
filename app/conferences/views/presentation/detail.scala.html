@@ -16,7 +16,7 @@
                 @presentation.title
             </h1>
             <p>
-                <span style="margin-right: 10px;">par @speakers.map{ s => @s.twitter.map("https://twitter.com/"+_).orElse(s.siteUrl).map{ url => <a href="@url" target="_blank" style="white-space: nowrap;">@s.name</a> }.getOrElse{ <span style="white-space: nowrap;">@s.name</span> } }</span>
+                <span style="margin-right: 10px;">par @speakers.map{ p => <a href="@conferences.controllers.routes.Persons.detail(p.id)">@p.name</a> }</span>
                 @presentation.tags.map { tag => <span class="label label-primary">@tag</span> }
             </p>
         </div>
