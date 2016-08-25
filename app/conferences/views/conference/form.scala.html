@@ -1,6 +1,5 @@
 @import conferences.models.ConferenceData
 @import conferences.models.ConferenceId
-@import common.views.html.forms._
 @import conferences.views.html.partials._
 @(conferenceForm: Form[ConferenceData], tags: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 @conferences.views.html.main(if(conferenceForm("id").value.getOrElse("") == "") {"Ajouter une conférence"} else {"Modifier la conférence \""+conferenceForm("name").value.getOrElse("")+"\""}) {
@@ -24,70 +23,7 @@
                     Regardez les conférences déjà existantes sur le site (à droite/en bas)
                 </div>
                 @helper.form(action=conferenceForm("id").value.map(id => conferences.controllers.routes.Conferences.doEdit(ConferenceId(id))).getOrElse(conferences.controllers.routes.Conferences.doCreate()), 'class->"form-horizontal conference-form") {
-                    <div class="panel-group" role="tablist">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab">
-                                <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#global-panel">Général</a></h4>
-                            </div>
-                            <div id="global-panel" class="panel-collapse collapse in" role="tabpanel">
-                                <div class="panel-body">
-                                    @conferenceForm("id").value.map { _ => @inputHidden(conferenceForm("id")) }
-                                    @fieldHorizontal(conferenceForm("siteUrl"), 'label -> "Site officiel") { field => @inputText(field, 'placeholder -> "ex: http://devoxx.fr/") }
-                                    @fieldHorizontal(conferenceForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
-                                    @fieldHorizontal(conferenceForm("dates"), 'label -> "Dates") { field => @inputDateRange(field, 'placeholder -> "ex: 20/04/2016 - 22/04/2016") }
-                                    @fieldHorizontal(conferenceForm("tags"), 'label -> "Tags") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
-                                    @fieldHorizontal(conferenceForm("location"), 'label -> "Lieu", 'constraints -> "false") { field => @inputGMapPlace(field, 'placeholder -> "ex: CPE Lyon, Boulevard du 11 Novembre 1918, Villeurbanne, France") }
-                                    @fieldHorizontal(conferenceForm("social.twitter.account"), 'label -> "Liens sociaux", 'constraints -> "false") { field =>
-                                        <div class="row" style="margin-top: 7px;">
-                                            <div class="col-md-3"><label for="social_twitter_account">Compte twitter</label></div>
-                                            <div class="col-md-3"><label for="social_twitter_hashtag">Hashtag twitter</label></div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-3">@inputText(field, 'twitterToImg -> "logo", 'placeholder -> "ex: DevoxxFR")</div>
-                                            <div class="col-md-3">@inputText(conferenceForm("social.twitter.hashtag"), 'placeholder -> "ex: DevoxxFr", 'constraints -> "false")</div>
-                                        </div>
-                                    }
-                                    @fieldHorizontal(conferenceForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
-                                    @fieldHorizontal(conferenceForm("logo"), 'label -> "Logo", 'constraints -> "false") { field => @inputImgUrl(field, 'placeholder -> "ex: http://www.motwin.com/wp-content/uploads/2015/04/Devoxx.png") }
-                                    @fieldHorizontal(conferenceForm("videosUrl"), 'label -> "Vidéos", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: https://www.youtube.com/channel/UCsVPQfo5RZErDL41LoWvk0A") }
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab">
-                                <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#cfp-panel">Appel à orateurs</a></h4>
-                            </div>
-                            <div id="cfp-panel" class="panel-collapse collapse @if(conferenceForm("cfp.siteUrl").value.getOrElse("") != "" || conferenceForm("cfp.end").value.getOrElse("") != ""){in}" role="tabpanel">
-                                <div class="panel-body">
-                                    @fieldHorizontal(conferenceForm("cfp.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://cfp.devoxx.fr/") }
-                                    @fieldHorizontal(conferenceForm("cfp.end"), 'label -> "Clôture le", 'constraints -> "false") { field => @inputDate(field, 'placeholder -> "ex: 31/01/2016") }
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab">
-                                <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#ticket-panel">Tickets</a></h4>
-                            </div>
-                            <div id="ticket-panel" class="panel-collapse collapse @if(conferenceForm("tickets.siteUrl").value.getOrElse("") != "" || conferenceForm("tickets.from").value.getOrElse("") != ""){in}" role="tabpanel">
-                                <div class="panel-body">
-                                    @fieldHorizontal(conferenceForm("tickets.siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: http://reg.devoxx.fr/") }
-                                    @fieldHorizontal(conferenceForm("tickets.from"), 'label -> "Prix min") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 180") }
-                                    @fieldHorizontal(conferenceForm("tickets.to"), 'label -> "Prix max") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 500") }
-                                    @fieldHorizontal(conferenceForm("tickets.currency"), 'label -> "Monnaie", 'constraints -> "false") { field => @inputSelect(field, Seq("€", "$", "£").map(s => (s, s)), 'placeholder -> "ex: €") }
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab">
-                                <h4 class="panel-title"><a role="button" data-toggle="collapse" href="#user-panel">Vos infos</a></h4>
-                            </div>
-                            <div id="user-panel" class="panel-collapse collapse in" role="tabpanel">
-                                <div class="panel-body">
-                                    @createdByForm(conferenceForm("createdBy"))
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @partials.fields(conferenceForm, tags)
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary btn-lg">@if(conferenceForm("id").value.getOrElse("") == "") {Ajouter la conférence} else {Modifier "@conferenceForm("name").value"}</button>

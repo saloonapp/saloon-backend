@@ -18,6 +18,7 @@ object PersonId extends tStringHelper[PersonId] {
 case class Person(
   id: PersonId,
   name: String,
+  description: Option[String],
   avatar: Option[String],
   twitter: Option[String],
   siteUrl: Option[String],
@@ -26,6 +27,7 @@ case class Person(
   createdBy: Option[User]) {
   def trim(): Person = this.copy(
     name = name.trim,
+    description = description.map(_.trim),
     avatar = avatar.map(_.trim),
     twitter = twitter.map(t => TwitterSrv.toAccount(t)),
     siteUrl = siteUrl.map(_.trim),
@@ -34,7 +36,7 @@ case class Person(
     "summary",
     "@conferencelist_",
     name,
-    "",
+    description.getOrElse(""),
     "http://res.cloudinary.com/demo/image/fetch/"+avatar.getOrElse("https://avatars2.githubusercontent.com/u/11368266?v=3&s=200"))
 }
 object Person {
@@ -44,6 +46,7 @@ object Person {
 case class PersonData(
   id: Option[PersonId],
   name: String,
+  description: Option[String],
   avatar: Option[String],
   twitter: Option[String],
   siteUrl: Option[String],
@@ -54,6 +57,7 @@ object PersonData {
   val fields = mapping(
     "id" -> optional(of[PersonId]),
     "name" -> nonEmptyText,
+    "description" -> optional(nonEmptyText),
     "avatar" -> optional(nonEmptyText),
     "twitter" -> optional(nonEmptyText),
     "siteUrl" -> optional(nonEmptyText),
@@ -63,10 +67,20 @@ object PersonData {
   def toModel(d: PersonData): Person = Person(
     id = d.id.getOrElse(PersonId.generate()),
     name = d.name,
+    description = d.description,
     avatar = d.avatar,
     twitter = d.twitter,
     siteUrl = d.siteUrl,
     email = d.email,
     created = new DateTime(),
     createdBy = Some(d.createdBy))
+  def fromModel(m: Person): PersonData = PersonData(
+    Some(m.id),
+    m.name,
+    m.description,
+    m.avatar,
+    m.twitter,
+    m.siteUrl,
+    m.email,
+    User.empty)
 }

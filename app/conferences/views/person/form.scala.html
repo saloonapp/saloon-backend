@@ -1,0 +1,28 @@
+@import conferences.models.PersonId
+@import conferences.models.PersonData
+@import conferences.views.html.partials._
+@(personForm: Form[PersonData])
+@conferences.views.html.main(if(personForm("id").value.getOrElse("") == "") {"Ajouter une personne"} else {"Modifier \""+personForm("name").value.getOrElse("")+"\""}) {
+    @header("")
+
+    <div class="container" role="main">
+        <div class="page-header">
+            <h1>@if(personForm("id").value.getOrElse("") == "") {Ajouter une personne} else {Modifier "@personForm("name").value"}</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                @helper.form(action=personForm("id").value.map(id => conferences.controllers.routes.Persons.doEdit(PersonId(id))).getOrElse(conferences.controllers.routes.Persons.doCreate()), 'class->"form-horizontal person-form") {
+                    @partials.fields(personForm)
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-primary btn-lg">@if(personForm("id").value.getOrElse("") == "") {Ajouter la personne} else {Modifier "@personForm("name").value"}</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @footer()
+}

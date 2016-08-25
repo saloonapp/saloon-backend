@@ -1,0 +1,32 @@
+@import conferences.models.Conference
+@import conferences.models.PresentationData
+@import conferences.models.Person
+@import common.views.format.Format
+@import common.views.html.forms._
+@import conferences.views.html._
+@(conference: Conference, presentationForm: Form[PresentationData], persons: List[Person], tags: List[(String, Int)], rooms: List[(String, Int)])
+<fieldset>
+    <legend>Présentation</legend>
+    @inputHidden(presentationForm("conferenceId"), 'value -> conference.id.unwrap)
+    @presentationForm("id").value.map { _ => @inputHidden(presentationForm("id")) }
+    @fieldHorizontal(presentationForm("title"), 'label -> "Titre *") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
+        <!-- TODO : add ajax preview of embed slides & video -->
+    @fieldHorizontal(presentationForm("videoUrl"), 'label -> "Vidéo", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
+    @fieldHorizontal(presentationForm("slidesUrl"), 'label -> "Slides", 'constraints -> "false") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
+    @fieldHorizontal(presentationForm("speakers"), 'label -> "Speakers") { field =>
+        @inputTagsItem(field, persons.map(p => (p.id.unwrap, Html(p.avatar.map(url => s"<img src='$url' style='height: 18px;'> ").getOrElse("")+p.name))), 'onCreate -> "createPersonModal", 'onCreateLabel -> "Nouveau speaker", 'placeholder -> "ex: John Doe")
+    }
+    @fieldHorizontal(presentationForm("tags"), 'label -> "Tags", 'constraints -> "false") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
+    @fieldHorizontal(presentationForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: La conférence pour les Développeurs Passionnés", 'rows -> "4") }
+</fieldset>
+<fieldset>
+    <legend>Détails</legend>
+    @fieldHorizontal(presentationForm("start"), 'label -> "Date/Heure") { field => @inputDateTime(field, 'startDate -> Format.datetime(conference.start), 'placeholder -> "ex: 21/04/2016 10:15") }
+    @fieldHorizontal(presentationForm("duration"), 'label -> "Durée (min)") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 50") }
+    @* TODO : room autocomplete *@
+    @fieldHorizontal(presentationForm("room"), 'label -> "Salle", 'constraints -> "false") { field => @inputTypeahead(field, rooms.map(_._1), 'placeholder -> "ex: Devoxx France 2016") }
+</fieldset>
+<fieldset>
+    <legend>Vos infos</legend>
+    @user.partials.fields(presentationForm("createdBy"))
+</fieldset>

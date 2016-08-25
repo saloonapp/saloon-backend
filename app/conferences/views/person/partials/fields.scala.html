@@ -1,0 +1,17 @@
+@import conferences.models.PersonData
+@import common.views.html.forms._
+@import conferences.views.html._
+@(personForm: Form[PersonData])
+<fieldset>
+    <legend>Personne</legend>
+    @fieldHorizontal(personForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: John Doe") }
+    @fieldHorizontal(personForm("email"), 'label -> "Email", 'constraints -> "false") { field => @inputText(field, 'type -> "email", 'constraints -> "false", 'placeholder -> "ex: john@doe.com") }
+    @fieldHorizontal(personForm("twitter"), 'label -> "Compte twitter", 'constraints -> "false") { field => @inputText(field, 'twitterToImg -> "avatar", 'constraints -> "false", 'placeholder -> "ex: johndoe") }
+    @fieldHorizontal(personForm("siteUrl"), 'label -> "Site", 'constraints -> "false") { field => @inputText(field, 'constraints -> "false", 'placeholder -> "ex: http://www.johndoe.com/") }
+    @fieldHorizontal(personForm("description"), 'label -> "Description", 'constraints -> "false") { field => @inputTextarea(field, 'placeholder -> "ex: Développeur investi dans la communauté tech", 'rows -> "4") }
+    @fieldHorizontal(personForm("avatar"), 'label -> "Avatar", 'constraints -> "false") { field => @inputImgUrl(field, 'constraints -> "false", 'placeholder -> "ex: https://cdn1.iconfinder.com/data/icons/user-pictures/100/male3-512.png") }
+</fieldset>
+<fieldset>
+    <legend>Vos infos</legend>
+    @user.partials.fields(personForm("createdBy"))
+</fieldset>

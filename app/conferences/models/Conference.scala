@@ -102,7 +102,7 @@ object Conference {
 }
 
 case class ConferenceData(
-  id: Option[String],
+  id: Option[ConferenceId],
   name: String,
   logo: Option[String],
   description: Option[String],
@@ -122,7 +122,7 @@ object ConferenceData {
   implicit val formatConferenceCfp = Json.format[ConferenceCfp]
   implicit val format = Json.format[ConferenceData]
   val fields = mapping(
-    "id" -> optional(nonEmptyText),
+    "id" -> optional(of[ConferenceId]),
     "name" -> nonEmptyText,
     "logo" -> optional(nonEmptyText),
     "description" -> optional(nonEmptyText),
@@ -150,7 +150,7 @@ object ConferenceData {
     "createdBy" -> User.fields
   )(ConferenceData.apply)(ConferenceData.unapply)
   def toModel(d: ConferenceData): Conference = Conference(
-    d.id.map(s => ConferenceId(s)).getOrElse(ConferenceId.generate()),
+    d.id.getOrElse(ConferenceId.generate()),
     d.name,
     d.logo,
     d.description,
@@ -166,7 +166,7 @@ object ConferenceData {
     new DateTime(),
     Some(d.createdBy.trim()))
   def fromModel(m: Conference): ConferenceData = ConferenceData(
-    Some(m.id.unwrap),
+    Some(m.id),
     m.name,
     m.logo,
     m.description,

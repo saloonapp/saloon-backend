@@ -11,7 +11,7 @@
     <div class="container" role="main">
         <div class="page-header">
             <h1>
-                @*<a href="@conferences.controllers.routes.Persons.edit(person.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>*@
+                <a href="@conferences.controllers.routes.Persons.edit(person.id)" class="close pull-right"><i class="fa fa-pencil"></i></a>
                 @person.avatar.map{url => <img src="@url" style="height: 50px; vertical-align: bottom;">} @person.name
             </h1>
             @person.twitter.map { account => <a href="https://twitter.com/@account" target="_blank">@@@account</a> }

@@ -20,8 +20,8 @@ Clean : https://devcenter.heroku.com/articles/scala-support#clean-builds
 ## TODO
 
 - Conférence Liste
+    - import depuis eventbrite, lanyrd, allconferencealert... pour la création d'une conf (avec talks & speakers)
     - add pagination for conferences
-    - pour la création d'une conf, proposer l'import depuis eventbrite, lanyrd...
     - améliorer l'API :
         - création / modification
         - talks / speakers
