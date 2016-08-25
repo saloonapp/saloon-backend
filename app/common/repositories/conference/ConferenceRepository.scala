@@ -29,13 +29,15 @@ object ConferenceRepository {
         Json.obj("$group" -> getFirst(conferenceFields)),
         Json.obj("$match" -> filter),
         Json.obj("$sort" -> sort))))
-  def findByIds(ids: List[ConferenceId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
-    "aggregate" -> collection.name,
-    "pipeline" -> Json.arr(
-      Json.obj("$sort" -> Json.obj("created" -> -1)),
-      Json.obj("$group" -> getFirst(conferenceFields)),
-      Json.obj("$match" -> Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id))))),
-      Json.obj("$sort" -> sort))))
+  def findByIds(ids: List[ConferenceId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = ids.headOption.map { _ =>
+    MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
+      "aggregate" -> collection.name,
+      "pipeline" -> Json.arr(
+        Json.obj("$sort" -> Json.obj("created" -> -1)),
+        Json.obj("$group" -> getFirst(conferenceFields)),
+        Json.obj("$match" -> Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id))))),
+        Json.obj("$sort" -> sort))))
+  }.getOrElse(Future(List()))
   def findRunning(date: DateTime): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
     Json.obj("start" -> Json.obj("$lte" -> date.withTime(0, 0, 0, 0))),
     Json.obj("end" -> Json.obj("$gte" -> date.withTime(0, 0, 0, 0))))))
