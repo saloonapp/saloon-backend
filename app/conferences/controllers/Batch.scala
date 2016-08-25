@@ -54,21 +54,21 @@ object Batch extends Controller {
 
   private var schedulerLastCall: Option[DateTime] = None
   def scheduler = Action { implicit req =>
-    def isDuplicate(): Boolean = schedulerLastCall.map(_.plusMinutes(2*TimeChecker.timeInterval).isBeforeNow()).getOrElse(false)
+    def isDuplicate(lastCall: Option[DateTime]): Boolean = lastCall.map(_.plusMinutes(2*TimeChecker.timeInterval).isAfterNow()).getOrElse(false)
     play.Logger.info("scheduler called")
     if(!Utils.isProd()) {
       play.Logger.info("scheduler called in "+Utils.getEnv()+" env (not prod, no exec) !")
-      Forbidden("Forbidden")
-    } else if(isDuplicate()) {
+      Forbidden("403 Forbidden")
+    } else if(isDuplicate(schedulerLastCall)) {
       play.Logger.info("scheduler call duplicate (ignored) !")
-      Forbidden("Forbidden")
+      TooManyRequest("429 TooManyRequest")
     } else {
       play.Logger.info("scheduler execution...")
       schedulerLastCall = Some(new DateTime())
       TimeChecker("sendNewsletter").isTime("9:15").isWeekDay(DateTimeConstants.MONDAY).run(() => NewsletterService.sendNewsletter())
       TimeChecker("sendDailyTwitts").isTime("9:15").run(() => SocialService.sendDailyTwitts())
       TimeChecker("scanTwitterTimeline").isTime("8:15", "12:15", "16:15", "19:15").run(() => SocialService.scanTwitterTimeline())
-      Ok("Ok")
+      Accepted("202 Accepted")
     }
   }
 
