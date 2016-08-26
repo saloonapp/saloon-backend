@@ -1,5 +1,5 @@
 @import org.joda.time.DateTime
-@import common.Defaults
+@import common.Config
 @(section: String)
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -16,7 +16,7 @@
             <ul class="nav navbar-nav">
                 <li @if(section == "future-list"){class="active"}><a href="@conferences.controllers.routes.Conferences.list()">Conférences à venir</a></li>
                 <li @if(section == "past-list"){class="active"}>
-                    <a href="@conferences.controllers.routes.Conferences.search(section = Some("past"), before = Some(new DateTime().toString(Defaults.dateFormatter)))">
+                    <a href="@conferences.controllers.routes.Conferences.search(section = Some("past"), before = Some(new DateTime().toString(Config.Application.dateFormatter)))">
                         <span class="hidden-sm">Conférences passées</span>
                         <span class="visible-sm-inline">Passées</span>
                     </a>

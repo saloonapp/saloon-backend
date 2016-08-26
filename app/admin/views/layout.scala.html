@@ -1,4 +1,4 @@
-@import common.views._
+@import common.Config
 @import common.views.html._
 @(title: String = "")(content: Html)(implicit flash: Flash)
 
@@ -11,7 +11,7 @@
 				<li id="toggle-sidebar" class="sidebar-main">
 					<a href="#">
 						Dashboard
-						@if(!App.isProd()){ (@App.getEnv()) }
+						@if(!Config.Application.isProd){ (@Config.Application.env) }
 						<i class="menu-icon glyphicon glyphicon-transfer"></i>
 					</a>
 				</li>

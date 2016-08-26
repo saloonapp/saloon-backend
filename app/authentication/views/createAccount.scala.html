@@ -2,7 +2,7 @@
 @import common.models.user.RequestId
 @import authentication.models.RegisterInfo
 @import com.mohiva.play.silhouette.core.providers.Credentials
-@import common.views._
+@import common.Config
 @import common.views.html.forms._
 @(requestId: RequestId, registerForm: Form[RegisterInfo])(implicit env: com.mohiva.play.silhouette.core.Environment[User, _], request: RequestHeader)
 
@@ -15,12 +15,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>@if(!App.isProd()){(@App.getEnv()) }Création de votre compte SalooN</title>
-	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+	<title>@if(!Config.Application.isProd){(@Config.Application.env) }Création de votre compte SalooN</title>
+	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+Config.Application.env+".png")">
 
 	<link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
-	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+Config.Application.env+".css")">
 </head>
 <body class="login-content">
 	<div class="lc-block toggled">

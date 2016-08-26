@@ -1,3 +1,4 @@
+@import common.Config
 @import common.views._
 @(title: String)(content: Html)
 
@@ -10,8 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>@if(!App.isProd()){(@App.getEnv()) }@title</title>
-    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+    <title>@if(!Config.Application.isProd){(@Config.Application.env) }@title</title>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+Config.Application.env+".png")">
 
     <link rel="stylesheet" href="@routes.Assets.at("libs/fullcalendar/dist/fullcalendar.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("libs/bootgrid/jquery.bootgrid.min.css")">
@@ -27,7 +28,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("libs/farbtastic/farbtastic.css")">
     <link rel="stylesheet" href="@routes.Assets.at("libs/chosen_v1.4.2/chosen.min.css")">
-    <link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+    <link rel="stylesheet" href="@routes.Assets.at("styles/backend."+Config.Application.env+".css")">
 </head>
 <body>
     @content

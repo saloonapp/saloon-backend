@@ -15,7 +15,7 @@ import java.io.Reader
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import com.github.tototoshi.csv._
-import common.Defaults.csvFormat
+import common.Config.Application.csvFormat
 
 object FileImporter {
   val datePattern = "dd/MM/yyyy HH:mm"

@@ -1,6 +1,6 @@
 package conferences.models
 
-import common.Defaults
+import common.Config
 import common.models.utils._
 import common.models.values.UUID
 import common.services.{EmbedSrv, TwitterCard}
@@ -69,7 +69,7 @@ object PresentationData {
     "slidesUrl" -> optional(nonEmptyText),
     "videoUrl" -> optional(nonEmptyText),
     "speakers" -> list(of[PersonId]),
-    "start" -> optional(jodaDate(pattern = Defaults.datetimeFormat)),
+    "start" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
     "duration" -> optional(number),
     "room" -> optional(nonEmptyText),
     "tags" -> list(nonEmptyText),

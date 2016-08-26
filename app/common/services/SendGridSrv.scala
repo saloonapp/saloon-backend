@@ -1,5 +1,6 @@
 package common.services
 
+import common.Config
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
@@ -7,8 +8,8 @@ import play.api.libs.ws._
 import play.api.Play.current
 
 object SendGridSrv {
-  val baseUrl = "https://api.sendgrid.com/v3"
-  val key = play.api.Play.current.configuration.getString("sendgrid.key").getOrElse("Key Not Found !")
+  val baseUrl = Config.SendGrid.uri
+  val key = Config.SendGrid.key
 
   // cf https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/index.html
   def sendEmail(data: EmailData): Future[Boolean] = {

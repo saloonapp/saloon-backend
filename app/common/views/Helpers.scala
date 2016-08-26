@@ -1,6 +1,6 @@
 package common.views
 
-import common.Utils
+import common.{Config, Utils}
 import play.api.data.Field
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
@@ -32,9 +32,6 @@ object Helpers {
 }
 
 object App {
-  val googleMapsKey = play.api.Play.current.configuration.getString("google.maps.key").getOrElse("Key Not Found !")
-  def getEnv() = Utils.getEnv()
-  def isProd() = Utils.isProd()
   def isMobile()(implicit req: RequestHeader): Boolean = req.headers.getAll("User-Agent").exists(ua => ua.contains("Mobi") && !ua.contains("iPad"))
 }
 

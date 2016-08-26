@@ -1,4 +1,3 @@
-
 import play.api._
 import play.api.i18n.Lang
 import play.api.mvc.EssentialAction

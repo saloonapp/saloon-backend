@@ -44,6 +44,14 @@ object Application extends Silhouette[User, CachedCookieAuthenticator] with Silh
     }
   }
 
+  def status() = Action.async { implicit request =>
+    // TODO check DB
+    Future(Ok(Json.obj(
+      "version" -> "TODO",
+      "build-time" -> "TODO"
+    )))
+  }
+
   def corsPreflight(all: String) = Action {
     Ok("").withHeaders(
       "Allow" -> "*",

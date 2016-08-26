@@ -1,6 +1,6 @@
 package common.repositories.conference
 
-import common.{Defaults, Utils}
+import common.Config
 import common.repositories.utils.MongoDbCrudUtils
 import common.repositories.CollectionReferences
 import conferences.models.{ConferenceId, Conference}
@@ -72,7 +72,7 @@ object ConferenceRepository {
       Json.obj("$match" -> filter),
       Json.obj("$sort" -> sort))))
   def importData(elts: List[Conference]): Future[MultiBulkWriteResult] = {
-    if(Utils.isProd()){ throw new IllegalStateException("You can't import data in prod !!!") }
+    if(Config.Application.isProd){ throw new IllegalStateException("You can't import data in prod !!!") }
     MongoDbCrudUtils.drop(collection).flatMap { dropSuccess =>
       MongoDbCrudUtils.bulkInsert(elts, collection)
     }
@@ -80,7 +80,7 @@ object ConferenceRepository {
 
   def buildSearchFilter(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]): JsObject = {
     def reduce(l: List[Option[JsObject]]): Option[JsObject] = l.flatten.headOption.map(_ => l.flatten.reduceLeft(_ ++ _))
-    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, Defaults.dateFormatter)).toOption
+    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, Config.Application.dateFormatter)).toOption
     def buildTextFilter(q: Option[String]): Option[JsObject] =
       q.map(_.trim).filter(_.length > 0).map { query =>
         Json.obj("$or" -> List(

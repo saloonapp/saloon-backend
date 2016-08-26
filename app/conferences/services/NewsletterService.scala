@@ -1,6 +1,6 @@
 package conferences.services
 
-import common.Utils
+import common.{Config, Utils}
 import common.repositories.conference.ConferenceRepository
 import common.services.{TwitterSrv, MailChimpCampaign, MailChimpSrv}
 import conferences.models.Conference
@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object NewsletterService {
   def sendNewsletter(): Future[Boolean] = {
-    if(!Utils.isProd()){ throw new IllegalAccessException("Method sendNewsletter should be called only on 'prod' environment !") }
+    if(!Config.Application.isProd){ throw new IllegalAccessException("Method sendNewsletter should be called only on 'prod' environment !") }
     play.Logger.info("NewsletterService.sendNewsletter called")
     getNewsletterInfos(new DateTime()).flatMap { case (closingCFPs, incomingConferences, newData) =>
       if(closingCFPs.length + incomingConferences.length + newData.length > 0) {

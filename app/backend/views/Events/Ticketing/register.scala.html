@@ -1,7 +1,7 @@
 @import common.models.event.Event
 @import common.models.event.AttendeeRegistration
 @import common.models.user.User
-@import common.views._
+@import common.Config
 @import common.views.html._
 @import common.views.html.forms._
 @(registerForm: Form[AttendeeRegistration], event: Event)(implicit lang: Lang, flash: Flash, req: RequestHeader, userOpt: Option[User])
@@ -32,14 +32,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>@if(!App.isProd()){(@App.getEnv()) }Inscription à @event.name</title>
-	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+	<title>@if(!Config.Application.isProd){(@Config.Application.env) }Inscription à @event.name</title>
+	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+Config.Application.env+".png")">
 
 	<link rel="stylesheet" href="@routes.Assets.at("libs/animate.css/animate.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")">
-	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+Config.Application.env+".css")">
 	<style>
 		.radio, .checkbox {
 			margin-top: 0px;

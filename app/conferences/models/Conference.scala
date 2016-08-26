@@ -1,6 +1,6 @@
 package conferences.models
 
-import common.Defaults
+import common.Config
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
 import common.models.values.{CalendarEvent, GMapMarker, GMapPlace, UUID}
 import common.services.{TwitterSrv, TwitterCard}
@@ -39,9 +39,9 @@ case class Conference(
   def toTwitterCard(): TwitterCard = TwitterCard(
     "summary",
     "@conferencelist_",
-    name+", le " + start.toString(Defaults.dateFormatter) + location.flatMap(_.locality).map(" à "+_).getOrElse(""),
+    name+", le " + start.toString(Config.Application.dateFormatter) + location.flatMap(_.locality).map(" à "+_).getOrElse(""),
     List(
-      cfp.flatMap(c => if(c.end.isAfterNow) Some("CFP ouvert jusqu'au "+c.end.toString(Defaults.dateFormatter)) else None),
+      cfp.flatMap(c => if(c.end.isAfterNow) Some("CFP ouvert jusqu'au "+c.end.toString(Config.Application.dateFormatter)) else None),
       tickets.flatMap(t => if(end.isAfterNow && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description

@@ -1,6 +1,6 @@
 package conferences.services
 
-import common.Utils
+import common.{Config, Utils}
 import common.repositories.conference.ConferenceRepository
 import common.services.UrlInfo.Category
 import common.services._
@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object SocialService {
   def sendDailyTwitts(): Future[Boolean] = {
-    if(!Utils.isProd()){ throw new IllegalAccessException("Method sendDailyTwitts should be called only on 'prod' environment !") }
+    if(!Config.Application.isProd){ throw new IllegalAccessException("Method sendDailyTwitts should be called only on 'prod' environment !") }
     play.Logger.info("SocialService.sendDailyTwitts called")
     getDailyTwitts(new DateTime()).map { twittsToSend =>
       play.Logger.info("SocialService.sendDailyTwitts: "+twittsToSend.length+" twittsToSend")
@@ -48,7 +48,7 @@ object SocialService {
   }
 
   def scanTwitterTimeline(): Future[Boolean] = {
-    if(!Utils.isProd()){ throw new IllegalAccessException("Method scanTwitterTimeline should be called only on 'prod' environment !") }
+    if(!Config.Application.isProd){ throw new IllegalAccessException("Method scanTwitterTimeline should be called only on 'prod' environment !") }
     play.Logger.info("SocialService.scanTwitterTimeline called")
     getTwitterTimelineActions(new DateTime()).map { case (twittsToSend: List[String], repliesToUsers: List[(String, SimpleTweet)], usersToAddInList: List[(String, SimpleUser)], twittsToFav: List[SimpleTweet]) =>
       play.Logger.info("SocialService.scanTwitterTimeline: "+twittsToSend.length+" twittsToSend, "+repliesToUsers.length+" repliesToUsers, "+usersToAddInList.length+" usersToAddInList, "+twittsToFav.length+" twittsToFav")

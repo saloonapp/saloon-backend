@@ -1,4 +1,4 @@
-@import common.views._
+@import common.Config
 @()(implicit lang: Lang, flash: Flash, req: RequestHeader)
 
 <!DOCTYPE html>
@@ -10,8 +10,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>@if(!App.isProd()){(@App.getEnv()) }Inscription I-connect</title>
-	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+	<title>@if(!Config.Application.isProd){(@Config.Application.env) }Inscription I-connect</title>
+	<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+Config.Application.env+".png")">
 
 	<link rel="stylesheet" href="@routes.Assets.at("libs/material-design-iconic-font/css/material-design-iconic-font.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/socicon/socicon.min.css")">
@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")">
 	<link rel="stylesheet" href="@routes.Assets.at("libs/summernote/dist/summernote.css")">
-	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+App.getEnv()+".css")">
+	<link rel="stylesheet" href="@routes.Assets.at("styles/backend."+Config.Application.env+".css")">
 	<style>
 		.buttons a.btn-social, .buttons a.btn-skip {
 			display: block;

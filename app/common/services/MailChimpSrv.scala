@@ -1,6 +1,6 @@
 package common.services
 
-import common.{Utils, Defaults}
+import common.Config
 import common.models.values.typed.{TextHTML, Email}
 import conferences.models.Conference
 import org.joda.time.DateTime
@@ -39,9 +39,9 @@ object MailChimpCampaign {
     folderId = MailChimp.Campaigns.Folders.ConferenceListNewsletter,
     name = "Conference List Newsletter du "+(new DateTime().toString("dd/MM/yyyy HH:mm")), // internal use only
     senderName = "Conference List by SalooN",
-    senderMail = Defaults.contactEmail,
+    senderMail = Config.Contact.email,
     subject = "Nouveautés des conférences tech en France",
-    contentHtml = TextHTML(conferences.views.html.emails.newsletter(Defaults.baseUrl, closingCFPs, incomingConferences, newData).toString),
+    contentHtml = TextHTML(conferences.views.html.emails.newsletter(Config.Application.baseUrl, closingCFPs, incomingConferences, newData).toString),
     social = Json.obj(
       "image_url" -> "https://pbs.twimg.com/profile_images/746325473895014400/hotwvNKV_400x400.jpg",
       "title" -> ("Conference List Newsletter du "+(new DateTime().toString("dd/MM/yyyy HH:mm"))),
@@ -57,8 +57,8 @@ object MailChimpCampaign {
 }
 
 object MailChimpSrv {
-  val key = play.api.Play.current.configuration.getString("mailchimp.key").getOrElse("Key Not Found !")
-  val baseUrl = "https://<dc>.api.mailchimp.com/3.0".replace("<dc>", key.split("-")(1))
+  val key = Config.MailChimp.key
+  val baseUrl = Config.MailChimp.uri
 
   def createAndSendCampaign(campaign: MailChimpCampaign): Future[String] = {
     for {
@@ -134,7 +134,7 @@ object MailChimpSrv {
     })
   }
   private def sendCampaign(campaignId: String): Future[Boolean] = {
-    if(!Utils.isProd()){ throw new IllegalStateException("You should be in Prod environment to send a MailChimp Campaign !") }
+    if(!Config.Application.isProd){ throw new IllegalStateException("You should be in Prod environment to send a MailChimp Campaign !") }
     WS.url(baseUrl + s"/campaigns/$campaignId/actions/send").withHeaders(
       "Authorization" -> s"apikey: $key",
       "Content-Type" -> "application/json"

@@ -1,4 +1,4 @@
-@import common.views._
+@import common.Config
 @(title: String)(content: Html)
 
 <!DOCTYPE html>
@@ -7,15 +7,15 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>@if(!App.isProd()){(@App.getEnv()) }@title</title>
-		<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+App.getEnv()+".png")">
+		<title>@if(!Config.Application.isProd){(@Config.Application.env) }@title</title>
+		<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("favicon."+Config.Application.env+".png")">
 
 		<link rel="stylesheet" href="@routes.Assets.at("libs/font-awesome/css/font-awesome.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.at("libs/bootstrap/css/bootstrap.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.at("libs/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2.min.css")">
 		<link rel="stylesheet" href="@routes.Assets.at("libs/select2/select2-bootstrap.min.css")">
-		<link rel="stylesheet" href="@routes.Assets.at("styles/admin."+App.getEnv()+".css")">
+		<link rel="stylesheet" href="@routes.Assets.at("styles/admin."+Config.Application.env+".css")">
 	</head>
 	<body>
 		@content

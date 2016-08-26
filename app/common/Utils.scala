@@ -13,10 +13,6 @@ import org.joda.time.format.DateTimeFormatter
 import org.jsoup.Jsoup
 
 object Utils {
-  // possible values for env : 'local', 'dev', 'prod', 'undefined'
-  def getEnv(): String = Play.current.configuration.getString("application.env").getOrElse("undefined")
-  def isProd(): Boolean = "prod".equals(getEnv())
-
   def retry[T](retries: Int, delay: FiniteDuration)(f: => Future[T])(implicit ec: ExecutionContext, s: Scheduler): Future[T] =
     f recoverWith { case _ if retries > 0 => after(delay, s)(retry(retries - 1, delay)(f)(ec, s))(ec) }
   def retryOnce[T](f: => Future[T])(implicit ec: ExecutionContext, s: Scheduler): Future[T] =

@@ -4,8 +4,7 @@ import java.util.Date
 import com.danielasfregola.twitter4s.TwitterClient
 import com.danielasfregola.twitter4s.entities._
 import com.danielasfregola.twitter4s.entities.enums.{ResultType, Mode}
-import common.Utils
-import org.joda.time.DateTime
+import common.Config
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -13,13 +12,13 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 // see https://github.com/DanielaSfregola/twitter4s
 object TwitterSrv {
-  val account = play.api.Play.current.configuration.getString("twitter.account").getOrElse("Account Not Found !")
+  val account = Config.Twitter.account
   val client = new TwitterClient()
 
   def toAccount(twitterAccount: String): String = twitterAccount.trim.replace("@", "").replaceAll("https?://twitter.com/", "")
   def toHashtag(twitterHashtag: String): String = twitterHashtag.trim.replace("#", "").replaceAll("https?://twitter.com/hashtag/", "").replaceAll("https?://twitter.com/search?q=%23", "").replace("?src=hash", "").replace("&src=typd", "")
 
-  private def allowEdit(): Boolean = Utils.isProd()
+  private def allowEdit(): Boolean = Config.Application.isProd
   private def twitt(text: String, in_reply_to: Option[String] = None): Future[Option[Tweet]] = {
     if(allowEdit()) {
       Try(client.tweet(status = text, in_reply_to_status_id = in_reply_to.map(_.toLong))) match {

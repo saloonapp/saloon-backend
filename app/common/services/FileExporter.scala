@@ -1,7 +1,7 @@
 package common.services
 
 import com.github.tototoshi.csv._
-import common.Defaults.csvFormat
+import common.Config.Application.csvFormat
 
 object FileExporter {
   def makeCsv(elts: List[Map[String, String]]): String = {

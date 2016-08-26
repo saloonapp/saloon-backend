@@ -1,7 +1,7 @@
 package conferences.controllers
 
 import common.repositories.conference.ConferenceRepository
-import common.{Utils, Defaults}
+import common.Config
 import common.services._
 import conferences.models.Conference
 import conferences.services.{TimeChecker, SocialService, NewsletterService}
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
   def testSendNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
-    val realDate = date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())
+    val realDate = date.map(d => DateTime.parse(d, Config.Application.dateFormatter)).getOrElse(new DateTime())
     NewsletterService.getNewsletterInfos(realDate).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
         MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
@@ -33,14 +33,14 @@ object Batch extends Controller {
   }
 
   def testSendDailyTwitts(date: Option[String]) = Action.async { implicit req =>
-    val realDate = date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())
+    val realDate = date.map(d => DateTime.parse(d, Config.Application.dateFormatter)).getOrElse(new DateTime())
     SocialService.getDailyTwitts(realDate).map { twittsToSend =>
       Ok(Json.obj("twittsToSend" -> twittsToSend))
     }
   }
 
   def testScanTwitterTimeline(date: Option[String]) = Action.async { implicit req =>
-    val realDate = date.map(d => DateTime.parse(d, Defaults.dateFormatter)).getOrElse(new DateTime())
+    val realDate = date.map(d => DateTime.parse(d, Config.Application.dateFormatter)).getOrElse(new DateTime())
     SocialService.getTwitterTimelineActions(realDate).map { case (twittsToSend: List[String], repliesToUsers: List[(String, SimpleTweet)], usersToAddInList: List[(String, SimpleUser)], twittsToFav: List[SimpleTweet]) =>
       Ok(Json.obj(
         "date" -> realDate,
@@ -56,8 +56,8 @@ object Batch extends Controller {
   def scheduler = Action { implicit req =>
     def isDuplicate(lastCall: Option[DateTime]): Boolean = lastCall.map(_.plusMinutes(2*TimeChecker.timeInterval).isAfterNow()).getOrElse(false)
     play.Logger.info("scheduler called")
-    if(!Utils.isProd()) {
-      play.Logger.info("scheduler called in "+Utils.getEnv()+" env (not prod, no exec) !")
+    if(!Config.Application.isProd) {
+      play.Logger.info("scheduler called in "+Config.Application.env+" env (not prod, no exec) !")
       Forbidden("403 Forbidden")
     } else if(isDuplicate(schedulerLastCall)) {
       play.Logger.info("scheduler call duplicate (ignored) !")
@@ -73,7 +73,7 @@ object Batch extends Controller {
   }
 
   def importFromProd = Action.async { implicit req =>
-    if(Utils.isProd()){ throw new IllegalStateException("You can't import data in prod !!!") }
+    if(Config.Application.isProd){ throw new IllegalStateException("You can't import data in prod !!!") }
     WS.url("http://saloonapp.herokuapp.com/api/conferences").get().flatMap { response =>
       val conferences = (response.json \ "result").as[List[Conference]]
       ConferenceRepository.importData(conferences).map { res =>

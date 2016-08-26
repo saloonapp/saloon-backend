@@ -1,6 +1,6 @@
 package common.models.utils
 
-import common.Defaults
+import common.Config
 import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.data.validation.{Valid, ValidationError, Invalid, Constraint}
@@ -12,16 +12,16 @@ case class DateTimeRange(
   end: DateTime)
 object DateTimeRange {
   private val errKey = "error.datetimerange"
-  private val regex = s"(${Defaults.datetimeFormat}) - (${Defaults.datetimeFormat})".replaceAll("[a-zA-Z]", "\\\\d").r
+  private val regex = s"(${Config.Application.datetimeFormat}) - (${Config.Application.datetimeFormat})".replaceAll("[a-zA-Z]", "\\\\d").r
   private def fromString(str: String): Either[String, DateTimeRange] = str.trim match {
-    case regex(start, end) => Right(DateTimeRange(DateTime.parse(start, Defaults.datetimeFormatter), DateTime.parse(end, Defaults.datetimeFormatter)))
+    case regex(start, end) => Right(DateTimeRange(DateTime.parse(start, Config.Application.datetimeFormatter), DateTime.parse(end, Config.Application.datetimeFormatter)))
     case _ => Left(errKey)
   }
   private val formMapping = new Formatter[DateTimeRange] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], DateTimeRange] =
       data.get(key).map { value => fromString(value).left.map(msg => Seq(FormError(key, msg, Nil))) }.getOrElse(Left(Seq(FormError(key, errKey, Nil))))
     override def unbind(key: String, value: DateTimeRange): Map[String, String] =
-      Map(key -> (value.start.toString(Defaults.datetimeFormat)+" - "+value.end.toString(Defaults.datetimeFormat)))
+      Map(key -> (value.start.toString(Config.Application.datetimeFormat)+" - "+value.end.toString(Config.Application.datetimeFormat)))
   }
 
   // ex: https://github.com/playframework/playframework/blob/2.3.x/framework/src/play/src/main/scala/play/api/data/Forms.scala
