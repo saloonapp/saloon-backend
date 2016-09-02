@@ -25,15 +25,7 @@ object PersonRepository {
       Json.obj("$group" -> getFirst(personFields)),
       Json.obj("$match" -> filter),
       Json.obj("$sort" -> sort))))
-  def findByIds(ids: List[PersonId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Person]] = ids.headOption.map { _ =>
-    MongoDbCrudUtils.aggregate[List[Person]](collection, Json.obj(
-      "aggregate" -> collection.name,
-      "pipeline" -> Json.arr(
-        Json.obj("$sort" -> Json.obj("created" -> -1)),
-        Json.obj("$group" -> getFirst(personFields)),
-        Json.obj("$match" -> Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id))))),
-        Json.obj("$sort" -> sort))))
-  }.getOrElse(Future(List()))
+  def findByIds(ids: List[PersonId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Person]] = ids.headOption.map { _ => find(Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id)))), sort) }.getOrElse(Future(List()))
   def get(id: PersonId): Future[Option[Person]] = MongoDbCrudUtils.getFirst[Person](collection, Json.obj("id" -> id.unwrap), Json.obj("created" -> -1))
   def insert(elt: Person): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
   def update(id: PersonId, elt: Person): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(id = id, created = new DateTime()))

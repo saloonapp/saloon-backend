@@ -12,7 +12,7 @@
 	<td>@device.info.cordova</td>
 	<td>@device.pushId.map{ push => @push }</td>
 	<td>@device.saloonMemo</td>
-	<td>@date(device.meta.created)</td>
+	<td>@date(device.meta.created.toLocalDate)</td>
 	<td>
 		<a href="@admin.controllers.routes.Devices.details(device.uuid)" class="btn btn-default">Détails</a>
 		<a href="@admin.controllers.routes.Devices.update(device.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>

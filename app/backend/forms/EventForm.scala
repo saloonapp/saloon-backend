@@ -1,5 +1,6 @@
 package backend.forms
 
+import common.Config
 import common.models.utils.tStringConstraints._
 import common.models.values.typed._
 import common.models.values.Address
@@ -37,8 +38,8 @@ object EventCreateData {
     "ownerId" -> of[OrganizationId].verifying(nonEmpty),
     "name" -> of[FullName].verifying(nonEmpty),
     "categories" -> list(text),
-    "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-    "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
+    "start" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
+    "end" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
     "address" -> Address.fields,
     "website" -> of[WebsiteUrl],
     "price" -> Link.fields,

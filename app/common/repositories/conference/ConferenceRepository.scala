@@ -4,7 +4,7 @@ import common.Config
 import common.repositories.utils.MongoDbCrudUtils
 import common.repositories.CollectionReferences
 import conferences.models.{ConferenceId, Conference}
-import org.joda.time.DateTime
+import org.joda.time.{ DateTime, LocalDate }
 import play.api.libs.json.{JsNull, Json, JsObject}
 import play.api.Play.current
 import scala.concurrent.Future
@@ -29,18 +29,10 @@ object ConferenceRepository {
         Json.obj("$group" -> getFirst(conferenceFields)),
         Json.obj("$match" -> filter),
         Json.obj("$sort" -> sort))))
-  def findByIds(ids: List[ConferenceId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = ids.headOption.map { _ =>
-    MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
-      "aggregate" -> collection.name,
-      "pipeline" -> Json.arr(
-        Json.obj("$sort" -> Json.obj("created" -> -1)),
-        Json.obj("$group" -> getFirst(conferenceFields)),
-        Json.obj("$match" -> Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id))))),
-        Json.obj("$sort" -> sort))))
-  }.getOrElse(Future(List()))
-  def findRunning(date: DateTime): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
-    Json.obj("start" -> Json.obj("$lte" -> date.withTime(0, 0, 0, 0))),
-    Json.obj("end" -> Json.obj("$gte" -> date.withTime(0, 0, 0, 0))))))
+  def findByIds(ids: List[ConferenceId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = ids.headOption.map { _ => find(Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id)))), sort) }.getOrElse(Future(List()))
+  def findRunning(date: LocalDate): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
+    Json.obj("start" -> Json.obj("$lte" -> date)),
+    Json.obj("end" -> Json.obj("$gte" -> date)))))
   def insert(elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
   def update(id: ConferenceId, elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(id = id, created = new DateTime()))
   def get(id: ConferenceId, created: DateTime): Future[Option[Conference]] = MongoDbCrudUtils.get[Conference](collection, Json.obj("id" -> id.unwrap, "created" -> created))
@@ -80,7 +72,7 @@ object ConferenceRepository {
 
   def buildSearchFilter(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]): JsObject = {
     def reduce(l: List[Option[JsObject]]): Option[JsObject] = l.flatten.headOption.map(_ => l.flatten.reduceLeft(_ ++ _))
-    def parseDate(d: String): Option[DateTime] = Try(DateTime.parse(d, Config.Application.dateFormatter)).toOption
+    def parseDate(d: String): Option[LocalDate] = Try(LocalDate.parse(d, Config.Application.dateFormatter)).toOption
     def buildTextFilter(q: Option[String]): Option[JsObject] =
       q.map(_.trim).filter(_.length > 0).map { query =>
         Json.obj("$or" -> List(
@@ -100,11 +92,11 @@ object ConferenceRepository {
         .filter(_.length > 0)
         .map(tags => Json.obj("tags" -> Json.obj("$in" ->tags)))
     def buildCfpFilter(cfp: Option[String]): Option[JsObject] = cfp match {
-      case Some("on") => Some(Json.obj("cfp.end" -> Json.obj("$gte" -> new DateTime())))
+      case Some("on") => Some(Json.obj("cfp.end" -> Json.obj("$gte" -> new LocalDate())))
       case _ => None
     }
     def buildTicketsFilter(tickets: Option[String]): Option[JsObject] = tickets match {
-      case Some("on") => Some(Json.obj("end" -> Json.obj("$lte" -> new DateTime()), "tickets.siteUrl" -> Json.obj("$exists" -> true)))
+      case Some("on") => Some(Json.obj("end" -> Json.obj("$lte" -> new LocalDate()), "tickets.siteUrl" -> Json.obj("$exists" -> true)))
       case _ => None
     }
     def buildVideosFilter(videos: Option[String]): Option[JsObject] = videos match {

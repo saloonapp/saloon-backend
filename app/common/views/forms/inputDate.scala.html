@@ -1,3 +1,4 @@
+@import common.Config
 @import common.views._
 @(field: Field, args: (Symbol, String)*)
 <input
@@ -6,6 +7,6 @@
   name="@field.name"
   id="@field.id"
   value="@field.value"
-  placeholder="@Helpers.getArg(args, "placeholder", "dd/MM/yyyy")"
+  placeholder="@Helpers.getArg(args, "placeholder", Config.Application.dateFormat)"
   @Helpers.toHtmlArgs(args, Seq("type", "class", "placeholder"))
   @if(Helpers.isRequired(field) || Helpers.hasArg(args, "required", "true")){required}>

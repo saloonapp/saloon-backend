@@ -82,7 +82,7 @@
 							@request.content match {
 								case OrganizationRequest(_, _, _) => {
 									<div style="padding-bottom: 15px;">
-										Demande d'accès à <b>@orga.name</b> depuis le @date(request.created, "dd MMM à HH'h")
+										Demande d'accès à <b>@orga.name</b> depuis le @datetime(request.created, "dd MMM à HH'h")
 										<ul class="actions" style="float: right">
 											<li class="dropdown">
 												<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>
@@ -96,7 +96,7 @@
 								}
 								case OrganizationInvite(_, _, _, _) => {
 									<div style="padding-bottom: 15px;">
-										Invitation à <b>@orga.name</b> depuis le @date(request.created, "dd MMM à HH'h")
+										Invitation à <b>@orga.name</b> depuis le @datetime(request.created, "dd MMM à HH'h")
 										<ul class="actions" style="float: right">
 											<li class="dropdown">
 												<a href="#" data-toggle="dropdown" aria-expanded="false"><i class="md md-more-vert"></i></a>

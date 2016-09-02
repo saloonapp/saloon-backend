@@ -1,6 +1,6 @@
 package common.models.event
 
-import common.Utils
+import common.{Config, Utils}
 import common.models.utils.tString
 import common.models.utils.tStringHelper
 import common.models.values.UUID
@@ -171,8 +171,8 @@ object SessionData {
       "format" -> text,
       "theme" -> text,
       "place" -> of[EventLocation],
-      "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-      "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
+      "start" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
+      "end" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
       "speakers" -> list(of[AttendeeId]),
       "slides" -> optional(of[WebsiteUrl]),
       "video" -> optional(of[WebsiteUrl]))(SessionInfo.apply)(SessionInfo.unapply),

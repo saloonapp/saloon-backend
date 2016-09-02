@@ -1,3 +1,4 @@
-@import org.joda.time.DateTime
-@(dateOpt: Option[DateTime], default: String = "N/A", template: String = "dd/MM/yyyy")(implicit lang: Lang)
+@import common.Config
+@import org.joda.time.LocalDate
+@(dateOpt: Option[LocalDate], template: String = Config.Application.dateFormat, default: String = "N/A")(implicit lang: Lang)
 @dateOpt.map(d => date(d, template)).getOrElse(default)

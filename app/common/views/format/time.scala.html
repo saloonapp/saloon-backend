@@ -1,3 +1,4 @@
+@import common.Config
 @import org.joda.time.DateTime
-@(date: DateTime, template: String = "HH:mm")(implicit lang: Lang)
-@common.views.format.Format.time(date, template)(lang)
+@(date: DateTime, template: String = Config.Application.timeFormat)(implicit lang: Lang)
+@common.views.format.Formats.time(date, template)(lang)

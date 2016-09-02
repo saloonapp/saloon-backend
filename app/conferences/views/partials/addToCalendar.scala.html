@@ -1,5 +1,5 @@
 @import conferences.models.Conference
-@import common.views.format.Format
+@import common.views.format.Formats
 @import common.views.html.format._
 @(conference: Conference)(content: Html)(implicit lang: Lang)
 <div title="Ajouter à l'agenda" class="addeventatc">
@@ -14,7 +14,7 @@
     <span class="description">
         @conference.siteUrl
         @conference.tickets.map { tickets => Tickets: @tickets.siteUrl.getOrElse("") (@tickets.price) }
-        @conference.cfp.map { cfp => Appel à orateurs: @cfp.siteUrl (fermeture le @Format.date(cfp.end)) }
+        @conference.cfp.map { cfp => Appel à orateurs: @cfp.siteUrl (fermeture le @Formats.date(cfp.end)) }
 
         @conference.description
     </span>

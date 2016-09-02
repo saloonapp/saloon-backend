@@ -84,7 +84,7 @@ object PresentationData {
     slidesUrl = None,
     videoUrl = None,
     speakers = List(),
-    start = Some(conference.start),
+    start = Some(conference.start.toDateTimeAtStartOfDay),
     duration = None,
     room = None,
     tags = List(),

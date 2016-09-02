@@ -1,5 +1,6 @@
 package common.services
 
+import common.Config
 import common.models.FileImportConfig
 import common.models.event.Event
 import common.models.event.Attendee
@@ -18,7 +19,7 @@ import com.github.tototoshi.csv._
 import common.Config.Application.csvFormat
 
 object FileImporter {
-  val datePattern = "dd/MM/yyyy HH:mm"
+  val datePattern = Config.Application.datetimeFormat
   val dateFormat = DateTimeFormat.forPattern(datePattern)
 
   /*def importAttendees(importedFile: Reader, cfg: FileImportConfig, eventId: String): Future[(Int, List[String])] = {

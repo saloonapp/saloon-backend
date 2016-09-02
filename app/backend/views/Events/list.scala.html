@@ -48,7 +48,7 @@
 									}
 									<div class="bp-title">
 										<h2 class="one-line">@event.name</h2>
-										<small>@period(event.info.start, event.info.end) - @attendeeCount participants, @sessionCount sessions, @exponentCount exposants, @actionCount actions</small>
+										<small>@period(event.info.start.map(_.toLocalDate), event.info.end.map(_.toLocalDate)) - @attendeeCount participants, @sessionCount sessions, @exponentCount exposants, @actionCount actions</small>
 									</div>
 								</div>
 							</div>

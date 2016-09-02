@@ -18,7 +18,7 @@
 			<span class="label label-primary">@UserData.rights.find(_._1 == right).map(_._2).getOrElse("Droit {"+right+"} inconnu...")</span>
 		}
 	</td>
-	<td>@date(user.meta.created)</td>
+	<td>@date(user.meta.created.toLocalDate)</td>
 	<td>
 		<a href="@admin.controllers.routes.Users.details(user.uuid)" class="btn btn-default">Détails</a>
 		<a href="@admin.controllers.routes.Users.update(user.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>

@@ -13,8 +13,9 @@ object Config {
     val baseUrl: String = "http://www.saloonapp.co"
     val googlePlayUrl: WebsiteUrl = WebsiteUrl("https://play.google.com/store/apps/details?id=co.saloonapp.mobile")
     val iTunesUrl: WebsiteUrl = WebsiteUrl("https://itunes.apple.com/fr/app/saloon-events/id999897097")
+    val timeFormat = "HH:mm"
     val dateFormat = "dd/MM/yyyy"
-    val datetimeFormat = "dd/MM/yyyy HH:mm"
+    val datetimeFormat = s"$dateFormat $timeFormat"
     val dateFormatter = DateTimeFormat.forPattern(dateFormat)
     val datetimeFormatter = DateTimeFormat.forPattern(datetimeFormat)
     val secureUrl = false // when generating url, generate the secure one (https)

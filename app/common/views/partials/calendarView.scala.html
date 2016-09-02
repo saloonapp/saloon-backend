@@ -12,5 +12,5 @@ lang="@lang.toLocale"
 height="@height"
     @if(events.length > 0){events="@Json.stringify(Json.toJson(events))"}
     @if(events.length == 0){remote-events="@remoteEvents()"}
-    @if(events.length > 0){default-date="@events.map(_.start.getMillis).min"}>
+    @if(events.length > 0){default-date="@events.map(_.start.toDateTimeAtStartOfDay.getMillis).min"}>
 </div>

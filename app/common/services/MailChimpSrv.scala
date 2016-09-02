@@ -37,14 +37,14 @@ object MailChimpCampaign {
     category = "regular",
     recipientListId = MailChimp.Lists.ConferenceListNewsletter,
     folderId = MailChimp.Campaigns.Folders.ConferenceListNewsletter,
-    name = "Conference List Newsletter du "+(new DateTime().toString("dd/MM/yyyy HH:mm")), // internal use only
+    name = "Conference List Newsletter du "+(new DateTime().toString(Config.Application.datetimeFormat)), // internal use only
     senderName = "Conference List by SalooN",
     senderMail = Config.Contact.email,
     subject = "Nouveautés des conférences tech en France",
     contentHtml = TextHTML(conferences.views.html.emails.newsletter(Config.Application.baseUrl, closingCFPs, incomingConferences, newData).toString),
     social = Json.obj(
       "image_url" -> "https://pbs.twimg.com/profile_images/746325473895014400/hotwvNKV_400x400.jpg",
-      "title" -> ("Conference List Newsletter du "+(new DateTime().toString("dd/MM/yyyy HH:mm"))),
+      "title" -> ("Conference List Newsletter du "+(new DateTime().toString(Config.Application.datetimeFormat))),
       "description" -> List(
         if(closingCFPs.length > 0) Some(closingCFPs.length+" CFPs bientôt terminés") else None,
         if(incomingConferences.length > 0) Some(incomingConferences.length+" conférences approchant") else None,

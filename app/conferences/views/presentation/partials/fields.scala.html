@@ -1,7 +1,7 @@
 @import conferences.models.Conference
 @import conferences.models.PresentationData
 @import conferences.models.Person
-@import common.views.format.Format
+@import common.views.format.Formats
 @import common.views.html.forms._
 @import conferences.views.html._
 @(conference: Conference, presentationForm: Form[PresentationData], persons: List[Person], tags: List[(String, Int)], rooms: List[(String, Int)])
@@ -21,7 +21,7 @@
 </fieldset>
 <fieldset>
     <legend>Détails</legend>
-    @fieldHorizontal(presentationForm("start"), 'label -> "Date/Heure") { field => @inputDateTime(field, 'startDate -> Format.datetime(conference.start), 'placeholder -> "ex: 21/04/2016 10:15") }
+    @fieldHorizontal(presentationForm("start"), 'label -> "Date/Heure") { field => @inputDateTime(field, 'startDate -> Formats.datetime(conference.start.toDateTimeAtStartOfDay()), 'placeholder -> "ex: 21/04/2016 10:15") }
     @fieldHorizontal(presentationForm("duration"), 'label -> "Durée (min)") { field => @inputText(field, 'type -> "number", 'placeholder -> "ex: 50") }
     @* TODO : room autocomplete *@
     @fieldHorizontal(presentationForm("room"), 'label -> "Salle", 'constraints -> "false") { field => @inputTypeahead(field, rooms.map(_._1), 'placeholder -> "ex: Devoxx France 2016") }

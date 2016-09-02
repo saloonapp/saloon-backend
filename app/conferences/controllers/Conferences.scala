@@ -4,7 +4,7 @@ import common.repositories.conference.{PersonRepository, PresentationRepository,
 import common.services.TwitterSrv
 import conferences.models.{ConferenceId, ConferenceData}
 import conferences.services.TwittFactory
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalDate}
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Action}
@@ -14,7 +14,7 @@ object Conferences extends Controller {
   val conferenceForm = Form(ConferenceData.fields)
 
   def list = Action.async { implicit req =>
-    val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new DateTime().withTime(0, 0, 0, 0))), Json.obj("start" -> 1))
+    val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new LocalDate())), Json.obj("start" -> 1))
     //val tagsFut = ConferenceRepository.getTags()
     for {
       conferenceList <- conferenceListFut
@@ -71,7 +71,7 @@ object Conferences extends Controller {
       formData => {
         val conference = ConferenceData.toModel(formData)
         ConferenceRepository.insert(conference).map { success =>
-          if(conference.start.isAfterNow){
+          if(conference.start.isAfter(new LocalDate())){
             TwitterSrv.sendTwitt(TwittFactory.newConference(conference))
           }
           Redirect(conferences.controllers.routes.Conferences.detail(conference.id))
@@ -109,7 +109,7 @@ object Conferences extends Controller {
             oldConferenceOpt.filter(_.videosUrl.isEmpty && conference.videosUrl.isDefined).map { _ =>
               TwitterSrv.sendTwitt(TwittFactory.publishVideos(conference))
             }
-            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isAfterNow).getOrElse(false)).map { _ =>
+            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isAfter(new LocalDate())).getOrElse(false)).map { _ =>
               TwitterSrv.sendTwitt(TwittFactory.openCfp(conference))
             }
             Redirect(conferences.controllers.routes.Conferences.detail(id))

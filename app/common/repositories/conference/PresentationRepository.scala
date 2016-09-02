@@ -25,22 +25,8 @@ object PresentationRepository {
       Json.obj("$group" -> getFirst(presentationFields)),
       Json.obj("$match" -> filter),
       Json.obj("$sort" -> sort))))
-  def findForConference(cId: ConferenceId, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = MongoDbCrudUtils.aggregate[List[Presentation]](collection, Json.obj(
-    "aggregate" -> collection.name,
-    "pipeline" -> Json.arr(
-      Json.obj("$sort" -> Json.obj("created" -> -1)),
-      Json.obj("$group" -> getFirst(presentationFields)),
-      Json.obj("$match" -> Json.obj("conferenceId" -> cId.unwrap)),
-      Json.obj("$match" -> filter),
-      Json.obj("$sort" -> sort))))
-  def findForPerson(pId: PersonId, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = MongoDbCrudUtils.aggregate[List[Presentation]](collection, Json.obj(
-    "aggregate" -> collection.name,
-    "pipeline" -> Json.arr(
-      Json.obj("$sort" -> Json.obj("created" -> -1)),
-      Json.obj("$group" -> getFirst(presentationFields)),
-      Json.obj("$match" -> Json.obj("speakers" -> pId.unwrap)),
-      Json.obj("$match" -> filter),
-      Json.obj("$sort" -> sort))))
+  def findForConference(cId: ConferenceId, filter: JsObject = Json.obj(), sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = find(Json.obj("conferenceId" -> cId.unwrap), sort)
+  def findForPerson(pId: PersonId, sort: JsObject = Json.obj("title" -> 1)): Future[List[Presentation]] = find(Json.obj("speakers" -> pId.unwrap), sort)
   def insert(elt: Presentation): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
   def update(cId: ConferenceId, pId: PresentationId, elt: Presentation): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(conferenceId = cId, id = pId, created = new DateTime()))
   def get(cId: ConferenceId, pId: PresentationId, created: DateTime): Future[Option[Presentation]] = MongoDbCrudUtils.get[Presentation](collection, Json.obj("conferenceId" -> cId.unwrap, "id" -> pId.unwrap, "created" -> created))

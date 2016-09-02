@@ -6,7 +6,7 @@
 
 <tr>
 	<td><a href="@admin.controllers.routes.Organizations.details(organization.uuid)">@organization.name</a></td>
-	<td>@date(organization.meta.created)</td>
+	<td>@date(organization.meta.created.toLocalDate)</td>
 	<td>
 		<a href="@admin.controllers.routes.Organizations.details(organization.uuid)" class="btn btn-default">Détails</a>
 		<a href="@admin.controllers.routes.Organizations.update(organization.uuid)" class="btn btn-info"><i class="fa fa-pencil-square-o"></i></a>

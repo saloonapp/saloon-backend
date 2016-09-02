@@ -1,12 +1,12 @@
 package common.models.values
 
-import org.joda.time.DateTime
+import org.joda.time.LocalDate
 import play.api.libs.json._
 
 case class CalendarEvent(
   title: String,
-  start: DateTime,
-  end: DateTime,
+  start: LocalDate,
+  end: LocalDate,
   url: String)
 object CalendarEvent {
   private val defaultFormat = Json.format[CalendarEvent]

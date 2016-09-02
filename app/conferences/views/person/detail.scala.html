@@ -24,7 +24,7 @@
                 <div style="margin-bottom: 20px;">
                     <h4><a href="@conferences.controllers.routes.Presentations.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h4>
                     <p>
-                        @presentation.start.map { d => le @date(d) }
+                        @presentation.start.map { d => le @date(d.toLocalDate) }
                         @conferenceList.get(presentation.conferenceId).map { c => à <a href="@conferences.controllers.routes.Conferences.detail(c.id)">@c.name</a> }
                         @presentation.videoUrl.map { videoUrl => <span class="label label-success">Vidéo</span> }.getOrElse { <del class="label label-default">Vidéo</del> }
                         @presentation.slidesUrl.map { slidesUrl => <span class="label label-success">Slides</span> }.getOrElse { <del class="label label-default">Slides</del> }

@@ -1,5 +1,6 @@
 package backend.forms
 
+import common.Config
 import common.models.utils.tStringConstraints._
 import common.models.values.typed._
 import common.models.event.EventId
@@ -32,8 +33,8 @@ object SessionCreateData {
     "format" -> text,
     "theme" -> text,
     "place" -> of[EventLocation],
-    "start" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
-    "end" -> optional(jodaDate(pattern = "dd/MM/yyyy HH:mm")),
+    "start" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
+    "end" -> optional(jodaDate(pattern = Config.Application.datetimeFormat)),
     "slides" -> optional(of[WebsiteUrl]),
     "video" -> optional(of[WebsiteUrl]))(SessionCreateData.apply)(SessionCreateData.unapply)
 

@@ -1,3 +1,4 @@
+@import common.Config
 @import common.models.user.User
 @import common.models.event.GenericEvent
 @import common.views.html.format._
@@ -22,13 +23,13 @@
 									<div class="col-md-3">
 										<div class="form-group fg-float">
 											<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="start" id="start"></div>
-											<label class="fg-label">Début (dd/MM/yyyy)</label>
+											<label class="fg-label">Début (@Config.Application.dateFormat)</label>
 										</div>
 									</div>
 									<div class="col-md-3">
 										<div class="form-group fg-float">
 											<div class="fg-line"><input type="text" class="form-control fg-input datepicker" name="end" id="end"></div>
-											<label class="fg-label">Fin (dd/MM/yyyy)</label>
+											<label class="fg-label">Fin (@Config.Application.dateFormat)</label>
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -82,7 +83,7 @@
 									<tr>
 										<td>@{index+1}</td>
 										<td><a href="@backend.controllers.eventDirectory.routes.Events.details(event.uuid)">@event.name</a></td>
-										<td>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</td>
+										<td>@event.info.start.map{s => @period(Some(s.toLocalDate), event.info.end.map(_.toLocalDate))}.getOrElse{Pas de date !}</td>
 										<td>
 											@event.info.website.map{ url => <a href="@url" target="_blank"><i class="md md-link"></i></a> }
 											@event.info.email.map{ email => <a href="mailto:@email" target="_blank"><i class="md md-email"></i></a> }
@@ -117,7 +118,7 @@
 				<div class="card-header ch-alt"><h2>Timeline :</h2></div>
 				<div class="card-body card-padding" style="max-height: 400px; overflow: auto;">
 					@events.map(_.info.start).flatten.groupBy(_.toString("MM yyyy")).map(e => (e._2.head, e._2.length)).toList.sortWith((e1, e2) => e1._1.isBefore(e2._1)).map { case (month, nbEvents) =>
-						<a href="#">@{date(month, "MMMM yyyy")} (@nbEvents)</a><br>
+						<a href="#">@{date(month.toLocalDate, "MMMM yyyy")} (@nbEvents)</a><br>
 					}
 				</div>
 			</div>

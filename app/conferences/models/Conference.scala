@@ -4,11 +4,11 @@ import common.Config
 import common.models.utils.{Forms, DateRange, tStringHelper, tString}
 import common.models.values.{CalendarEvent, GMapMarker, GMapPlace, UUID}
 import common.services.{TwitterSrv, TwitterCard}
-import common.views.format.Format
-import org.joda.time.DateTime
+import common.views.format.Formats
+import org.joda.time.{LocalDate, DateTime}
 import play.api.data.Forms._
 import play.api.i18n.Lang
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 case class ConferenceId(id: String) extends AnyVal with tString with UUID {
   def unwrap: String = this.id
@@ -23,8 +23,8 @@ case class Conference(
   name: String,
   logo: Option[String],
   description: Option[String],
-  start: DateTime,
-  end: DateTime,
+  start: LocalDate,
+  end: LocalDate,
   siteUrl: String,
   videosUrl: Option[String],
   tags: List[String],
@@ -41,8 +41,8 @@ case class Conference(
     "@conferencelist_",
     name+", le " + start.toString(Config.Application.dateFormatter) + location.flatMap(_.locality).map(" à "+_).getOrElse(""),
     List(
-      cfp.flatMap(c => if(c.end.isAfterNow) Some("CFP ouvert jusqu'au "+c.end.toString(Config.Application.dateFormatter)) else None),
-      tickets.flatMap(t => if(end.isAfterNow && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
+      cfp.flatMap(c => if(c.end.isAfter(new LocalDate())) Some("CFP ouvert jusqu'au "+c.end.toString(Config.Application.dateFormatter)) else None),
+      tickets.flatMap(t => if(end.isAfter(new LocalDate()) && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description
     ).flatten.mkString(" - "),
@@ -53,7 +53,7 @@ case class Conference(
   def toMarker()(implicit lang: Lang): Option[GMapMarker] = location.map { l => {
       GMapMarker(
         title = name,
-        date = Format.period(Some(start), Some(end)),
+        date = Formats.period(Some(start), Some(end)),
         location = l.formatted,
         lat = l.geo.lat,
         lng = l.geo.lng,
@@ -67,7 +67,7 @@ case class Conference(
 }
 case class ConferenceCfp(
   siteUrl: String,
-  end: DateTime)
+  end: LocalDate)
 case class ConferenceTickets(
   siteUrl: Option[String],
   from: Option[Int],
@@ -126,14 +126,14 @@ object ConferenceData {
     "name" -> nonEmptyText,
     "logo" -> optional(nonEmptyText),
     "description" -> optional(nonEmptyText),
-    "dates" -> DateRange.mapping.verifying(DateRange.Constraints.required),
+    "dates" -> DateRange.fields.verifying(DateRange.Constraints.required),
     "siteUrl" -> nonEmptyText,
     "videosUrl" -> optional(nonEmptyText),
     "tags" -> list(nonEmptyText).verifying(Forms.Constraints.required),
     "location" -> optional(GMapPlace.fields),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,
-      "end" -> jodaDate(pattern = "dd/MM/yyyy")
+      "end" -> jodaLocalDate(pattern = Config.Application.dateFormat)
     )(ConferenceCfp.apply)(ConferenceCfp.unapply)),
     "tickets" -> optional(mapping(
       "siteUrl" -> optional(nonEmptyText),

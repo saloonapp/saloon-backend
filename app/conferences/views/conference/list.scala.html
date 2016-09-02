@@ -1,5 +1,6 @@
 @import common.views.App
 @import conferences.models.Conference
+@import org.joda.time.LocalDate
 @import common.views.html.format._
 @import common.views.html.partials._
 @import conferences.views.html.partials._
@@ -96,8 +97,8 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
-                                @conference.cfp.filter(_.end.isAfterNow).map { cfp => <a href="@cfp.siteUrl" target="_blank" class="label label-success">Appel à orateurs</a> }
-                                @conference.tickets.filter(_ => conference.end.isAfterNow).map { tickets => <a href="@tickets.siteUrl" target="_blank" class="label label-success">Tickets</a> }
+                                @conference.cfp.filter(_.end.isAfter(new LocalDate())).map { cfp => <a href="@cfp.siteUrl" target="_blank" class="label label-success">Appel à orateurs</a> }
+                                @conference.tickets.filter(_ => conference.end.isAfter(new LocalDate())).map { tickets => <a href="@tickets.siteUrl" target="_blank" class="label label-success">Tickets</a> }
                                 <a href="@conference.siteUrl" target="_blank">Site officiel</a>
                                 @conference.videosUrl.map{url => - <a href="@url" target="_blank">Vidéos</a>}
                                 @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => - <a href="https://twitter.com/@account" target="_blank">@@@account</a> }

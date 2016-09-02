@@ -3,7 +3,7 @@ package conferences.services
 import common.Config
 import common.services.SimpleTweet
 import conferences.models.Conference
-import org.joda.time.{Days, DateTime}
+import org.joda.time.{Days, LocalDate}
 
 object TwittFactory {
   def newsletterSent(url: String): String = {
@@ -31,13 +31,13 @@ object TwittFactory {
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
     s"Ouverture du CFP de $name $url$hashtag"
   }
-  def closingCFP(c: Conference, now: DateTime): String = {
+  def closingCFP(c: Conference, now: LocalDate): String = {
     val url = Config.Application.baseUrl + conferences.controllers.routes.Conferences.detail(c.id)
     val name = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
     s"Fermeture du CFP de $name ${dayDuration(now, c.cfp.get.end)} $url$hashtag"
   }
-  def startingConference(c: Conference, now: DateTime): String = {
+  def startingConference(c: Conference, now: LocalDate): String = {
     val url = Config.Application.baseUrl + conferences.controllers.routes.Conferences.detail(c.id)
     val name = c.twitterAccount.map("@"+_).getOrElse(c.name)
     val hashtag = c.twitterHashtag.map(" #"+_).getOrElse("")
@@ -66,8 +66,8 @@ object TwittFactory {
     s"Des présentationss (slides et vidéos) ont été publiées pour $account $url$hashtag"
   }*/
 
-  private def dayDuration(start: DateTime, end: DateTime): String = {
-    Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays() match {
+  private def dayDuration(start: LocalDate, end: LocalDate): String = {
+    Days.daysBetween(start, end).getDays() match {
       case 0 => "aujourd'hui"
       case 1 => "demain"
       case 7 => "dans une semaine"

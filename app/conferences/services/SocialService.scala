@@ -5,7 +5,7 @@ import common.repositories.conference.ConferenceRepository
 import common.services.UrlInfo.Category
 import common.services._
 import conferences.models.Conference
-import org.joda.time.DateTime
+import org.joda.time.LocalDate
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,15 +14,14 @@ object SocialService {
   def sendDailyTwitts(): Future[Boolean] = {
     if(!Config.Application.isProd){ throw new IllegalAccessException("Method sendDailyTwitts should be called only on 'prod' environment !") }
     play.Logger.info("SocialService.sendDailyTwitts called")
-    getDailyTwitts(new DateTime()).map { twittsToSend =>
+    getDailyTwitts(new LocalDate()).map { twittsToSend =>
       play.Logger.info("SocialService.sendDailyTwitts: "+twittsToSend.length+" twittsToSend")
       twittsToSend.map(t => play.Logger.info("  - TWEET: "+t))
       SchedulerHelper.delay(twittsToSend, TwitterSrv.sendTwitt, 10)
       true
     }
   }
-  def getDailyTwitts(date: DateTime): Future[List[String]] = {
-    val today = date.withTime(0, 0, 0, 0)
+  def getDailyTwitts(today: LocalDate): Future[List[String]] = {
     val nearClosingCFPsFut = ConferenceRepository.find(Json.obj("$or" -> Json.arr(
       Json.obj("cfp.end" -> Json.obj("$eq" -> today.plusDays(1))), // cfp closes tomorrow
       Json.obj("cfp.end" -> Json.obj("$eq" -> today.plusDays(3))), // cfp closes in 3 days
@@ -38,19 +37,19 @@ object SocialService {
       nearClosingCFPs <- nearClosingCFPsFut
       nearStartingConfs <- nearStartingConfsFut
     } yield {
-      val twitts = nearClosingCFPs.map { c =>
-        (TwittFactory.closingCFP(c, today), c.cfp.get.end.getMillis)
+      val twittsWithCfpTimestamp = nearClosingCFPs.map { c =>
+        (TwittFactory.closingCFP(c, today), c.cfp.get.end.toDateTimeAtStartOfDay.getMillis)
       } ++ nearStartingConfs.map { c =>
-        (TwittFactory.startingConference(c, today), c.start.getMillis)
+        (TwittFactory.startingConference(c, today), c.start.toDateTimeAtStartOfDay.getMillis)
       }
-      twitts.sortBy(_._2).map(_._1)
+      twittsWithCfpTimestamp.sortBy(_._2).map(_._1)
     }
   }
 
   def scanTwitterTimeline(): Future[Boolean] = {
     if(!Config.Application.isProd){ throw new IllegalAccessException("Method scanTwitterTimeline should be called only on 'prod' environment !") }
     play.Logger.info("SocialService.scanTwitterTimeline called")
-    getTwitterTimelineActions(new DateTime()).map { case (twittsToSend: List[String], repliesToUsers: List[(String, SimpleTweet)], usersToAddInList: List[(String, SimpleUser)], twittsToFav: List[SimpleTweet]) =>
+    getTwitterTimelineActions(new LocalDate()).map { case (twittsToSend: List[String], repliesToUsers: List[(String, SimpleTweet)], usersToAddInList: List[(String, SimpleUser)], twittsToFav: List[SimpleTweet]) =>
       play.Logger.info("SocialService.scanTwitterTimeline: "+twittsToSend.length+" twittsToSend, "+repliesToUsers.length+" repliesToUsers, "+usersToAddInList.length+" usersToAddInList, "+twittsToFav.length+" twittsToFav")
       twittsToSend.map(t => play.Logger.info("  - TWEET: "+t))
       repliesToUsers.map(r => play.Logger.info("  - REPLY: "+r._1))
@@ -68,7 +67,7 @@ object SocialService {
       true
     }
   }
-  def getTwitterTimelineActions(date: DateTime): Future[(List[String], List[(String, SimpleTweet)], List[(String, SimpleUser)], List[SimpleTweet])] = {
+  def getTwitterTimelineActions(date: LocalDate): Future[(List[String], List[(String, SimpleTweet)], List[(String, SimpleUser)], List[SimpleTweet])] = {
     ConferenceRepository.findRunning(date).flatMap { conferences =>
       Future.sequence(conferences.map { conference =>
         SocialService.getConferenceTwitts(conference).map { twitts =>

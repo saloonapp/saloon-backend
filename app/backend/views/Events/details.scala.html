@@ -51,7 +51,7 @@
 			<div class="pmo-block pmo-contact hidden-xs">
 				<h2>Informations générales</h2>
 				<ul>
-					<li><i class="md md-event"></i> @event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</li>
+					<li><i class="md md-event"></i> @event.info.start.map{s => @period(Some(s.toLocalDate), event.info.end.map(_.toLocalDate))}.getOrElse{Pas de date !}</li>
 					<li><i class="md md-location-on"></i> @event.info.address.map{a => @address(a, true)}.getOrElse{Pas de lieu !}</li>
 					@if(!event.info.website.isEmpty){<li><i class="md md-link"></i> <a href="@event.info.website" target="_blank">@event.info.website</a></li>}
 					@if(!event.info.price.url.isEmpty || !event.info.price.label.isEmpty){
@@ -84,7 +84,7 @@
 			<div class="pmb-block visible-xs">
 				<div class="pmbb-header"><h2><i class="md md-person m-r-5"></i> Informations générales</h2></div>
 				<div class="p-l-30">
-					<dl class="dl-horizontal"><dt>Date</dt><dd>@event.info.start.map{s => @period(Some(s), event.info.end)}.getOrElse{Pas de date !}</dd></dl>
+					<dl class="dl-horizontal"><dt>Date</dt><dd>@event.info.start.map{s => @period(Some(s.toLocalDate), event.info.end.map(_.toLocalDate))}.getOrElse{Pas de date !}</dd></dl>
 					<dl class="dl-horizontal"><dt>Adresse</dt><dd>@event.info.address.map{a => @address(a, true)}.getOrElse{Pas de lieu !}</dd></dl>
 					@if(!event.info.website.isEmpty){<dl class="dl-horizontal"><dt>Site web</dt><dd><a href="@event.info.website" target="_blank">@event.info.website</a></dd></dl>}
 					@if(!event.info.price.url.isEmpty || !event.info.price.label.isEmpty){

@@ -4,6 +4,11 @@
 
 ### Conférence Liste
 
+- fait 4 menus en haut : Conferences, Appels à orateurs, Présentations, Orateurs
+- s'inspirer de https://calltospeakers.com/
+    - recherche : fulltext, country
+    - proposer en bas de la recherche d'être notifié si qqch est ajouté et qui correspond à la recherche
+    - en bas de page, proposer un formulaire d'ajout rapide (qui redirige sur le forumlaire normal éventuellement...)
 - import depuis eventbrite, lanyrd, allconferencealert... pour la création d'une conf (avec talks & speakers)
 - improve project quality
     - add types for Config
@@ -43,6 +48,7 @@
 - [sbt-scalariform](https://github.com/sbt/sbt-scalariform) : sbt plugin adding support for source code formatting using Scalariform
 - [sbt-updates](https://github.com/rtimush/sbt-updates) : SBT plugin that can check maven repositories for dependency updates
 - [sbt-dependency-graph](https://github.com/jrudolph/sbt-dependency-graph) : sbt plugin to create a dependency graph for your project
+- [sbt-native-packager](https://github.com/sbt/sbt-native-packager) : SBT native packager lets you build application packages in native formats
 
 ### Usefull services
 
@@ -71,3 +77,27 @@
 - http://www.allconferences.com/
 - http://www.viparis.com/viparisFront/do/salon/paris-nord-villepinte/recherche/listecongres
 - http://www.salon-entre-pros.fr/rechercher/
+
+## Migration
+
+### Migrate from DateTime to LocalDate for Conference : start, end & cfp.end
+
+Run this query on Mongo :
+
+```
+db.Conferences.find({}).forEach(function(conf){
+  function timestampToLocalDate(timestamp){
+    var date = new Date(timestamp);
+    var day = date.getDate();
+    var month = date.getMonth()+1;
+    var year = date.getFullYear();
+    var dayStr = day < 10 ? '0'+day : day.toString();
+    var monthStr = month < 10 ? '0'+month : month.toString();
+    return year+'-'+monthStr+'-'+dayStr;
+  }
+  if(conf.start){ conf.start = timestampToLocalDate(conf.start); }
+  if(conf.end){ conf.end = timestampToLocalDate(conf.end); }
+  if(conf.cfp && conf.cfp.end){ conf.cfp.end = timestampToLocalDate(conf.cfp.end); }
+  db.Conferences.save(conf);
+})
+```

@@ -5,7 +5,7 @@ import common.Config
 import common.services._
 import conferences.models.Conference
 import conferences.services.{TimeChecker, SocialService, NewsletterService}
-import org.joda.time.{DateTimeConstants, DateTime}
+import org.joda.time.{DateTimeConstants, DateTime, LocalDate}
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.{Controller, Action}
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Batch extends Controller {
   def testSendNewsletter(emailOpt: Option[String], date: Option[String]) = Action.async { implicit req =>
-    val realDate = date.map(d => DateTime.parse(d, Config.Application.dateFormatter)).getOrElse(new DateTime())
+    val realDate = date.map(d => LocalDate.parse(d, Config.Application.dateFormatter)).getOrElse(new LocalDate())
     NewsletterService.getNewsletterInfos(realDate).flatMap { case (closingCFPs, incomingConferences, newData) =>
       emailOpt.map { email =>
         MailChimpSrv.createAndTestCampaign(MailChimpCampaign.conferenceListNewsletterTest(closingCFPs, incomingConferences, newData), List(email)).map { url =>
@@ -33,14 +33,14 @@ object Batch extends Controller {
   }
 
   def testSendDailyTwitts(date: Option[String]) = Action.async { implicit req =>
-    val realDate = date.map(d => DateTime.parse(d, Config.Application.dateFormatter)).getOrElse(new DateTime())
+    val realDate = date.map(d => LocalDate.parse(d, Config.Application.dateFormatter)).getOrElse(new LocalDate())
     SocialService.getDailyTwitts(realDate).map { twittsToSend =>
       Ok(Json.obj("twittsToSend" -> twittsToSend))
     }
   }
 
   def testScanTwitterTimeline(date: Option[String]) = Action.async { implicit req =>
-    val realDate = date.map(d => DateTime.parse(d, Config.Application.dateFormatter)).getOrElse(new DateTime())
+    val realDate = date.map(d => LocalDate.parse(d, Config.Application.dateFormatter)).getOrElse(new LocalDate())
     SocialService.getTwitterTimelineActions(realDate).map { case (twittsToSend: List[String], repliesToUsers: List[(String, SimpleTweet)], usersToAddInList: List[(String, SimpleUser)], twittsToFav: List[SimpleTweet]) =>
       Ok(Json.obj(
         "date" -> realDate,

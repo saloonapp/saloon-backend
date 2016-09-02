@@ -1,8 +1,7 @@
 package conferences.controllers
 
 import common.repositories.conference.{PersonRepository, PresentationRepository, ConferenceRepository}
-import common.services.TwitterSrv
-import conferences.models.{PersonId, PersonData, ConferenceData}
+import conferences.models.{PersonData, ConferenceData}
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Result, Controller, Action}
