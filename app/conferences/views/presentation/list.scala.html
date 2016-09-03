@@ -1,0 +1,83 @@
+@import conferences.models.Conference
+@import conferences.models.ConferenceId
+@import conferences.models.Presentation
+@import conferences.models.Person
+@import conferences.models.PersonId
+@import common.views.html.format._
+@import conferences.views.html.partials._
+@(presentationList: List[Presentation], conferenceMap: Map[ConferenceId, Conference], speakerMap: Map[PersonId, Person])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main("Présentations"){
+    @header("presentations")
+
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+                @helper.form(action=conferences.controllers.routes.Presentations.search()){
+                    <div class="row">
+                        <div class="col-md-offset-1 col-md-8">
+                            <div class="form-group" style="margin-bottom: 0px;">
+                                <input type="search" class="form-control" id="q" name="q" value="@req.getQueryString("q")" placeholder="Recherche...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-block btn-default">Chercher</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @if(presentationList.length > 0){
+                    @presentationList.map { presentation =>
+                        <div class="presentation-item">
+                            <a href="@conferences.controllers.routes.Presentations.edit(presentation.conferenceId, presentation.id)" class="close"><i class="fa fa-pencil"></i></a>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h2><a href="@conferences.controllers.routes.Presentations.detail(presentation.conferenceId, presentation.id)">@presentation.title <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
+                                    @presentation.videoUrl.map { videoUrl => <span class="label label-success">Vidéo</span> }.getOrElse { <del class="label label-default">Vidéo</del> }
+                                    @presentation.slidesUrl.map { slidesUrl => <span class="label label-success">Slides</span> }.getOrElse { <del class="label label-default">Slides</del> }
+                                    @presentation.tags.map { tag => <span class="label label-primary">@tag</span> }
+                                </div>
+                                <div class="col-md-4">
+                                    @presentation.start.map { d => Le @date(d.toLocalDate)<br> }
+                                    @conferenceMap.get(presentation.conferenceId).map { conf => À <a href="@conferences.controllers.routes.Conferences.detail(conf.id)">@conf.name</a><br> }
+                                    Par @presentation.speakers.map(id => speakerMap.get(id)).flatten.sortBy(_.name).map{ p => <a href="@conferences.controllers.routes.Persons.detail(p.id)">@p.name</a> }<br>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                } else {
+                    <h3 style="text-align: center; margin-top: 40px;">
+                        @req.getQueryString("q").filter(_ != "").map { q =>
+                            Aucune présentation correspondant à "@q" :(
+                        }.getOrElse {
+                            Aucune présentation ajoutée pour le moment :(
+                        }
+                    </h3>
+                }
+                <form method="GET" action="@conferences.controllers.routes.Presentations.create(None)" class="form-inline" style="text-align: center; margin: 40px 0px 20px;">
+                    <p>Une présentation n'est pas présente ? Ajoute-la simplement :</p>
+                    <div class="form-group">
+                        <label class="sr-only" for="title">Titre</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Titre">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="videoUrl">Url de la vidéo</label>
+                        <input type="text" class="form-control" id="videoUrl" name="videoUrl" placeholder="Url de la vidéo">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="slidesUrl">Url des slides</label>
+                        <input type="text" class="form-control" id="slidesUrl" name="slidesUrl" placeholder="Url des slides">
+                    </div>
+                    <button type="submit" class="btn btn-default">Ajouter</button>
+                </form>
+                <div id="newsletter">
+                    @subscribe()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @footer()
+}

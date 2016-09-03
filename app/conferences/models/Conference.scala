@@ -1,7 +1,8 @@
 package conferences.models
 
+import common.views.Helpers.LocalDateImprovements
 import common.Config
-import common.models.utils.{Forms, DateRange, tStringHelper, tString}
+import common.models.utils.{DateRange, tStringHelper, tString}
 import common.models.values.{CalendarEvent, GMapMarker, GMapPlace, UUID}
 import common.services.{TwitterSrv, TwitterCard}
 import common.views.format.Formats
@@ -41,8 +42,8 @@ case class Conference(
     "@conferencelist_",
     name+", le " + start.toString(Config.Application.dateFormatter) + location.flatMap(_.locality).map(" à "+_).getOrElse(""),
     List(
-      cfp.flatMap(c => if(c.end.isAfter(new LocalDate())) Some("CFP ouvert jusqu'au "+c.end.toString(Config.Application.dateFormatter)) else None),
-      tickets.flatMap(t => if(end.isAfter(new LocalDate()) && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
+      cfp.flatMap(c => if(c.end.isTodayOrAfter) Some("CFP ouvert jusqu'au "+c.end.toString(Config.Application.dateFormatter)) else None),
+      tickets.flatMap(t => if(end.isTodayOrAfter && t.from.isDefined && t.currency.isDefined) Some("Billets à partir de "+t.from.get+" "+t.currency.get) else None),
       Some(tags.map("#"+_).mkString(" ")),
       description
     ).flatten.mkString(" - "),
@@ -129,7 +130,7 @@ object ConferenceData {
     "dates" -> DateRange.fields.verifying(DateRange.Constraints.required),
     "siteUrl" -> nonEmptyText,
     "videosUrl" -> optional(nonEmptyText),
-    "tags" -> list(nonEmptyText).verifying(Forms.Constraints.required),
+    "tags" -> list(nonEmptyText),
     "location" -> optional(GMapPlace.fields),
     "cfp" -> optional(mapping(
       "siteUrl" -> nonEmptyText,

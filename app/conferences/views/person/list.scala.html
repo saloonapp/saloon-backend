@@ -1,0 +1,57 @@
+@import conferences.models.Person
+@import common.views.html.format._
+@import conferences.views.html.partials._
+@(personList: List[Person])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main("Personnes"){
+    @header("persons")
+
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+            @helper.form(action=conferences.controllers.routes.Persons.search()){
+                <div class="row">
+                    <div class="col-md-offset-1 col-md-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <input type="search" class="form-control" id="q" name="q" value="@req.getQueryString("q")" placeholder="Recherche...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-block btn-default">Chercher</button>
+                    </div>
+                </div>
+            }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @if(personList.length > 0){
+                    @personList.map { person =>
+                        <div class="person-item">
+                            <a href="@conferences.controllers.routes.Persons.edit(person.id)" class="close"><i class="fa fa-pencil"></i></a>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h2><a href="@conferences.controllers.routes.Persons.detail(person.id)">@person.avatar.map{url => <img src="@url" style="max-height: 50px;">} @person.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
+                                    @person.twitter.map { account => <a href="https://twitter.com/@account" target="_blank">@@@account</a> }
+                                    @person.siteUrl.map { site => - <a href="@site" target="_blank">Site</a> }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                } else {
+                    <h3 style="text-align: center; margin-top: 40px;">
+                        @req.getQueryString("q").filter(_ != "").map { q =>
+                            Aucun orateur correspondant à "@q" :(
+                        }.getOrElse {
+                            Aucun orateur ajouté pour le moment :(
+                        }
+                    </h3>
+                }
+                <div id="newsletter">
+                    @subscribe()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @footer()
+}

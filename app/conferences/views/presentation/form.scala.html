@@ -5,19 +5,37 @@
 @import conferences.models.PersonData
 @import conferences.views.html.partials._
 @import conferences.views.html.person.partials._
-@(conference: Conference, presentationForm: Form[PresentationData], persons: List[Person], tags: List[(String, Int)], rooms: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@(conferenceOpt: Option[Conference], presentationForm: Form[PresentationData], conferenceList: List[Conference], persons: List[Person], tags: List[(String, Int)], rooms: List[(String, Int)])(implicit lang: Lang, flash: Flash, req: RequestHeader)
 @conferences.views.html.main(if(presentationForm("id").value.getOrElse("") == "") {"Ajouter une présentation"} else {"Modifier la présentation \""+presentationForm("title").value.getOrElse("")+"\""}) {
     @header("")
 
     <div class="container" role="main">
         <div class="page-header">
-            <h1>@if(presentationForm("id").value.getOrElse("") == "") {Ajouter une présentation à "@conference.name"} else {Modifier la présentation "@presentationForm("title").value"}</h1>
+            <h1>
+                @if(presentationForm("id").value.getOrElse("") == "") {
+                    @conferenceOpt.map { conference =>
+                        Ajouter une présentation à "@conference.name"
+                    }.getOrElse {
+                        Ajouter une présentation
+                    }
+                } else {
+                    Modifier la présentation "@presentationForm("title").value"
+                }
+            </h1>
         </div>
 
         <div class="row">
             <div class="col-md-8">
-                @helper.form(action=presentationForm("id").value.map(id => conferences.controllers.routes.Presentations.doEdit(conference.id, PresentationId(id))).getOrElse(conferences.controllers.routes.Presentations.doCreate(conference.id)), 'class->"form-horizontal presentation-form") {
-                    @partials.fields(conference, presentationForm, persons, tags, rooms)
+                @helper.form(
+                    action = conferenceOpt.map( conference =>
+                        presentationForm("id").value.map( id =>
+                            conferences.controllers.routes.Presentations.doEdit(conference.id, PresentationId(id))
+                        ).getOrElse(
+                            conferences.controllers.routes.Presentations.doCreate(Some(conference.id)))
+                    ).getOrElse(
+                        conferences.controllers.routes.Presentations.doCreate(None)
+                    ), 'class->"form-horizontal presentation-form") {
+                    @partials.fields(conferenceOpt, presentationForm, conferenceList, persons, tags, rooms)
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary btn-lg">@if(presentationForm("id").value.getOrElse("") == "") {Ajouter la présentation} else {Modifier "@presentationForm("title").value"}</button>

@@ -74,6 +74,17 @@
 
 // https://select2.github.io/
 (function(){
+    if($('.select2')[0]){
+        $('.select2').each(function(){
+            $(this).select2({
+                width: '100%',
+                theme: 'bootstrap',
+                placeholder: $(this).attr('placeholder'),
+                allowClear: true
+            }).select2("val", ""); // no value at start
+        });
+    }
+
     if($('.select2-tags')[0]){
         $('.select2-tags').each(function(){
             $(this).select2({
@@ -127,10 +138,10 @@
         var $elt = $(this);
         var $input = $elt.find('input[type="text"]');
         var $preview = $elt.find('img.preview');
-        update($input, $preview);
         $input.on('change', function(){
             update($input, $preview);
         });
+        update($input, $preview); // run on page load
     });
     function update($input, $preview){
         if($input.val() != ''){
@@ -148,15 +159,19 @@
         var $twitterAccountField = $(this);
         var $imgUrlField = $('#'+$twitterAccountField.attr('twitterToImg'));
         $twitterAccountField.on('change', function () {
-            if ($twitterAccountField.val() !== '' && $imgUrlField.val() === '') {
-                Config.Api.getTwitterAccount($twitterAccountField.val()).then(function (account) {
-                    if (account && $imgUrlField.val() === '') {
-                        $imgUrlField.val(account.avatar).change();
-                    }
-                });
-            }
+            update($twitterAccountField, $imgUrlField);
         });
+        update($twitterAccountField, $imgUrlField); // run on page load
     });
+    function update($twitterAccountField, $imgUrlField){
+        if ($twitterAccountField.val() !== '' && $imgUrlField.val() === '') {
+            Config.Api.getTwitterAccount($twitterAccountField.val()).then(function (account) {
+                if (account && $imgUrlField.val() === '') {
+                    $imgUrlField.val(account.avatar).change();
+                }
+            });
+        }
+    }
 })();
 
 // GMapPlace picker (https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete?hl=fr)
@@ -166,7 +181,6 @@ function initPlacePicker(){
         var $input = $elt.find('input[type="text"]');
         var mapData = initMap($elt);
         var autocomplete = new google.maps.places.Autocomplete($input.get(0));
-        update($elt, mapData, readForm($elt));
         autocomplete.addListener('place_changed', function() {
             var place = autocomplete.getPlace(); // cf https://developers.google.com/maps/documentation/javascript/3.exp/reference?hl=fr#PlaceResult
             update($elt, mapData, toLocation(place));
@@ -176,6 +190,7 @@ function initPlacePicker(){
                 update($elt, mapData, null);
             }
         });
+        update($elt, mapData, readForm($elt)); // run on page load
     });
 
     function update($elt, mapData, location){

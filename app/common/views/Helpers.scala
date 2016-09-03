@@ -1,6 +1,7 @@
 package common.views
 
 import common.{Config, Utils}
+import org.joda.time.LocalDate
 import play.api.data.Field
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
@@ -29,6 +30,12 @@ object Helpers {
       .mkString(" "))
 
   def strOpt(str: String): Option[String] = if (str.isEmpty()) None else Some(str)
+
+  implicit class LocalDateImprovements(d: LocalDate) {
+    def isToday(): Boolean = d.equals(new LocalDate())
+    def isAfterToday(): Boolean = d.isAfter(new LocalDate())
+    def isTodayOrAfter(): Boolean = d.isToday() || d.isAfterToday()
+  }
 }
 
 object App {

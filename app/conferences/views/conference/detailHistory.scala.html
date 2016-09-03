@@ -1,3 +1,4 @@
+@import common.views.Helpers.LocalDateImprovements
 @import conferences.models.Conference
 @import org.joda.time.LocalDate
 @import common.views.html.format._
@@ -27,14 +28,14 @@
                                 }
                                 @conference.cfp.map { cfp =>
                                     <p>
-                                        @if(cfp.end.isAfter(new LocalDate())){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                                        @if(cfp.end.isTodayOrAfter){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
                                         <strong><a href="@cfp.siteUrl" target="_blank">Appel à orateurs</a></strong> :
                                         fermeture le <strong>@date(cfp.end)</strong>
                                     </p>
                                 }
                                 @conference.tickets.map { tickets =>
                                     <p>
-                                        @if(conference.end.isAfter(new LocalDate())){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                                        @if(conference.end.isTodayOrAfter){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
                                         <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong>
                                         @tickets.price.map { p => : <strong>@p</strong> }
                                     </p>

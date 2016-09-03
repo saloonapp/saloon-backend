@@ -20,23 +20,26 @@ object ConferenceRepository {
   private lazy val collection: JSONCollection = db[JSONCollection](CollectionReferences.CONFERENCES)
   private val conferenceFields = List("id", "name", "logo", "description", "start", "end", "siteUrl", "videosUrl", "tags", "location", "cfp", "tickets", "social", "created", "createdBy")
   private def getFirst(fields: List[String]) = Json.parse("{\"_id\":\"$id\","+fields.map(f => "\""+f+"\":{\"$first\":\"$"+f+"\"}").mkString(",")+"}")
+  private val defaultSort = Json.obj("start" -> -1)
 
   def findHistory(sort: JsObject = Json.obj("created" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.find[Conference](collection, Json.obj(), sort)
-  def find(filter: JsObject = Json.obj(), sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
+  def find(filter: JsObject = Json.obj(), sort: JsObject = defaultSort): Future[List[Conference]] = MongoDbCrudUtils.aggregate[List[Conference]](collection, Json.obj(
       "aggregate" -> collection.name,
       "pipeline" -> Json.arr(
         Json.obj("$sort" -> Json.obj("created" -> -1)),
         Json.obj("$group" -> getFirst(conferenceFields)),
         Json.obj("$match" -> filter),
         Json.obj("$sort" -> sort))))
-  def findByIds(ids: List[ConferenceId], sort: JsObject = Json.obj("start" -> -1)): Future[List[Conference]] = ids.headOption.map { _ => find(Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id)))), sort) }.getOrElse(Future(List()))
-  def findRunning(date: LocalDate): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
+    .map(_.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))) // remove sensible data
+  def findByIds(ids: List[ConferenceId], sort: JsObject = defaultSort): Future[Map[ConferenceId, Conference]] =
+    ids.headOption.map { _ => find(Json.obj("$or" -> ids.distinct.map(id => Json.obj("id" -> Json.obj("$eq" -> id)))), sort) }.getOrElse(Future(List())).map(_.map(s => (s.id, s)).toMap)
+  def findRunning(date: LocalDate, sort: JsObject = defaultSort): Future[List[Conference]] = find(Json.obj("$and" -> Json.arr(
     Json.obj("start" -> Json.obj("$lte" -> date)),
-    Json.obj("end" -> Json.obj("$gte" -> date)))))
+    Json.obj("end" -> Json.obj("$gte" -> date)))), sort)
   def insert(elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(created = new DateTime()))
   def update(id: ConferenceId, elt: Conference): Future[WriteResult] = MongoDbCrudUtils.insert(collection, elt.copy(id = id, created = new DateTime()))
   def get(id: ConferenceId, created: DateTime): Future[Option[Conference]] = MongoDbCrudUtils.get[Conference](collection, Json.obj("id" -> id.unwrap, "created" -> created))
-  def get(id: ConferenceId): Future[Option[Conference]] = MongoDbCrudUtils.getFirst[Conference](collection, Json.obj("id" -> id.unwrap), Json.obj("created" -> -1))
+  def get(id: ConferenceId): Future[Option[Conference]] = MongoDbCrudUtils.getFirst[Conference](collection, Json.obj("id" -> id.unwrap), Json.obj("created" -> -1)).map(_.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))) // remove sensible data
   def getHistory(id: ConferenceId): Future[List[Conference]] = MongoDbCrudUtils.find[Conference](collection, Json.obj("id" -> id.unwrap), Json.obj("created" -> -1))
   def deleteVersion(id: ConferenceId, created: DateTime): Future[WriteResult] = MongoDbCrudUtils.delete(collection, Json.obj("id" -> id.unwrap, "created" -> created))
   def delete(id: ConferenceId): Future[WriteResult] = MongoDbCrudUtils.delete(collection, Json.obj("id" -> id.unwrap))
@@ -96,7 +99,7 @@ object ConferenceRepository {
       case _ => None
     }
     def buildTicketsFilter(tickets: Option[String]): Option[JsObject] = tickets match {
-      case Some("on") => Some(Json.obj("end" -> Json.obj("$lte" -> new LocalDate()), "tickets.siteUrl" -> Json.obj("$exists" -> true)))
+      case Some("on") => Some(Json.obj("end" -> Json.obj("$gte" -> new LocalDate()), "tickets.siteUrl" -> Json.obj("$exists" -> true)))
       case _ => None
     }
     def buildVideosFilter(videos: Option[String]): Option[JsObject] = videos match {

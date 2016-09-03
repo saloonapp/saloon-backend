@@ -1,7 +1,8 @@
 package conferences.controllers
 
 import common.repositories.conference.{PersonRepository, PresentationRepository, ConferenceRepository}
-import conferences.models.{PersonData, ConferenceData}
+import conferences.models.PersonData
+import org.joda.time.LocalDate
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Result, Controller, Action}
@@ -10,36 +11,46 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object Api extends Controller {
-  def listConferences = Action.async { implicit req =>
-    ConferenceRepository.find().map { conferences =>
-      Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
-    }
-  }
   def searchConferences(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
-    ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, period, before, after, tags, cfp, tickets, videos)).map { conferences =>
-      Ok(Json.obj("result" -> conferences.map(c => c.copy(createdBy = c.createdBy.filter(_.public)))))
+    val isSearch = List(q, period, before, after, tags, cfp, tickets, videos).map(_.filter(_ != "")).flatten.headOption
+    val conferenceListFut = isSearch.map { _ =>
+      val reverseSort = List(q, before, tags, videos).map(_.filter(_ != "")).flatten.headOption
+      val sort = reverseSort.map(_ => Json.obj("start" -> -1)).getOrElse(Json.obj("start" -> 1))
+      ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, period, before, after, tags, cfp, tickets, videos), sort)
+    }.getOrElse {
+      ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new LocalDate())), Json.obj("start" -> 1))
+    }
+    conferenceListFut.map { conferenceList =>
+      Ok(Json.obj("result" -> conferenceList))
     }
   }
-  def createConference() = Action.async(parse.json) { implicit req =>
+  /*def createConference() = Action.async(parse.json) { implicit req =>
     req.body.validate[ConferenceData] match {
       case JsSuccess(conferenceData, path) => {
         val conference = ConferenceData.toModel(conferenceData)
-        Future(Ok(Json.obj(
-          "conference" -> conference)))
+        Future(Created(Json.obj(
+          "result" -> conference)))
       }
       case JsError(err) => Future(validationError(err))
     }
-  }
+  }*/
 
-  def listPresentations() = Action.async { implicit req =>
-    PresentationRepository.find().map { presentations =>
-      Ok(Json.obj("result" -> presentations.map(p => p.copy(createdBy = p.createdBy.filter(_.public)))))
+
+  def searchCfps(q: Option[String]) = Action.async { implicit req =>
+    ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, None, None, None, None, Some("on"), None, None), Json.obj("cfp.end" -> 1)).map { conferenceList =>
+      Ok(Json.obj("result" -> conferenceList))
     }
   }
 
-  def listPersons() = Action.async { implicit req =>
-    PersonRepository.find().map { persons =>
-      Ok(Json.obj("result" -> persons.map(p => p.copy(createdBy = p.createdBy.filter(_.public)))))
+  def searchPresentations(q: Option[String]) = Action.async { implicit req =>
+    PresentationRepository.find(PresentationRepository.buildSearchFilter(q), Json.obj("start" -> -1, "title" -> 1)).map { presentations =>
+      Ok(Json.obj("result" -> presentations))
+    }
+  }
+
+  def searchPersons(q: Option[String]) = Action.async { implicit req =>
+    PersonRepository.find(PersonRepository.buildSearchFilter(q), Json.obj("name" -> 1)).map { persons =>
+      Ok(Json.obj("result" -> persons))
     }
   }
   def createPerson() = Action.async(parse.json) { implicit req =>

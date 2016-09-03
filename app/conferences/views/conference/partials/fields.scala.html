@@ -13,8 +13,8 @@
                 @fieldHorizontal(conferenceForm("siteUrl"), 'label -> "Site officiel") { field => @inputText(field, 'placeholder -> "ex: http://devoxx.fr/") }
                 @fieldHorizontal(conferenceForm("name"), 'label -> "Nom") { field => @inputText(field, 'placeholder -> "ex: Devoxx France 2016") }
                 @fieldHorizontal(conferenceForm("dates"), 'label -> "Dates") { field => @inputDateRange(field, 'placeholder -> "ex: 20/04/2016 - 22/04/2016") }
+                @fieldHorizontal(conferenceForm("location"), 'label -> "Lieu") { field => @inputGMapPlace(field, 'placeholder -> "ex: CPE Lyon, Boulevard du 11 Novembre 1918, Villeurbanne, France") }
                 @fieldHorizontal(conferenceForm("tags"), 'label -> "Tags") { field => @inputTags(field, tags.sortBy(-_._2).map(_._1), 'placeholder -> "ex: web, java, tech") }
-                @fieldHorizontal(conferenceForm("location"), 'label -> "Lieu", 'constraints -> "false") { field => @inputGMapPlace(field, 'placeholder -> "ex: CPE Lyon, Boulevard du 11 Novembre 1918, Villeurbanne, France") }
                 @fieldHorizontal(conferenceForm("social.twitter.account"), 'label -> "Liens sociaux", 'constraints -> "false") { field =>
                     <div class="row" style="margin-top: 7px;">
                         <div class="col-md-3"><label for="social_twitter_account">Compte twitter</label></div>

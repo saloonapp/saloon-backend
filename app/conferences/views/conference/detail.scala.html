@@ -1,3 +1,4 @@
+@import common.views.Helpers.LocalDateImprovements
 @import conferences.models.Conference
 @import conferences.models.Presentation
 @import conferences.models.Person
@@ -29,14 +30,14 @@
                             }
                             @conference.cfp.map { cfp =>
                                 <p>
-                                    @if(cfp.end.isAfter(new LocalDate())){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                                    @if(cfp.end.isTodayOrAfter){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
                                     <strong><a href="@cfp.siteUrl" target="_blank">Appel à orateurs</a></strong> :
                                     fermeture le <strong>@date(cfp.end)</strong>
                                 </p>
                             }
                             @conference.tickets.map { tickets =>
                                 <p>
-                                    @if(conference.end.isAfter(new LocalDate())){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
+                                    @if(conference.end.isTodayOrAfter){<span class="label label-success">ouvert</span>} else {<span class="label label-danger">fermé</span>}
                                     <strong>@tickets.siteUrl.map{url => <a href="@url" target="_blank">Tickets</a>}.getOrElse{Tickets}</strong>
                                     @tickets.price.map { p => : <strong>@p</strong> }
                                 </p>
@@ -79,7 +80,7 @@
         </div>
 
         <h3 style="margin-bottom: 20px;">
-            <a href="@conferences.controllers.routes.Presentations.create(conference.id)" title="Ajouter une présentation" class="pull-right"><i class="fa fa-plus"></i></a>
+            <a href="@conferences.controllers.routes.Presentations.create(Some(conference.id))" title="Ajouter une présentation" class="pull-right"><i class="fa fa-plus"></i></a>
             Présentations :
         </h3>
         @if(presentations.length > 0){

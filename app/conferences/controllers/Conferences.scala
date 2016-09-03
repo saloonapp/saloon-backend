@@ -1,5 +1,6 @@
 package conferences.controllers
 
+import common.views.Helpers.LocalDateImprovements
 import common.repositories.conference.{PersonRepository, PresentationRepository, ConferenceRepository}
 import common.services.TwitterSrv
 import conferences.models.{ConferenceId, ConferenceData}
@@ -13,22 +14,24 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Conferences extends Controller {
   val conferenceForm = Form(ConferenceData.fields)
 
-  def list = Action.async { implicit req =>
-    val conferenceListFut = ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new LocalDate())), Json.obj("start" -> 1))
-    //val tagsFut = ConferenceRepository.getTags()
-    for {
-      conferenceList <- conferenceListFut
-    //tags <- tagsFut
-    } yield Ok(conferences.views.html.conference.list("future", conferenceList))
+  def search(q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
+    val isSearch = List(q, period, before, after, tags, cfp, tickets, videos).map(_.filter(_ != "")).flatten.headOption
+    val conferenceListFut = isSearch.map { _ =>
+      val reverseSort = List(q, before, tags, videos).map(_.filter(_ != "")).flatten.headOption
+      val sort = reverseSort.map(_ => Json.obj("start" -> -1)).getOrElse(Json.obj("start" -> 1))
+      ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, period, before, after, tags, cfp, tickets, videos), sort)
+    }.getOrElse {
+      ConferenceRepository.find(Json.obj("end" -> Json.obj("$gte" -> new LocalDate())), Json.obj("start" -> 1))
+    }
+    conferenceListFut.map { conferenceList =>
+      Ok(conferences.views.html.conference.list(conferenceList))
+    }
   }
 
-  def search(section: Option[String], q: Option[String], period: Option[String], before: Option[String], after: Option[String], tags: Option[String], cfp: Option[String], tickets: Option[String], videos: Option[String]) = Action.async { implicit req =>
-    val conferenceListFut = ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, period, before, after, tags, cfp, tickets, videos))
-    //val tagsFut = ConferenceRepository.getTags()
-    for {
-      conferenceList <- conferenceListFut
-    //tags <- tagsFut
-    } yield Ok(conferences.views.html.conference.list(section.getOrElse("search"), conferenceList))
+  def cfpSearch(q: Option[String]) = Action.async { implicit req =>
+    ConferenceRepository.find(ConferenceRepository.buildSearchFilter(q, None, None, None, None, Some("on"), None, None), Json.obj("cfp.end" -> 1)).map { conferenceList =>
+      Ok(conferences.views.html.conference.cfpList(conferenceList))
+    }
   }
 
   def calendar = Action { implicit req =>
@@ -47,10 +50,10 @@ object Conferences extends Controller {
     for {
       conferenceOpt <- created.map(c => ConferenceRepository.get(id, new DateTime(c))).getOrElse(ConferenceRepository.get(id))
       presentations <- PresentationRepository.findForConference(id)
-      speakers <- PersonRepository.findByIds(presentations.flatMap(_.speakers).distinct)
+      speakerMap <- PersonRepository.findByIds(presentations.flatMap(_.speakers).distinct)
     } yield {
       conferenceOpt.map { conference =>
-        Ok(conferences.views.html.conference.detail(conference, presentations.sortBy(_.title), speakers.map(s => (s.id, s)).toMap))
+        Ok(conferences.views.html.conference.detail(conference, presentations.sortBy(_.title), speakerMap))
       }.getOrElse {
         NotFound("Not Found !")
       }
@@ -59,7 +62,7 @@ object Conferences extends Controller {
 
   def create = Action.async { implicit req =>
     ConferenceRepository.getTags().map { tags =>
-      Ok(conferences.views.html.conference.form(conferenceForm, tags))
+      Ok(conferences.views.html.conference.form(conferenceForm.bindFromRequest.discardingErrors, tags))
     }
   }
 
@@ -71,7 +74,7 @@ object Conferences extends Controller {
       formData => {
         val conference = ConferenceData.toModel(formData)
         ConferenceRepository.insert(conference).map { success =>
-          if(conference.start.isAfter(new LocalDate())){
+          if(conference.start.isTodayOrAfter){
             TwitterSrv.sendTwitt(TwittFactory.newConference(conference))
           }
           Redirect(conferences.controllers.routes.Conferences.detail(conference.id))
@@ -109,7 +112,7 @@ object Conferences extends Controller {
             oldConferenceOpt.filter(_.videosUrl.isEmpty && conference.videosUrl.isDefined).map { _ =>
               TwitterSrv.sendTwitt(TwittFactory.publishVideos(conference))
             }
-            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isAfter(new LocalDate())).getOrElse(false)).map { _ =>
+            oldConferenceOpt.filter(_.cfp.isEmpty && conference.cfp.map(_.end.isTodayOrAfter).getOrElse(false)).map { _ =>
               TwitterSrv.sendTwitt(TwittFactory.openCfp(conference))
             }
             Redirect(conferences.controllers.routes.Conferences.detail(id))

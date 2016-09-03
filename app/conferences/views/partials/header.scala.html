@@ -10,18 +10,24 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="@conferences.controllers.routes.Conferences.list()">Conférence liste</a>
+            <a class="navbar-brand" href="@conferences.controllers.routes.Conferences.search()">Conférence liste</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li @if(section == "future-list"){class="active"}><a href="@conferences.controllers.routes.Conferences.list()">Conférences à venir</a></li>
-                <li @if(section == "past-list"){class="active"}>
-                    <a href="@conferences.controllers.routes.Conferences.search(section = Some("past"), before = Some(new DateTime().toString(Config.Application.dateFormatter)))">
-                        <span class="hidden-sm">Conférences passées</span>
-                        <span class="visible-sm-inline">Passées</span>
-                    </a>
+                <li @if(section == "conferences"){class="active"}><a href="@conferences.controllers.routes.Conferences.search()">Conférences</a></li>
+                <li @if(section == "cfps"){class="active"}><a href="@conferences.controllers.routes.Conferences.cfpSearch()">Appels à orateurs</a></li>
+                <li @if(section == "presentations"){class="active"}><a href="@conferences.controllers.routes.Presentations.search()">Présentations</a></li>
+                <li @if(section == "persons"){class="active"}><a href="@conferences.controllers.routes.Persons.search()">Orateurs</a></li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus" style="color: #777;"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@conferences.controllers.routes.Conferences.create()">Ajouter une conférence</a></li>
+                        <li><a href="@conferences.controllers.routes.Conferences.create()">Ajouter un appel à orateur</a></li>
+                        <li><a href="@conferences.controllers.routes.Presentations.create(None)">Ajouter une présentation</a></li>
+                        <li><a href="@conferences.controllers.routes.Persons.create()">Ajouter une orateur</a></li>
+                    </ul>
                 </li>
-                <li @if(section == "create"){class="active"}><a href="@conferences.controllers.routes.Conferences.create()">Ajouter<span class="hidden-sm"> une conférence</span></a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li class="big dropdown">

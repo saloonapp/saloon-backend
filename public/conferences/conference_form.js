@@ -7,16 +7,20 @@
     var form = Config.Form.Conference;
     if(form.exists()) {
         form.$siteUrl.on('change', function () {
-            var url = $(this).val();
-            if (Utils.isUrl(url)) {
-                Config.Api.getMetas(url).then(function (metas) {
-                    formValue(form.$name, Utils.getSafe(metas, 'title.0'));
-                    formValue(form.$description, Utils.getSafe(metas, 'description.0'));
-                    formValue(form.$twitterAccount, (Utils.getSafe(metas, 'all.twitter:site.0') || '').replace('@', ''));
-                    setTags(metas, 'keywords', form.$tags);
-                });
-            }
+            update(form, $(this));
         });
+        update(form, form.$siteUrl); // run on page load
+    }
+    function update(form, $field){
+        var url = $field.val();
+        if (Utils.isUrl(url)) {
+            Config.Api.getMetas(url).then(function (metas) {
+                formValue(form.$name, Utils.getSafe(metas, 'title.0'));
+                formValue(form.$description, Utils.getSafe(metas, 'description.0'));
+                formValue(form.$twitterAccount, (Utils.getSafe(metas, 'all.twitter:site.0') || '').replace('@', ''));
+                setTags(metas, 'keywords', form.$tags);
+            });
+        }
     }
     function formValue(elt, value){
         if(elt.val() === '' && value){
@@ -77,6 +81,7 @@
         form.$dates.on('change', function(){
             showPotentialDuplicatesIfSome();
         });
+        showPotentialDuplicatesIfSome(); // run on page load
     }
     function showPotentialDuplicatesIfSome(){
         Config.Api.getDuplicatedConferences().then(function(conferences){
@@ -105,4 +110,10 @@
             });
         }
     }
+})();
+
+// run on page load
+(function(){
+    var form = Config.Form.Conference;
+    //form.$siteUrl.trigger('change');
 })();

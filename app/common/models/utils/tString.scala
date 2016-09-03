@@ -48,6 +48,10 @@ trait tStringHelper[T <: tString] {
     override def bind(key: String, value: String): Either[String, T] = build(value)
     override def unbind(key: String, value: T): String = value.unwrap
   }
+  implicit val pathBinderOpt = new PathBindable[Option[T]] {
+    override def bind(key: String, value: String): Either[String, Option[T]] = build(value).right.map(Some(_))
+    override def unbind(key: String, value: Option[T]): String = value.map(_.unwrap).getOrElse("")
+  }
   implicit val queryBinder = new QueryStringBindable[T] {
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, T]] = params.get(key).map { values =>
       values match {

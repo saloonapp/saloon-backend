@@ -1,12 +1,13 @@
 @import common.views.App
+@import common.views.Helpers.LocalDateImprovements
 @import conferences.models.Conference
 @import org.joda.time.LocalDate
 @import common.views.html.format._
 @import common.views.html.partials._
 @import conferences.views.html.partials._
-@(context: String, conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
-@conferences.views.html.main(if(context == "future"){"Conférences à venir"} else if(context == "past") {"Conférences passées"} else {"Recherche de conférences"}){
-    @header(context+"-list")
+@(conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main("Conférences tech à venir"){
+    @header("conferences")
 
     <div class="container" role="main">
         <div class="row">
@@ -78,46 +79,58 @@
 
         <div class="row">
             <div class="col-md-12">
-                <p class="text-center" style="margin: 20px;">
-                    Suivez <a href="https://twitter.com/conferencelist_" target="_blank">@@conferencelist_</a> ou abonnez-vous à notre <a href="#newsletter">newsletter</a> pour être tenu au courant des prochaines conférences ;)
-                </p>
-                @if(conferenceList.length == 0) {
-                    <p class="not-found">
-                    @context match {
-                        case "future" => {Aucune conférence à venir...}
-                        case "past" => {Aucune conférence passée...}
-                        case "search" => {Aucune conférence pour cette recherche...}
-                        case _ => {Aucune conférence...}
-                    }
+                @if(conferenceList.length > 0) {
+                    <p class="text-center" style="margin: 20px;">
+                        Suivez <a href="https://twitter.com/conferencelist_" target="_blank">@@conferencelist_</a> ou abonnez-vous à notre <a href="#newsletter">newsletter</a> pour être tenu au courant des prochaines conférences ;)
                     </p>
-                }
-                @conferenceList.map { conference =>
-                    <div class="conference-item">
-                        <a href="@conferences.controllers.routes.Conferences.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
-                                @conference.cfp.filter(_.end.isAfter(new LocalDate())).map { cfp => <a href="@cfp.siteUrl" target="_blank" class="label label-success">Appel à orateurs</a> }
-                                @conference.tickets.filter(_ => conference.end.isAfter(new LocalDate())).map { tickets => <a href="@tickets.siteUrl" target="_blank" class="label label-success">Tickets</a> }
-                                <a href="@conference.siteUrl" target="_blank">Site officiel</a>
-                                @conference.videosUrl.map{url => - <a href="@url" target="_blank">Vidéos</a>}
-                                @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => - <a href="https://twitter.com/@account" target="_blank">@@@account</a> }
-                                @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag => - <a href="https://twitter.com/search?q=%23@hashtag" target="_blank">#@hashtag</a> }
-                                @addToCalendar(conference){- <a href="#">Ajouter à l'agenda</a>}
-                            </div>
-                            <div class="col-md-4">
-                                <h4>@period(Some(conference.start), Some(conference.end))</h4>
-                                @conference.location.map { location =>
-                                    <div>
-                                        <strong>@location.name</strong>,
-                                        @location.locality
-                                        <a href="@location.url" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
-                                    </div>
-                                }
+                    @conferenceList.map { conference =>
+                        <div class="conference-item">
+                            <a href="@conferences.controllers.routes.Conferences.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">@conference.logo.map{url => <img src="@url" style="max-height: 50px;">} @conference.name <span class="anchor"><i class="fa fa-link"></i></span></a></h2>
+                                    @conference.cfp.filter(_.end.isTodayOrAfter).map { cfp => <a href="@cfp.siteUrl" target="_blank" class="label label-success">Appel à orateurs</a> }
+                                    @conference.tickets.filter(_ => conference.end.isTodayOrAfter).map { tickets => <a href="@tickets.siteUrl" target="_blank" class="label label-success">Tickets</a> }
+                                    <a href="@conference.siteUrl" target="_blank">Site officiel</a>
+                                    @conference.videosUrl.map{url => - <a href="@url" target="_blank">Vidéos</a>}
+                                    @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => - <a href="https://twitter.com/@account" target="_blank">@@@account</a> }
+                                    @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag => - <a href="https://twitter.com/search?q=%23@hashtag" target="_blank">#@hashtag</a> }
+                                    @addToCalendar(conference){- <a href="#">Ajouter à l'agenda</a>}
+                                </div>
+                                <div class="col-md-4">
+                                    <h4>@period(Some(conference.start), Some(conference.end))</h4>
+                                    @conference.location.map { location =>
+                                        <div>
+                                            <strong>@location.name</strong>,
+                                            @location.locality
+                                            <a href="@location.url" target="_blank"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
+                                        </div>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
+                } else {
+                    <h3 style="text-align: center; margin-top: 40px;">
+                        @req.getQueryString("q").filter(_ != "").map { q =>
+                            Aucune conférence correspondant à "@q" :(
+                        }.getOrElse {
+                            Aucune conférence à venir pour le moment :(
+                        }
+                    </h3>
                 }
+                <form method="GET" action="@conferences.controllers.routes.Conferences.create()" class="form-inline" style="text-align: center; margin: 40px 0px 20px;">
+                    <p>Une conférence n'est pas présente ? Ajoute-la simplement :</p>
+                    <div class="form-group">
+                        <label class="sr-only" for="name">Nom</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Nom">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="siteUrl">Site officiel</label>
+                        <input type="text" class="form-control" id="siteUrl" name="siteUrl" placeholder="Site officiel">
+                    </div>
+                    <button type="submit" class="btn btn-default">Ajouter</button>
+                </form>
                 <div id="newsletter">
                     @subscribe()
                 </div>

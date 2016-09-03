@@ -8,47 +8,53 @@ GET       /sample                                                               
 POST      /contact                                                                          common.controllers.Application.sendContactEmail
 
 # Conference list
-GET       /conferences/about                                                                conferences.controllers.Application.about
-GET       /conferences                                                                      conferences.controllers.Conferences.list
+GET       /conferences                                                                      conferences.controllers.Conferences.search(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 GET       /conferences/calendar                                                             conferences.controllers.Conferences.calendar
-GET       /conferences/search                                                               conferences.controllers.Conferences.search(section: Option[String] ?= None, q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
 GET       /conferences/history                                                              conferences.controllers.Conferences.fullHistory
+GET       /conferences/cfps                                                                 conferences.controllers.Conferences.cfpSearch(q: Option[String] ?= None)
 GET       /conferences/create                                                               conferences.controllers.Conferences.create
 POST      /conferences/create                                                               conferences.controllers.Conferences.doCreate
-GET       /conferences/:id                                                                  conferences.controllers.Conferences.detail(id: ConferenceId)
-GET       /conferences/:id/detail/:created                                                  conferences.controllers.Conferences.detailVersion(id: ConferenceId, created: Long)
-GET       /conferences/:id/edit                                                             conferences.controllers.Conferences.edit(id: ConferenceId)
-GET       /conferences/:id/edit/:created                                                    conferences.controllers.Conferences.editVersion(id: ConferenceId, created: Long)
-POST      /conferences/:id/edit                                                             conferences.controllers.Conferences.doEdit(id: ConferenceId)
-GET       /conferences/:id/history                                                          conferences.controllers.Conferences.history(id: ConferenceId)
-POST      /conferences/:id/delete/:created                                                  conferences.controllers.Conferences.doDelete(id: ConferenceId, created: Long)
-#POST      /conferences/:id/deleteAll                                                        conferences.controllers.Application.doDeleteAll(id: ConferenceId)
+GET       /conferences/$id<.{36}>                                                           conferences.controllers.Conferences.detail(id: ConferenceId)
+GET       /conferences/$id<.{36}>/detail/:created                                           conferences.controllers.Conferences.detailVersion(id: ConferenceId, created: Long)
+GET       /conferences/$id<.{36}>/edit                                                      conferences.controllers.Conferences.edit(id: ConferenceId)
+GET       /conferences/$id<.{36}>/edit/:created                                             conferences.controllers.Conferences.editVersion(id: ConferenceId, created: Long)
+POST      /conferences/$id<.{36}>/edit                                                      conferences.controllers.Conferences.doEdit(id: ConferenceId)
+GET       /conferences/$id<.{36}>/history                                                   conferences.controllers.Conferences.history(id: ConferenceId)
+POST      /conferences/$id<.{36}>/delete/:created                                           conferences.controllers.Conferences.doDelete(id: ConferenceId, created: Long)
+#POST      /conferences/$id<.{36}>/deleteAll                                                 conferences.controllers.Application.doDeleteAll(id: ConferenceId)
 
-GET       /conferences/:cId/presentations/create                                            conferences.controllers.Presentations.create(cId: ConferenceId)
-POST      /conferences/:cId/presentations/create                                            conferences.controllers.Presentations.doCreate(cId: ConferenceId)
-GET       /conferences/:cId/presentations/:pId                                              conferences.controllers.Presentations.detail(cId: ConferenceId, pId: PresentationId)
-GET       /conferences/:cId/presentations/:pId/detail/:created                              conferences.controllers.Presentations.detailVersion(cId: ConferenceId, pId: PresentationId, created: Long)
-GET       /conferences/:cId/presentations/:pId/edit                                         conferences.controllers.Presentations.edit(cId: ConferenceId, pId: PresentationId)
-GET       /conferences/:cId/presentations/:pId/edit/:created                                conferences.controllers.Presentations.editVersion(cId: ConferenceId, pId: PresentationId, created: Long)
-POST      /conferences/:cId/presentations/:pId/edit                                         conferences.controllers.Presentations.doEdit(cId: ConferenceId, pId: PresentationId)
+GET       /conferences/presentations                                                        conferences.controllers.Presentations.search(q: Option[String] ?= None)
+GET       /conferences/presentations/create                                                 conferences.controllers.Presentations.create(cId: Option[ConferenceId] = None)
+POST      /conferences/presentations/create                                                 conferences.controllers.Presentations.doCreate(cId: Option[ConferenceId] = None)
+GET       /conferences/$cId<.{36}>/presentations/create                                     conferences.controllers.Presentations.create(cId: Option[ConferenceId])
+POST      /conferences/$cId<.{36}>/presentations/create                                     conferences.controllers.Presentations.doCreate(cId: Option[ConferenceId])
+GET       /conferences/$cId<.{36}>/presentations/$pId<.{36}>                                conferences.controllers.Presentations.detail(cId: ConferenceId, pId: PresentationId)
+GET       /conferences/$cId<.{36}>/presentations/$pId<.{36}>/detail/:created                conferences.controllers.Presentations.detailVersion(cId: ConferenceId, pId: PresentationId, created: Long)
+GET       /conferences/$cId<.{36}>/presentations/$pId<.{36}>/edit                           conferences.controllers.Presentations.edit(cId: ConferenceId, pId: PresentationId)
+GET       /conferences/$cId<.{36}>/presentations/$pId<.{36}>/edit/:created                  conferences.controllers.Presentations.editVersion(cId: ConferenceId, pId: PresentationId, created: Long)
+POST      /conferences/$cId<.{36}>/presentations/$pId<.{36}>/edit                           conferences.controllers.Presentations.doEdit(cId: ConferenceId, pId: PresentationId)
 
-GET       /conferences/persons/:pId                                                         conferences.controllers.Persons.detail(pId: PersonId)
+GET       /conferences/persons                                                              conferences.controllers.Persons.search(q: Option[String] ?= None)
+GET       /conferences/persons/create                                                       conferences.controllers.Persons.create
 POST      /conferences/persons/create                                                       conferences.controllers.Persons.doCreate
-GET       /conferences/persons/:pId/edit                                                    conferences.controllers.Persons.edit(pId: PersonId)
-POST      /conferences/persons/:pId/edit                                                    conferences.controllers.Persons.doEdit(pId: PersonId)
+GET       /conferences/persons/$pId<.{36}>                                                  conferences.controllers.Persons.detail(pId: PersonId)
+GET       /conferences/persons/$pId<.{36}>/edit                                             conferences.controllers.Persons.edit(pId: PersonId)
+POST      /conferences/persons/$pId<.{36}>/edit                                             conferences.controllers.Persons.doEdit(pId: PersonId)
 
-GET       /api/conferences                                                                  conferences.controllers.Api.listConferences
-GET       /api/conferences/search                                                           conferences.controllers.Api.searchConferences(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
-#POST      /api/conferences                                                                  conferences.controllers.Api.createConference
-#PUT       /api/conferences/:cId                                                             conferences.controllers.Api.editConference(cId: ConferenceId)
-GET       /api/conferences/presentations                                                    conferences.controllers.Api.listPresentations
-#GET       /api/conferences/presentations/search                                             conferences.controllers.Api.searchPresentations(q: Option[String] ?= None)
-#POST      /api/conferences/:cId/presentations                                               conferences.controllers.Api.createPresentations(cId: ConferenceId)
-#PUT       /api/conferences/:cId/presentations/:pId                                          conferences.controllers.Api.editConference(cId: ConferenceId, pId: PresentationId)
-GET       /api/conferences/persons                                                          conferences.controllers.Api.listPersons
-#GET       /api/conferences/persons/search                                                   conferences.controllers.Api.searchPersons(q: Option[String] ?= None)
-POST      /api/conferences/persons                                                          conferences.controllers.Api.createPerson
-#PUT       /api/conferences/persons/:pId                                                     conferences.controllers.Api.editPerson(pId: PersonId)
+GET       /conferences/about                                                                conferences.controllers.Application.about
+
+GET       /api/v1/conferences                                                                  conferences.controllers.Api.searchConferences(q: Option[String] ?= None, period: Option[String] ?= None, before: Option[String] ?= None, after: Option[String] ?= None, tags: Option[String] ?= None, cfp: Option[String] ?= None, tickets: Option[String] ?= None, videos: Option[String] ?= None)
+#POST      /api/v1/conferences                                                                  conferences.controllers.Api.createConference
+#PUT       /api/v1/conferences/:cId                                                             conferences.controllers.Api.editConference(cId: ConferenceId)
+GET       /api/v1/conferences/cfps                                                             conferences.controllers.Api.searchCfps(q: Option[String] ?= None)
+GET       /api/v1/conferences/presentations                                                    conferences.controllers.Api.searchPresentations(q: Option[String] ?= None)
+#GET       /api/v1/conferences/presentations/search                                             conferences.controllers.Api.searchPresentations(q: Option[String] ?= None)
+#POST      /api/v1/conferences/:cId/presentations                                               conferences.controllers.Api.createPresentations(cId: ConferenceId)
+#PUT       /api/v1/conferences/:cId/presentations/:pId                                          conferences.controllers.Api.editConference(cId: ConferenceId, pId: PresentationId)
+GET       /api/v1/conferences/persons                                                          conferences.controllers.Api.searchPersons(q: Option[String] ?= None)
+#GET       /api/v1/conferences/persons/search                                                   conferences.controllers.Api.searchPersons(q: Option[String] ?= None)
+POST      /api/v1/conferences/persons                                                          conferences.controllers.Api.createPerson
+#PUT       /api/v1/conferences/persons/:pId                                                     conferences.controllers.Api.editPerson(pId: PersonId)
 POST      /batch/conferences/scheduler                                                      conferences.controllers.Batch.scheduler
 GET       /batch/conferences/testSendNewsletter                                             conferences.controllers.Batch.testSendNewsletter(email: Option[String], date: Option[String])
 GET       /batch/conferences/testSendDailyTwitts                                            conferences.controllers.Batch.testSendDailyTwitts(date: Option[String])

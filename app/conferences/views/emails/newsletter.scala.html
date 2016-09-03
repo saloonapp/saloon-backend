@@ -1,3 +1,4 @@
+@import common.views.Helpers.LocalDateImprovements
 @import conferences.models.Conference
 @import org.joda.time.LocalDate
 @import common.views.html.format._
@@ -23,7 +24,7 @@
             @date(conf.start) : <b><a href="@baseUrl@conferences.controllers.routes.Conferences.detail(conf.id)">@conf.name</a></b>
             <ul>
                 @if(data.getOrElse("cfp", false)){
-                    @conf.cfp.filter(_.end.isAfter(new LocalDate())).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @date(cfp.end))</li> }
+                    @conf.cfp.filter(_.end.isTodayOrAfter).map{ cfp => <li>Ouverture du <a href="@cfp.siteUrl">CFP</a> (fin le @date(cfp.end))</li> }
                 }
                 @if(data.getOrElse("videos", false)){
                     @conf.videosUrl.map{ url => <li>Publication des <a href="@url">vidéos</a></li> }

@@ -1,0 +1,88 @@
+@import conferences.models.Conference
+@import org.joda.time.{Days, LocalDate}
+@import common.views.html.format._
+@import conferences.views.html.partials._
+@(conferenceList: List[Conference])(implicit lang: Lang, flash: Flash, req: RequestHeader)
+@conferences.views.html.main("Appels à orateurs"){
+    @header("cfps")
+
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+            @helper.form(action=conferences.controllers.routes.Conferences.cfpSearch()){
+                <div class="row">
+                    <div class="col-md-offset-1 col-md-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <input type="search" class="form-control" id="q" name="q" value="@req.getQueryString("q")" placeholder="Recherche...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-block btn-default">Chercher</button>
+                    </div>
+                </div>
+            }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @if(conferenceList.length > 0){
+                    @conferenceList.map { conference =>
+                        <div class="cfp-item">
+                            <a href="@conferences.controllers.routes.Conferences.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">
+                                        @conference.logo.map{url => <img src="@url" style="max-height: 50px;">}
+                                        @conference.name
+                                        @conference.location.flatMap(_.locality).map { loc => (@loc) }
+                                        <span class="anchor"><i class="fa fa-link"></i></span>
+                                    </a></h2>
+                                    @conference.cfp.map { cfp =>
+                                        @defining(Days.daysBetween(new LocalDate(), cfp.end).getDays()) { days =>
+                                            <h4>Fin de l'<a href="@cfp.siteUrl" target="_blank">appel à orateur</a> le : <b>@date(cfp.end)</b> (@days jour@if(days > 1){s} restant)</h4>
+                                        }
+                                    }
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="@conference.siteUrl" target="_blank">Site officiel</a><br>
+                                    @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => <a href="https://twitter.com/@account" target="_blank">@@@account</a><br> }
+                                    @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag => <a href="https://twitter.com/search?q=%23@hashtag" target="_blank">#@hashtag</a><br> }
+                                    @addToCalendar(conference){<a href="#">Ajouter à l'agenda</a><br>}
+                                </div>
+                            </div>
+                        </div>
+                    }
+                } else {
+                    <h3 style="text-align: center; margin-top: 40px;">
+                        @req.getQueryString("q").filter(_ != "").map { q =>
+                            Aucun appel à orateur en cours correspondant à "@q" :(
+                        }.getOrElse {
+                            Aucun appel à orateur en cours pour le moment :(
+                        }
+                    </h3>
+                }
+                <form method="GET" action="@conferences.controllers.routes.Conferences.create()" class="form-inline" style="text-align: center; margin: 40px 0px 20px;">
+                    <p>Un appel à orateur n'est pas présent ? Ajoute-le simplement :</p>
+                    <div class="form-group">
+                        <label class="sr-only" for="name">Nom</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Nom">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="siteUrl">Site de la conférence</label>
+                        <input type="text" class="form-control" id="siteUrl" name="siteUrl" placeholder="Site de la conférence">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="cfp.siteUrl">Site de l'appel à orateurs</label>
+                        <input type="text" class="form-control" id="cfp.siteUrl" name="cfp.siteUrl" placeholder="Site de l'appel à orateurs">
+                    </div>
+                    <button type="submit" class="btn btn-default">Ajouter</button>
+                </form>
+                <div id="newsletter">
+                    @subscribe()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @footer()
+}

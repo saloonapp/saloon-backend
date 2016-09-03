@@ -19,11 +19,11 @@
                     De plus, si des fonctionnalités essentielles vous manquent <a href="https://github.com/saloonapp/saloon-backend/issues" target="_blank">n'hésitez pas à les suggérer</a> ;)
                 </p>
                 <p>
-                    Enfin, le service se veut ouvert et propose une API pour accéder à ses données :
+                    Enfin, le service se veut ouvert et propose une API pour accéder à ses données. Le fonctionnement de l'API est très proche de celui du site, voici les différents endpoints :
                     <ul>
-                        <li>Liste des conférences : <a href="@conferences.controllers.routes.Api.listConferences()" target="_blank"><code>/api/conferences</code></a></li>
+                        <li>Liste des conférences à venir : <a href="@conferences.controllers.routes.Api.searchConferences()" target="_blank"><code>/api/v1/conferences</code></a></li>
                         <li>
-                            Recherche : <a href="@conferences.controllers.routes.Api.searchConferences(q = Some("scala"))" target="_blank"><code>/api/conferences/search?q=scala</code></a> (similaire à la recherche sur le site)
+                            Recherche dans toutes les conférences : <a href="@conferences.controllers.routes.Api.searchConferences(q = Some("scala"))" target="_blank"><code>/api/v1/conferences?q=scala</code></a> (similaire à la recherche avancée)
                             <ul>
                                 <li><code>q</code> : texte recherché dans l'ensemble des champs</li>
                                 <li><code>after</code> (format: @Config.Application.dateFormat) : conférences qui démarrent après la date indiquée</li>
@@ -32,6 +32,24 @@
                                 <li><code>cfp</code> (valeur: <code>on</code>) : filtre les conférences ayant un appel à orateur d'ouvert</li>
                                 <li><code>tickets</code> (valeur: <code>on</code>) : filtre les conférences ayant la billetterie ouverte</li>
                                 <li><code>videos</code> (valeur: <code>on</code>) : filtre les conférences ayant publié les vidéos des présentations</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Liste des appels à orateurs ouverts : <a href="@conferences.controllers.routes.Api.searchCfps()" target="_blank"><code>/api/v1/conferences/cfps</code></a>
+                            <ul>
+                                <li><code>q</code> : texte recherché dans l'ensemble des champs</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Liste des présentations : <a href="@conferences.controllers.routes.Api.searchPresentations()" target="_blank"><code>/api/v1/conferences/presentations</code></a>
+                            <ul>
+                                <li><code>q</code> : texte recherché dans l'ensemble des champs</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Liste des orateurs : <a href="@conferences.controllers.routes.Api.searchPersons()" target="_blank"><code>/api/v1/conferences/persons</code></a>
+                            <ul>
+                                <li><code>q</code> : texte recherché dans l'ensemble des champs</li>
                             </ul>
                         </li>
                     </ul>

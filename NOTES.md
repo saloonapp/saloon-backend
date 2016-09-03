@@ -4,11 +4,11 @@
 
 ### Conférence Liste
 
-- fait 4 menus en haut : Conferences, Appels à orateurs, Présentations, Orateurs
+- format DateTime as ISO string...
+- add lang for presentations
 - s'inspirer de https://calltospeakers.com/
     - recherche : fulltext, country
     - proposer en bas de la recherche d'être notifié si qqch est ajouté et qui correspond à la recherche
-    - en bas de page, proposer un formulaire d'ajout rapide (qui redirige sur le forumlaire normal éventuellement...)
 - import depuis eventbrite, lanyrd, allconferencealert... pour la création d'une conf (avec talks & speakers)
 - improve project quality
     - add types for Config
