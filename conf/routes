@@ -384,6 +384,10 @@ GET       /tools/api/devoxx/event                                               
 GET       /tools/api/devoxx/speakers                                                        tools.api.devoxx.DevoxxApi.getSpeakers(url: String)
 GET       /tools/api/devoxx/sessions                                                        tools.api.devoxx.DevoxxApi.getSessions(url: String)
 GET       /tools/api/devoxx/event/full                                                      tools.api.devoxx.DevoxxApi.getEventFull(url: String)
+GET       /tools/api/devfesttoulouse/speakers                                               tools.api.devfesttoulouse.DevFestApi.getSpeakers(url: String)
+GET       /tools/api/devfesttoulouse/sessions                                               tools.api.devfesttoulouse.DevFestApi.getSessions(url: String)
+GET       /tools/api/devfesttoulouse/schedules                                              tools.api.devfesttoulouse.DevFestApi.getSchedules(url: String)
+GET       /tools/api/devfesttoulouse/event                                                  tools.api.devfesttoulouse.DevFestApi.getEvent(url: String)
 
 # Technical endpoints
 GET       /status                                                                           common.controllers.Application.status
