@@ -11,7 +11,7 @@ import scala.util.Failure
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, JsArray, Json}
 
 /*
  * This service can connect to Devoxx cfp and load events

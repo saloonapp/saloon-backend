@@ -30,7 +30,7 @@
                         <div class="cfp-item">
                             <a href="@conferences.controllers.routes.Conferences.edit(conference.id)" class="close"><i class="fa fa-pencil"></i></a>
                             <div class="row">
-                                <div class="col-md-8">
+                                <div class="col-md-9">
                                     <h2><a href="@conferences.controllers.routes.Conferences.detail(conference.id)">
                                         @conference.logo.map{url => <img src="@url" style="max-height: 50px;">}
                                         @conference.name
@@ -43,7 +43,7 @@
                                         }
                                     }
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <a href="@conference.siteUrl" target="_blank">Site officiel</a><br>
                                     @conference.social.flatMap(_.twitter.flatMap(_.account)).map { account => <a href="https://twitter.com/@account" target="_blank">@@@account</a><br> }
                                     @conference.social.flatMap(_.twitter.flatMap(_.hashtag)).map { hashtag => <a href="https://twitter.com/search?q=%23@hashtag" target="_blank">#@hashtag</a><br> }

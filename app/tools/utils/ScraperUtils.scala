@@ -44,7 +44,7 @@ object ScraperUtils {
    * Date functions
    */
   def parseDate(date: String, pattern: String = "MMM dd, yyyy", locale: Locale = Locale.ENGLISH): Option[DateTime] =
-    if (date.isEmpty()) {
+    if (date.isEmpty) {
       None
     } else {
       Some(DateTime.parse(monthReplace(date), DateTimeFormat.forPattern(pattern).withLocale(locale)))

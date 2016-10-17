@@ -32,7 +32,7 @@ object DevoxxEvent {
         speaker.company.getOrElse(""))
     }
     val gExponent = List()
-    val gSessions = sessions.map { session =>
+    val gSessions = sessions.flatMap { session =>
       session.talk.map { talk =>
         GenericSession(
           Source(talk.id, sourceName, session.sourceUrl.get),
@@ -56,13 +56,13 @@ object DevoxxEvent {
           Some(session.fromTimeMillis),
           Some(session.toTimeMillis))
       })
-    }.flatten
+    }
     val exponentTeam = Map[String, List[String]]()
-    val sessionSpeakers = sessions.map { session =>
+    val sessionSpeakers = sessions.flatMap { session =>
       session.talk.map { talk =>
         (talk.id, talk.speakers.map(_.link.href.split("/speakers/")(1)))
       }
-    }.flatten.toMap
+    }.toMap
 
     GenericEvent(
       List(Source(event.eventCode, sourceName, event.sourceUrl.get)),
@@ -70,8 +70,8 @@ object DevoxxEvent {
       event.label,
       GenericEventInfo(
         "", // logo
-        Some(gSessions.map(_.start).flatten.minBy(_.getMillis())),
-        Some(gSessions.map(_.end).flatten.maxBy(_.getMillis())),
+        Some(gSessions.flatMap(_.start).minBy(_.getMillis())),
+        Some(gSessions.flatMap(_.end).maxBy(_.getMillis())),
         "", // decription
         "", // decriptionHTML
         None, // venue
