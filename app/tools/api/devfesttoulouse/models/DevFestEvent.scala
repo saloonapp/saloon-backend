@@ -49,7 +49,7 @@ object DevFestEvent {
         description = Jsoup.parse(session.description).text(),
         descriptionHTML = session.description,
         format = "",
-        theme = session.tags.flatMap(_.headOption).getOrElse("break"),
+        theme = session.tags.flatMap(_.headOption).getOrElse(""),
         place = session.track.map(_.title).orElse(sessionRoom.get(session.id)).getOrElse(""),
         start = sessionSlot.get(session.id).map(_._1),
         end = sessionSlot.get(session.id).map(_._2))
