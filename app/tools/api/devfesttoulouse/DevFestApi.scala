@@ -2,7 +2,7 @@ package tools.api.devfesttoulouse
 
 import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.{Action, Controller}
-import tools.api.devfesttoulouse.models.{DevFestEvent, DevFestSchedule, DevFestSession, DevFestSpeaker}
+import tools.api.devfesttoulouse.models._
 import tools.utils.ScraperUtils
 
 import scala.concurrent.Future
@@ -34,6 +34,15 @@ object DevFestApi extends Controller {
     }
   }
 
+  def getExponents(conferenceUrl: String) = Action.async {
+    fetchExponents(conferenceUrl).map {
+      _ match {
+        case Success(value) => Ok(Json.toJson(value))
+        case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
+      }
+    }
+  }
+
   def getSchedules(conferenceUrl: String) = Action.async {
     fetchSchedules(conferenceUrl).map {
       _ match {
@@ -47,13 +56,15 @@ object DevFestApi extends Controller {
     for {
       speakersTry <- fetchSpeakers(conferenceUrl)
       sessionsTry <- fetchSessions(conferenceUrl)
+      exponentsTry <- fetchExponents(conferenceUrl)
       schedulesTry <- fetchSchedules(conferenceUrl)
     } yield {
       val res = for {
         speakers <- speakersTry
         sessions <- sessionsTry
+        exponents <- exponentsTry
         schedules <- schedulesTry
-      } yield  DevFestEvent.toGenericEvent(conferenceUrl, speakers, sessions, schedules)
+      } yield  DevFestEvent.toGenericEvent(conferenceUrl, speakers, sessions, schedules, exponents)
       res match {
         case Success(value) => Ok(Json.toJson(value))
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -74,6 +85,13 @@ object DevFestApi extends Controller {
     val sessionsUrl = DevFestUrl.sessions(conferenceUrl)
     ScraperUtils.fetchJson(sessionsUrl, useCache).map { res =>
       res.map { json => json.as[JsObject].values.flatMap(_.asOpt[DevFestSession]).map(_.copy(sourceUrl = Some(sessionsUrl))).toList }
+    }
+  }
+
+  def fetchExponents(conferenceUrl: String): Future[Try[List[PartnerLevel]]] = {
+    val exponentsUrl = DevFestUrl.exponents(conferenceUrl)
+    ScraperUtils.fetchJson(exponentsUrl, useCache).map { res =>
+      res.map { json => json.as[List[PartnerLevel]].map(p => p.copy(logos = p.logos.map(l => l.copy(logoUrl = l.logoUrl.replace("..", conferenceUrl), sourceUrl = Some(exponentsUrl))))) }
     }
   }
 

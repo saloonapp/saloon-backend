@@ -386,6 +386,7 @@ GET       /tools/api/devoxx/sessions                                            
 GET       /tools/api/devoxx/event/full                                                      tools.api.devoxx.DevoxxApi.getEventFull(url: String)
 GET       /tools/api/devfesttoulouse/speakers                                               tools.api.devfesttoulouse.DevFestApi.getSpeakers(url: String)
 GET       /tools/api/devfesttoulouse/sessions                                               tools.api.devfesttoulouse.DevFestApi.getSessions(url: String)
+GET       /tools/api/devfesttoulouse/exponents                                              tools.api.devfesttoulouse.DevFestApi.getExponents(url: String)
 GET       /tools/api/devfesttoulouse/schedules                                              tools.api.devfesttoulouse.DevFestApi.getSchedules(url: String)
 GET       /tools/api/devfesttoulouse/event                                                  tools.api.devfesttoulouse.DevFestApi.getEvent(url: String)
 

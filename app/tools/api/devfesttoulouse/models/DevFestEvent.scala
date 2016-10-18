@@ -9,7 +9,7 @@ import org.jsoup.Jsoup
 import tools.api.devfesttoulouse.DevFestUrl
 
 object DevFestEvent {
-  def toGenericEvent(conferenceUrl: String, speakers: List[DevFestSpeaker], sessions: List[DevFestSession], schedules: List[DevFestSchedule]): GenericEvent = {
+  def toGenericEvent(conferenceUrl: String, speakers: List[DevFestSpeaker], sessions: List[DevFestSession], schedules: List[DevFestSchedule], exponents: List[PartnerLevel]): GenericEvent = {
     val sourceName = "DevFestToulouseApi"
     val year = "2016"
     val gAttendees: List[GenericAttendee] = speakers.map { speaker =>
@@ -35,6 +35,13 @@ object DevFestEvent {
         }
       }
     }.toMap
+    val sessionRoom: Map[Int, String] = schedules.flatMap { schedule =>
+      schedule.timeslots.flatMap { slot =>
+        slot.sessions.flatten.zipWithIndex.map { case (session, index) =>
+          (session, schedule.tracks(index).title)
+        }
+      }
+    }.toMap
     val gSessions: List[GenericSession] = sessions.map { session =>
       GenericSession(
         source = Source(session.id.toString, sourceName, session.sourceUrl.get),
@@ -42,12 +49,23 @@ object DevFestEvent {
         description = Jsoup.parse(session.description).text(),
         descriptionHTML = session.description,
         format = "",
-        theme = session.tags.flatMap(_.headOption).getOrElse(""),
-        place = session.track.map(_.title).getOrElse(""),
+        theme = session.tags.flatMap(_.headOption).getOrElse("break"),
+        place = session.track.map(_.title).orElse(sessionRoom.get(session.id)).getOrElse(""),
         start = sessionSlot.get(session.id).map(_._1),
         end = sessionSlot.get(session.id).map(_._2))
     }
-    val gExponent: List[GenericExponent] = List()
+    val gExponent: List[GenericExponent] = exponents.flatMap { exponentLevel =>
+      exponentLevel.logos.map { exponent =>
+        GenericExponent(
+          source = Source(exponent.name, sourceName, exponent.sourceUrl.get),
+          name = exponent.name,
+          description = exponentLevel.title,
+          descriptionHTML = exponentLevel.title,
+          logo = exponent.logoUrl,
+          website = exponent.url,
+          place = "")
+      }
+    }
     val exponentTeam: Map[String, List[String]] = Map()
     val sessionSpeakers: Map[String, List[String]] = sessions.map { session =>
       (session.id.toString, session.speakers.map(_.map(_.toString)).getOrElse(List()))
