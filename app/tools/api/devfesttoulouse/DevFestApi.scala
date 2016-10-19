@@ -10,14 +10,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
 object DevFestApi extends Controller {
-  val useCache = false
   // https://devfesttoulouse.fr/data/speakers.json
   // https://devfesttoulouse.fr/data/sessions.json
   // https://devfesttoulouse.fr/data/schedule.json
   // https://devfesttoulouse.fr/data/partners.json
 
-  def getSpeakers(conferenceUrl: String) = Action.async {
-    fetchSpeakers(conferenceUrl).map {
+  def getSpeakers(conferenceUrl: String) = Action.async { implicit req =>
+    val useCache = req.queryString.get("useCache").contains(Seq("true"))
+    fetchSpeakers(conferenceUrl, useCache).map {
       _ match {
         case Success(value) => Ok(Json.toJson(value))
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -25,8 +25,9 @@ object DevFestApi extends Controller {
     }
   }
 
-  def getSessions(conferenceUrl: String) = Action.async {
-    fetchSessions(conferenceUrl).map {
+  def getSessions(conferenceUrl: String) = Action.async { implicit req =>
+    val useCache = req.queryString.get("useCache").contains(Seq("true"))
+    fetchSessions(conferenceUrl, useCache).map {
       _ match {
         case Success(value) => Ok(Json.toJson(value))
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -34,8 +35,9 @@ object DevFestApi extends Controller {
     }
   }
 
-  def getExponents(conferenceUrl: String) = Action.async {
-    fetchExponents(conferenceUrl).map {
+  def getExponents(conferenceUrl: String) = Action.async { implicit req =>
+    val useCache = req.queryString.get("useCache").contains(Seq("true"))
+    fetchExponents(conferenceUrl, useCache).map {
       _ match {
         case Success(value) => Ok(Json.toJson(value))
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -43,8 +45,9 @@ object DevFestApi extends Controller {
     }
   }
 
-  def getSchedules(conferenceUrl: String) = Action.async {
-    fetchSchedules(conferenceUrl).map {
+  def getSchedules(conferenceUrl: String) = Action.async { implicit req =>
+    val useCache = req.queryString.get("useCache").contains(Seq("true"))
+    fetchSchedules(conferenceUrl, useCache).map {
       _ match {
         case Success(value) => Ok(Json.toJson(value))
         case Failure(e) => Ok(Json.obj("error" -> e.getMessage()))
@@ -52,12 +55,13 @@ object DevFestApi extends Controller {
     }
   }
 
-  def getEvent(conferenceUrl: String) = Action.async {
+  def getEvent(conferenceUrl: String) = Action.async { implicit req =>
+    val useCache = req.queryString.get("useCache").contains(Seq("true"))
     for {
-      speakersTry <- fetchSpeakers(conferenceUrl)
-      sessionsTry <- fetchSessions(conferenceUrl)
-      exponentsTry <- fetchExponents(conferenceUrl)
-      schedulesTry <- fetchSchedules(conferenceUrl)
+      speakersTry <- fetchSpeakers(conferenceUrl, useCache)
+      sessionsTry <- fetchSessions(conferenceUrl, useCache)
+      exponentsTry <- fetchExponents(conferenceUrl, useCache)
+      schedulesTry <- fetchSchedules(conferenceUrl, useCache)
     } yield {
       val res = for {
         speakers <- speakersTry
@@ -74,28 +78,28 @@ object DevFestApi extends Controller {
 
   /* basic methods */
 
-  def fetchSpeakers(conferenceUrl: String): Future[Try[List[DevFestSpeaker]]] = {
+  def fetchSpeakers(conferenceUrl: String, useCache: Boolean): Future[Try[List[DevFestSpeaker]]] = {
     val speakersUrl = DevFestUrl.speakers(conferenceUrl)
     ScraperUtils.fetchJson(speakersUrl, useCache).map { res =>
       res.map { json => json.as[JsObject].values.flatMap(_.asOpt[DevFestSpeaker]).map(_.copy(sourceUrl = Some(speakersUrl))).toList }
     }
   }
 
-  def fetchSessions(conferenceUrl: String): Future[Try[List[DevFestSession]]] = {
+  def fetchSessions(conferenceUrl: String, useCache: Boolean): Future[Try[List[DevFestSession]]] = {
     val sessionsUrl = DevFestUrl.sessions(conferenceUrl)
     ScraperUtils.fetchJson(sessionsUrl, useCache).map { res =>
       res.map { json => json.as[JsObject].values.flatMap(_.asOpt[DevFestSession]).map(_.copy(sourceUrl = Some(sessionsUrl))).toList }
     }
   }
 
-  def fetchExponents(conferenceUrl: String): Future[Try[List[PartnerLevel]]] = {
+  def fetchExponents(conferenceUrl: String, useCache: Boolean): Future[Try[List[PartnerLevel]]] = {
     val exponentsUrl = DevFestUrl.exponents(conferenceUrl)
     ScraperUtils.fetchJson(exponentsUrl, useCache).map { res =>
       res.map { json => json.as[List[PartnerLevel]].map(p => p.copy(logos = p.logos.map(l => l.copy(logoUrl = l.logoUrl.replace("..", conferenceUrl), sourceUrl = Some(exponentsUrl))))) }
     }
   }
 
-  def fetchSchedules(conferenceUrl: String): Future[Try[List[DevFestSchedule]]] = {
+  def fetchSchedules(conferenceUrl: String, useCache: Boolean): Future[Try[List[DevFestSchedule]]] = {
     val schedulesUrl = DevFestUrl.schedules(conferenceUrl)
     ScraperUtils.fetchJson(schedulesUrl, useCache).map { res =>
       res.map { json => json.as[List[DevFestSchedule]].map(_.copy(sourceUrl = Some(schedulesUrl))) }

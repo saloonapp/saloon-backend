@@ -64,14 +64,14 @@ object ScraperUtils {
    */
   def fetch(url: String, useCache: Boolean): Future[Try[String]] = {
     if (useCache) {
-      WebpageCacheRepository.get(url).flatMap { resOpt =>
+      WebpageCacheRepository.get(url, if(useCache) new DateTime().plusHours(-1) else new DateTime()).flatMap { resOpt =>
         resOpt.map { res => Future(Success(res.page)) }.getOrElse(wsFetch(url))
       }
     } else {
       wsFetch(url)
     }
   }
-  def fetchJson(url: String, useCache: Boolean = true): Future[Try[JsValue]] = fetch(url, useCache).map(_.flatMap(r => Try(Json.parse(r))))
+  def fetchJson(url: String, useCache: Boolean): Future[Try[JsValue]] = fetch(url, useCache).map(_.flatMap(r => Try(Json.parse(r))))
   private def wsFetch(url: String): Future[Try[String]] = {
     play.Logger.info("WS " + url)
     WS.url(url).get().map { response =>
