@@ -379,6 +379,11 @@ GET       /tools/scrapers/rivieradev/speakers                                   
 GET       /tools/scrapers/rivieradev/speakers/:id                                           tools.scrapers.rivieradev.RivieraDevScraper.speaker(year: Int, id: Int)
 GET       /tools/scrapers/rivieradev/sponsors                                               tools.scrapers.rivieradev.RivieraDevScraper.sponsors(year: Int)
 GET       /tools/scrapers/rivieradev/event                                                  tools.scrapers.rivieradev.RivieraDevScraper.event(year: Int)
+GET       /tools/scrapers/blendwebmix/session                                               tools.scrapers.blendwebmix.BlendWebMixScraper.session(url: String)
+GET       /tools/scrapers/blendwebmix/sessions                                              tools.scrapers.blendwebmix.BlendWebMixScraper.sessions
+GET       /tools/scrapers/blendwebmix/speaker                                               tools.scrapers.blendwebmix.BlendWebMixScraper.speaker(url: String)
+GET       /tools/scrapers/blendwebmix/speakers                                              tools.scrapers.blendwebmix.BlendWebMixScraper.speakers
+GET       /tools/scrapers/blendwebmix/event                                                 tools.scrapers.blendwebmix.BlendWebMixScraper.event
 GET       /tools/api/devoxx/events                                                          tools.api.devoxx.DevoxxApi.getEventLinks(url: String)
 GET       /tools/api/devoxx/event                                                           tools.api.devoxx.DevoxxApi.getEvent(url: String)
 GET       /tools/api/devoxx/speakers                                                        tools.api.devoxx.DevoxxApi.getSpeakers(url: String)

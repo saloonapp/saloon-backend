@@ -11,6 +11,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 // scrape = fetch -> parse -> format
 object ScraperUtils {
+  // like Future.sequence but sequentially...
+  def sequence[A, B](list: List[A], f: A => Future[B]): Future[List[B]] = {
+    def internal(src: List[A], dest: List[B], f: A => Future[B]): Future[List[B]] = {
+      src match {
+        case head::tail => f(head).flatMap(res => internal(tail, res :: dest, f))
+        case _ => Future.successful(dest.reverse)
+      }
+    }
+    internal(list, List(), f)
+  }
+
   def fetchHtml(url: String): Future[String] =
     fetch(_.body)(url)
 
