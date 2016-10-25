@@ -1,5 +1,7 @@
 package tools.scrapers.blendwebmix.models
 
+import java.util.Locale
+
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.libs.json.Json
@@ -33,7 +35,7 @@ object BlendWebMixSession {
       (elt.select("i").attr("class"), elt.text(), elt.select("a").map(_.attr("href")))
     }.toList
     val day = metas.find(_._1 == "icon-calendar3").map(_._2).getOrElse("")
-    val date = Try(DateTime.parse(day, DateTimeFormat.forPattern("dd MMMM yyyy"))).toOption
+    val date = Try(DateTime.parse(day, DateTimeFormat.forPattern("dd MMMM yyyy").withLocale(Locale.FRANCE))).toOption
     val hours = metas.find(_._1 == "icon-time").map(_._2).getOrElse("")
     val hourRegex = "Horaire: ([0-9]{2})h([0-9]{2}) / ([0-9]{2})h([0-9]{2})".r
     val (start, end) = hours match {
