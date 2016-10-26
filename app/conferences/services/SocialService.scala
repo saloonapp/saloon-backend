@@ -80,7 +80,7 @@ object SocialService {
             val twittsToSend = List(TwittFactory.genericRemindToAddSlides(conf)) // global twitt to remind to add slides
             val repliesToUsers = slidesLinks.map { case (_, tweet) => (TwittFactory.replySuggestToAddSlides(conf, tweet), tweet) } // reply to suggest adding slides to conference list
             val usersToAddInList = users.map(user => (TwitterSrv.listName(conf.name), user)) // add twitting users to conference list
-            val twittsToFav = links.map(_._2) // favorite twitts with links
+            val twittsToFav = List() // disabled links.map(_._2) // favorite twitts with links
             (twittsToSend, repliesToUsers, usersToAddInList, twittsToFav)
           }
         }).map { results =>

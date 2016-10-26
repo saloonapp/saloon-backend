@@ -32,9 +32,9 @@ var Config = (function(){
             for(var i in opts){
                 params.push(i+'='+opts[i]);
             }
-            return '/api/conferences/search?'+params.join('&');
+            return '/api/v1/conferences?'+params.join('&');
         },
-        createPerson: function(){ return '/api/conferences/persons'; }
+        createPerson: function(){ return '/api/v1/conferences/persons'; }
     };
     var Api = {
         getMetas: function(url){
