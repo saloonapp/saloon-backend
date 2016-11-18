@@ -77,10 +77,10 @@ object SocialService {
         Future.sequence(conferencesWithTwitts.map { case (conf: Conference, _, users: List[SimpleUser], links: List[(String, SimpleTweet)]) =>
           val linksWithoutRT = links.filter(!_._2.isRetweet())
           Utils.asyncFilter[(String, SimpleTweet)](linksWithoutRT, link => UrlSrv.getService(link._1).map(_.category == Category.Slides)).map { slidesLinks =>
-            val twittsToSend = List(TwittFactory.genericRemindToAddSlides(conf)) // global twitt to remind to add slides
-            val repliesToUsers = slidesLinks.map { case (_, tweet) => (TwittFactory.replySuggestToAddSlides(conf, tweet), tweet) } // reply to suggest adding slides to conference list
-            val usersToAddInList = users.map(user => (TwitterSrv.listName(conf.name), user)) // add twitting users to conference list
-            val twittsToFav = List() // disabled links.map(_._2) // favorite twitts with links
+            val twittsToSend     = List(TwittFactory.genericRemindToAddSlides(conf)) // global twitt to remind to add slides
+            val repliesToUsers   = List() // disabled : slidesLinks.map { case (_, tweet) => (TwittFactory.replySuggestToAddSlides(conf, tweet), tweet) } // reply to suggest adding slides to conference list
+            val usersToAddInList = List() // disabled : users.map(user => (TwitterSrv.listName(conf.name), user)) // add twitting users to conference list
+            val twittsToFav      = List() // disabled : links.map(_._2) // favorite twitts with links
             (twittsToSend, repliesToUsers, usersToAddInList, twittsToFav)
           }
         }).map { results =>
