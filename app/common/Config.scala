@@ -10,7 +10,7 @@ object Config {
   object Application {
     val env: String = configuration.getString("application.env").get // possible values : 'local', 'dev', 'prod'
     val isProd: Boolean = env == "prod"
-    val baseUrl: String = "http://www.saloonapp.co"
+    val baseUrl: String = "http://saloonapp.herokuapp.com"
     val googlePlayUrl: WebsiteUrl = WebsiteUrl("https://play.google.com/store/apps/details?id=co.saloonapp.mobile")
     val iTunesUrl: WebsiteUrl = WebsiteUrl("https://itunes.apple.com/fr/app/saloon-events/id999897097")
     val timeFormat = "HH:mm"
